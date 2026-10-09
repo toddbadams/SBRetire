@@ -70,17 +70,20 @@ day, in which the viewer was printed to PDF with headless Edge before and after 
 ## 10. Tasks
 
 ### F-023.1 Black-and-white print tokens
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: —
 
 `theme.css` `@media print` token set (§2 #3).
 
 **Acceptance criteria**
-- [ ] Every `--color-*` and `--chart-*` token of the light theme is redefined in the print block with chroma 0 (alpha allowed), for both `:root` and `:root[data-theme]` — `test_print_tokens_are_neutral`
-- [ ] In the print tokens, text on every background is at least 4.5:1 and every mark on the background at least 3:1 — `test_print_contrast_meets_aa`
+- [x] Every `--color-*` and `--chart-*` token of the light theme is redefined in the print block with chroma 0 (alpha allowed), for both `:root` and `:root[data-theme]` — `test_print_tokens_are_neutral`
+- [x] In the print tokens, text on every background is at least 4.5:1 and every mark on the background at least 3:1 — `test_print_contrast_meets_aa`
+
+**Notes**
+- 2026-10-09 `theme.css` `@media print` block on `:root, :root[data-theme]`: all 33 colour/chart tokens as oklch greys (chroma 0; fan bands opaque; hover keeps alpha), the values tried in the investigation's experiment PDF. Screen dark rules are screen-only, so print always starts from light. Tests `test_print_tokens_are_neutral`, `test_print_contrast_meets_aa`.
 
 ### F-023.2 Print layout
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-023.1
 
 `viewer.css` print rules, `beforeprint`/`afterprint` keep-together wrapping, print-only year tables (§2 #4–#7).
