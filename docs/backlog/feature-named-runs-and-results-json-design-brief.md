@@ -177,7 +177,7 @@ results.json, viewer data), CHANGELOG. The Claude Design hand-off document moved
 - [ ] README documents `--name`, `--overwrite`, `results.json`, `index.json` and `runs.js` — `check: grep -n "\-\-overwrite" README.md`
 
 ### B-021.1 Reserved Windows run names and overwrite timing
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-021.2
 
 From the F-021.2 verify notes: reject Windows reserved device names (CON, PRN, AUX, NUL, COM1–COM9, LPT1–LPT9, any

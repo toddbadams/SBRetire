@@ -138,3 +138,28 @@ def test_runs_index_and_runs_js(tmp_path: Path) -> None:
     index = json.loads((runs_dir / "index.json").read_text(encoding="utf-8"))
     assert {entry["name"] for entry in index["runs"]} == {"beta", "gamma"}
     assert set(_runs_js_payload(runs_dir / "runs.js")["runs"]) == {"beta", "gamma"}
+
+
+def test_run_name_rejects_windows_reserved_names() -> None:
+    for reserved in ("CON", "nul", "Com1", "lpt9", "PRN", "aux"):
+        problem = check_run_name(reserved)
+        assert problem and "reserved" in problem, reserved
+    for fine in ("console", "com10", "nul-run", "auxiliary"):
+        assert check_run_name(fine) is None, fine
+
+
+def test_cli_overwrite_keeps_old_run_when_computation_fails(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    out = tmp_path / "out"
+    assert _run(_config(tmp_path), out, "--name", "base") == 0
+    run_dir = out / "runs" / "base"
+    before = {path.name: path.read_bytes() for path in run_dir.iterdir()}
+
+    def broken(*args: object, **kwargs: object) -> None:
+        raise RuntimeError("simulated failure during the computation")
+
+    monkeypatch.setattr("sbretire.__main__.draw_random_inputs", broken)
+    with pytest.raises(RuntimeError):
+        _run(_config(tmp_path), out, "--name", "base", "--overwrite")
+    assert {path.name: path.read_bytes() for path in run_dir.iterdir()} == before
