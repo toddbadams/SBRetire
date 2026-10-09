@@ -140,7 +140,7 @@ No randomness: nothing to pin.
 
 ## 9. Surprises
 
-_(filled during implementation)_
+- 2026-10-09 — Timing at SPEC scale (100k paths × 1,200 months, constant cash flows): 1.65 s per run on the dev box. A budget bisection of ~20 iterations × 3 confidence levels is ~100 s — acceptable for V1, but F-010 should reuse precomputed draws and may cache cash-flow arrays per month.
 
 ## 10. Tasks
 
@@ -163,21 +163,24 @@ array functions, float64, no loops. Tests in `tests/unit/test_portfolio.py`.
 - 2026-10-09: `src/sbretire/portfolio.py` — `monthly_return_rate` (rejects r_a ≤ −1), `apply_month` returning `MonthResult(balance, depleted, shortfall)`; three vectorised `np.where` lines, no loops. Tests: `tests/unit/test_portfolio.py` (11 incl. a hypothesis property test and a negative-return depletion case).
 
 ### F-002.2 Path loop with deaths, depletion, censoring and observer
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-002.1
 
 `src/sbretire/simulation.py`: `HouseholdCashFlows`, `MonthObserver`, `PathOutcomes`, `simulate_paths` (brief §2
 #4–#9, §5). Test doubles in `tests/unit/cash_flow_doubles.py`; tests in `tests/unit/test_simulation.py`.
 
 **Acceptance criteria**
-- [ ] A path records Depletion at the first month it cannot fund spending, with that month's shortfall — `test_simulate_paths_records_first_depletion_month`
-- [ ] After Depletion the balance stays 0 and the path receives no further cash flows or returns — `test_simulate_paths_no_compounding_after_depletion`
-- [ ] Zero spending never depletes, whatever the balance and income — `test_simulate_paths_zero_spending_never_depletes`
-- [ ] No starting capital and no income depletes in month 0 when positive spending is due — `test_simulate_paths_no_capital_no_income_depletes_immediately`
-- [ ] A person is alive in month d−1 and dead from month d; when both are dead the path ends before that month's cash flows and `household_end_month` is recorded — `test_simulate_paths_deaths_take_effect_at_month_start`
-- [ ] Paths with someone alive at the horizon are `censored`; others are not — `test_simulate_paths_flags_censored_paths`
-- [ ] The observer is called once per simulated month with closing balance, alive and active masks — `test_simulate_paths_calls_observer_each_month`
-- [ ] Simulating many heterogeneous paths together gives exactly the same outcomes as simulating each alone — `test_simulate_paths_vectorised_matches_single_paths`
+- [x] A path records Depletion at the first month it cannot fund spending, with that month's shortfall — `test_simulate_paths_records_first_depletion_month`
+- [x] After Depletion the balance stays 0 and the path receives no further cash flows or returns — `test_simulate_paths_no_compounding_after_depletion`
+- [x] Zero spending never depletes, whatever the balance and income — `test_simulate_paths_zero_spending_never_depletes`
+- [x] No starting capital and no income depletes in month 0 when positive spending is due — `test_simulate_paths_no_capital_no_income_depletes_immediately`
+- [x] A person is alive in month d−1 and dead from month d; when both are dead the path ends before that month's cash flows and `household_end_month` is recorded — `test_simulate_paths_deaths_take_effect_at_month_start`
+- [x] Paths with someone alive at the horizon are `censored`; others are not — `test_simulate_paths_flags_censored_paths`
+- [x] The observer is called once per simulated month with closing balance, alive and active masks — `test_simulate_paths_calls_observer_each_month`
+- [x] Simulating many heterogeneous paths together gives exactly the same outcomes as simulating each alone — `test_simulate_paths_vectorised_matches_single_paths`
+
+**Notes**
+- 2026-10-09: `src/sbretire/simulation.py` — `HouseholdCashFlows` / `MonthObserver` protocols, frozen `PathOutcomes`, `simulate_paths` (input validation; `alive = month < death_month`; only active paths change; loop stops when none active). Test doubles `tests/unit/cash_flow_doubles.py`; tests `tests/unit/test_simulation.py` (14, incl. early stop and input validation).
 
 ### F-002.3 Closed-form known-answer checks
 - **Status**: To Do
