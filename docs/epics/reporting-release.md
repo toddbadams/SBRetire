@@ -7,7 +7,7 @@ depends_on: [simulation-engine, analysis-optimization, foundations, household-ca
 milestones:
   - { id: F-012, title: Annual Results CSV, status: done }
   - { id: F-013, title: Sustainability and Lifestyle CSVs and End-to-End CLI, status: done }
-  - { id: F-014, title: "V1 Release: README, Acceptance and Reproducibility Sweep", status: proposed }
+  - { id: F-014, title: "V1 Release: README, Acceptance and Reproducibility Sweep", status: in-progress }
   - { id: F-015, title: Deterministic Preview Run, status: done }
 created: 2026-10-09
 updated:
