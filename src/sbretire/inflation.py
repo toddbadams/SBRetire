@@ -1,8 +1,8 @@
 """Inflation: the price-index seam (SPEC §6).
 
-Income and spending read the cumulative **Inflation Index** I_t through :class:`PriceIndex`, one month at a time,
-so the stochastic process (F-006) can be swapped in without changing them. I = 1 in the As-Of month, which is
-what makes "today's GBP" amounts nominal: nominal = today's amount × I_t.
+Income and spending read the cumulative **Inflation Index** I_t through :class:`PriceIndex`, one month at a
+time, so the stochastic process (F-006) can be swapped in without changing them. I = 1 in the As-Of month,
+which is what makes "today's GBP" amounts nominal: nominal = today's amount × I_t.
 """
 
 from __future__ import annotations
