@@ -2,7 +2,7 @@
 id: F-006
 type: feature
 parent: stochastic-inputs
-status: in-progress
+status: done
 complexity: 6
 created: 2026-10-09
 updated: 2026-10-09
@@ -151,14 +151,14 @@ inflation:
 ## 9. Surprises
 
 - 2026-10-09 — F-006.2: an AR(1) path with σ = 0 decays towards μ, so its sample mean is not μ and the fit cannot "recover μ and φ exactly" from it; the AC now uses a hand-computed short series (exact) plus a long seeded synthetic series (tolerance).
-- 2026-10-09 — F-006.2: the brief's σ formula said n − 2 (n = observations) while its pinned value 0.015365 used m − 2 over the m = n − 1 residuals (34 for 1989–2025). The pinned value and example config were right; formula text, code and the hand-computed test now all use m − 2.
+- 2026-10-09 — F-006.2: the brief's σ formula said n − 2 (n = observations) while its pinned value 0.015365 used m − 2 over the m = n − 1 residuals (m = 36, so 34 degrees of freedom for 1989–2025). The pinned value and example config were right; formula text, code and the hand-computed test now all use m − 2.
 - 2026-10-09 — F-006.2: `inflation.data_file` resolves to an absolute path and leaked into the Config Hash; it is now excluded like `mortality.data_file` (configuration §7 amended).
-- 2026-10-09 — F-006.4: removing `AnnualStepPriceIndex` retired three F-015 tests (two index tests, one preview index test); each was replaced by a monthly-compounding equivalent rather than deleted.
+- 2026-10-09 — F-006.4: removing `AnnualStepPriceIndex` retired three F-015 tests (two index tests, one preview index test); they were replaced by monthly-compounding equivalents (the two index tests by one combined test) rather than deleted.
 
 ## 10. Tasks
 
 ### F-006.1 CPI data build and provenance
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: —
 
 `scripts/build_uk_cpi.py`: read `data/raw/ons_cpi_d7g7.csv` (annual `"YYYY","r.r"` rows), write
@@ -173,9 +173,13 @@ inflation:
 
 **Notes**
 - 2026-10-09 Added `scripts/build_uk_cpi.py` (CDID checks, contiguous years, Decimal % → decimal, D7BT cross-check ≤ 0.0015 else fail); built and committed `data/uk_cpi.csv` (1989–2025) and `data/uk_cpi.meta.json`; `data/README.md` rows + Inflation section. Tests `tests/tooling/test_build_uk_cpi.py` (4, incl. sidecar provenance).
+- 2026-10-09 /verify PASS:
+  - CPI build tests: 4 passed; rebuild into scratch byte-identical (csv 31ac38d3…d281, meta b9622a79…d294)
+  - independent parse: 1989–2025 contiguous, every rate = raw/100 (0 mismatches); max gap to D7BT index change 0.00105 (2024) ≤ 0.0015
+  - raw sha256s match and appear in data/README.md and meta.json; series, dates and build command documented; ruff + mypy clean
 
 ### F-006.2 AR(1) calibration and inflation config schema
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-006.1
 
 `fit_ar1_lognormal` and `load_cpi_series` in `src/sbretire/inflation.py`; `scripts/calibrate_inflation.py`; new
@@ -190,9 +194,14 @@ inflation:
 
 **Notes**
 - 2026-10-09 `InflationAssumptions` reshaped (`source_period` YYYY-YYYY with `first_year`/`last_year`, `data_file` resolved like mortality and checked by `--require-data-files`, `model: ar1_lognormal`, `parameter_units: log_annual`, `log_mean`, `ar1_coefficient` ∈ (−1, 1), `innovation_sd` ≥ 0, `initial_rate` > −1; old keys now unknown). `Ar1LognormalParams`, `fit_ar1_lognormal`, `load_cpi_series`, `calibrate_inflation` in `src/sbretire/inflation.py`; `scripts/calibrate_inflation.py` prints the block (incl. relative `data_file`). Config Hash excludes `inflation.data_file`. Migrated example config, fixture, preview (constant median rate e^μ − 1, still annual step until F-006.4) and tests (config fields/loading, preview, mortality CLI). Personal `config/model.yaml` migrated locally (git-ignored) and validates. Tests: `tests/unit/test_inflation_calibration.py` (4), `tests/tooling/test_calibrate_inflation.py` (1), +14 config cases.
+- 2026-10-09 /verify PASS:
+  - calibration/config tests: 112 passed
+  - independent numpy fit: μ 0.027742, φ 0.617897, σ 0.015365 (m = 36) — identical to the code; example config and calibrate script block match (incl. data_file)
+  - schema probes: φ ±1, σ < 0, initial ≤ −1, wrong model/units, reversed period and leftover annual_mean all rejected at their locations; zero inflation accepted; data_file resolved relative to config
+  - config hash equal across directories, changes with log_mean; no old keys in source/config/fixtures; ruff + mypy clean
 
 ### F-006.3 AR(1) draws and StochasticPriceIndex
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-006.2
 
 `draw_annual_rates` and `StochasticPriceIndex` (§2 #2, #7, #9, #10) in `src/sbretire/inflation.py`. Tests in
@@ -209,9 +218,14 @@ inflation:
 
 **Notes**
 - 2026-10-09 Added `draw_annual_rates` (one `standard_normal((n_years, n_paths))` call, year recursion vectorised over paths, returns π = expm1(x)) and `StochasticPriceIndex` (validates 2-D/finite/> −1; stores log growth + cumulative log level; `level` interpolates within the year; `constant`, `n_years`) in `src/sbretire/inflation.py`. Tests `tests/unit/test_inflation_process.py` (7; seed-42 known answers computed independently from `SeedSequence(42, spawn_key=(1,))`; 100k × 60 statistics run in < 1 s, so not marked slow).
+- 2026-10-09 /verify PASS:
+  - process tests: 9 passed; seed-42 literals pinned and recomputed independently (diff 0.0); RandomStreams inflation normals identical
+  - index probe: level(t) = ∏(1+r[:k])·(1+r[k])^(w/12) for t 0..60 (worst rel err 4.4e-16); level(61) raises
+  - own statistics (seed 99, 50k × 80, μ .02 φ .3 σ .02): mean 0.020011, φ 0.30031, σ 0.019991, stationary SD 0.02098 vs 0.02097
+  - one standard_normal((n_years, n_paths)) call; no global np.random; 100k×60 test 0.15 s; ruff + mypy clean
 
 ### F-006.4 Wiring, preview, metadata and docs
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-006.3
 
 `build_price_index(scenario, rng, n_paths)`; preview uses `StochasticPriceIndex.constant(…, e^μ − 1)`; remove
@@ -229,6 +243,12 @@ data/README, THESAURUS; decisions already recorded with the brief.
 
 **Notes**
 - 2026-10-09 Added `build_price_index`, `inflation_data_file_record` (sidecar edition/retrieved), `inflation_coverage_issues`, `cpi_sidecar_path` to `src/sbretire/inflation.py`; removed `AnnualStepPriceIndex` (its two tests in `tests/unit/test_inflation.py` replaced by `test_constant_index_compounds_monthly_not_in_annual_steps`); preview uses `StochasticPriceIndex.constant` at e^μ − 1 (`test_run_preview_deflates_with_price_index` replaced by `test_preview_uses_monthly_compounding`); CLI `_check_data_files` reports CPI and mortality issues together. New tests: 2 in `tests/unit/test_inflation_process.py`, 1 in `tests/unit/test_cli.py`, `tests/integration/test_inflation_end_to_end.py`. README inflation section + preview line; THESAURUS Inflation Index. Example and personal configs validate with `--require-data-files`.
+- 2026-10-09 /verify PASS:
+  - wiring/preview/CLI/integration tests: 45 passed
+  - independent §17.2 check: spending 3000·1.03^(t/12) for t 0..36; linked pension 1000·1.03^(t/12) at t 3 and 20; unlinked annuity flat 500
+  - preview on example: header median 2.81 %, Dec-2026 index 1.004627 = (e^0.0277)^(2/12); AnnualStepPriceIndex gone from source/tests
+  - inflation record: role, CSV sha256, 'D7G7 (released 2026-09-16)', '2026-10-09'; validate exits 0 / 2 (source_period gap, bad row) with ASCII stderr
+  - README inflation section, preview bullet, THESAURUS and Surprises accurate; full gate 299 passed
 
 ## 11. Open Questions
 
