@@ -31,3 +31,12 @@ class FlatPriceIndex:
 
     def level(self, month: int) -> FloatArray:
         return self._ones
+
+
+class AnnualStepPriceIndex:
+    def __init__(self, n_paths: int, annual_rate: float) -> None:
+        self.n_paths = n_paths
+        self.annual_rate = annual_rate
+
+    def level(self, month: int) -> FloatArray:
+        raise NotImplementedError

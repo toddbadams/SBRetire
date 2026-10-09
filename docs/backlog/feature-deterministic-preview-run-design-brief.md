@@ -2,7 +2,7 @@
 id: F-015
 type: feature
 parent: reporting-release
-status: planned
+status: in-progress
 complexity: 4
 created: 2026-10-09
 updated: 2026-10-09
@@ -136,7 +136,7 @@ _(filled during implementation)_
 Task format and statuses: `docs/project-sdlc.md` §2. Definition of done: `docs/project-sdlc.md` §4.
 
 ### F-015.1 Annual-step index and death months from ages
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: —
 
 `AnnualStepPriceIndex` in `src/sbretire/inflation.py` (brief §2 #2) and `death_months_from_ages` in
