@@ -6,7 +6,7 @@ spec_sections: [§4.2, §6, §8]
 depends_on: [simulation-engine]
 milestones:
   - { id: F-003, title: Income Streams, status: done }
-  - { id: F-004, title: Spending with Survivor Budget Factor, status: briefed }
+  - { id: F-004, title: Spending with Survivor Budget Factor, status: in-progress }
 created: 2026-10-09
 updated:
   - 2026-10-09: created by /decompose-spec

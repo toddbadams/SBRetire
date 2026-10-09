@@ -9,7 +9,7 @@ Features in build order. Status: `proposed` → `briefed` → `in-progress` → 
 | F-001 | Scenario Config Loading and Validation | [foundations](foundations.md) | — | done |
 | F-002 | Deterministic Portfolio Engine (Walking Skeleton) | [simulation-engine](simulation-engine.md) | F-001 | done |
 | F-003 | Income Streams | [household-cash-flows](household-cash-flows.md) | F-002 | done |
-| F-004 | Spending with Survivor Budget Factor | [household-cash-flows](household-cash-flows.md) | F-002 | briefed |
+| F-004 | Spending with Survivor Budget Factor | [household-cash-flows](household-cash-flows.md) | F-002 | in-progress |
 | F-015 | Deterministic Preview Run | [reporting-release](reporting-release.md) | F-003, F-004 | proposed |
 | F-005 | Random Streams and Run Metadata | [foundations](foundations.md) | F-001 | proposed |
 | F-006 | Stochastic Inflation Process and CPI Calibration | [stochastic-inputs](stochastic-inputs.md) | F-003, F-004, F-005 | proposed |

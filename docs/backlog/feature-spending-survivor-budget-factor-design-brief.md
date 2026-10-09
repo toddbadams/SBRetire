@@ -2,7 +2,7 @@
 id: F-004
 type: feature
 parent: household-cash-flows
-status: planned
+status: in-progress
 complexity: 3
 created: 2026-10-09
 updated: 2026-10-09
@@ -98,7 +98,7 @@ _(filled during implementation)_
 Task format and statuses: `docs/project-sdlc.md` §2. Definition of done: `docs/project-sdlc.md` §4.
 
 ### F-004.1 ScenarioSpending
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: —
 
 `src/sbretire/spending.py`: `ScenarioSpending(scenario, price_index).spending(month, alive)` per brief §2 #1–#4,
