@@ -27,7 +27,12 @@ from sbretire.optimization import (
     required_returns,
 )
 from sbretire.randomness import ResolvedSeed
-from sbretire.reporting import annual_results, write_annual_results_csv
+from sbretire.reporting import (
+    annual_results,
+    write_annual_results_csv,
+    write_lifestyle_results_csv,
+    write_sustainability_results_csv,
+)
 
 from scenario_helpers import set_at
 
@@ -269,3 +274,72 @@ def test_cli_run_writes_annual_results(
     )
     expected = write_annual_results_csv(annual_results(scenario, inputs), tmp_path / "expected.csv")
     assert annual.read_bytes() == expected.read_bytes()
+
+
+OUTPUT_FILES = (
+    "annual_results.csv",
+    "sustainability_results.csv",
+    "lifestyle_results.csv",
+    "run_metadata.json",
+)
+
+
+def test_cli_run_writes_all_outputs(
+    tmp_path: Path, valid_raw: dict[str, Any], capsys: pytest.CaptureFixture[str]
+) -> None:
+    raw = set_at(_absolute_data(valid_raw), "model.confidence_levels", [0.5, 0.9])
+    config = _write(tmp_path / "all", raw)
+    out_dir = tmp_path / "out"
+    assert main(["run", "--config", str(config), "--output-dir", str(out_dir)]) == 0
+    out = capsys.readouterr().out
+    for name in OUTPUT_FILES:
+        assert (out_dir / name).is_file(), name
+        assert f"Wrote {out_dir / name}" in out
+
+    scenario = load_scenario(config).scenario
+    inputs = draw_random_inputs(
+        scenario, load_mortality_table(scenario.mortality.data_file), ResolvedSeed(7, "config")
+    )
+    targets = [0.5, 0.9]
+    expected = tmp_path / "expected"
+    write_lifestyle_results_csv(
+        maximum_sustainable_budgets(path_budget_thresholds(scenario, inputs), targets),
+        expected / "lifestyle.csv",
+    )
+    write_sustainability_results_csv(
+        run_monte_carlo(scenario, inputs).metrics,
+        scenario.portfolio.annual_return,
+        required_returns(path_return_thresholds(scenario, inputs), targets),
+        expected / "sustainability.csv",
+    )
+    assert (out_dir / "lifestyle_results.csv").read_bytes() == (expected / "lifestyle.csv").read_bytes()
+    assert (out_dir / "sustainability_results.csv").read_bytes() == (
+        expected / "sustainability.csv"
+    ).read_bytes()
+
+
+def test_cli_run_csvs_reproducible(tmp_path: Path, valid_raw: dict[str, Any]) -> None:
+    raw = set_at(_absolute_data(valid_raw), "model.confidence_levels", [0.9])
+    config = _write(tmp_path / "repro", raw)
+    for name in ("first", "second"):
+        assert main(["run", "--config", str(config), "--output-dir", str(tmp_path / name)]) == 0
+    for name in OUTPUT_FILES[:3]:
+        assert (tmp_path / "first" / name).read_bytes() == (tmp_path / "second" / name).read_bytes(), name
+    first = json.loads((tmp_path / "first" / "run_metadata.json").read_text(encoding="utf-8"))
+    second = json.loads((tmp_path / "second" / "run_metadata.json").read_text(encoding="utf-8"))
+    first.pop("created_at")
+    second.pop("created_at")
+    assert first == second
+
+
+def test_cli_run_unwritable_output_dir(
+    tmp_path: Path, valid_raw: dict[str, Any], capsys: pytest.CaptureFixture[str]
+) -> None:
+    blocker = tmp_path / "not_a_directory"
+    blocker.write_text("x", encoding="utf-8")
+    config = _write(tmp_path / "blocked", set_at(_absolute_data(valid_raw), "model.confidence_levels", [0.9]))
+    target = blocker / "out"
+    assert main(["run", "--config", str(config), "--output-dir", str(target)]) == 1
+    captured = capsys.readouterr()
+    assert "cannot write" in captured.err and str(target) in captured.err
+    assert "Wrote" not in captured.out
