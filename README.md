@@ -149,7 +149,8 @@ uv run sbretire run --config config/model.yaml --output-dir output
 `run` validates the scenario, loads and checks both data files, then simulates `model.simulation_count` futures
 (Paths) of your household from the as-of month. Each future has its own random death months for both people and its
 own inflation path, while your fixed `portfolio.annual_return` stays the same. Every random draw comes from
-`model.random_seed`, so the same seed, config and data give identical results. The run prints a summary and writes
+`model.random_seed`, so the same seed, config and data give identical results. The run first prints an **Inputs**
+block listing every setting it is about to use (also written to `output/inputs.csv`), then a summary, and writes
 `output/run_metadata.json`. A full run of 100,000 paths takes about 1½ minutes.
 
 ### Reading the results
@@ -244,6 +245,7 @@ component never shifts the other's draws. Rules in `docs/decisions/simulation-co
 
 | File | Contents |
 |---|---|
+| `inputs.csv` | Every setting the run used, one row per config field, plus the seed used and ages at the as-of date |
 | `annual_results.csv` | Year-by-year survival, spending, income and portfolio percentiles (SPEC §12) |
 | `sustainability_results.csv` | Success probabilities and required-return search per budget/target (SPEC §13) |
 | `lifestyle_results.csv` | Maximum sustainable budget per confidence level (SPEC §14) |
@@ -255,6 +257,20 @@ All CSVs share the same format:
 - `.` as the decimal point, and no thousands separators or currency symbols.
 - Money in GBP to 2 dp. Probabilities as decimals from 0 to 1, to 6 dp.
 - An empty cell where a statistic has nothing to average over.
+
+### `inputs.csv`
+
+One row per field of your validated config (every person and income stream included, unset optional fields
+empty), then a few derived rows: the seed actually used, each person's age at the as-of date and the last simulated
+month. Data files appear by file name only.
+
+| Column | Unit | Meaning |
+|---|---|---|
+| `section` | text | `model`, `portfolio`, `budget`, `inflation`, `mortality`, `people`, `income` or `derived` |
+| `item` | text | Where the value lives in the config, e.g. `budget.monthly_amount_today` or `people[person_1].date_of_birth` |
+| `label` | text | Plain-English name |
+| `value` | as written | The exact value used (numbers unrounded, dates ISO, lists separated by `;`) |
+| `unit` | text | The value's unit; for `run.seed`, whether the seed came from the config or was generated |
 
 ### `annual_results.csv`
 

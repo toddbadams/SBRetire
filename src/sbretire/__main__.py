@@ -18,6 +18,7 @@ from pathlib import Path
 from sbretire import __version__
 from sbretire.config import LoadedScenario, Scenario, ScenarioError, ScenarioIssue, load_scenario
 from sbretire.inflation import inflation_coverage_issues, inflation_data_file_record
+from sbretire.inputs_report import format_inputs, scenario_input_rows, write_inputs_csv
 from sbretire.metadata import build_run_metadata, write_run_metadata
 from sbretire.metrics import SuccessMetrics
 from sbretire.monte_carlo import draw_random_inputs, run_monte_carlo
@@ -166,7 +167,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 
 def _run(args: argparse.Namespace, loaded: LoadedScenario) -> int:
-    """The full model: summary and tables on stdout; the three CSVs and run_metadata.json in --output-dir.
+    """The full model: inputs, summary and tables on stdout; the CSVs and run_metadata.json in --output-dir.
 
     Every figure comes from one set of random inputs (Common Random Numbers). The output directory is checked
     before the (long) computation so an unwritable path fails fast with exit 1.
@@ -181,6 +182,9 @@ def _run(args: argparse.Namespace, loaded: LoadedScenario) -> int:
     targets = scenario.model.confidence_levels
     table = load_mortality_table(scenario.mortality.data_file, scenario.mortality)
     seed = resolve_seed(scenario.model.random_seed)
+    input_rows = scenario_input_rows(scenario, seed)
+    print(format_inputs(args.config, input_rows))
+    print()
     inputs = draw_random_inputs(scenario, table, seed)
     result = run_monte_carlo(scenario, inputs)
     budgets = maximum_sustainable_budgets(path_budget_thresholds(scenario, inputs), targets)
@@ -189,6 +193,7 @@ def _run(args: argparse.Namespace, loaded: LoadedScenario) -> int:
     records = [table.data_file_record(), inflation_data_file_record(scenario.inflation)]
     try:
         written = [
+            write_inputs_csv(input_rows, output_dir / "inputs.csv"),
             write_annual_results_csv(annual, output_dir / "annual_results.csv"),
             write_sustainability_results_csv(
                 result.metrics,

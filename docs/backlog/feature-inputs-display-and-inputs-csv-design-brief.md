@@ -103,15 +103,18 @@ def format_inputs(config: Path, rows: Sequence[InputRow]) -> str: ...
 - 2026-10-09 Added `src/sbretire/inputs_report.py`: `InputRow`, `INPUT_COLUMNS`, `scenario_input_rows` (one row per validated field via the pydantic models; a label table keyed section.field raises KeyError for an unlabelled new field), derived rows (seed used, ages, last month), `write_inputs_csv`, `display_value`, `format_inputs` (date/file/month units left off the console only). Tests `tests/unit/test_inputs_report.py` (5).
 
 ### F-017.2 run prints the inputs and writes inputs.csv
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-017.1
 
 `_run` prints `format_inputs` before the summary and writes `inputs.csv`; README Outputs documents the file and its
 columns; the README column guard includes it.
 
 **Acceptance criteria**
-- [ ] `sbretire run` prints the Inputs block before the Monte Carlo summary and writes `inputs.csv` byte-equal to `write_inputs_csv` on the same Scenario and seed — `test_cli_run_prints_inputs_and_writes_csv`
-- [ ] README documents `inputs.csv` and every one of its columns — `test_readme_documents_every_output_column`
+- [x] `sbretire run` prints the Inputs block before the Monte Carlo summary and writes `inputs.csv` byte-equal to `write_inputs_csv` on the same Scenario and seed — `test_cli_run_prints_inputs_and_writes_csv`
+- [x] README documents `inputs.csv` and every one of its columns — `test_readme_documents_every_output_column`
+
+**Notes**
+- 2026-10-09 `_run` builds the input rows right after resolving the seed, prints `format_inputs` before the (long) computation and writes `inputs.csv` first among the outputs. README: Running the model mentions the block; Outputs table + `### \` column table. Tests: `test_cli_run_prints_inputs_and_writes_csv`; `inputs.csv` added to `OUTPUT_FILES` (all-outputs and reproducibility tests) and to the README column guard.
 
 ## 11. Open Questions
 
