@@ -110,12 +110,12 @@ def required_returns(search: ReturnSearch, targets: Sequence[float]) -> list[Ret
 
 ## 9. Surprises
 
-_(filled during implementation)_
+- 2026-10-09 — /verify F-011.3 found nearest-rounding in the CLI tables can print a return just below r* (and a budget just above B*), so the printed figure narrowly misses its target; tracked as B-011.1.
 
 ## 10. Tasks
 
 ### F-011.1 Per-path return in the engine
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: —
 
 `annual_return` as scalar or (n_paths,) through `simulate_paths` and `run_monte_carlo` (§2 #6). Tests in
@@ -128,9 +128,14 @@ _(filled during implementation)_
 
 **Notes**
 - 2026-10-09 Added `monthly_return_rates` (scalar → `monthly_return_rate`; (n_paths,) array validated finite, > −1, right shape) in `src/sbretire/portfolio.py`; `apply_month` takes a scalar or per-path rate; `simulate_paths` and `run_monte_carlo(annual_return=...)` accept a per-path return. Tests `tests/unit/test_simulation_per_path_return.py` (7).
+- 2026-10-09 /verify PASS:
+  - per-path return tests: 32 passed (with simulation/portfolio suites)
+  - own probe: 200 paths, random returns −0.2…0.2 — 10 sampled paths match scalar runs exactly (82 distinct depletion months)
+  - monthly_return_rates elementwise exact; bad shapes, NaN, −1, −1.5 rejected; default return unchanged; ruff + mypy clean
+  - observation: scalar NaN reaches only the pre-existing `monthly_return_rate`, but config validation already rejects a NaN `portfolio.annual_return` ('must be greater than -1 (got nan)'), so no change
 
 ### F-011.2 Return thresholds and the required return
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-011.1
 
 `ReturnSearch`, `path_return_thresholds`, `ReturnResult`, `required_returns` in `src/sbretire/optimization.py`
@@ -146,9 +151,14 @@ _(filled during implementation)_
 
 **Notes**
 - 2026-10-09 Added to `src/sbretire/optimization.py`: `RETURN_LOWER`/`RETURN_UPPER` (±50 %), `RETURN_TOLERANCE` (0.0001), `ReturnSearch`, `path_return_thresholds` (bound checks at −50 % and +50 %, then vectorised per-path bisection for paths failing at −50 % and succeeding at +50 %; threshold = feasible upper end; −50 % if Successful there; +inf if not Successful at +50 %), `ReturnResult`, `required_returns` (⌈p·N⌉-th smallest threshold, confirming run; 'no solution within bounds' with the unresolved share at +50 %; '≤ −50 %' not converged). Tests `tests/integration/test_return_search.py` (6; closed form via independent scipy brentq; literal scalar bisection reference). `test_success_is_monotone_in_return` passed already in the red commit — it verifies an existing engine property, as SPEC §13 requires.
+- 2026-10-09 /verify PASS:
+  - return-search tests: 6 passed; brentq closed form and scalar bisection independent of the code
+  - own monotonicity grid (seed 31, 400 paths, 81 returns): 0 reversals, rate non-decreasing 0.005 → 1.0
+  - own closed form (budget 5,000, deaths 42/166 hand-derived): r_closed 3.42156 %, code 3.42407 % (within 0.0001); rate 1 at r*, 0 at r_closed − 0.0001
+  - own scalar bisection: identical r* for targets 0.3 / 0.7 / 0.95; confirming runs, SE, unresolved and iterations (16 = 2 + 14) correct; no-solution and −50 % cases correct; inputs unchanged
 
 ### F-011.3 `sbretire run` shows the required returns
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-011.2
 
 `run` adds a required-return table after the budget table (reusing the same `RandomInputs`); README; decision §2
@@ -161,6 +171,25 @@ recorded with the brief.
 
 **Notes**
 - 2026-10-09 `run` reuses the same `RandomInputs` for `path_return_thresholds` + `required_returns(model.confidence_levels)` at the configured Budget and prints `format_return_table` (target, return/yr, success ± SE, unresolved, converged; no-solution rows print the note; ASCII). Test `test_cli_run_prints_required_returns`. README 'Required return' section. Timing (all three stages): example config 81.8 s (16 return-search engine runs); a 60-year-horizon personal config 86.2 s — both under the 300 s budget.
+- 2026-10-09 /verify PASS:
+  - CLI tests: 5 passed
+  - example run: exit 0 in 77.6 s, ASCII, three sections; return rows −6.53 / −5.51 / −4.04 %, non-decreasing, success ≥ target
+  - own recompute at 100k paths: true 95 % r* lies between −5.51 % and −5.505 %; the printed −5.51 % (nearest rounding) gives 94.98 % < 95 % — display rounding, raised as B-011.1
+  - budget 60,000: 'no solution within bounds' rows, exit 0; README accurate; full gate 349 passed
+
+### B-011.1 Round displayed budgets down and returns up
+- **Status**: To Do
+- **Depends on**: F-011.3
+
+Found by /verify F-011.3: the CLI rounds to the nearest unit, so a printed required return (−5.51 %) can sit just below
+the true r* (−5.5097 %) and give 94.98 % < 95 %; likewise a printed budget (£10,459) can exceed B* (£10,458.69).
+Display must round in the conservative direction: budgets (monthly and annual) down to whole pounds, required returns
+up to 0.01 %, so the printed figure always meets its target. Computation is unchanged. Files: `src/sbretire/__main__.py`,
+`tests/unit/test_cli_run.py`.
+
+**Acceptance criteria**
+- [ ] Printed monthly and annual budgets are floor(B*) and floor(12·B*), and a run at the printed monthly budget meets the target — `test_cli_run_budget_display_rounds_down`
+- [ ] Printed required returns are r* rounded up to 0.01 %, and a run at the printed return meets the target — `test_cli_run_return_display_rounds_up`
 
 ## 11. Open Questions
 
