@@ -111,3 +111,7 @@ def write_results_json(results: dict[str, Any], path: Path) -> Path:
     text = json.dumps(results, indent=2, ensure_ascii=False, allow_nan=False) + "\n"
     path.write_bytes(text.encode("utf-8"))
     return path
+
+
+def check_run_name(name: str) -> str | None:
+    return None
