@@ -135,16 +135,19 @@ _(filled during implementation)_
 ## 10. Tasks
 
 ### F-009.1 Path classification and success metrics
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: —
 
 `PathClass`, `classify_paths`, `SuccessMetrics` in `src/sbretire/metrics.py` (§2 #1–#3). Tests in
 `tests/unit/test_metrics.py` on hand-built `PathOutcomes`.
 
 **Acceptance criteria**
-- [ ] Classification table: never depleted + both died → SUCCESSFUL; depleted + both died → FAILED; depleted + someone alive at the horizon → FAILED; never depleted + someone alive at the horizon → UNRESOLVED — `test_classify_paths_table`
-- [ ] A censored (unresolved) path is never counted as a success, and a set of only unresolved paths gives conservative rate 0 and completed rate `None` (§17.2) — `test_censored_paths_never_count_as_success`
-- [ ] Counts, both rates and both SEs match hand-computed values (e.g. 10 paths: 6 successful, 2 failed, 2 unresolved → 0.6 ± √(0.24/10), 0.75 ± √(0.1875/8), unresolved 0.2) — `test_success_metrics_hand_computed`
+- [x] Classification table: never depleted + both died → SUCCESSFUL; depleted + both died → FAILED; depleted + someone alive at the horizon → FAILED; never depleted + someone alive at the horizon → UNRESOLVED — `test_classify_paths_table`
+- [x] A censored (unresolved) path is never counted as a success, and a set of only unresolved paths gives conservative rate 0 and completed rate `None` (§17.2) — `test_censored_paths_never_count_as_success`
+- [x] Counts, both rates and both SEs match hand-computed values (e.g. 10 paths: 6 successful, 2 failed, 2 unresolved → 0.6 ± √(0.24/10), 0.75 ± √(0.1875/8), unresolved 0.2) — `test_success_metrics_hand_computed`
+
+**Notes**
+- 2026-10-09 Added `src/sbretire/metrics.py`: `PathClass`, `classify_paths` (depletion ≥ 0 → FAILED, else censored → UNRESOLVED, else SUCCESSFUL), `SuccessMetrics.from_outcomes` (bincount; conservative and completed rates with binomial SEs on their own denominators; None when nothing completed). Tests `tests/unit/test_metrics.py` (3). The red commit carried an unused variable flagged by ruff; removed here.
 
 ### F-009.2 Random inputs and the Monte Carlo run
 - **Status**: To Do

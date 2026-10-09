@@ -13,7 +13,6 @@ from sbretire.simulation import PathOutcomes
 
 def _outcomes(depleted: list[bool], censored: list[bool]) -> PathOutcomes:
     """Hand-built outcomes: a depleted path ran out in month 5; uncensored paths end at month 100."""
-    n = len(depleted)
     depletion = np.where(depleted, 5, -1).astype(np.int64)
     cens = np.array(censored, dtype=bool)
     return PathOutcomes(
