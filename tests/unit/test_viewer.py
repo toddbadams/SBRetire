@@ -6,6 +6,7 @@ AA (contrast computed from the oklch values), and the page uses only theme token
 
 from __future__ import annotations
 
+import json
 import math
 import re
 from pathlib import Path
@@ -185,3 +186,59 @@ def test_print_contrast_meets_aa() -> None:
         if (ratio := _contrast(printed[foreground], printed[background])) < minimum
     ]
     assert failures == []
+
+
+def _print_section(css: str) -> str:
+    return css[css.index("@media print {") :]
+
+
+def test_print_css_layout_rules() -> None:
+    """F-023.2: A4 with header/footer, nothing split, screen-only items hidden, print-only items shown."""
+    css = _page_files()["viewer.css"]
+    assert re.search(r"@page\s*\{\s*size:\s*A4", css)
+    assert "@bottom-right" in css and "counter(page)" in css and "counter(pages)" in css
+    screen, printed = css[: css.index("@media print {")], _print_section(css)
+    assert re.search(r"\.print-only\s*\{\s*display:\s*none", screen)
+    assert re.search(r"\.print-keep[^{]*\{[^}]*break-inside:\s*avoid", printed)
+    assert re.search(r"\.card[^{]*\{[^}]*break-inside:\s*avoid", printed)
+    for hidden in (
+        "#pdf-button",
+        "#theme-toggle",
+        "#pickers",
+        ".info",
+        ".screen-only",
+        ".year-box",
+        ".fold > summary",
+    ):
+        assert hidden in printed, hidden
+    assert re.search(r"\.print-only\s*\{\s*display:\s*block", printed)
+
+
+def test_print_keep_together_script() -> None:
+    script = _page_files()["viewer.js"]
+    for needed in (
+        "function wrapForPrint(",
+        "function unwrapAfterPrint(",
+        "addEventListener('beforeprint', wrapForPrint)",
+        "addEventListener('afterprint', unwrapAfterPrint)",
+        "'print-keep'",
+        "d.open = true",
+        "@top-right",  # the page header with the run names, injected before printing
+    ):
+        assert needed in script, needed
+    html = _page_files()["index.html"]
+    assert 'id="print-runs"' in html and "print-only" in html
+    assert 'class="screen-only"' in script  # the hover/keyboard help is screen-only
+
+
+def test_print_year_tables_cover_all_columns() -> None:
+    from sbretire.reporting import ANNUAL_COLUMNS
+
+    script = _page_files()["viewer.js"]
+    match = re.search(r"var PRINT_YEAR_COLUMNS = (\[\[.*?\]\]);", script, re.S)
+    assert match is not None
+    groups = json.loads(match.group(1).replace("'", '"'))
+    assert len(groups) == 2 and all(group[0] == "year" for group in groups)
+    rest = [column for group in groups for column in group[1:]]
+    assert sorted(rest) == sorted(set(ANNUAL_COLUMNS) - {"year"}) and len(rest) == len(set(rest))
+    assert 'class="print-only year-print"' in script
