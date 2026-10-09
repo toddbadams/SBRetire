@@ -2,10 +2,13 @@
 
 :class:`ScenarioCashFlows` is the ``HouseholdCashFlows`` that ``simulate_paths`` consumes for a real
 Scenario: :class:`~sbretire.income.ScenarioIncome` plus :class:`~sbretire.spending.ScenarioSpending`, both
-reading the same Inflation Index (SPEC §6).
+reading the same Inflation Index (SPEC §6). With ``budget.spend_at_least_income`` the Required Spending is
+floored at the same month's income (configuration §9).
 """
 
 from __future__ import annotations
+
+import numpy as np
 
 from sbretire.config import Scenario
 from sbretire.income import ScenarioIncome
@@ -29,9 +32,14 @@ class ScenarioCashFlows:
             raise ValueError(f"price index covers {shape} paths but n_paths is {n_paths}")
         self._income = ScenarioIncome(scenario, price_index)
         self._spending = ScenarioSpending(scenario, price_index, monthly_budget_today)
+        self._at_least_income = scenario.budget.spend_at_least_income
 
     def income(self, month: int, alive: BoolArray) -> FloatArray:
         return self._income.income(month, alive)
 
     def spending(self, month: int, alive: BoolArray) -> FloatArray:
-        return self._spending.spending(month, alive)
+        """B × I × F, or max(B × I × F, that month's income) with ``budget.spend_at_least_income``."""
+        spending = self._spending.spending(month, alive)
+        if self._at_least_income:
+            spending = np.maximum(spending, self._income.income(month, alive))
+        return spending

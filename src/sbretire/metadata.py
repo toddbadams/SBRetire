@@ -26,6 +26,7 @@ RUN_METADATA_FILE = "run_metadata.json"
 
 _OPTIONS_HASHED_ONLY_WHEN_SET: Final[tuple[tuple[str, str, object], ...]] = (
     ("budget", "end_reserve_months", 0),
+    ("budget", "spend_at_least_income", False),
 )
 """Options added after V1, left out of the hash at their default so every V1 config keeps its hash."""
 

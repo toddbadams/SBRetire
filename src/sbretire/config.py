@@ -127,12 +127,14 @@ class BudgetAssumptions(_Frozen):
     """Base monthly Budget in today's GBP and the household Survivor Budget Factor (SPEC §4.2 Budget).
 
     ``end_reserve_months`` (R, default 0 = off) adds the End-of-Life Reserve target: R × Budget, inflated to
-    the Household End month, must remain at the second death (optimization §3).
+    the Household End month, must remain at the second death (optimization §3). ``spend_at_least_income``
+    (default false) floors each month's Required Spending at that month's household income (configuration §9).
     """
 
     monthly_amount_today: NonNegative
     survivor_budget_factor: NonNegative
     end_reserve_months: Annotated[Integer, Field(ge=0)] = 0
+    spend_at_least_income: Boolean = False
 
 
 class InflationAssumptions(_Frozen):

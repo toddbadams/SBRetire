@@ -88,19 +88,22 @@ class ScenarioCashFlows:
 ## 10. Tasks
 
 ### F-020.1 Spend-at-least-income in the cash flows
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: —
 
 §2 #1–#4, #7: config field, the floor in `ScenarioCashFlows.spending`, Config Hash exclusion at default, input-row
 label. Tests in `tests/unit/test_spend_at_least_income.py`.
 
 **Acceptance criteria**
-- [ ] `spend_at_least_income` defaults to false, accepts true and rejects "yes", 1 and null with a located message — `test_budget_spend_at_least_income_validated`
-- [ ] With the option on, monthly spending equals income where income exceeds B × I × F, equals B × I × F otherwise, and is 0 once both have died; with it off, spending equals `ScenarioSpending` exactly — `test_spend_at_least_income_floors_spending_at_income`
-- [ ] A V1 config's Config Hash is unchanged by the default; `true` changes it — `test_config_sha256_spend_option_default_excluded`
+- [x] `spend_at_least_income` defaults to false, accepts true and rejects "yes", 1 and null with a located message — `test_budget_spend_at_least_income_validated`
+- [x] With the option on, monthly spending equals income where income exceeds B × I × F, equals B × I × F otherwise, and is 0 once both have died; with it off, spending equals `ScenarioSpending` exactly — `test_spend_at_least_income_floors_spending_at_income`
+- [x] A V1 config's Config Hash is unchanged by the default; `true` changes it — `test_config_sha256_spend_option_default_excluded`
+
+**Notes**
+- 2026-10-09 `BudgetAssumptions.spend_at_least_income` (Boolean, default false); `ScenarioCashFlows.spending` returns max(budget-based spending, the same month's income) when on; added to `metadata._OPTIONS_HASHED_ONLY_WHEN_SET`; input-row label. Tests `tests/unit/test_spend_at_least_income.py` (3).
 
 ### F-020.2 Searches, run output and docs with the option
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-020.1
 
 §2 #5–#6, #8: verify the searches, print the option line, guide text, README, THESAURUS, decision configuration §9,
