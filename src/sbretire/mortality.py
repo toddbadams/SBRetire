@@ -69,9 +69,10 @@ class MortalityTable:
         row = birth_year - self.first_birth_year
         if not 0 <= row < grid.shape[0]:
             last = self.first_birth_year + grid.shape[0] - 1
+            age = int(ages.flat[0]) if ages.size else None
             raise KeyError(
-                f"no {sex} mortality rates for birth year {birth_year} in {self.path.name} "
-                f"(covers {self.first_birth_year}-{last})"
+                f"no {sex} mortality rate for birth year {birth_year} at age {age} in {self.path.name} "
+                f"(birth years {self.first_birth_year}-{last})"
             )
         looked_up = np.minimum(ages, AGE_MAX)
         inside = (looked_up >= 0) & (looked_up < grid.shape[1])

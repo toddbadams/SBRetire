@@ -31,7 +31,8 @@ uv run sbretire run --config config/model.yaml --output-dir output
 
 `validate` checks the scenario without running the model: it prints a one-line summary and exits 0, or lists
 every problem with its YAML location (e.g. `income[2].survivor_percentage: must be less than or equal to 1`) and
-exits 2; an unreadable file exits 1. Add `--require-data-files` to also check that `mortality.data_file` exists.
+exits 2; an unreadable file exits 1. Add `--require-data-files` to also load `mortality.data_file` and check it
+covers both people (see Mortality below).
 
 Configuration rules worth knowing (full list in `docs/decisions/configuration.md`):
 
