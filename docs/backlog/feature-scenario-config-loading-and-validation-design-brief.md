@@ -132,14 +132,14 @@ Validate summary (stdout), e.g.: `OK config/model.yaml — 2 people, 3 income st
 
 ## 9. Surprises
 
-_(filled during implementation)_
+- 2026-10-09 — pydantic's built-in `strict=True` rejects YAML lists for tuple fields and ISO strings for dates, so strictness is implemented per scalar type with BeforeValidators instead of model-wide strict mode. `income` is optional (defaults to no streams); `random_seed` is required but may be null.
 
 ## 10. Tasks
 
 Task format and statuses: `docs/project-sdlc.md` §2. Definition of done: `docs/project-sdlc.md` §4.
 
 ### F-001.1 Scenario field models and issue aggregation
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: —
 
 Build the typed Scenario models and parse_scenario with collect-all error reporting.
@@ -150,10 +150,13 @@ Build the typed Scenario models and parse_scenario with collect-all error report
 - Fixture `tests/fixtures/scenarios/valid_minimal.yaml` (no personal data). Tests in `tests/unit/test_config_fields.py`.
 
 **Acceptance criteria**
-- [ ] Missing required key in any section yields an issue at that key's location — `test_missing_required_field_reports_location` (parametrised over every required key)
-- [ ] Wrong types are rejected without coercion (string number, string/int bool, non-ISO date) — `test_strict_scalars_reject_coercion`
-- [ ] Out-of-range values rejected: negative amounts, annual_return <= -1, survivor_percentage outside [0,1], negative factors, confidence level not in (0,1), duplicate confidence levels, simulation_count/horizon_years <= 0, currency != GBP, frequency != monthly — `test_out_of_range_values_rejected` (parametrised)
-- [ ] Three independent errors yield exactly three issues sorted by location in one ScenarioError — `test_all_issues_reported_together`
+- [x] Missing required key in any section yields an issue at that key's location — `test_missing_required_field_reports_location` (parametrised over every required key)
+- [x] Wrong types are rejected without coercion (string number, string/int bool, non-ISO date) — `test_strict_scalars_reject_coercion`
+- [x] Out-of-range values rejected: negative amounts, annual_return <= -1, survivor_percentage outside [0,1], negative factors, confidence level not in (0,1), duplicate confidence levels, simulation_count/horizon_years <= 0, currency != GBP, frequency != monthly — `test_out_of_range_values_rejected` (parametrised)
+- [x] Three independent errors yield exactly three issues sorted by location in one ScenarioError — `test_all_issues_reported_together`
+
+**Notes**
+- 2026-10-09: `src/sbretire/config.py` — frozen pydantic models (`_Frozen`: frozen, extra=forbid) for every §4.2 section; strict scalars via BeforeValidator types (`Number`, `Integer`, `Boolean`, `Text`, `IsoDate`); `parse_scenario` maps pydantic errors to `ScenarioIssue` (natural-sorted, "must be …" wording, offending value echoed). Added `pydantic>=2.9` + mypy plugin. Tests: `tests/unit/test_config_fields.py` (79 cases), helpers `tests/unit/scenario_helpers.py`, fixture `tests/fixtures/scenarios/valid_minimal.yaml`.
 
 ### F-001.2 Cross-field and date consistency rules
 - **Status**: To Do

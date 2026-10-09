@@ -8,6 +8,7 @@ requires-python = ">=3.12,<3.13"
 dependencies = [
     "numpy>=2.1",
     "pandas>=2.2",
+    "pydantic>=2.9",
     "pyyaml>=6.0",
     "scipy>=1.14",
 ]
@@ -62,6 +63,7 @@ strict = true
 mypy_path = "src,scripts"
 files = ["src/sbretire", "scripts", "tests"]
 warn_unreachable = true
+plugins = ["pydantic.mypy"]
 
 [[tool.mypy.overrides]]
 module = ["scipy.*"]
