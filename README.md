@@ -87,6 +87,13 @@ Mortality (full rules in `docs/decisions/data-and-calibration.md` §1; provenanc
   age-100 rate is held, so very long lives stay possible.
 - `sbretire validate --require-data-files` loads the table and checks it covers both people from their current age to
   100; any gap or invalid row is reported with its location and exits 2.
+- Each simulated month a living person dies with probability q_m = 1 − (1 − q)^(1/12): the annual rate for their
+  age spread evenly over the twelve months of that year of age. The two people are independent.
+- The model draws one random number per person per path and reads their death month off their survival curve.
+  This is statistically the same as a month-by-month draw, and lengthening the horizon never changes a death that
+  falls inside the shorter one (`docs/decisions/simulation-conventions.md` §6).
+- A person who dies during a month has that month's full income and spending and is gone from the next month. Anyone
+  alive at the end of the horizon leaves the path unresolved (censored): it is never counted as a success.
 
 ## Preview (deterministic illustration)
 

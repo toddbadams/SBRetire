@@ -126,15 +126,18 @@ def sample_death_months(
 - 2026-10-09 Added `sample_death_months` (one `rng.random((2, n_paths))`, per-person survival curve, `searchsorted(1 − S[1:], u, right) + 1` capped at H) to `src/sbretire/mortality.py`. 6 tests in `tests/unit/test_mortality_sampling.py`; seed-42 known answer [[371, 368, 354, 179], [527, 245, 614, 452]] computed independently (own CSV parse, own survival loop, direct rule d = min{k ≥ 1 : u < 1 − S_k}).
 
 ### F-008.3 Deterministic mortality fixture end to end
-- **Status**: To Do
+- **Status**: Verification
 - **Depends on**: F-008.2
 
 Integration test through `simulate_paths`; hypothesis invariant; README; THESAURUS.
 
 **Acceptance criteria**
-- [ ] Fixture table with q = 0 below a chosen age and q = 1 from it: through `sample_death_months` + `simulate_paths`, alive states move both → one → none at the expected months, `household_end_month` is the later death month, and a fixture with q = 0 throughout is censored (§17.2) — `test_deterministic_mortality_fixture_state_transitions`
-- [ ] For any sampled death months, once a person's alive flag is False in some month it stays False in every later month (hypothesis over seeds) (§17.1) — `test_dead_person_never_alive_again`
-- [ ] README documents monthly sampling (q_m formula, inverse CDF, death month timing, horizon survivors) — `check: grep -n "q_m" README.md`
+- [x] Fixture table with q = 0 below a chosen age and q = 1 from it: through `sample_death_months` + `simulate_paths`, alive states move both → one → none at the expected months, `household_end_month` is the later death month, and a fixture with q = 0 throughout is censored (§17.2) — `test_deterministic_mortality_fixture_state_transitions`
+- [x] For any sampled death months, once a person's alive flag is False in some month it stays False in every later month (hypothesis over seeds) (§17.1) — `test_dead_person_never_alive_again`
+- [x] README documents monthly sampling (q_m formula, inverse CDF, death month timing, horizon survivors) — `check: grep -n "q_m" README.md`
+
+**Notes**
+- 2026-10-09 Added `tests/integration/test_mortality_end_to_end.py` (step-table fixture: Death Months [[18], [130]] → both alive months 0–17, sam alone 18–129, Household End 130; q = 0 table → all censored; hypothesis over 25 seeds × 64 paths with the real table: alive non-increasing and equal to month < Death Month). README mortality bullets (q_m, inverse CDF, timing, censoring); THESAURUS Death Month. No production change was needed: these tests passed on the F-008.1–F-008.2 code, so this task had no separate red step.
 
 ## 11. Open Questions
 

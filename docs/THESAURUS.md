@@ -60,7 +60,7 @@ suffix, bare unqualified `Service`, `confidence interval` (for success probabili
 - **Related terms**: Run Metadata, Scenario
 
 ### Death Month
-- **Definition**: For one person on one Path, the first month index in which they are dead. They are alive — with full income and spending — through the month before; supplied up front as `death_month[person, path]`, a value ≥ the Horizon meaning alive at the Horizon (simulation-conventions §2).
+- **Definition**: For one person on one Path, the first month index in which they are dead. They are alive — with full income and spending — through the month before; supplied up front as `death_month[person, path]`, a value ≥ the Horizon meaning alive at the Horizon (simulation-conventions §2). Sampled once per run from the mortality Random Stream by inverse CDF over the person's monthly survival curve (simulation-conventions §6).
 - **NOT**: The month they were last alive; a calendar date of death.
 - **Synonyms to AVOID**: date of death, mortality month, death date
 - **Related terms**: Household End, Path, Censored Path
