@@ -63,7 +63,7 @@ def test_cli_named_run_writes_run_folder(tmp_path: Path, capsys: pytest.CaptureF
     assert _run(_config(tmp_path), out, "--name", "base") == 0
     run_dir = out / "runs" / "base"
     assert {path.name for path in run_dir.iterdir()} == RUN_FILES
-    assert {path.name for path in out.iterdir()} == {"runs"}
+    assert {path.name for path in out.iterdir()} == {"runs", *VIEWER_FILES}
     assert {path.name for path in (out / "runs").iterdir()} == {"base", "index.json", "runs.js"}
     results = json.loads((run_dir / "results.json").read_text(encoding="utf-8"))
     assert results["run"]["name"] == "base"
@@ -163,3 +163,23 @@ def test_cli_overwrite_keeps_old_run_when_computation_fails(
     with pytest.raises(RuntimeError):
         _run(_config(tmp_path), out, "--name", "base", "--overwrite")
     assert {path.name: path.read_bytes() for path in run_dir.iterdir()} == before
+
+
+VIEWER_FILES = ("index.html", "theme.css", "viewer.css", "viewer.js")
+
+
+def test_cli_named_run_copies_viewer(tmp_path: Path) -> None:
+    web = ROOT / "src" / "sbretire" / "web"
+    sources = {
+        "index.html": web / "viewer" / "index.html",
+        "theme.css": web / "theme.css",
+        "viewer.css": web / "viewer" / "viewer.css",
+        "viewer.js": web / "viewer" / "viewer.js",
+    }
+    out = tmp_path / "out"
+    assert _run(_config(tmp_path), out, "--name", "base") == 0
+    for name in VIEWER_FILES:
+        assert (out / name).read_bytes() == sources[name].read_bytes(), name
+    unnamed = tmp_path / "plain"
+    assert _run(_config(tmp_path), unnamed) == 0
+    assert not any((unnamed / name).exists() for name in VIEWER_FILES)

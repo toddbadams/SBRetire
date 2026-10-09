@@ -93,7 +93,7 @@ and a regenerated `docs/design/sample/`.
   - minor points then fixed in the hand-off: other nulls (incl. annual rows without a note) and negative required returns; brief §2 #4 figure corrected to 10,500
 
 ### F-022.2 Choose and record the common CSS theme
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-022.1
 
 After Claude Design proposes a theme: record it in `docs/decisions/viewer.md` §1 and commit `viewer/theme.css`.
@@ -104,7 +104,7 @@ Criteria may be refined when the design is back.
 - [ ] Text tokens meet WCAG AA in light and dark: body and muted text on background, surface and sunken surface ≥ 4.5:1; status colours, chart run colours and the accent on background ≥ 3:1 — `test_theme_contrast_meets_aa`
 
 ### F-022.3 Build the results viewer page
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-022.2
 
 Build the page from the Claude Design output against the sample; decide its placement (§2 #5). Criteria may be
