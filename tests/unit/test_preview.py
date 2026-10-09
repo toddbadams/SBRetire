@@ -6,13 +6,16 @@ alex born 1958-03-01 (68 at As-Of), sam born 1962-07-15 (64 at As-Of).
 
 from __future__ import annotations
 
+from datetime import date
 from pathlib import Path
 from typing import Any
 
 import pytest
 
 from sbretire.config import Scenario, parse_scenario
-from sbretire.preview import death_months_from_ages
+from sbretire.preview import PreviewResult, PreviewYear, death_months_from_ages, run_preview
+
+from scenario_helpers import set_at
 
 
 def scenario(raw: dict[str, Any]) -> Scenario:
@@ -34,3 +37,74 @@ def test_death_months_from_ages_validates_range(valid_raw: dict[str, Any]) -> No
             death_months_from_ages(s, ages)
     # beyond the horizon: alex 130 -> 2088-03 = 737 >= 720 (alive at the horizon)
     assert death_months_from_ages(s, (130, 130))[0, 0] >= 720
+
+
+def preview_raw(raw: dict[str, Any], *, inflation: float = 0.0, annual_return: float = 0.0) -> dict[str, Any]:
+    raw = set_at(raw, "inflation.annual_mean", inflation)
+    return set_at(raw, "portfolio.annual_return", annual_return)
+
+
+def by_year(result: PreviewResult) -> dict[int, PreviewYear]:
+    return {row.year: row for row in result.rows}
+
+
+def test_run_preview_aggregates_calendar_years(valid_raw: dict[str, Any]) -> None:
+    result = run_preview(scenario(preview_raw(valid_raw)), (130, 130))
+    rows = by_year(result)
+    first = rows[2026]  # Oct-Dec: annuity 3 x 500; spending 3 x 3000
+    assert (first.months, first.age_person_1, first.age_person_2) == (3, 68, 64)
+    assert (first.income, first.spending, first.net_withdrawal) == (1500.0, 9000.0, 7500.0)
+    assert (first.investment_return, first.balance_end, first.price_index) == (0.0, 492_500.0, 1.0)
+    second = rows[2027]  # pension starts Jan 2027: income 12 x (1000 + 500); spending 12 x 3000
+    assert (second.months, second.income, second.spending) == (12, 18_000.0, 36_000.0)
+    assert second.balance_end == 492_500.0 - 18_000.0
+    assert result.rows[0].year == 2026
+
+
+def test_run_preview_reports_depletion(valid_raw: dict[str, Any]) -> None:
+    result = run_preview(scenario(preview_raw(valid_raw)), (130, 130))
+    # same path as tests/integration/test_cash_flows_end_to_end.py path 2
+    assert result.depletion_month == 289
+    assert result.depletion_date == date(2050, 11, 1)
+    assert result.shortfall == 2000.0
+    assert result.rows[-1].year == 2050
+    assert result.rows[-1].months == 11  # Jan..Nov 2050
+    assert result.rows[-1].balance_end == 0.0
+    assert result.final_balance == 0.0
+    assert result.household_end_date is None
+
+
+def test_run_preview_deflates_with_price_index(valid_raw: dict[str, Any]) -> None:
+    result = run_preview(scenario(preview_raw(valid_raw, inflation=0.02)), (130, 130))
+    rows = by_year(result)
+    # last simulated month of 2027 is month 14 (Dec 2027): one anniversary passed
+    assert rows[2026].price_index == 1.0
+    assert rows[2027].price_index == pytest.approx(1.02)
+    assert rows[2028].price_index == pytest.approx(1.02**2)
+    for row in result.rows:
+        assert row.balance_end_today == pytest.approx(row.balance_end / row.price_index)
+
+
+def test_run_preview_investment_return_matches_closed_form(valid_raw: dict[str, Any]) -> None:
+    raw = set_at(preview_raw(valid_raw, annual_return=0.05), "budget.monthly_amount_today", 0)
+    raw = set_at(raw, "income", [])
+    result = run_preview(scenario(raw), (130, 130))
+    rows = by_year(result)
+    r_m = 1.05 ** (1 / 12) - 1
+    start = 500_000.0
+    assert rows[2026].investment_return == pytest.approx(start * ((1 + r_m) ** 3 - 1))
+    assert rows[2027].investment_return == pytest.approx(start * (1 + r_m) ** 3 * 0.05)
+    assert rows[2027].balance_end == pytest.approx(start * 1.05 ** (15 / 12))
+
+
+def test_run_preview_household_end_and_ages(valid_raw: dict[str, Any]) -> None:
+    # alex 70 -> dead from 2028-03 (month 17); sam 66 -> dead from 2028-07 (month 21)
+    raw = set_at(preview_raw(valid_raw), "portfolio.starting_balance", 5_000_000)
+    result = run_preview(scenario(raw), (70, 66))
+    rows = by_year(result)
+    assert result.household_end_date == date(2028, 7, 1)
+    assert result.depletion_month is None and result.depletion_date is None
+    assert result.rows[-1].year == 2028
+    assert rows[2028].months == 6  # Jan..Jun 2028
+    assert (rows[2027].age_person_1, rows[2027].age_person_2) == (69, 65)
+    assert (rows[2028].age_person_1, rows[2028].age_person_2) == (None, 66)

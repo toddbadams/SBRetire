@@ -5,6 +5,7 @@ A **deterministic illustration**, never a sustainability estimate (SPEC §14).
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import date
 
 import numpy as np
@@ -29,3 +30,33 @@ def death_months_from_ages(scenario: Scenario, ages: tuple[int, int]) -> NDArray
             raise ValueError(f"death age for {person.id} must be greater than their current age (got {age})")
         months.append(month)
     return np.array(months, dtype=np.int64).reshape(2, 1)
+
+
+@dataclass(frozen=True)
+class PreviewYear:
+    year: int
+    months: int
+    age_person_1: int | None
+    age_person_2: int | None
+    income: float
+    spending: float
+    investment_return: float
+    net_withdrawal: float
+    balance_end: float
+    balance_end_today: float
+    price_index: float
+
+
+@dataclass(frozen=True)
+class PreviewResult:
+    rows: tuple[PreviewYear, ...]
+    depletion_month: int | None
+    depletion_date: date | None
+    shortfall: float
+    household_end_date: date | None
+    final_balance: float
+    final_balance_today: float
+
+
+def run_preview(scenario: Scenario, death_ages: tuple[int, int]) -> PreviewResult:
+    raise NotImplementedError
