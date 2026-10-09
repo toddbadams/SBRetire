@@ -204,6 +204,36 @@ component never shifts the other's draws. Rules in `docs/decisions/simulation-co
 | `lifestyle_results.csv` | Maximum sustainable budget per confidence level (SPEC §14) |
 | `run_metadata.json` | Seed, version, config hash, data-file versions/hashes (SPEC §10.3) |
 
+All CSVs share the same format:
+
+- UTF-8, with a header row and `\n` line endings.
+- `.` as the decimal point, and no thousands separators or currency symbols.
+- Money in GBP to 2 dp. Probabilities as decimals from 0 to 1, to 6 dp.
+- An empty cell where a statistic has nothing to average over.
+
+### `annual_results.csv`
+
+One row per calendar year at your configured budget, from the as-of year to the last year anyone is alive in any
+simulated future (at most the horizon). "Year end" means the row's last simulated month, so the first and last rows
+can be partial years. Definitions are in `docs/decisions/simulation-conventions.md` §8.
+
+| Column | Unit | Meaning |
+|---|---|---|
+| `year`, `months` | year, count | Calendar year and the number of simulated months it covers |
+| `probability_both_alive`, `probability_person_1_alive`, `probability_person_2_alive` | share of all paths | Alive at year end (person 1/2 = first/second entry under `people`) |
+| `monthly_budget_today` | GBP/month, today's money | Your configured budget |
+| `monthly_budget_nominal_median` | GBP/month, nominal | Median over paths of budget × inflation index at year end |
+| `annual_budget_nominal_median` | GBP/year, nominal | Median required household spending in the year (survivor factor applied), over paths still running in the year |
+| `annual_income_median` | GBP/year, nominal | Median income received in the year, same paths |
+| `annual_net_withdrawal_median` | GBP/year, nominal | Median of spending − income, same paths |
+| `portfolio_p05` … `portfolio_p95` | GBP, nominal | Percentiles (5, 25, 50, 75, 95) of the year-end balance over paths where someone is alive; paths that ran out count as 0 |
+| `probability_not_depleted_yet` | share of all paths | Money has not run out by year end |
+| `estimated_lifetime_success_rate` | share | Of the paths not yet out of money at year end, the share that turn out Successful (unresolved paths count as not successful) |
+| `completed_paths`, `unresolved_paths` | count | Paths whose outcome is settled by year end (money ran out, or both have died), and the rest |
+
+There is no `probability_funded` column, because SPEC §12 calls that name ambiguous. Use
+`probability_not_depleted_yet` or `estimated_lifetime_success_rate`.
+
 ## Development
 
 ```bash

@@ -36,6 +36,7 @@ from sbretire.optimization import (
 )
 from sbretire.preview import format_preview_table, run_preview, write_preview_csv
 from sbretire.randomness import ResolvedSeed, resolve_seed
+from sbretire.reporting import annual_results, write_annual_results_csv
 
 EXIT_OK, EXIT_FAILURE, EXIT_INVALID = 0, 1, 2
 
@@ -170,6 +171,9 @@ def _run(args: argparse.Namespace, loaded: LoadedScenario) -> int:
         path_budget_thresholds(scenario, inputs), scenario.model.confidence_levels
     )
     returns = required_returns(path_return_thresholds(scenario, inputs), scenario.model.confidence_levels)
+    annual_path = write_annual_results_csv(
+        annual_results(scenario, inputs), args.output_dir / "annual_results.csv"
+    )
     records = [table.data_file_record(), inflation_data_file_record(scenario.inflation)]
     metadata_path = write_run_metadata(build_run_metadata(loaded, seed, records), args.output_dir)
     print(format_run_summary(args.config, scenario, seed, result.metrics))
@@ -177,6 +181,7 @@ def _run(args: argparse.Namespace, loaded: LoadedScenario) -> int:
     print(format_budget_table(budgets))
     print()
     print(format_return_table(returns))
+    print(f"Wrote {annual_path}")
     print(f"Wrote {metadata_path}")
     return EXIT_OK
 

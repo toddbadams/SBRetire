@@ -7,6 +7,7 @@ shares of paths.
 
 from __future__ import annotations
 
+import csv
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -212,5 +213,32 @@ def annual_results(scenario: Scenario, inputs: RandomInputs) -> list[AnnualRow]:
     return rows
 
 
+_PROBABILITY_COLUMNS: Final = frozenset(
+    {
+        "probability_both_alive",
+        "probability_person_1_alive",
+        "probability_person_2_alive",
+        "probability_not_depleted_yet",
+        "estimated_lifetime_success_rate",
+    }
+)
+
+
+def _cell(column: str, value: float | int | None) -> str:
+    """'.' decimals, no separators or symbols: probabilities 6 dp, money 2 dp, counts integer, None empty."""
+    if value is None:
+        return ""
+    if isinstance(value, int):
+        return str(value)
+    return f"{value:.6f}" if column in _PROBABILITY_COLUMNS else f"{value:.2f}"
+
+
 def write_annual_results_csv(rows: Sequence[AnnualRow], path: Path) -> Path:
-    raise NotImplementedError
+    """Write ``annual_results.csv`` (UTF-8, LF, header row; columns :data:`ANNUAL_COLUMNS`; SPEC §15.1)."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.writer(handle, lineterminator="\n")
+        writer.writerow(ANNUAL_COLUMNS)
+        for row in rows:
+            writer.writerow([_cell(column, getattr(row, column)) for column in ANNUAL_COLUMNS])
+    return path

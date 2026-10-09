@@ -111,16 +111,19 @@ def write_annual_results_csv(rows: Sequence[AnnualRow], path: Path) -> Path: ...
 - 2026-10-09 Added `src/sbretire/reporting.py`: `AnnualRow`, `_RecordingCashFlows`, `_AnnualCollector` (engine observer; per-path current-year sums only; closes each year at its last month; `finish` closes years after the engine's early stop from final balances), `annual_results`. Calls `simulate_paths` directly with the recording wrapper on the same inputs instead of adding an observer to `run_monte_carlo` (brief §4 listed that change; not needed). Tests `tests/unit/test_reporting_annual.py` (3: hand fixture incl. depletion and early stop; 300-path recomputation from full month × path history kept only in the test; row span).
 
 ### F-012.2 annual_results.csv and run integration
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-012.1
 
 `write_annual_results_csv`; `sbretire run` writes `output/annual_results.csv`; README output section (columns, units,
 definitions); decision §8 recorded with the brief.
 
 **Acceptance criteria**
-- [ ] CSV: header exactly `ANNUAL_COLUMNS`; UTF-8, LF; `.` decimals, no thousands separators or currency symbols; probabilities in [0, 1]; counts integers; empty fields only where a population is empty; values round-trip to the rows — `test_annual_results_csv_format`
-- [ ] `sbretire run` writes `annual_results.csv` beside `run_metadata.json` and says so — `test_cli_run_writes_annual_results`
-- [ ] README documents every annual column with its unit and definition — `check: grep -n "probability_not_depleted_yet" README.md`
+- [x] CSV: header exactly `ANNUAL_COLUMNS`; UTF-8, LF; `.` decimals, no thousands separators or currency symbols; probabilities in [0, 1]; counts integers; empty fields only where a population is empty; values round-trip to the rows — `test_annual_results_csv_format`
+- [x] `sbretire run` writes `annual_results.csv` beside `run_metadata.json` and says so — `test_cli_run_writes_annual_results`
+- [x] README documents every annual column with its unit and definition — `check: grep -n "probability_not_depleted_yet" README.md`
+
+**Notes**
+- 2026-10-09 Added `ANNUAL_COLUMNS`, `_cell` and `write_annual_results_csv` (csv module, LF, probabilities 6 dp, money 2 dp, integers, None → empty) to `src/sbretire/reporting.py`; `sbretire run` writes `annual_results.csv` beside `run_metadata.json` and prints its path. Tests `tests/unit/test_annual_csv.py` (1, on a seeded run and the hand fixture) and `test_cli_run_writes_annual_results` (file byte-equal to the library output). README: shared CSV format + annual column table with units and definitions.
 
 ## 11. Open Questions
 
