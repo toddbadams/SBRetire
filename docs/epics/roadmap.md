@@ -1,6 +1,6 @@
 # SBRetire V1 Roadmap
 
-**Last updated**: 2026-10-09 — V1 released (1.0.0).
+**Last updated**: 2026-10-09 — V1.1 enhancements planned (F-016 done).
 
 Features in build order. Status: `proposed` → `briefed` → `in-progress` → `done` (or `superseded`). Briefs live in `docs/backlog/`; tasks are inside each brief.
 
@@ -11,6 +11,11 @@ Features in build order. Status: `proposed` → `briefed` → `in-progress` → 
 | F-003 | Income Streams | [household-cash-flows](household-cash-flows.md) | F-002 | done |
 | F-004 | Spending with Survivor Budget Factor | [household-cash-flows](household-cash-flows.md) | F-002 | done |
 | F-015 | Deterministic Preview Run | [reporting-release](reporting-release.md) | F-003, F-004 | done |
+| F-016 | VS Code Test Setup | [v1-1-enhancements](v1-1-enhancements.md) | F-014 | done |
+| F-017 | Inputs Display and inputs.csv | [v1-1-enhancements](v1-1-enhancements.md) | F-013 | proposed |
+| F-018 | Results Guide (columns, calculations, assumptions) | [v1-1-enhancements](v1-1-enhancements.md) | F-017 | proposed |
+| F-019 | End-of-Life Reserve Target | [v1-1-enhancements](v1-1-enhancements.md) | F-013 | proposed |
+| F-020 | Spend-At-Least-Income Option | [v1-1-enhancements](v1-1-enhancements.md) | F-013 | proposed |
 | F-005 | Random Streams and Run Metadata | [foundations](foundations.md) | F-001 | done |
 | F-006 | Stochastic Inflation Process and CPI Calibration | [stochastic-inputs](stochastic-inputs.md) | F-003, F-004, F-005 | done |
 | F-007 | ONS Mortality Data Ingest and Mapping | [stochastic-inputs](stochastic-inputs.md) | F-001 | done |
@@ -107,6 +112,7 @@ Unmapped requirements: **none**.
 
 ## Change Log
 
+- 2026-10-09 — Added epic v1-1-enhancements: F-016 VS Code test setup (done, tooling-and-process §5); F-017 inputs display; F-018 results guide (Markdown); F-019 end-of-life reserve = 12 × monthly Budget; F-020 spend-at-least-income option (opt-in). Decisions from the user.
 - 2026-10-09 — F-014 done: V1 acceptance guards, SPEC §17 acceptance map, README for V1, version 1.0.0 + CHANGELOG, local tag v1.0.0 (367 tests). All 15 features done; all epics delivered. Post-release B-014.1 (guard hardening, README column coverage) verified (369 tests).
 - 2026-10-09 — F-014 briefed: design brief + tasks F-014.1…F-014.3 (release = 1.0.0 + CHANGELOG + local tag).
 - 2026-10-09 — F-013 done: `sustainability_results.csv` and `lifestyle_results.csv` (conservative rounding), `sbretire run` writes all three CSVs + metadata, fails cleanly on unwritable output; F-013.1–F-013.2 verified (361 tests).
