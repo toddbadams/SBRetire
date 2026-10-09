@@ -12,15 +12,17 @@ import numpy as np
 import pytest
 import yaml
 
-from sbretire.config import ScenarioError, parse_scenario
+from sbretire.config import Scenario, ScenarioError, parse_scenario
 from sbretire.inflation import StochasticPriceIndex
 from sbretire.metadata import config_sha256
 from sbretire.metrics import PathClass, SuccessMetrics, classify_paths
 from sbretire.monte_carlo import RandomInputs, required_end_balance, run_monte_carlo
+from sbretire.optimization import BUDGET_TOLERANCE, maximum_sustainable_budgets, path_budget_thresholds
+from sbretire.portfolio import BoolArray
 from sbretire.randomness import ResolvedSeed
 from sbretire.simulation import PathOutcomes
 
-from annual_fixtures import FIXTURE, hand_scenario
+from annual_fixtures import FIXTURE, hand_scenario, seeded
 from scenario_helpers import set_at
 
 FIXTURE_HASH = "69bab36469edb5d58d2c6d2086b5dbf8e9ac07c348f65ecb3a67fe421a55d589"  # pinned before F-019
@@ -122,3 +124,67 @@ def test_config_sha256_default_options_excluded() -> None:
     assert config_sha256(parse_scenario(explicit, base_dir=FIXTURE.parent).scenario) == FIXTURE_HASH
     twelve = set_at(raw, "budget.end_reserve_months", 12)
     assert config_sha256(parse_scenario(twelve, base_dir=FIXTURE.parent).scenario) != FIXTURE_HASH
+
+
+def _closed_form_inputs(n_paths: int, inflation: float) -> tuple[Scenario, RandomInputs]:
+    """100,000 balance, zero return, no income, 10-year horizon; both people die in month 88 on every path."""
+    raw = set_at(_raw(), "portfolio.starting_balance", 100_000)
+    raw = set_at(set_at(raw, "portfolio.annual_return", 0.0), "model.horizon_years", 10)
+    raw["income"] = []
+    scenario = parse_scenario(raw, base_dir=FIXTURE.parent).scenario
+    deaths = np.full((2, n_paths), 88, dtype=np.int64)
+    index = StochasticPriceIndex.constant(n_paths, 10, inflation)
+    return scenario, RandomInputs(ResolvedSeed(0, "config"), deaths, index)
+
+
+def test_reserve_budget_closed_form() -> None:
+    scenario, inputs = _closed_form_inputs(3, 0.0)
+    for months, exact in ((12, 100_000 / 100), (0, 100_000 / 88)):
+        search = path_budget_thresholds(scenario, inputs, end_reserve_months=months)
+        assert np.all((search.thresholds <= exact + 1e-9) & (search.thresholds > exact - BUDGET_TOLERANCE))
+        [result] = maximum_sustainable_budgets(search, [0.5])
+        assert result.maximum_monthly_budget_today == search.thresholds[0]
+        assert result.estimated_success_probability == 1.0
+
+    scenario, inputs = _closed_form_inputs(3, 0.03)
+    level = inputs.price_index.level
+    exact = 100_000 / (sum(float(level(t)[0]) for t in range(88)) + 12 * float(level(88)[0]))
+    search = path_budget_thresholds(scenario, inputs, end_reserve_months=12)
+    assert np.all((search.thresholds <= exact + 1e-9) & (search.thresholds > exact - BUDGET_TOLERANCE))
+
+
+def _meets_reserve(scenario: Scenario, inputs: RandomInputs, budget: float, months: int) -> BoolArray:
+    outcomes = run_monte_carlo(scenario, inputs, monthly_budget_today=budget).outcomes
+    required = required_end_balance(inputs, outcomes, budget, months)
+    meets: BoolArray = classify_paths(outcomes, required) == PathClass.SUCCESSFUL
+    return meets
+
+
+def test_reserve_success_monotone_in_budget() -> None:
+    scenario, inputs = seeded(400, 3_000)
+    search = path_budget_thresholds(scenario, inputs, end_reserve_months=12)
+    previous = np.ones(inputs.n_paths, dtype=np.bool_)
+    for budget in np.linspace(250.0, 6_000.0, 24):
+        meets = _meets_reserve(scenario, inputs, float(budget), 12)
+        assert not np.any(meets & ~previous), budget  # never gains a path as the budget rises
+        assert np.all(meets[search.thresholds >= budget]), budget
+        assert not np.any(meets[search.thresholds + BUDGET_TOLERANCE < budget]), budget
+        previous = meets
+    assert previous.sum() < (search.thresholds > -np.inf).sum()  # the grid reaches budgets that fail
+
+
+def test_reserve_zero_matches_v1_budgets() -> None:
+    scenario, inputs = seeded(300, 3_000)
+    targets = (0.5, 0.9)
+    v1 = path_budget_thresholds(scenario, inputs)
+    zero = path_budget_thresholds(scenario, inputs, end_reserve_months=0)
+    np.testing.assert_array_equal(zero.thresholds, v1.thresholds)
+    assert maximum_sustainable_budgets(zero, targets) == maximum_sustainable_budgets(v1, targets)
+    with_twelve = path_budget_thresholds(scenario, inputs, end_reserve_months=12)
+    reserve = maximum_sustainable_budgets(with_twelve, targets)
+    for with_reserve, without in zip(reserve, maximum_sustainable_budgets(v1, targets), strict=True):
+        assert with_reserve.maximum_monthly_budget_today is not None
+        assert without.maximum_monthly_budget_today is not None
+        assert with_reserve.maximum_monthly_budget_today <= without.maximum_monthly_budget_today
+        assert with_reserve.estimated_success_probability is not None
+        assert with_reserve.estimated_success_probability >= with_reserve.target_probability
