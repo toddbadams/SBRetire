@@ -2,7 +2,7 @@
 id: F-007
 type: feature
 parent: stochastic-inputs
-status: in-progress
+status: done
 complexity: 5
 created: 2026-10-09
 updated: 2026-10-09
@@ -178,7 +178,7 @@ the `data/README.md` row and document the build command. Tests in `tests/tooling
   - ruff + mypy clean; no network imports or global np.random
 
 ### F-007.3 Lookup, tail rule and coverage
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-007.2
 
 `MortalityTable.annual_q`, `has`, `data_file_record`; `coverage_issues`; `sbretire validate --require-data-files`
@@ -196,6 +196,11 @@ reports coverage issues; README mortality section; data-and-calibration §1 alre
 - 2026-10-09 Added `MortalityTable.annual_q` (vectorised, any shape; ages > 100 use q(100, b + 100); KeyError naming sex/birth year/age), `data_file_record`, `coverage_issues` (ages from age at As-Of to 100, ASCII ranges) in `src/sbretire/mortality.py`; `validate --require-data-files` now loads the table and reports table/coverage issues (exit 2) via `_check_mortality` in `src/sbretire/__main__.py`; sidecar gains `edition` (build script + rebuilt `data/ons_mortality.meta.json`; required key); README mortality section. 7 tests added to `tests/unit/test_mortality.py`. Example and personal configs validate against the real table.
 - 2026-10-09 /verify FAIL: a birth year outside the table raises KeyError 'no female mortality rates for birth year 1800 in ons_mortality.csv (covers 1881-2074)' without the age; `test_annual_q_uncovered_age_raises` didn't assert the age for that case. All other steps passed (lookup vs CSV, tail, dtype/shape, coverage probe, CLI exit codes + ASCII stderr, data_file_record, README). Minor: README still described `--require-data-files` as an existence check only.
 - 2026-10-09 Fix after /verify FAIL: out-of-range birth year KeyError now names the first requested age ("no female mortality rate for birth year 1800 at age 90 …"); `test_annual_q_uncovered_age_raises` asserts "birth year B at age A" for all four cases (adds birth year 2075); README `--require-data-files` line updated.
+- 2026-10-09 /verify PASS (re-verification):
+  - mortality + CLI tests: 32 passed; every uncovered case names sex and "birth year B at age A"
+  - probes: birth years 1800 and 2075, age 16 and age -1 all name sex/birth year/age; ages 100–130 equal q(100) = 0.3527564
+  - validate --require-data-files on the example exits 0; data_file_record version '2024-based (published 2026-05-15)'; README line updated
+  - full gate: 264 passed
 
 ## 11. Open Questions
 

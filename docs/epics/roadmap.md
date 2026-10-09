@@ -1,6 +1,6 @@
 # SBRetire V1 Roadmap
 
-**Last updated**: 2026-10-09 — F-007 briefed.
+**Last updated**: 2026-10-09 — F-007 done.
 
 Features in build order. Status: `proposed` → `briefed` → `in-progress` → `done` (or `superseded`). Briefs live in `docs/backlog/`; tasks are inside each brief.
 
@@ -13,7 +13,7 @@ Features in build order. Status: `proposed` → `briefed` → `in-progress` → 
 | F-015 | Deterministic Preview Run | [reporting-release](reporting-release.md) | F-003, F-004 | done |
 | F-005 | Random Streams and Run Metadata | [foundations](foundations.md) | F-001 | done |
 | F-006 | Stochastic Inflation Process and CPI Calibration | [stochastic-inputs](stochastic-inputs.md) | F-003, F-004, F-005 | proposed |
-| F-007 | ONS Mortality Data Ingest and Mapping | [stochastic-inputs](stochastic-inputs.md) | F-001 | in-progress |
+| F-007 | ONS Mortality Data Ingest and Mapping | [stochastic-inputs](stochastic-inputs.md) | F-001 | done |
 | F-008 | Monthly Mortality Sampling | [stochastic-inputs](stochastic-inputs.md) | F-002, F-005, F-007 | proposed |
 | F-009 | Monte Carlo Path Outcomes, Censoring and Success Metrics | [simulation-engine](simulation-engine.md) | F-006, F-008 | proposed |
 | F-010 | Maximum Sustainable Budget Optimization | [analysis-optimization](analysis-optimization.md) | F-009 | proposed |
@@ -107,6 +107,7 @@ Unmapped requirements: **none**.
 
 ## Change Log
 
+- 2026-10-09 — F-007 done: `data/ons_mortality.csv` built from ONS `ukppp24qx.xlsx` (29,088 cohort rows), `mortality.py` loader/lookup with age-100 tail, coverage checks in `validate --require-data-files`; F-007.1–F-007.3 verified (264 tests).
 - 2026-10-09 — F-007 briefed: design brief + tasks F-007.1…F-007.3; ONS `ukppp24qx.xlsx` downloaded to `data/raw/`; decision data-and-calibration §1 (dataset, q(x, b + x) mapping, cohort extension after 2074, age-100 tail).
 - 2026-10-09 — F-005 done: Random Streams (`randomness.py`), Config Hash and Run Metadata (`metadata.py`, `run_metadata.json`); F-005.1–F-005.3 verified (235 tests).
 - 2026-10-09 — F-005 briefed: design brief + tasks F-005.1…F-005.3; decisions configuration §7–§8 (Config Hash, generated seed), simulation-conventions §4 (Random Streams, CRN); thesaurus Config Hash, Run Metadata.
