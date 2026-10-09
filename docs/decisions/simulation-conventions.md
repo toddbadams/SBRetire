@@ -20,7 +20,7 @@ Each simulated month runs, for every active path: (1) update alive state; (2) de
 
 **Why**: SPEC §5's V1 default ordering and SPEC §9's shortfall-based failure rule — assessing funding before spending exposes the timing and size of unmet spending, and no negative balance can compound as if borrowing were available. Whole-month death boundaries match monthly q_m sampling (F-008) and avoid pro-rating; a half-month convention and "dead within the death month" were considered and rejected as adding fractional logic without a SPEC requirement.
 
-## 3. Inflation steps on As-Of anniversaries (provisional — F-006 to confirm or replace)
+## 3. ~~Inflation steps on As-Of anniversaries (provisional — F-006 to confirm or replace)~~ — superseded by §5
 
 Deterministic constant inflation steps once a year on As-Of anniversaries: I_t = (1 + π)^floor(t/12), so prices are flat for months 0–11 and step up at months 12, 24, …. First used by the F-015 preview (`AnnualStepPriceIndex`). F-006 must confirm this year boundary for stochastic draws or replace it; the preview follows whatever F-006 decides. (F-015)
 
@@ -31,3 +31,9 @@ Deterministic constant inflation steps once a year on As-Of anniversaries: I_t =
 One `numpy.random.SeedSequence(seed)` roots all randomness. Each stochastic component gets its own Random Stream — a `Generator(PCG64)` on a fixed child: mortality = child 0, inflation = child 1; a future component takes the next unused index. Streams are created once per run; the mortality and inflation draws they produce are reused unchanged for every candidate Budget or return in a search (Common Random Numbers) — candidates never re-seed. (F-005)
 
 **Why**: SPEC §10.3 requires separate streams so a change to one component leaves the other's draws identical, and CRN across candidates so optimisation compares like with like. Fixed indices (rather than spawn order at call sites) mean adding a stream never shifts existing draws; a known-answer test pins them. A single shared generator was rejected because consuming more inflation draws would shift every later mortality draw.
+
+## 5. Inflation years start at the As-Of month and compound monthly (supersedes §3)
+
+Simulated year k covers months 12k to 12k + 12, starting in the As-Of month. One annual rate π_k is drawn per Path for year k and applied to each of its twelve monthly steps: I_0 = 1 and, for 12k ≤ t ≤ 12(k + 1), I_t = I_{12k} · (1 + π_k)^((t − 12k)/12), so at anniversaries I_{12k} = ∏_{j<k}(1 + π_j), SPEC §6's I_y. The deterministic preview uses the same index with every π equal to the median rate e^μ − 1. (F-006)
+
+**Why**: SPEC §6 says to apply the annual rate "to each of the twelve monthly steps in that year"; prices rising through the year avoids the provisional §3 step's zero inflation for the first eleven months (≈ half a year of inflation understated on average). Years anchored on the As-Of month keep "today's GBP" at I_0 = 1 with no partial first year; calendar-year reporting (F-012) reads I_t at any month. Calendar-year (January) rate boundaries were rejected as giving a short, partial first year.

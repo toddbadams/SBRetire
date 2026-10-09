@@ -5,7 +5,7 @@ status: proposed
 spec_sections: [§4.1, §4.2, §4.3, §6, §7.1, §7.2, §19]
 depends_on: [foundations, household-cash-flows]
 milestones:
-  - { id: F-006, title: Stochastic Inflation Process and CPI Calibration, status: proposed }
+  - { id: F-006, title: Stochastic Inflation Process and CPI Calibration, status: briefed }
   - { id: F-007, title: ONS Mortality Data Ingest and Mapping, status: done }
   - { id: F-008, title: Monthly Mortality Sampling, status: proposed }
 created: 2026-10-09
@@ -43,5 +43,5 @@ The two sources of uncertainty in V1: an inflation path per **Path** (one annual
 ## Risks and open questions
 
 - **Mortality coverage vs horizon.** A 100-year horizon takes person_2 to ~age 157; ONS tables end far earlier. F-007 must choose a tail rule (e.g. q = 1 at a terminal age, or extrapolation) or an age-based horizon cap — and record it. → hold q(100, b + 100) above 100 (data-and-calibration §1).
-- **Inflation "year" boundary.** Draws are annual; reporting is by calendar year. F-006 decides whether simulation years run from the as-of month or align to calendar years.
+- **Inflation "year" boundary.** Draws are annual; reporting is by calendar year. F-006 decides whether simulation years run from the as-of month or align to calendar years. → As-Of-anchored years, monthly compounding (simulation-conventions §5).
 - **Data availability.** The exact ONS 2024-based cohort tables must be verified before F-007 can finish (SPEC §7.1, §19). Treat as the earliest-risk item; F-007 has no dependency beyond F-001 so it can start early.
