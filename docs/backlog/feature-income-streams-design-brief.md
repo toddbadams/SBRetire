@@ -2,7 +2,7 @@
 id: F-003
 type: feature
 parent: household-cash-flows
-status: planned
+status: in-progress
 complexity: 4
 created: 2026-10-09
 updated: 2026-10-09
@@ -122,7 +122,7 @@ _(filled during implementation)_
 Task format and statuses: `docs/project-sdlc.md` §2. Definition of done: `docs/project-sdlc.md` §4.
 
 ### F-003.1 Timeline and price-index seam
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: —
 
 `src/sbretire/timeline.py` (`month_index`) and `src/sbretire/inflation.py` (`PriceIndex`, `FlatPriceIndex`) — brief
