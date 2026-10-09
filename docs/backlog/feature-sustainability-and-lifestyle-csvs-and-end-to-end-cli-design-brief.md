@@ -2,7 +2,7 @@
 id: F-013
 type: feature
 parent: reporting-release
-status: in-progress
+status: done
 complexity: 3
 created: 2026-10-09
 updated: 2026-10-09
@@ -75,7 +75,7 @@ _(filled during implementation)_
 ## 10. Tasks
 
 ### F-013.1 Sustainability and lifestyle CSV writers
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: —
 
 `SUSTAINABILITY_COLUMNS`, `LIFESTYLE_COLUMNS`, both writers in `src/sbretire/reporting.py` (§2 #2–#5). Tests in
@@ -87,9 +87,14 @@ _(filled during implementation)_
 
 **Notes**
 - 2026-10-09 Added `LIFESTYLE_COLUMNS`, `SUSTAINABILITY_COLUMNS`, `write_lifestyle_results_csv`, `write_sustainability_results_csv` and helpers (`_money_down` floor 0.01, `_return_up` ceil 1e-6, `_share` 6 dp, `_flag` true/false, `_write_rows`) to `src/sbretire/reporting.py`. Tests `tests/unit/test_result_csvs.py` (2).
+- 2026-10-09 /verify PASS:
+  - writer tests: exact headers and cell strings; floor/ceil rounding; empty cells + quoted notes; true/false
+  - example run: lifestyle budgets 10,751.67 / 10,458.69 / 9,972.01 ≤ exact B* and > B* − 0.01; annual exact; rates at written budgets 0.90004 / 0.9501 / 0.99001
+  - sustainability rows at 6,667.00 / 5 %: written returns −0.065307 / −0.055053 / −0.040405 ≥ exact r* and < r* + 1e-6; rates at written returns ≥ targets
+  - all files UTF-8, LF, '.' decimals, no separators or symbols
 
 ### F-013.2 End-to-end `run` outputs
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-013.1
 
 `run` writes all four files and lists them; unwritable output → exit 1; README output sections for the two files.
@@ -102,6 +107,11 @@ _(filled during implementation)_
 
 **Notes**
 - 2026-10-09 `_run` in `src/sbretire/__main__.py` creates the output directory first (OSError → exit 1 'cannot write to output directory …' before any computation), computes everything from one `RandomInputs`, writes all four files (any write OSError → exit 1), then prints the summary, both tables and one 'Wrote' line per file. Tests: `test_cli_run_writes_all_outputs`, `test_cli_run_csvs_reproducible`, `test_cli_run_unwritable_output_dir`. README sections for lifestyle_results.csv and sustainability_results.csv (every column, unit, rounding direction) and the reproducibility note.
+- 2026-10-09 /verify PASS:
+  - CLI tests pass; `run` writes all four files with one 'Wrote' line each (example ≈ 99 s)
+  - fixture run twice: three CSVs byte-identical; metadata equal apart from created_at (§17.3 #3)
+  - output dir under a file: exit 1 in 0.37 s, 'cannot write to output directory …', no 'Wrote'
+  - README column tables with units and rounding directions; full gate 361 passed
 
 ## 11. Open Questions
 
