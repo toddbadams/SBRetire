@@ -7,9 +7,9 @@ import dataclasses
 import re
 from pathlib import Path
 
-from test_reporting_annual import _fixture_inputs, _fixture_scenario, _seeded
-
 from sbretire.reporting import ANNUAL_COLUMNS, annual_results, write_annual_results_csv
+
+from annual_fixtures import hand_inputs, hand_scenario, seeded
 
 PROBABILITY_COLUMNS = {
     "probability_both_alive",
@@ -22,7 +22,7 @@ INTEGER_COLUMNS = {"year", "months", "completed_paths", "unresolved_paths"}
 
 
 def test_annual_results_csv_format(tmp_path: Path) -> None:
-    for scenario, inputs in (_seeded(300, 3_800), (_fixture_scenario(), _fixture_inputs())):
+    for scenario, inputs in (seeded(300, 3_800), (hand_scenario(), hand_inputs())):
         rows = annual_results(scenario, inputs)
         path = write_annual_results_csv(rows, tmp_path / "out" / "annual_results.csv")
         raw = path.read_bytes()

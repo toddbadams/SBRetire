@@ -19,46 +19,20 @@ from typing import Any
 
 import numpy as np
 import pytest
-import yaml
 from numpy.typing import NDArray
 
 from sbretire.cash_flows import ScenarioCashFlows
-from sbretire.config import Scenario, parse_scenario
-from sbretire.inflation import StochasticPriceIndex
+from sbretire.config import Scenario
 from sbretire.metrics import PathClass, classify_paths
-from sbretire.monte_carlo import RandomInputs, draw_random_inputs
-from sbretire.mortality import load_mortality_table
+from sbretire.monte_carlo import RandomInputs
 from sbretire.portfolio import BoolArray, FloatArray
-from sbretire.randomness import ResolvedSeed
 from sbretire.reporting import AnnualRow, annual_results
 from sbretire.timeline import month_start
 
+from annual_fixtures import hand_inputs, hand_scenario, seeded
+
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURE = ROOT / "tests" / "fixtures" / "scenarios" / "valid_minimal.yaml"
-
-
-def _fixture_scenario() -> Scenario:
-    raw: dict[str, Any] = yaml.safe_load(FIXTURE.read_text(encoding="utf-8"))
-    raw["model"].update(simulation_count=2, horizon_years=5)
-    raw["portfolio"].update(starting_balance=50_000, annual_return=0.0)
-    raw["inflation"].update(log_mean=0.0, innovation_sd=0.0, initial_rate=0.0)
-    raw["income"] = [
-        {
-            "id": "rent",
-            "name": "Rent",
-            "start_date": "2026-10-01",
-            "annual_amount_today": 12_000,
-            "inflation_linked": True,
-            "survivor_percentage": 1.0,
-            "recipient": "household",
-        }
-    ]
-    return parse_scenario(raw, base_dir=FIXTURE.parent).scenario
-
-
-def _fixture_inputs() -> RandomInputs:
-    deaths = np.array([[5, 60], [20, 30]], dtype=np.int64)
-    return RandomInputs(ResolvedSeed(0, "config"), deaths, StochasticPriceIndex.constant(2, 5, 0.0))
 
 
 def _row(**values: Any) -> dict[str, Any]:
@@ -66,7 +40,7 @@ def _row(**values: Any) -> dict[str, Any]:
 
 
 def test_annual_results_hand_computed_fixture() -> None:
-    rows = {row.year: row for row in annual_results(_fixture_scenario(), _fixture_inputs())}
+    rows = {row.year: row for row in annual_results(hand_scenario(), hand_inputs())}
     assert list(rows) == [2026, 2027, 2028, 2029, 2030, 2031]
     common = {"monthly_budget_today": 3_000.0, "monthly_budget_nominal_median": 3_000.0}
     expected = {
@@ -235,17 +209,8 @@ def _recompute(scenario: Scenario, inputs: RandomInputs) -> list[dict[str, Any]]
     return out
 
 
-def _seeded(paths: int, budget: float) -> tuple[Scenario, RandomInputs]:
-    raw: dict[str, Any] = yaml.safe_load(FIXTURE.read_text(encoding="utf-8"))
-    raw["model"]["simulation_count"] = paths
-    raw["budget"]["monthly_amount_today"] = budget
-    scenario = parse_scenario(raw, base_dir=FIXTURE.parent).scenario
-    table = load_mortality_table(ROOT / "data" / "ons_mortality.csv")
-    return scenario, draw_random_inputs(scenario, table, ResolvedSeed(21, "config"))
-
-
 def test_annual_results_match_full_history_recomputation() -> None:
-    scenario, inputs = _seeded(300, 3_800)
+    scenario, inputs = seeded(300, 3_800)
     rows = annual_results(scenario, inputs)
     expected = _recompute(scenario, inputs)
     assert [row.year for row in rows] == [values["year"] for values in expected]
@@ -260,7 +225,7 @@ def test_annual_results_match_full_history_recomputation() -> None:
 
 
 def test_annual_results_row_span() -> None:
-    scenario, inputs = _seeded(200, 3_000)
+    scenario, inputs = seeded(200, 3_000)
     rows = annual_results(scenario, inputs)
     last_alive_month = min(scenario.model.horizon_years * 12, int(inputs.death_months.max())) - 1
     assert rows[0].year == 2026 and rows[0].months == 3
@@ -268,6 +233,6 @@ def test_annual_results_row_span() -> None:
     assert sum(row.months for row in rows) == last_alive_month + 1
     assert all(isinstance(row, AnnualRow) for row in rows)
     # the hand fixture's engine stops at month 26; later years are still produced (and finished correctly)
-    fixture_rows = annual_results(_fixture_scenario(), _fixture_inputs())
+    fixture_rows = annual_results(hand_scenario(), hand_inputs())
     assert [row.year for row in fixture_rows][-1] == 2031
     assert math.isclose(sum(row.months for row in fixture_rows), 60)

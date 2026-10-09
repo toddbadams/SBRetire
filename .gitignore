@@ -23,7 +23,10 @@ config/model.yaml
 config/*.local.yaml
 
 # Editors / OS
-.vscode/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
 .idea/
 Thumbs.db
 .DS_Store

@@ -1,0 +1,32 @@
+{
+  // Shared workspace settings (F-016). Personal settings belong in your user settings.
+  "python.defaultInterpreterPath": "${workspaceFolder}\.venv\Scripts\python.exe",
+  "python.terminal.activateEnvironment": true,
+
+  // Testing: pytest, configured by [tool.pytest.ini_options] in pyproject.toml.
+  "python.testing.pytestEnabled": true,
+  "python.testing.unittestEnabled": false,
+  "python.testing.cwd": "${workspaceFolder}",
+  "python.testing.pytestArgs": ["tests"],
+  "python.testing.autoTestDiscoverOnSaveEnabled": true,
+
+  // Imports the editor should resolve like pytest does (pyproject pythonpath + test helper modules).
+  "python.analysis.extraPaths": ["src", "scripts", "tests/unit"],
+
+  // Formatting and linting match scripts/check.py (ruff, line length 110 from pyproject).
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true,
+    "editor.rulers": [110]
+  },
+  "mypy-type-checker.importStrategy": "fromEnvironment",
+  "ruff.importStrategy": "fromEnvironment",
+
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/.pytest_cache": true,
+    "**/.mypy_cache": true,
+    "**/.ruff_cache": true,
+    "**/.hypothesis": true
+  }
+}

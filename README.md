@@ -313,6 +313,12 @@ There is no `probability_funded` column, because SPEC §12 calls that name ambig
 
 ## Development
 
+**VS Code:** open the `C:\sb\SBRetire` folder and accept the recommended extensions (Python, Ruff, Mypy). The
+committed `.vscode/settings.json` selects `.venv` and enables pytest. Tests then appear in the **Testing** panel,
+where you can run or debug them one at a time. If they don't appear: run `uv sync`, then use **Python: Select
+Interpreter → .venv** and **Testing → Refresh Tests**. `launch.json` also has debug configurations for
+`sbretire run`.
+
 ```bash
 uv run python scripts/check.py          # full gate: ruff, format, mypy --strict, pytest
 uv run python scripts/check.py --fast   # skip slow tests
