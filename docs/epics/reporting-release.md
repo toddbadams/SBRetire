@@ -3,14 +3,16 @@ epic: reporting-release
 title: Reporting and Release
 status: proposed
 spec_sections: [§1.2, §2, §12, §15, §16, §17.3, §19]
-depends_on: [simulation-engine, analysis-optimization, foundations]
+depends_on: [simulation-engine, analysis-optimization, foundations, household-cash-flows]
 milestones:
   - { id: F-012, title: Annual Results CSV, status: proposed }
   - { id: F-013, title: Sustainability and Lifestyle CSVs and End-to-End CLI, status: proposed }
   - { id: F-014, title: "V1 Release: README, Acceptance and Reproducibility Sweep", status: proposed }
+  - { id: F-015, title: Deterministic Preview Run, status: proposed }
 created: 2026-10-09
 updated:
   - 2026-10-09: created by /decompose-spec
+  - 2026-10-09: added F-015 Deterministic Preview Run
 ---
 
 # Reporting and Release
@@ -40,8 +42,11 @@ Turn engine and optimizer results into the three required CSVs plus run metadata
 | F-012 | Annual Results CSV | §12, §15.1, §15, §1.2 | CSV schema and units match spec (annual) | Definition of annual portfolio percentiles and funded probabilities | F-009 |
 | F-013 | Sustainability and Lifestyle CSVs and End-to-End CLI | §15.2, §15.3, §15 metadata | CSV schemas and units match spec (sustainability, lifestyle) | — | F-010, F-011, F-012 |
 | F-014 | V1 Release: README, Acceptance and Reproducibility Sweep | §17.3, §2, §16, §19 | §17.3 acceptance criteria 1–9 | Confirms all §18 items are recorded | F-013 |
+| F-015 | Deterministic Preview Run — `sbretire preview`: one Path with chosen death ages and constant inflation at `inflation.annual_mean`, year-by-year table + `preview.csv` | §1.1 (sanity view), §12 groundwork | — (not a SPEC requirement) | — | F-003, F-004 |
 
 ## Risks and open questions
+
+- F-015 is built early (after F-004) for visibility; it must be labelled as a deterministic illustration, never as a sustainability result (SPEC §14 "avoid presenting illustrative example numbers as calculated results").
 
 - SPEC §12 lists `probability_funded` but then requires two unambiguous columns instead. Recommendation: omit `probability_funded`, publish `probability_not_depleted_yet` and `estimated_lifetime_success_rate` (F-012).
 - Calendar-year rows vs a mid-year as-of date: the first and last rows are partial years — F-012 must define how partial years are aggregated.
