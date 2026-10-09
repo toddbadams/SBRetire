@@ -242,3 +242,19 @@ def test_print_year_tables_cover_all_columns() -> None:
     rest = [column for group in groups for column in group[1:]]
     assert sorted(rest) == sorted(set(ANNUAL_COLUMNS) - {"year"}) and len(rest) == len(set(rest))
     assert 'class="print-only year-print"' in script
+
+
+def test_pdf_button_sets_title_and_prints() -> None:
+    """F-023.3: the button names the PDF after the runs, opens the print dialog and restores the title."""
+    files = _page_files()
+    assert re.search(r'<button id="pdf-button"[^>]*>Save as PDF</button>', files["index.html"])
+    script = files["viewer.js"]
+    for needed in (
+        "function printPdf(",
+        "$('#pdf-button').addEventListener('click', printPdf)",
+        "document.title = pdfTitle()",
+        "window.print()",
+        "document.title = savedTitle",
+    ):
+        assert needed in script, needed
+    assert "#pdf-button" in _print_section(files["viewer.css"])
