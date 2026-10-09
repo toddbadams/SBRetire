@@ -130,7 +130,7 @@ Optional `monthly_budget_today` (scalar or (n_paths,)) through `ScenarioSpending
 - 2026-10-09 Optional `monthly_budget_today` (scalar or (n_paths,), validated finite, non-negative and shaped like the price index) through `ScenarioSpending` (`_checked_budget`), `ScenarioCashFlows` and `run_monte_carlo`; default unchanged. Tests `tests/unit/test_spending_per_path.py` (6). The red commit failed with TypeError (missing keyword) rather than assertion — signature-level red.
 
 ### F-010.2 Thresholds and the maximum sustainable budget
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-010.1
 
 `ThresholdSearch`, `path_budget_thresholds`, `BudgetResult`, `maximum_sustainable_budgets` in
