@@ -1,7 +1,7 @@
 ---
 epic: v1-1-enhancements
 title: V1.1 Enhancements
-status: done
+status: delivered
 spec_sections: [§1.2, §11, §12, §14, §15]
 depends_on: [reporting-release]
 milestones:
