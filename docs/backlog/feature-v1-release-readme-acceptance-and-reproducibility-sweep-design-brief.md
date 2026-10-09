@@ -61,7 +61,7 @@ _(filled during implementation)_
 ## 10. Tasks
 
 ### F-014.1 Constraint guards and acceptance map
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: —
 
 `tests/acceptance/test_v1_acceptance.py` (§2 #3) and `docs/acceptance.md` (§2 #2).
@@ -73,10 +73,17 @@ _(filled during implementation)_
 - [x] `docs/acceptance.md` covers every §17.1, §17.2 and §17.3 item, and every test it names exists — `test_acceptance_map_complete`
 
 **Notes**
-- 2026-10-09 Added `tests/acceptance/test_v1_acceptance.py` (constraint guards over `src/`; explicit map of the ten SPEC §18 items to numbered decision entries and no unstruck SPEC items; raw data SHA-256s in data/README.md and sidecars; acceptance-map completeness parsed from SPEC §17.1–§17.3 with every named test checked to exist) and `docs/acceptance.md` (16 + 9 + 9 items → evidence). The guards passed on first run against existing code; the map test needed SPEC section parsing to stop at the next heading of any level (no ### follows §17.3).
+- 2026-10-09 Added `tests/acceptance/test_v1_acceptance.py` (constraint guards over `src/`; explicit map of the ten SPEC §18 items to numbered decision entries and no unstruck SPEC items; raw data SHA-256s in data/README.md and sidecars; acceptance-map completeness parsed from SPEC §17.1–§17.3 with every named test checked to exist) and `docs/acceptance.md` (16 + 9 + 9 items → evidence). The guards passed on first run against existing code; the map test needed SPEC section parsing to stop at the next heading of any level (no
+- 2026-10-09 /verify PASS:
+  - acceptance tests: 6 passed; probes confirm the guard catches `import requests`, `urllib.request`, `http.client`, `tax_rate`, `np.random.normal/seed`
+  - §18 test maps all 10 SPEC bullets; acceptance map 16 + 9 + 9 with SPEC wording checked; 12 mappings spot-checked as genuine
+  - raw data SHA-256s re-hashed independently and match data/README.md and the sidecars
+  - non-blocking gaps raised → B-014.1
+
+### follows §17.3).
 
 ### F-014.2 README for V1
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-014.1
 
 Complete the README per §2 #4.
@@ -86,9 +93,13 @@ Complete the README per §2 #4.
 
 **Notes**
 - 2026-10-09 README: V1 status line (no longer 'scaffold'); Windows PowerShell quick start; '## Configuration' reference table covering every key with units/meaning; separate '## Assumptions' (returns, inflation, mortality, ordering, success definition) and '## Limitations' (no tax, no market risk, foreign income/FX, exclusions, parameter uncertainty, not advice) sections. `test_readme_covers_v1_sections` passes.
+- 2026-10-09 /verify PASS:
+  - README has Install, Configuration (every example-config key with units), Running, Outputs, Assumptions, Limitations; no 'scaffold'
+  - limitations accurate vs code; CSV column tables match `reporting.py`; PowerShell `uv run sbretire validate --config config\model.example.yaml` exits 0
+  - minor inaccuracies (portfolio_median naming; inconsistent runtime wording) → B-014.1
 
 ### F-014.3 Version 1.0.0, CHANGELOG and tag
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-014.2
 
 Bump to 1.0.0, write `CHANGELOG.md`, run the full gate and an end-to-end example run, then tag `v1.0.0` locally.
@@ -99,6 +110,25 @@ Bump to 1.0.0, write `CHANGELOG.md`, run the full gate and an end-to-end example
 
 **Notes**
 - 2026-10-09 Version 1.0.0 in `pyproject.toml`, `src/sbretire/__init__.py` and `uv.lock`; `CHANGELOG.md` 1.0.0 entry (features F-001…F-015, fix B-011.1). Full gate 367 passed. PowerShell end-to-end run of the example: exit 0 in 94 s, four files written, `software_version` 1.0.0. Annotated tag `v1.0.0` created locally on this commit (not pushed).
+- 2026-10-09 /verify PASS:
+  - `sbretire --version` 1.0.0; pyproject, uv.lock, `__version__` 1.0.0; CHANGELOG '## [1.0.0] - 2026-10-09'
+  - annotated tag v1.0.0 → f6182f6 (feat(F-014.3)); not on origin
+  - scratch end-to-end run writes all four files with software_version 1.0.0; full gate 367 passed
+
+### B-014.1 Harden acceptance guards and tidy README after 1.0.0
+- **Status**: In Progress
+- **Depends on**: F-014.3
+
+Non-blocking findings from /verify F-014 (post-release, no effect on results): the constraint guard misses
+`income_tax`/`apply_tax`-style names, `np.random.lognormal|exponential|binomial`, `numpy.random.*`,
+`import numpy.random as …`, `from random import …`, `import urllib3`; the README lists `portfolio_p05 … portfolio_p95`
+though the median column is `portfolio_median`, and states three different run times; SPEC §17.3 #5 evidence checks
+only the README headings, not that documented columns equal the code's column tuples.
+
+**Acceptance criteria**
+- [ ] The guard rejects each listed pattern (probe strings) and still passes on `src/` — `test_constraint_guard_catches_probe_patterns`
+- [ ] Every column in `ANNUAL_COLUMNS`, `SUSTAINABILITY_COLUMNS` and `LIFESTYLE_COLUMNS` appears in the README's table for that file — `test_readme_documents_every_output_column`
+- [ ] README states one consistent run time for 100,000 paths — `check: grep -n "100,000 paths" README.md`
 
 ## 11. Open Questions
 

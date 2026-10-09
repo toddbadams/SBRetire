@@ -146,3 +146,44 @@ def test_version_is_1_0_0() -> None:
     assert "1.0.0" in version
     changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
     assert re.search(r"^## \[1\.0\.0\] - \d{4}-\d{2}-\d{2}", changelog, re.M)
+
+
+PROBE_VIOLATIONS = (
+    "income_tax = 0.2",
+    "def apply_tax(x): ...",
+    "rates = np.random.lognormal(0, 1, 5)",
+    "draws = np.random.exponential(1.0)",
+    "n = np.random.binomial(10, 0.5)",
+    "x = numpy.random.normal()",
+    "import numpy.random as npr",
+    "from random import random",
+    "import urllib3",
+    "import os, socket",
+)
+
+
+def test_constraint_guard_catches_probe_patterns() -> None:
+    for probe in PROBE_VIOLATIONS:
+        assert _constraint_violations(probe), probe
+    for name, text in _src_text().items():
+        assert _constraint_violations(text) == [], name
+
+
+def _readme_table(readme: str, file_name: str) -> str:
+    start = readme.index(f"### `{file_name}`")
+    following = re.search(r"^#{2,3} ", readme[start + 4 :], re.M)
+    return readme[start : start + 4 + following.start()] if following else readme[start:]
+
+
+def test_readme_documents_every_output_column() -> None:
+    from sbretire.reporting import ANNUAL_COLUMNS, LIFESTYLE_COLUMNS, SUSTAINABILITY_COLUMNS
+
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    for file_name, columns in (
+        ("annual_results.csv", ANNUAL_COLUMNS),
+        ("sustainability_results.csv", SUSTAINABILITY_COLUMNS),
+        ("lifestyle_results.csv", LIFESTYLE_COLUMNS),
+    ):
+        table = _readme_table(readme, file_name)
+        missing = [column for column in columns if f"`{column}`" not in table]
+        assert missing == [], (file_name, missing)
