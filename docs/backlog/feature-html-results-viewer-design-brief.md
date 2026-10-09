@@ -93,15 +93,18 @@ and a regenerated `docs/design/sample/`.
   - minor points then fixed in the hand-off: other nulls (incl. annual rows without a note) and negative required returns; brief §2 #4 figure corrected to 10,500
 
 ### F-022.2 Choose and record the common CSS theme
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-022.1
 
 After Claude Design proposes a theme: record it in `docs/decisions/viewer.md` §1 and commit `viewer/theme.css`.
 Criteria may be refined when the design is back.
 
 **Acceptance criteria**
-- [ ] `docs/decisions/viewer.md` §1 records the chosen theme and `src/sbretire/web/theme.css` defines every token it names, with a dark value for every colour and chart token in both the `prefers-color-scheme` block and `[data-theme="dark"]` — `test_theme_css_defines_decided_tokens`
-- [ ] Text tokens meet WCAG AA in light and dark: body and muted text on background, surface and sunken surface ≥ 4.5:1; status colours, chart run colours and the accent on background ≥ 3:1 — `test_theme_contrast_meets_aa`
+- [x] `docs/decisions/viewer.md` §1 records the chosen theme and `src/sbretire/web/theme.css` defines every token it names, with a dark value for every colour and chart token in both the `prefers-color-scheme` block and `[data-theme="dark"]` — `test_theme_css_defines_decided_tokens`
+- [x] Text tokens meet WCAG AA in light and dark: body and muted text on background, surface and sunken surface ≥ 4.5:1; status colours, chart run colours and the accent on background ≥ 3:1 — `test_theme_contrast_meets_aa`
+
+**Notes**
+- 2026-10-09 `src/sbretire/web/theme.css` = Claude Design Direction A "Paper" unchanged (tokens only; light, system dark, forced dark, reduced motion; system font stacks). Decision `docs/decisions/viewer.md` §1. Design notes kept as `docs/design/theme-notes.md` and `docs/design/viewer-design-notes.md`. Tests `test_theme_css_defines_decided_tokens`, `test_theme_contrast_meets_aa` (oklch → OKLab → linear sRGB → WCAG luminance; every text pair ≥ 4.5:1, marks ≥ 3:1, both modes — passed with no token changes). The test's forced-dark lookup first matched the header comment; anchored to `@media screen {`.
 
 ### F-022.3 Build the results viewer page
 - **Status**: In Progress

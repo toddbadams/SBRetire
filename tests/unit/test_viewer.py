@@ -28,7 +28,7 @@ def _themes() -> tuple[dict[str, str], dict[str, str], dict[str, str]]:
     css = THEME.read_text(encoding="utf-8")
     light = _block(css, ":root {")
     system_dark = _block(css, ':root:not([data-theme="light"])', "prefers-color-scheme: dark")
-    forced_dark = _block(css, ':root[data-theme="dark"]')
+    forced_dark = _block(css, ':root[data-theme="dark"]', "@media screen {")
     return light, system_dark, forced_dark
 
 
