@@ -148,7 +148,7 @@ No randomness: nothing to pin.
 Task format and statuses: `docs/project-sdlc.md` §2. Definition of done: `docs/project-sdlc.md` §4.
 
 ### F-002.1 Monthly portfolio step
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: —
 
 `src/sbretire/portfolio.py`: `monthly_return_rate` and `apply_month` / `MonthResult` (brief §2 #1–#3, §5). Pure
@@ -162,9 +162,14 @@ array functions, float64, no loops. Tests in `tests/unit/test_portfolio.py`.
 
 **Notes**
 - 2026-10-09: `src/sbretire/portfolio.py` — `monthly_return_rate` (rejects r_a ≤ −1), `apply_month` returning `MonthResult(balance, depleted, shortfall)`; three vectorised `np.where` lines, no loops. Tests: `tests/unit/test_portfolio.py` (11 incl. a hypothesis property test and a negative-return depletion case).
+- 2026-10-09 /verify PASS:
+  - test_portfolio.py: 11 passed; hand-worked case 860 distinguishes income-first (860.5) and spend-first (858)
+  - code matches simulation-conventions §2 steps 3–6; vectorised, no loops, rejects r_a <= -1
+  - probe: available 150 vs spending 150 funded; vs 150.000001 depleted, shortfall ~1e-6
+  - ruff + mypy clean; no network/tax/loops in portfolio.py
 
 ### F-002.2 Path loop with deaths, depletion, censoring and observer
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-002.1
 
 `src/sbretire/simulation.py`: `HouseholdCashFlows`, `MonthObserver`, `PathOutcomes`, `simulate_paths` (brief §2
@@ -182,9 +187,15 @@ array functions, float64, no loops. Tests in `tests/unit/test_portfolio.py`.
 
 **Notes**
 - 2026-10-09: `src/sbretire/simulation.py` — `HouseholdCashFlows` / `MonthObserver` protocols, frozen `PathOutcomes`, `simulate_paths` (input validation; `alive = month < death_month`; only active paths change; loop stops when none active). Test doubles `tests/unit/cash_flow_doubles.py`; tests `tests/unit/test_simulation.py` (14, incl. early stop and input validation).
+- 2026-10-09 /verify PASS:
+  - test_simulation.py: 14 passed; AC8 compares all five fields over 40 seeded paths
+  - code matches simulation-conventions §2 and brief §2 #4–#9; only the month loop is a Python loop
+  - probe: both dead at month 0 -> no cash flows, household_end 0, balance unchanged, observer never called
+  - probe: death_month == horizon -> censored, household_end -1; thesaurus definitions match the code
+  - ruff + mypy clean
 
 ### F-002.3 Closed-form known-answer checks
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-002.2
 
 `tests/integration/test_engine_closed_form.py` (T3): the engine reproduces closed-form annuity and perpetuity
@@ -196,7 +207,12 @@ results, so the month loop is checked against mathematics rather than against it
 
 **Notes**
 - 2026-10-09: `tests/integration/test_engine_closed_form.py` — annuity depletion month (5 cases incl. negative and zero return) and interest-only perpetuity (3 cases). Known-answer tests against existing code, so there was no red phase; sensitivity checked instead: under a spend-before-return ordering two of the five annuity cases change month (175→174, 254→250), so the test would catch an ordering regression.
-
+- 2026-10-09 /verify PASS:
+  - test_engine_closed_form.py: 8 passed
+  - closed form re-derived independently, incl. negative r and r = 0
+  - plain-loop cross-check equals formula and engine for all 5 annuity cases
+  - spend-before-return ordering changes 2 cases (175->174, 254->250): the test can fail on an ordering bug
+  - ruff + mypy clean
 
 ## 11. Open Questions
 
