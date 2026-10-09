@@ -19,7 +19,12 @@ from sbretire.config import load_scenario
 from sbretire.metadata import config_sha256, file_sha256
 from sbretire.monte_carlo import draw_random_inputs, run_monte_carlo
 from sbretire.mortality import load_mortality_table
-from sbretire.optimization import maximum_sustainable_budgets, path_budget_thresholds
+from sbretire.optimization import (
+    maximum_sustainable_budgets,
+    path_budget_thresholds,
+    path_return_thresholds,
+    required_returns,
+)
 from sbretire.randomness import ResolvedSeed
 
 from scenario_helpers import set_at
@@ -148,3 +153,43 @@ def test_cli_run_prints_maximum_budgets(
     out = capsys.readouterr().out
     row = next(line for line in out.splitlines() if line.lstrip().startswith("90%"))
     assert "infeasible" in row
+
+
+def test_cli_run_prints_required_returns(
+    tmp_path: Path, valid_raw: dict[str, Any], capsys: pytest.CaptureFixture[str]
+) -> None:
+    raw = set_at(_absolute_data(valid_raw), "model.confidence_levels", [0.5, 0.9])
+    raw = set_at(raw, "budget.monthly_amount_today", 4_000)
+    config = _write(tmp_path / "returns", raw)
+    assert main(["run", "--config", str(config), "--output-dir", str(tmp_path / "out")]) == 0
+    out = capsys.readouterr().out
+    assert out.isascii()
+
+    scenario = load_scenario(config).scenario
+    inputs = draw_random_inputs(
+        scenario, load_mortality_table(scenario.mortality.data_file), ResolvedSeed(7, "config")
+    )
+    expected = required_returns(path_return_thresholds(scenario, inputs), [0.5, 0.9])
+    section = out[out.index("Required return") :]
+    assert "4,000 GBP/month" in section and "tolerance 0.01 percentage points" in section
+    assert f"{expected[0].iterations} engine runs" in section
+    for result in expected:
+        assert result.required_annual_return is not None
+        assert result.estimated_success_probability is not None and result.standard_error is not None
+        row = next(
+            line
+            for line in section.splitlines()
+            if line.lstrip().startswith(f"{result.target_probability:.0%}")
+        )
+        assert f"{result.required_annual_return:.2%}" in row
+        assert f"{result.estimated_success_probability:.2%} +/- {result.standard_error:.3%}" in row
+        assert f"{result.unresolved_fraction:.2%}" in row
+        assert row.rstrip().endswith("yes")
+
+    hopeless = set_at(set_at(raw, "budget.monthly_amount_today", 100_000), "model.confidence_levels", [0.5])
+    config = _write(tmp_path / "hopeless", hopeless)
+    assert main(["run", "--config", str(config), "--output-dir", str(tmp_path / "out2")]) == 0
+    section = capsys.readouterr().out
+    section = section[section.index("Required return") :]
+    row = next(line for line in section.splitlines() if line.lstrip().startswith("50%"))
+    assert "no solution" in row

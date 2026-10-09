@@ -148,7 +148,7 @@ _(filled during implementation)_
 - 2026-10-09 Added to `src/sbretire/optimization.py`: `RETURN_LOWER`/`RETURN_UPPER` (±50 %), `RETURN_TOLERANCE` (0.0001), `ReturnSearch`, `path_return_thresholds` (bound checks at −50 % and +50 %, then vectorised per-path bisection for paths failing at −50 % and succeeding at +50 %; threshold = feasible upper end; −50 % if Successful there; +inf if not Successful at +50 %), `ReturnResult`, `required_returns` (⌈p·N⌉-th smallest threshold, confirming run; 'no solution within bounds' with the unresolved share at +50 %; '≤ −50 %' not converged). Tests `tests/integration/test_return_search.py` (6; closed form via independent scipy brentq; literal scalar bisection reference). `test_success_is_monotone_in_return` passed already in the red commit — it verifies an existing engine property, as SPEC §13 requires.
 
 ### F-011.3 `sbretire run` shows the required returns
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-011.2
 
 `run` adds a required-return table after the budget table (reusing the same `RandomInputs`); README; decision §2
