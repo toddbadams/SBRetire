@@ -98,7 +98,7 @@ _(filled during implementation)_
 Task format and statuses: `docs/project-sdlc.md` §2. Definition of done: `docs/project-sdlc.md` §4.
 
 ### F-004.1 ScenarioSpending
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: —
 
 `src/sbretire/spending.py`: `ScenarioSpending(scenario, price_index).spending(month, alive)` per brief §2 #1–#4,
@@ -106,13 +106,16 @@ Task format and statuses: `docs/project-sdlc.md` §2. Definition of done: `docs/
 sam has 0.65).
 
 **Acceptance criteria**
-- [ ] While both are alive, spending is the budget × I_t per path — `test_spending_tracks_price_index_while_both_alive`
-- [ ] After the first death spending changes to budget × I_t × the survivor's factor — `test_spending_changes_after_first_death_by_survivor_factor`
-- [ ] The survivor's own factor wins; a survivor without one falls back to the household default — `test_survivor_factor_precedence_uses_survivor_then_default`
-- [ ] Spending is 0 once both have died, with mixed alive states evaluated together — `test_spending_zero_when_both_dead`
+- [x] While both are alive, spending is the budget × I_t per path — `test_spending_tracks_price_index_while_both_alive`
+- [x] After the first death spending changes to budget × I_t × the survivor's factor — `test_spending_changes_after_first_death_by_survivor_factor`
+- [x] The survivor's own factor wins; a survivor without one falls back to the household default — `test_survivor_factor_precedence_uses_survivor_then_default`
+- [x] Spending is 0 once both have died, with mixed alive states evaluated together — `test_spending_zero_when_both_dead`
+
+**Notes**
+- 2026-10-09: `src/sbretire/spending.py` — `ScenarioSpending` resolves each person's factor-as-survivor once (own override else household default); `spending()` picks the survivor's factor with `np.where(alive[0], …)` and is fully vectorised. Tests: `tests/unit/test_spending.py` (4).
 
 ### F-004.2 ScenarioCashFlows and end-to-end check
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-004.1
 
 `src/sbretire/cash_flows.py`: `ScenarioCashFlows` composing income and spending, validating the price index's path
