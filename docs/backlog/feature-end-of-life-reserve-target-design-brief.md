@@ -118,7 +118,7 @@ def write_lifestyle_reserve_results_csv(results, end_reserve_months: int, path: 
 ## 10. Tasks
 
 ### F-019.1 Reserve config, per-path index and reserve-aware metrics
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: —
 
 §2 #1–#3, #6, #7: `budget.end_reserve_months`; `level_at`; `classify_paths` / `SuccessMetrics.from_outcomes` with
@@ -134,9 +134,14 @@ default-valued options out; input-row label. Tests in `tests/unit/test_end_reser
 
 **Notes**
 - 2026-10-09 `config.BudgetAssumptions.end_reserve_months` (Integer ≥ 0, default 0); `StochasticPriceIndex.level_at` (vectorised per-path month); `classify_paths` / `SuccessMetrics.from_outcomes` take an optional `required_end_balance` (short of it → Failed; censored untouched); `monte_carlo.required_end_balance` and `run_monte_carlo(..., end_reserve_months)`; `metadata._OPTIONS_HASHED_ONLY_WHEN_SET` keeps V1 hashes (fixture hash pinned); input-row label. Tests `tests/unit/test_end_reserve.py` (5).
+- 2026-10-09 /verify PASS (snapshot 5e4d3c1):
+  - 5 tests pass and each can fail; ruff + mypy clean
+  - own script: level_at = level exactly over 20 random trials; Required End Balance recomputed on 200 seeded paths, max difference 0
+  - outcomes identical at R = 0 and 12, metrics differ (152/48/0 vs 144/56/0); R = 0 equals V1
+  - pinned hashes of the fixture and example config unchanged; constraint grep clean
 
 ### F-019.2 Maximum sustainable budget leaving a reserve
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-019.1
 
 §2 #4: `path_budget_thresholds(..., end_reserve_months)` and the confirming runs in `maximum_sustainable_budgets`.
@@ -148,6 +153,10 @@ default-valued options out; input-row label. Tests in `tests/unit/test_end_reser
 
 **Notes**
 - 2026-10-09 `optimization.path_budget_thresholds(..., end_reserve_months)`: `_successful` applies the Required End Balance at each candidate budget; `ThresholdSearch.end_reserve_months` carries it into the confirming runs of `maximum_sustainable_budgets`. Tests in `tests/unit/test_end_reserve.py` (3 more: closed form at 0 % and 3 % inflation, monotone over 24 budgets on 400 seeded paths, R = 0 identity and reserve ≤ V1).
+- 2026-10-09 /verify PASS (snapshot 5e4d3c1):
+  - 3 tests pass and each can fail
+  - independent scalar bisection on the conservative rate (300 paths, seed 21, R = 12, target 90 %): 2,754.17 vs search 2,753.91 (within £1); V1 2,833.74; confirming rate 0.9
+  - monotonicity argument holds in code (budget enters only spending and the reserve requirement)
 
 ### F-019.3 Reserve outputs in run, guide and docs
 - **Status**: In Progress
