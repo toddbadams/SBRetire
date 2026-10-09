@@ -2,7 +2,7 @@
 id: F-015
 type: feature
 parent: reporting-release
-status: in-progress
+status: done
 complexity: 4
 created: 2026-10-09
 updated: 2026-10-09

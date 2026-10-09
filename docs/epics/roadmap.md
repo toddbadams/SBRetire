@@ -1,6 +1,6 @@
 # SBRetire V1 Roadmap
 
-**Last updated**: 2026-10-09 — F-015 briefed.
+**Last updated**: 2026-10-09 — F-015 done.
 
 Features in build order. Status: `proposed` → `briefed` → `in-progress` → `done` (or `superseded`). Briefs live in `docs/backlog/`; tasks are inside each brief.
 
@@ -10,7 +10,7 @@ Features in build order. Status: `proposed` → `briefed` → `in-progress` → 
 | F-002 | Deterministic Portfolio Engine (Walking Skeleton) | [simulation-engine](simulation-engine.md) | F-001 | done |
 | F-003 | Income Streams | [household-cash-flows](household-cash-flows.md) | F-002 | done |
 | F-004 | Spending with Survivor Budget Factor | [household-cash-flows](household-cash-flows.md) | F-002 | done |
-| F-015 | Deterministic Preview Run | [reporting-release](reporting-release.md) | F-003, F-004 | in-progress |
+| F-015 | Deterministic Preview Run | [reporting-release](reporting-release.md) | F-003, F-004 | done |
 | F-005 | Random Streams and Run Metadata | [foundations](foundations.md) | F-001 | proposed |
 | F-006 | Stochastic Inflation Process and CPI Calibration | [stochastic-inputs](stochastic-inputs.md) | F-003, F-004, F-005 | proposed |
 | F-007 | ONS Mortality Data Ingest and Mapping | [stochastic-inputs](stochastic-inputs.md) | F-001 | proposed |
@@ -107,6 +107,7 @@ Unmapped requirements: **none**.
 
 ## Change Log
 
+- 2026-10-09 — F-015 done: `sbretire preview` (deterministic year-by-year illustration + preview.csv); F-015.1–F-015.3 verified (211 tests).
 - 2026-10-09 — F-015 briefed: design brief + tasks F-015.1…F-015.3; provisional decision simulation-conventions §3 (inflation steps on As-Of anniversaries).
 - 2026-10-09 — F-004 done: `ScenarioSpending` (survivor's own factor) and `ScenarioCashFlows`; a Scenario now drives the engine end to end; F-004.1–F-004.2 verified (185 tests).
 - 2026-10-09 — F-004 briefed: design brief + tasks F-004.1…F-004.2; decision configuration §6 (survivor factor precedence).

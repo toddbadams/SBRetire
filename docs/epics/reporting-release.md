@@ -1,19 +1,20 @@
 ---
 epic: reporting-release
 title: Reporting and Release
-status: proposed
+status: active
 spec_sections: [§1.2, §2, §12, §15, §16, §17.3, §19]
 depends_on: [simulation-engine, analysis-optimization, foundations, household-cash-flows]
 milestones:
   - { id: F-012, title: Annual Results CSV, status: proposed }
   - { id: F-013, title: Sustainability and Lifestyle CSVs and End-to-End CLI, status: proposed }
   - { id: F-014, title: "V1 Release: README, Acceptance and Reproducibility Sweep", status: proposed }
-  - { id: F-015, title: Deterministic Preview Run, status: in-progress }
+  - { id: F-015, title: Deterministic Preview Run, status: done }
 created: 2026-10-09
 updated:
   - 2026-10-09: created by /decompose-spec
   - 2026-10-09: added F-015 Deterministic Preview Run
   - 2026-10-09: F-015 briefed
+  - 2026-10-09: F-015 done
 ---
 
 # Reporting and Release
