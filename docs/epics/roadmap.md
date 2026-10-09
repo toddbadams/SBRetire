@@ -1,6 +1,6 @@
 # SBRetire V1 Roadmap
 
-**Last updated**: 2026-10-09 — F-005 briefed.
+**Last updated**: 2026-10-09 — F-005 done.
 
 Features in build order. Status: `proposed` → `briefed` → `in-progress` → `done` (or `superseded`). Briefs live in `docs/backlog/`; tasks are inside each brief.
 
@@ -11,7 +11,7 @@ Features in build order. Status: `proposed` → `briefed` → `in-progress` → 
 | F-003 | Income Streams | [household-cash-flows](household-cash-flows.md) | F-002 | done |
 | F-004 | Spending with Survivor Budget Factor | [household-cash-flows](household-cash-flows.md) | F-002 | done |
 | F-015 | Deterministic Preview Run | [reporting-release](reporting-release.md) | F-003, F-004 | done |
-| F-005 | Random Streams and Run Metadata | [foundations](foundations.md) | F-001 | in-progress |
+| F-005 | Random Streams and Run Metadata | [foundations](foundations.md) | F-001 | done |
 | F-006 | Stochastic Inflation Process and CPI Calibration | [stochastic-inputs](stochastic-inputs.md) | F-003, F-004, F-005 | proposed |
 | F-007 | ONS Mortality Data Ingest and Mapping | [stochastic-inputs](stochastic-inputs.md) | F-001 | proposed |
 | F-008 | Monthly Mortality Sampling | [stochastic-inputs](stochastic-inputs.md) | F-002, F-005, F-007 | proposed |
@@ -107,6 +107,7 @@ Unmapped requirements: **none**.
 
 ## Change Log
 
+- 2026-10-09 — F-005 done: Random Streams (`randomness.py`), Config Hash and Run Metadata (`metadata.py`, `run_metadata.json`); F-005.1–F-005.3 verified (235 tests).
 - 2026-10-09 — F-005 briefed: design brief + tasks F-005.1…F-005.3; decisions configuration §7–§8 (Config Hash, generated seed), simulation-conventions §4 (Random Streams, CRN); thesaurus Config Hash, Run Metadata.
 - 2026-10-09 — F-015 done: `sbretire preview` (deterministic year-by-year illustration + preview.csv); F-015.1–F-015.3 verified (211 tests).
 - 2026-10-09 — F-015 briefed: design brief + tasks F-015.1…F-015.3; provisional decision simulation-conventions §3 (inflation steps on As-Of anniversaries).

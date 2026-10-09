@@ -2,7 +2,7 @@
 id: F-005
 type: feature
 parent: foundations
-status: in-progress
+status: done
 complexity: 3
 created: 2026-10-09
 updated: 2026-10-09
@@ -162,7 +162,7 @@ exactly; note in README that JavaScript would lose precision on a generated seed
 ## 10. Tasks
 
 ### F-005.1 Random Streams and seed resolution
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: —
 
 Build `src/sbretire/randomness.py` per §5: `resolve_seed` and `RandomStreams.from_seed` with mortality = child 0,
@@ -180,9 +180,14 @@ inflation = child 1 (§2 #1–#3). Tests in `tests/unit/test_randomness.py`; the
 
 **Notes**
 - 2026-10-09 Added `src/sbretire/randomness.py` (`resolve_seed`, `ResolvedSeed`, `RandomStreams.from_seed`; mortality child 0, inflation child 1 via `SeedSequence(seed, spawn_key=(k,))`, identical to `SeedSequence(seed).spawn(2)[k]`); tests `tests/unit/test_randomness.py` (8) and `test_config_accepts_128_bit_random_seed`. Known answers computed with NumPy 2.5.3.
+- 2026-10-09 /verify PASS:
+  - test_randomness.py + 128-bit config test: 9 passed
+  - seed-42 known answers recomputed independently via SeedSequence(42).spawn(2)[k] — identical
+  - probe: 1,000 inflation normals leave mortality draws unchanged; resolve_seed(None) 128-bit, fresh each call
+  - no np.random globals / `import random` / default_rng in src/; ruff + mypy clean
 
 ### F-005.2 Config Hash and file hash
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: —
 
 Add `config_sha256` and `file_sha256` to `src/sbretire/metadata.py` per §2 #4 and §5. Tests in
@@ -197,9 +202,14 @@ Add `config_sha256` and `file_sha256` to `src/sbretire/metadata.py` per §2 #4 a
 
 **Notes**
 - 2026-10-09 Added `config_sha256` (pydantic `model_dump(mode="json")` excluding `mortality.data_file`, sorted-key compact ASCII JSON) and streaming `file_sha256` to `src/sbretire/metadata.py`; tests in `tests/unit/test_metadata.py` (10: comments/sort/flow-style YAML, six value changes incl. seed → null, two directories, warn-mode extras, known-answer + empty-file + missing file).
+- 2026-10-09 /verify PASS:
+  - config_sha256 / file_sha256 tests: 10 passed
+  - probe: own canonical-JSON sha256 == config_sha256; comment-only change same; annual_mean and confidence_levels changes differ; three data_file paths same
+  - file_sha256 == hashlib on a 3 MB file (multi-chunk); missing file message names the path
+  - ruff + mypy clean; no network imports
 
 ### F-005.3 RunMetadata and run_metadata.json
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-005.1, F-005.2
 
 Add `DataFileRecord`, `RunMetadata`, `build_run_metadata`, `write_run_metadata` per §5; README section on
@@ -214,6 +224,10 @@ reproducibility and `run_metadata.json`.
 
 **Notes**
 - 2026-10-09 Added `DataFileRecord`, `RunMetadata`, `build_run_metadata` (injectable UTC `now`, non-UTC rejected) and `write_run_metadata` (`run_metadata.json`, sorted keys, indent 2, LF) to `src/sbretire/metadata.py`; 5 tests in `tests/unit/test_metadata.py` (incl. `test_build_run_metadata_requires_utc_now`); README section "Reproducibility and run_metadata.json". Not yet called by `sbretire run` (F-013).
+- 2026-10-09 /verify PASS:
+  - run_metadata tests: 5 passed; every SPEC §10.3 field asserted
+  - probe: generated 128-bit seed round-trips exactly through run_metadata.json; sorted keys, LF, trailing newline; created_at ISO-Z; naive now -> ValueError
+  - README section accurate against code; ruff, ruff format, mypy clean
 
 ## 11. Open Questions
 
