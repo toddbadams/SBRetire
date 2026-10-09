@@ -159,7 +159,7 @@ Build the typed Scenario models and parse_scenario with collect-all error report
 - 2026-10-09: `src/sbretire/config.py` — frozen pydantic models (`_Frozen`: frozen, extra=forbid) for every §4.2 section; strict scalars via BeforeValidator types (`Number`, `Integer`, `Boolean`, `Text`, `IsoDate`); `parse_scenario` maps pydantic errors to `ScenarioIssue` (natural-sorted, "must be …" wording, offending value echoed). Added `pydantic>=2.9` + mypy plugin. Tests: `tests/unit/test_config_fields.py` (79 cases), helpers `tests/unit/scenario_helpers.py`, fixture `tests/fixtures/scenarios/valid_minimal.yaml`.
 
 ### F-001.2 Cross-field and date consistency rules
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-001.1
 
 Add cross-field validators to the Scenario models, reporting into the same issue list.
