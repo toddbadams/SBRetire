@@ -2,7 +2,7 @@
 id: F-011
 type: feature
 parent: analysis-optimization
-status: in-progress
+status: done
 complexity: 4
 created: 2026-10-09
 updated: 2026-10-09
@@ -178,7 +178,7 @@ recorded with the brief.
   - budget 60,000: 'no solution within bounds' rows, exit 0; README accurate; full gate 349 passed
 
 ### B-011.1 Round displayed budgets down and returns up
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-011.3
 
 Found by /verify F-011.3: the CLI rounds to the nearest unit, so a printed required return (−5.51 %) can sit just below
@@ -193,6 +193,11 @@ up to 0.01 %, so the printed figure always meets its target. Computation is unch
 
 **Notes**
 - 2026-10-09 `format_budget_table` prints floor(B*) and floor(12·B*); `format_return_table` prints `_round_return_up` (ceil to 0.01 %, rounding to 9 places first to absorb float noise) in `src/sbretire/__main__.py`. New tests `test_cli_run_budget_display_rounds_down` and `test_cli_run_return_display_rounds_up` (each confirms a run at the printed figure meets its target); the two earlier table tests updated from nearest to conservative rounding. README note.
+- 2026-10-09 /verify PASS:
+  - CLI tests: 7 passed; new tests assert floor/ceil and that runs at the printed figures meet their targets
+  - `_round_return_up`: −0.055097 → −5.50 %, −0.0551 → −5.51 % (no noise step), 0.04041 → 4.05 %; budgets floor (10,458.69 → 10,458)
+  - example config, seed 42, 100k paths, at the printed figures: budgets 10,751 / 10,458 / 9,972 → 90.020 / 95.020 / 99.001 %; returns −6.53 / −5.50 / −4.04 % → 90.023 / 95.030 / 99.007 % — every rate ≥ target with no slack
+  - README note present; full gate 351 passed
 
 ## 11. Open Questions
 
