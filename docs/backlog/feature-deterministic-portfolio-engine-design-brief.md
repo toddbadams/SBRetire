@@ -2,7 +2,7 @@
 id: F-002
 type: feature
 parent: simulation-engine
-status: in-progress
+status: done
 complexity: 4
 created: 2026-10-09
 updated: 2026-10-09
