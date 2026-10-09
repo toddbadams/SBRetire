@@ -98,7 +98,7 @@ Spending per path: `B_m × I_t × where(both alive, 1, where(only p alive, facto
 Task format and statuses: `docs/project-sdlc.md` §2. Definition of done: `docs/project-sdlc.md` §4.
 
 ### F-004.1 ScenarioSpending
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: —
 
 `src/sbretire/spending.py`: `ScenarioSpending(scenario, price_index).spending(month, alive)` per brief §2 #1–#4,
@@ -113,9 +113,14 @@ sam has 0.65).
 
 **Notes**
 - 2026-10-09: `src/sbretire/spending.py` — `ScenarioSpending` resolves each person's factor-as-survivor once (own override else household default); `spending()` picks the survivor's factor with `np.where(alive[0], …)` and is fully vectorised. Tests: `tests/unit/test_spending.py` (4).
+- 2026-10-09 /verify PASS:
+  - test_spending.py: 4 passed; every expected value recomputed from the fixture
+  - tests would fail under deceased's-factor or ignored-override precedence (columns swap / 1950 vs 2100)
+  - probe: overrides 0.9 / 0.4 -> alex alone 2700, sam alone 1200 (survivor's own in both directions)
+  - matches configuration §6 and SPEC §6; vectorised; ruff + mypy clean
 
 ### F-004.2 ScenarioCashFlows and end-to-end check
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-004.1
 
 `src/sbretire/cash_flows.py`: `ScenarioCashFlows` composing income and spending, validating the price index's path
@@ -130,7 +135,11 @@ count at construction (brief §2 #5, §5). Tests in `tests/unit/test_cash_flows.
 
 **Notes**
 - 2026-10-09: `src/sbretire/cash_flows.py` — `ScenarioCashFlows` validates `price_index.level(0).shape == (n_paths,)` at construction, then delegates to `ScenarioIncome` and `ScenarioSpending`. End-to-end test covers two completed paths (final 129 800 and 17 000) and one depleting path that is funded exactly at month 288 and depletes at month 289 with a 2000 shortfall. README gains a "Budget" section. Tests: `tests/unit/test_cash_flows.py` (2), `tests/integration/test_cash_flows_end_to_end.py` (1).
-
+- 2026-10-09 /verify PASS:
+  - test_cash_flows.py + test_cash_flows_end_to_end.py: 3 passed
+  - end-to-end re-derived by hand: 129 800, 17 000, exact funding at month 288, depletion 289 (shortfall 2000)
+  - probe: FlatPriceIndex(3) with n_paths=4 -> ValueError at construction; n_paths=3 constructs
+  - README Budget section agrees with configuration §6; ruff + mypy clean
 
 ## 11. Open Questions
 
