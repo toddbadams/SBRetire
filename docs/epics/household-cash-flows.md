@@ -5,8 +5,8 @@ status: proposed
 spec_sections: [§4.2, §6, §8]
 depends_on: [simulation-engine]
 milestones:
-  - { id: F-003, backlog: m-2, title: Income Streams, status: proposed }
-  - { id: F-004, backlog: m-3, title: Spending with Survivor Budget Factor, status: proposed }
+  - { id: F-003, title: Income Streams, status: proposed }
+  - { id: F-004, title: Spending with Survivor Budget Factor, status: proposed }
 created: 2026-10-09
 updated:
   - 2026-10-09: created by /decompose-spec

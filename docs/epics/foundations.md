@@ -5,8 +5,8 @@ status: proposed
 spec_sections: [§4, §4.2, §4.3, §5, §10.3]
 depends_on: []
 milestones:
-  - { id: F-001, backlog: m-0, title: Scenario Config Loading and Validation, status: briefed }
-  - { id: F-005, backlog: m-4, title: Random Streams and Run Metadata, status: proposed }
+  - { id: F-001, title: Scenario Config Loading and Validation, status: briefed }
+  - { id: F-005, title: Random Streams and Run Metadata, status: proposed }
 created: 2026-10-09
 updated:
   - 2026-10-09: created by /decompose-spec

@@ -1,50 +1,53 @@
 ---
 name: verify
-description: Walk every Backlog.md task in Verification status (optionally for one milestone), have a subagent run each task's objective checks, and route the result — pass → Done with a final summary, fail → back to To Do with a dated failure note. Use when the user says "verify", "/verify F-003", or when /implement hands off.
+description: Walk every markdown-backlog task in Verification status (optionally for one feature), have a subagent run each task's objective checks, and route the result in the brief — pass → Done with a dated verification note, fail → back to To Do with a dated failure note. Use when the user says "verify", "/verify F-003", or when /implement hands off.
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Verify
 
-`/verify [F-NNN | milestone id]`
+`/verify [F-NNN | O-NNN]` — backlog format: `docs/project-sdlc.md` §2.
 
-Independent check that what `/implement` claimed is true. The verifier is read-only: it runs commands and reads code, it never edits.
+Independent check that what `/implement` claimed is true. The verifier subagent is read-only; only you edit briefs.
 
 ## Step 1 — Queue
 
-1. Read `backlog/tasks/*.md` frontmatter; keep `status: Verification`. If a milestone was given, post-filter on `milestone:`.
-2. Sort by milestone then id. Announce the queue (id, title). Empty → say so and stop.
+1. Read `## 10. Tasks` of every `docs/backlog/*-design-brief.md` (or the one feature's brief); keep tasks with
+   `- **Status**: Verification`.
+2. Sort by feature then task id. Announce the queue. Empty → say so and stop.
 
 ## Step 2 — Per task
 
-1. `mcp__backlog__task_view` the task; read its brief section.
-2. Build a **3–7 item checklist** of objective checks, each with a command and the expected result:
-   - each AC's **named test** — `uv run pytest tests/unit/test_x.py::test_name -q` → passes;
-   - the AC is actually asserted by that test (read it — a test that can't fail is not evidence);
-   - greps for constraint violations in changed files (e.g. no `requests`/`urllib` imports, no tax terms, no hard-coded dates/amounts in `src/`);
+1. Read the task block and its brief sections.
+2. Build a **3–7 item checklist** of objective checks, each a command with its expected result:
+   - each AC's named evidence — `uv run pytest tests/unit/test_x.py::test_name -q` passes, or the `check:` command
+     produces the stated result;
+   - the test really asserts the AC (read it — a test that can't fail is not evidence);
+   - constraint greps on changed files (no `requests`/`urllib`, no tax terms, no hard-coded dates/amounts in `src/`);
    - seed-dependent claims: the test pins the seed;
    - `uv run ruff check <files>` and `uv run mypy` clean;
    - docs claimed updated really were (README / THESAURUS / data/README / decisions).
    If every check would be manual, mark **skip** and say why.
-3. Spawn a general-purpose subagent with a self-contained prompt: repo path, task text, checklist, "read-only — do not edit files or run git write commands", and return **only** JSON:
+3. Spawn a general-purpose subagent with a self-contained prompt: repo path, task block, checklist, "read-only — do
+   not edit files or run git write commands", and return **only** JSON:
    ```json
    {"verdict": "pass|fail|skip",
     "steps": [{"n": 1, "result": "pass|fail", "evidence": "<command + key output>"}],
     "failure_summary": "<empty on pass>"}
    ```
-   Unparseable output = **fail**.
-4. Route (one `mcp__backlog__task_edit` per decision, absolute dates):
-   - **pass** → `status: Done`, `finalSummary`: what was delivered + "Verified by agent on YYYY-MM-DD via /verify" + the evidence lines.
-   - **fail** → `status: To Do`, append a note `YYYY-MM-DD /verify FAIL:` + failing steps and evidence.
-   - **skip** → no change; report why.
+   Unparseable output = **fail**. Tasks may be verified in parallel (one subagent each).
+4. Route, editing the task block in the brief (absolute dates):
+   - **pass** → `- **Status**: Done`; append `**Notes**` bullet `YYYY-MM-DD /verify PASS:` + one line per evidence.
+   - **fail** → `- **Status**: To Do`; un-tick the failing ACs; append `YYYY-MM-DD /verify FAIL:` + failing steps.
+   - **skip** → no status change; append `YYYY-MM-DD /verify SKIP: <why>`.
 
-Tasks may be verified in parallel (one subagent each) — they're read-only.
+## Step 3 — Record
 
-## Step 3 — Summarise
+Run `uv run python scripts/backlog_check.py`, then commit the brief(s): `docs(F-NNN): verify <ids>`.
+Summarise pass / fail / skip counts and ids, with a one-line cause per failure.
 
-Counts and ids for pass / fail / skip. For failures, the one-line cause each.
+## Step 4 — Feature complete?
 
-## Step 4 — Milestone complete?
-
-If every task on the milestone is now `Done`, do `/implement` Step 5 (brief/roadmap/epic → done/delivered, Change Log bullet) and commit the named files only — never `git add backlog/`. Otherwise offer `/implement <milestone>` to fix the failures.
+If every task in the brief is now `Done`, do `/implement` Step 5 (brief/roadmap/epic → `done`, Change Log bullet,
+commit named files). Otherwise offer `/implement F-NNN` to fix the failures.

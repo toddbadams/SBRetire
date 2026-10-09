@@ -5,7 +5,7 @@ status: proposed        # proposed | active | delivered | superseded
 spec_sections: [§N, §N.M]
 depends_on: []          # other epic slugs
 milestones:
-  - { id: F-NNN, title: <feature title>, status: proposed }   # proposed | briefed | in-progress | delivered | superseded
+  - { id: F-NNN, title: <feature title>, status: proposed }   # proposed | briefed | in-progress | done | superseded (same as roadmap)
 created: YYYY-MM-DD
 updated:
   - YYYY-MM-DD: created by /decompose-spec

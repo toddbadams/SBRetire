@@ -13,7 +13,7 @@ uv run python scripts/check.py --fast     # skip @pytest.mark.slow
 uv run python scripts/check.py --fix      # ruff --fix + format, then gate
 uv run pytest tests/unit/test_x.py::test_y -q
 uv run sbretire --config config/model.yaml --output-dir output
-backlog board                             # Backlog.md kanban (or the backlog MCP tools)
+uv run python scripts/backlog_check.py --next   # what to work on next (markdown backlog)
 ```
 
 On this Windows box `.venv/Scripts/python.exe` works in place of `uv run python`.
@@ -27,8 +27,8 @@ tests/unit/          fast, pure tests      tests/integration/  seeded end-to-end
 config/              model.example.yaml (committed); model.yaml is personal and git-ignored
 data/                ONS mortality + CPI inputs; provenance in data/README.md
 docs/SPEC.md         specification         docs/THESAURUS.md   domain glossary
-docs/epics/          epics + roadmap       docs/backlog/       design briefs
-backlog/             Backlog.md tasks, milestones, decisions (backlog/docs/decisions/)
+docs/epics/          epics + roadmap       docs/backlog/       design briefs (tasks inline)
+docs/decisions/      decision records by topic
 scripts/check.py     the quality gate (also CI: .github/workflows/ci.yml)
 ```
 
@@ -42,7 +42,7 @@ scripts/check.py     the quality gate (also CI: .github/workflows/ci.yml)
 6. **Failure semantics** per SPEC §9: depletion when balance after return + income < required spending; balance floors at zero, shortfall recorded, no negative compounding.
 7. **Censored paths never count as successes**; optimization targets the conservative rate (SPEC §7.2, §11).
 8. **Fail fast** on invalid config with actionable messages (SPEC §4.3).
-9. **SPEC §18 decisions are recorded**, not left implicit — in `backlog/docs/decisions/` via the Backlog.md MCP.
+9. **SPEC §18 decisions are recorded**, not left implicit — in `docs/decisions/<topic>.md`.
 
 ## Code style
 
@@ -55,7 +55,8 @@ scripts/check.py     the quality gate (also CI: .github/workflows/ci.yml)
 
 `/decompose-spec` → `/design-brief F-NNN` → `/implement F-NNN` → `/verify F-NNN`. `/backlog-next` says what's next.
 TDD per task: commit failing tests, then code + task file. Never weaken a test to go green.
-Backlog tasks/milestones/decision docs are written via the Backlog.md MCP/CLI only. Use absolute dates (YYYY-MM-DD).
+The backlog is markdown: roadmap rows + tasks inside briefs, format in `docs/project-sdlc.md` §2, enforced by
+`scripts/backlog_check.py`. Edit it directly. Use absolute dates (YYYY-MM-DD).
 Stage named paths — never `git add .`. Push only when asked.
 
 ## Domain Language

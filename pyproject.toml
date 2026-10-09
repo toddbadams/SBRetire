@@ -36,7 +36,7 @@ packages = ["src/sbretire"]
 # ---------------------------------------------------------------- pytest
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["src"]
+pythonpath = ["src", "scripts"]
 addopts = "-ra --strict-markers"
 markers = [
     "slow: takes > 1 s (large simulation counts)",
@@ -59,8 +59,8 @@ ignore = ["RUF001", "RUF002", "RUF003"]  # allow unicode (£, π, ≥) in string
 [tool.mypy]
 python_version = "3.12"
 strict = true
-mypy_path = "src"
-packages = ["sbretire"]
+mypy_path = "src,scripts"
+files = ["src/sbretire", "scripts", "tests"]
 warn_unreachable = true
 
 [[tool.mypy.overrides]]

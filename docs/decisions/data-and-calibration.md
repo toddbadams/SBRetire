@@ -1,10 +1,3 @@
----
-id: doc-002
-title: Data and Calibration Decisions
-type: other
-created_date: '2026-10-09 09:26'
-updated_date: '2026-10-09 09:30'
----
 # Data and Calibration Decisions
 
 Scope: ONS mortality dataset selection and mapping, inflation stochastic process and calibration data, data provenance and hashing.

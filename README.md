@@ -8,7 +8,7 @@ research only — it is **not financial advice**, does not forecast investment r
 guarantee future solvency.
 
 > Status: project scaffold. The simulation engine is being built feature-by-feature from the
-> spec; see `backlog/` for the plan and progress.
+> spec; see [docs/epics/roadmap.md](docs/epics/roadmap.md) for the plan and progress.
 
 ## Install
 
@@ -44,8 +44,10 @@ uv run python scripts/check.py --fast   # skip slow tests
 uv run python scripts/check.py --fix    # auto-fix lint + format first
 ```
 
-Work is tracked with [Backlog.md](https://github.com/MrLesk/Backlog.md) in `backlog/`
-(`backlog board`, `backlog task list`). Design decisions live in `backlog/docs/decisions/` (topic-grouped decision records) and the
+Work is tracked in plain markdown: [docs/epics/roadmap.md](docs/epics/roadmap.md) lists features, and each
+feature's design brief in `docs/backlog/` holds its tasks (`uv run python scripts/backlog_check.py --next`
+shows what's next; format in [docs/project-sdlc.md](docs/project-sdlc.md)). Design decisions live in
+`docs/decisions/` (topic-grouped decision records) and the
 domain glossary in [docs/THESAURUS.md](docs/THESAURUS.md).
 
 ## Data

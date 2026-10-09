@@ -5,9 +5,9 @@ status: proposed
 spec_sections: [§1.2, §2, §12, §15, §16, §17.3, §19]
 depends_on: [simulation-engine, analysis-optimization, foundations]
 milestones:
-  - { id: F-012, backlog: m-11, title: Annual Results CSV, status: proposed }
-  - { id: F-013, backlog: m-12, title: Sustainability and Lifestyle CSVs and End-to-End CLI, status: proposed }
-  - { id: F-014, backlog: m-13, title: "V1 Release: README, Acceptance and Reproducibility Sweep", status: proposed }
+  - { id: F-012, title: Annual Results CSV, status: proposed }
+  - { id: F-013, title: Sustainability and Lifestyle CSVs and End-to-End CLI, status: proposed }
+  - { id: F-014, title: "V1 Release: README, Acceptance and Reproducibility Sweep", status: proposed }
 created: 2026-10-09
 updated:
   - 2026-10-09: created by /decompose-spec

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Run the full quality gate: ruff lint, ruff format check, mypy (strict), pytest.
+"""Run the full quality gate: ruff lint, ruff format check, mypy (strict), backlog check, pytest.
 
 Usage:
     uv run python scripts/check.py           # full gate (what CI runs)
@@ -7,7 +7,7 @@ Usage:
     uv run python scripts/check.py --fix     # apply ruff fixes + formatting first
 
 Exits non-zero on the first failing step. This is the single gate referenced by
-CLAUDE.md, the Backlog definition of done, and CI.
+CLAUDE.md, the definition of done (docs/project-sdlc.md), and CI.
 """
 
 from __future__ import annotations
@@ -43,6 +43,7 @@ def main() -> int:
     _run("ruff lint", [py, "-m", "ruff", "check", "."])
     _run("ruff format", [py, "-m", "ruff", "format", "--check", "."])
     _run("mypy", [py, "-m", "mypy"])
+    _run("backlog", [py, "scripts/backlog_check.py"])
     pytest_cmd = [py, "-m", "pytest", "-q"]
     if args.fast:
         pytest_cmd += ["-m", "not slow"]

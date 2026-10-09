@@ -1,6 +1,6 @@
 ---
 name: grill-with-docs
-description: Grilling session that challenges your plan against SBRetire's existing domain model and docs/SPEC.md, sharpens terminology, and updates project docs (docs/THESAURUS.md, backlog/docs/decisions/) inline as decisions crystallise. Use when user wants to stress-test a plan against the project's language and documented decisions.
+description: Grilling session that challenges your plan against SBRetire's existing domain model and docs/SPEC.md, sharpens terminology, and updates project docs (docs/THESAURUS.md, docs/decisions/) inline as decisions crystallise. Use when user wants to stress-test a plan against the project's language and documented decisions.
 disable-model-invocation: true
 metadata:
   version: "1.0.0"
@@ -25,18 +25,17 @@ Single context, project-wide:
 ├── docs/
 │   ├── SPEC.md               ← authoritative specification (cite as SPEC §N)
 │   ├── THESAURUS.md          ← domain glossary, maintained by /ubiquitous-language
-│   └── epics/                ← epics decomposed from SPEC.md
-└── backlog/
-    └── docs/
-        └── decisions/         ← decision records, topic-grouped, via Backlog.md MCP
-            ├── doc-001 - Simulation-Conventions-Decisions.md
-            ├── doc-002 - Data-and-Calibration-Decisions.md
-            ├── doc-003 - Configuration-Decisions.md
-            ├── doc-004 - Optimization-Decisions.md
-            └── doc-005 - Tooling-and-Process-Decisions.md
+│   ├── epics/                ← epics + roadmap.md (the feature index)
+│   ├── backlog/              ← design briefs, tasks inline
+│   └── decisions/            ← decision records, one file per topic
+│       ├── simulation-conventions.md
+│       ├── data-and-calibration.md
+│       ├── configuration.md
+│       ├── optimization.md
+│       └── tooling-and-process.md
 ```
 
-There is no `CONTEXT.md`/`CONTEXT-MAP.md` and no `docs/adr/` in this repo — `docs/THESAURUS.md` and `backlog/docs/decisions/*.md` are the equivalents, and they already exist. Read them; don't invent parallel files.
+There is no `CONTEXT.md`/`CONTEXT-MAP.md` and no `docs/adr/` in this repo — `docs/THESAURUS.md` and `docs/decisions/*.md` are the equivalents, and they already exist. Read them; don't invent parallel files.
 
 ## During the session
 
@@ -68,4 +67,4 @@ Only offer to record a decision when all three are true:
 2. **Surprising without context** — a future reader will wonder "why did they do it this way?"
 3. **The result of a real trade-off** — there were genuine alternatives and you picked one for specific reasons
 
-If any of the three is missing, skip it. When offered, record it under `backlog/docs/decisions/` — append a numbered entry to the topic file it belongs with (`Simulation-Conventions-Decisions`, `Data-and-Calibration-Decisions`, `Configuration-Decisions`, `Optimization-Decisions`, `Tooling-and-Process-Decisions`; start a new topic file only if none fits), via the Backlog.md MCP `document_update`/`document_create` tools — never hand-edit `backlog/docs/decisions/*.md` directly, matching this repo's task-tracking convention. Match the existing entries' shape: `## N. {Title}` heading, 1–3 sentence decision + rationale, an explicit **Why** line when the reasoning isn't obvious from the decision itself.
+If any of the three is missing, skip it. When offered, record it under `docs/decisions/` — append a numbered entry to the topic file it belongs with (`simulation-conventions`, `data-and-calibration`, `configuration`, `optimization`, `tooling-and-process`; start a new topic file only if none fits) — edit the file directly, appending (never rewriting) entries. Match the existing entries' shape: `## N. {Title}` heading, 1–3 sentence decision + rationale, an explicit **Why** line when the reasoning isn't obvious from the decision itself.

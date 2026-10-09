@@ -29,7 +29,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv: Sequence[str] | None = None) -> int:
     build_parser().parse_args(argv)
-    raise SystemExit("Simulation engine not implemented yet — see backlog/ for the build plan.")
+    raise SystemExit("Simulation engine not implemented yet — see docs/epics/roadmap.md for the build plan.")
 
 
 if __name__ == "__main__":

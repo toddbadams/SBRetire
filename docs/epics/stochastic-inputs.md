@@ -5,9 +5,9 @@ status: proposed
 spec_sections: [§4.1, §4.2, §4.3, §6, §7.1, §7.2, §19]
 depends_on: [foundations, household-cash-flows]
 milestones:
-  - { id: F-006, backlog: m-5, title: Stochastic Inflation Process and CPI Calibration, status: proposed }
-  - { id: F-007, backlog: m-6, title: ONS Mortality Data Ingest and Mapping, status: proposed }
-  - { id: F-008, backlog: m-7, title: Monthly Mortality Sampling, status: proposed }
+  - { id: F-006, title: Stochastic Inflation Process and CPI Calibration, status: proposed }
+  - { id: F-007, title: ONS Mortality Data Ingest and Mapping, status: proposed }
+  - { id: F-008, title: Monthly Mortality Sampling, status: proposed }
 created: 2026-10-09
 updated:
   - 2026-10-09: created by /decompose-spec

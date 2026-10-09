@@ -1,10 +1,3 @@
----
-id: doc-001
-title: Simulation Conventions Decisions
-type: other
-created_date: '2026-10-09 09:26'
-updated_date: '2026-10-09 09:51'
----
 # Simulation Conventions Decisions
 
 Scope: within-month ordering, death timing, depletion/shortfall rule, horizon censoring, Random Streams and common random numbers, annual percentile and funded-probability definitions.

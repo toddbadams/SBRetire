@@ -10,8 +10,8 @@
       "Bash(.venv/Scripts/python.exe -m pytest *)",
       "Bash(.venv/Scripts/python.exe -m ruff *)",
       "Bash(.venv/Scripts/python.exe -m mypy*)",
-      "Bash(backlog task *)",
-      "Bash(backlog board*)",
+      "Bash(uv run python scripts/backlog_check.py*)",
+      "Bash(.venv/Scripts/python.exe scripts/backlog_check.py*)",
       "Bash(git status*)",
       "Bash(git diff *)",
       "Bash(git log *)",
@@ -36,7 +36,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "DIRTY=$(git status --porcelain -- backlog/ docs/ 2>/dev/null); if [ -n \"$DIRTY\" ]; then echo 'Reminder: uncommitted governance docs (backlog/, docs/) — commit them before ending the session.'; fi",
+            "command": "DIRTY=$(git status --porcelain -- docs/ 2>/dev/null); if [ -n \"$DIRTY\" ]; then echo 'Reminder: uncommitted governance docs (docs/) — commit them before ending the session.'; fi",
             "timeout": 15
           }
         ]

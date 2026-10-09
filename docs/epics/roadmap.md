@@ -2,24 +2,24 @@
 
 **Last updated**: 2026-10-09 — F-001 briefed.
 
-Features in build order. Status: `proposed` → `briefed` → `in progress` → `done`. Backlog milestone ids in brackets.
+Features in build order. Status: `proposed` → `briefed` → `in-progress` → `done` (or `superseded`). Briefs live in `docs/backlog/`; tasks are inside each brief.
 
 | # | Feature | Epic | depends_on | Status |
 |---|---|---|---|---|
-| F-001 [m-0] | Scenario Config Loading and Validation | [foundations](foundations.md) | — | briefed |
-| F-002 [m-1] | Deterministic Portfolio Engine (Walking Skeleton) | [simulation-engine](simulation-engine.md) | F-001 | proposed |
-| F-003 [m-2] | Income Streams | [household-cash-flows](household-cash-flows.md) | F-002 | proposed |
-| F-004 [m-3] | Spending with Survivor Budget Factor | [household-cash-flows](household-cash-flows.md) | F-002 | proposed |
-| F-005 [m-4] | Random Streams and Run Metadata | [foundations](foundations.md) | F-001 | proposed |
-| F-006 [m-5] | Stochastic Inflation Process and CPI Calibration | [stochastic-inputs](stochastic-inputs.md) | F-003, F-004, F-005 | proposed |
-| F-007 [m-6] | ONS Mortality Data Ingest and Mapping | [stochastic-inputs](stochastic-inputs.md) | F-001 | proposed |
-| F-008 [m-7] | Monthly Mortality Sampling | [stochastic-inputs](stochastic-inputs.md) | F-002, F-005, F-007 | proposed |
-| F-009 [m-8] | Monte Carlo Path Outcomes, Censoring and Success Metrics | [simulation-engine](simulation-engine.md) | F-006, F-008 | proposed |
-| F-010 [m-9] | Maximum Sustainable Budget Optimization | [analysis-optimization](analysis-optimization.md) | F-009 | proposed |
-| F-011 [m-10] | Return Search | [analysis-optimization](analysis-optimization.md) | F-010 | proposed |
-| F-012 [m-11] | Annual Results CSV | [reporting-release](reporting-release.md) | F-009 | proposed |
-| F-013 [m-12] | Sustainability and Lifestyle CSVs and End-to-End CLI | [reporting-release](reporting-release.md) | F-010, F-011, F-012 | proposed |
-| F-014 [m-13] | V1 Release: README, Acceptance and Reproducibility Sweep | [reporting-release](reporting-release.md) | F-013 | proposed |
+| F-001 | Scenario Config Loading and Validation | [foundations](foundations.md) | — | briefed |
+| F-002 | Deterministic Portfolio Engine (Walking Skeleton) | [simulation-engine](simulation-engine.md) | F-001 | proposed |
+| F-003 | Income Streams | [household-cash-flows](household-cash-flows.md) | F-002 | proposed |
+| F-004 | Spending with Survivor Budget Factor | [household-cash-flows](household-cash-flows.md) | F-002 | proposed |
+| F-005 | Random Streams and Run Metadata | [foundations](foundations.md) | F-001 | proposed |
+| F-006 | Stochastic Inflation Process and CPI Calibration | [stochastic-inputs](stochastic-inputs.md) | F-003, F-004, F-005 | proposed |
+| F-007 | ONS Mortality Data Ingest and Mapping | [stochastic-inputs](stochastic-inputs.md) | F-001 | proposed |
+| F-008 | Monthly Mortality Sampling | [stochastic-inputs](stochastic-inputs.md) | F-002, F-005, F-007 | proposed |
+| F-009 | Monte Carlo Path Outcomes, Censoring and Success Metrics | [simulation-engine](simulation-engine.md) | F-006, F-008 | proposed |
+| F-010 | Maximum Sustainable Budget Optimization | [analysis-optimization](analysis-optimization.md) | F-009 | proposed |
+| F-011 | Return Search | [analysis-optimization](analysis-optimization.md) | F-010 | proposed |
+| F-012 | Annual Results CSV | [reporting-release](reporting-release.md) | F-009 | proposed |
+| F-013 | Sustainability and Lifestyle CSVs and End-to-End CLI | [reporting-release](reporting-release.md) | F-010, F-011, F-012 | proposed |
+| F-014 | V1 Release: README, Acceptance and Reproducibility Sweep | [reporting-release](reporting-release.md) | F-013 | proposed |
 
 **Parallel lanes**: after F-001, the F-007 mortality data work (highest data-availability risk) can proceed alongside F-002…F-005. F-012 can proceed alongside F-010/F-011.
 
@@ -27,19 +27,19 @@ Features in build order. Status: `proposed` → `briefed` → `in progress` → 
 
 | §18 decision | Feature | Decision doc |
 |---|---|---|
-| Exact ONS file/table and age/period mapping | F-007 | doc-002 Data and Calibration |
-| Valuation date and first simulated month | F-001 | doc-001 Simulation Conventions |
-| Exact inflation stochastic process and calibration dataset | F-006 | doc-002 Data and Calibration |
-| Within-month cash-flow ordering and death timing | F-002 | doc-001 Simulation Conventions |
-| Behaviour of each income stream after recipient death | F-003 | doc-003 Configuration |
-| Treatment of household-level income and survivor benefits | F-003 | doc-003 Configuration |
-| Whether any income is indexed to a measure other than CPI | F-006 | doc-002 Data and Calibration |
-| Horizon-censoring policy and conservative denominator | F-009 | doc-001 Simulation Conventions |
-| Budget and return optimization bounds and tolerances | F-010, F-011 | doc-004 Optimization |
-| Definition of annual portfolio percentiles and funded probabilities | F-012 | doc-001 Simulation Conventions |
-| (extra) Unknown-key strictness | F-001 | doc-003 Configuration |
-| (extra) Survivor budget factor precedence | F-004 | doc-003 Configuration |
-| (extra) Mortality tail beyond table coverage | F-007 | doc-002 Data and Calibration |
+| Exact ONS file/table and age/period mapping | F-007 | `docs/decisions/data-and-calibration.md` |
+| Valuation date and first simulated month | F-001 | `docs/decisions/simulation-conventions.md` |
+| Exact inflation stochastic process and calibration dataset | F-006 | `docs/decisions/data-and-calibration.md` |
+| Within-month cash-flow ordering and death timing | F-002 | `docs/decisions/simulation-conventions.md` |
+| Behaviour of each income stream after recipient death | F-003 | `docs/decisions/configuration.md` |
+| Treatment of household-level income and survivor benefits | F-003 | `docs/decisions/configuration.md` |
+| Whether any income is indexed to a measure other than CPI | F-006 | `docs/decisions/data-and-calibration.md` |
+| Horizon-censoring policy and conservative denominator | F-009 | `docs/decisions/simulation-conventions.md` |
+| Budget and return optimization bounds and tolerances | F-010, F-011 | `docs/decisions/optimization.md` |
+| Definition of annual portfolio percentiles and funded probabilities | F-012 | `docs/decisions/simulation-conventions.md` |
+| (extra) Unknown-key strictness | F-001 | `docs/decisions/configuration.md` |
+| (extra) Survivor budget factor precedence | F-004 | `docs/decisions/configuration.md` |
+| (extra) Mortality tail beyond table coverage | F-007 | `docs/decisions/data-and-calibration.md` |
 
 ## SPEC coverage
 
@@ -51,7 +51,7 @@ Features in build order. Status: `proposed` → `briefed` → `in progress` → 
 | §1.2 | Budget at 90/95/99% | capability | F-010, F-013 |
 | §1.2 | "Confidence" = simulated proportion | constraint | THESAURUS; F-012/F-013 column naming |
 | §2 | V1 inclusions / exclusions | constraint | CLAUDE.md hard constraints; checked in F-014 |
-| §3 | Python, YAML, CSV, NumPy/pandas; module layout | constraint | Tooling decision doc-005 §1 (done) |
+| §3 | Python, YAML, CSV, NumPy/pandas; module layout | constraint | Tooling decision tooling-and-process §1 (done) |
 | §4 | All assumptions in YAML, none hard-coded | constraint | F-001; checked in F-014 |
 | §4.1 | Precise inflation process selected and documented | decision | F-006 |
 | §4.2 model | currency, simulation_count, confidence_levels, frequency, horizon_years, random_seed | capability | F-001 (seed=null recording: F-005) |
@@ -106,5 +106,6 @@ Unmapped requirements: **none**.
 
 ## Change Log
 
-- 2026-10-09 — F-001 briefed: design brief + TASK-001…TASK-004; decisions doc-001 §1, doc-003 §1–3.
-- 2026-10-09 — Initial plan: 6 epics, 14 features (F-001…F-014, milestones m-0…m-13) from SPEC v1.0.
+- 2026-10-09 — Backlog.md dropped; markdown-only backlog (`docs/decisions/tooling-and-process.md` §4).
+- 2026-10-09 — F-001 briefed: design brief + tasks F-001.1…F-001.4; decisions simulation-conventions §1, configuration §1–3.
+- 2026-10-09 — Initial plan: 6 epics, 14 features (F-001…F-014) from SPEC v1.0.

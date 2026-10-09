@@ -1,10 +1,3 @@
----
-id: doc-003
-title: Configuration Decisions
-type: other
-created_date: '2026-10-09 09:26'
-updated_date: '2026-10-09 09:51'
----
 # Configuration Decisions
 
 Scope: YAML schema, validation and unknown-key strictness, survivor budget factor precedence, income-stream recipient and survivor rules, household-level streams.

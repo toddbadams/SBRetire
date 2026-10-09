@@ -1,31 +1,22 @@
-# Decision Record Format (backlog/docs/decisions/)
+# Decision Record Format (docs/decisions/)
 
-SBRetire doesn't use standalone `docs/adr/NNNN-slug.md` files. Decisions live as numbered sections inside **topic-grouped** files under `backlog/docs/decisions/`, authored via the **Backlog.md MCP** (`mcp__backlog__document_update` to append to an existing topic file, `mcp__backlog__document_create` only when no topic file fits). Never hand-edit these files directly — same discipline as `backlog/tasks/` (CLAUDE.md: "Backlog.md MCP... Single source of truth").
+SBRetire doesn't use standalone `docs/adr/NNNN-slug.md` files. Decisions live as numbered sections inside **topic-grouped** plain-markdown files under `docs/decisions/`. Edit them directly; append, never rewrite an existing entry (supersede it with a new numbered entry that says what it replaces).
 
 ## Existing topic files — pick one, don't create a new one unless none fit
 
 | File | Covers |
 |---|---|
-| `doc-001 - Simulation-Conventions-Decisions.md` | Month ordering, death timing, failure/shortfall rule, censoring policy, Random Streams, CRN |
-| `doc-002 - Data-and-Calibration-Decisions.md` | ONS mortality file/table/mapping, inflation process and calibration data, provenance |
-| `doc-003 - Configuration-Decisions.md` | YAML schema, validation strictness, survivor-factor precedence, income-stream survivor rules |
-| `doc-004 - Optimization-Decisions.md` | Budget and return search bounds, tolerances, convergence, MC standard error |
-| `doc-005 - Tooling-and-Process-Decisions.md` | Python/uv/ruff/mypy/pytest, SDLC, Backlog.md conventions |
+| `simulation-conventions.md` | Month ordering, death timing, failure/shortfall rule, censoring policy, Random Streams, CRN |
+| `data-and-calibration.md` | ONS mortality file/table/mapping, inflation process and calibration data, provenance |
+| `configuration.md` | YAML schema, validation strictness, survivor-factor precedence, income-stream survivor rules |
+| `optimization.md` | Budget and return search bounds, tolerances, convergence, MC standard error |
+| `tooling-and-process.md` | Python/uv/ruff/mypy/pytest, SDLC, backlog format |
 
 ## Template
 
-Each file starts with Backlog.md document frontmatter, then a `# {Title}` and numbered `## N. {Decision title}` sections:
+Each file is a `# {Topic} Decisions` title, a one-paragraph scope, the list of SPEC §18 items still open in this topic, then numbered `## N. {Decision title}` sections:
 
 ```md
----
-id: doc-NNN
-type: other
-created_date: 'YYYY-MM-DD HH:MM'
-title: {Topic} Decisions
-description: {One sentence describing the scope of this decision file.}
-source: SPEC §N; other originating doc
----
-
 # {Topic} Decisions
 
 ## N. {Short title of the decision}
@@ -41,7 +32,7 @@ That's the whole shape — a decision can be one paragraph plus a **Why** line. 
 
 ## Numbering
 
-Within a topic file, scan for the highest existing `## N.` and increment by one. `id: doc-NNN` frontmatter is assigned by the Backlog.md MCP on `document_create` — don't hand-pick it.
+Within a topic file, scan for the highest existing `## N.` and increment by one. When an entry resolves an open SPEC §18 item, strike it through in the open list and point to the entry (`~~item~~ → §N`).
 
 ## When to offer a decision record
 
