@@ -2,7 +2,7 @@
 id: F-023
 type: feature
 parent: results-viewer
-status: planned
+status: in-progress
 complexity: 4
 created: 2026-10-09
 updated: 2026-10-09
@@ -70,7 +70,7 @@ day, in which the viewer was printed to PDF with headless Edge before and after 
 ## 10. Tasks
 
 ### F-023.1 Black-and-white print tokens
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: —
 
 `theme.css` `@media print` token set (§2 #3).

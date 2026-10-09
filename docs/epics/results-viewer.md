@@ -7,7 +7,7 @@ depends_on: [v1-1-enhancements]
 milestones:
   - { id: F-021, title: Named Runs and results.json, status: done }
   - { id: F-022, title: HTML Results Viewer, status: done }
-  - { id: F-023, title: Print and PDF, status: briefed }
+  - { id: F-023, title: Print and PDF, status: in-progress }
 created: 2026-10-09
 updated:
   - 2026-10-09: created from the user's request to display results on an HTML page designed with Claude Design

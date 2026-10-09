@@ -157,3 +157,31 @@ def test_viewer_labels_short_income_streams() -> None:
     assert "one-time payment" in script and "in total over " in script and " a year" in script
     assert '<th scope="col" class="num">Amount</th>' in script
     assert '<th scope="col" class="num">Per year</th>' not in script
+
+
+def _print_tokens() -> dict[str, str]:
+    css = THEME.read_text(encoding="utf-8")
+    return _block(css, ":root, :root[data-theme]", "@media print {")
+
+
+NEUTRAL = re.compile(r"oklch\(\s*[\d.]+\s+0(?:\.0+)?\s+[\d.]+\s*(?:/\s*[\d.]+\s*)?\)")
+
+
+def test_print_tokens_are_neutral() -> None:
+    """F-023.1: every colour and chart token has a grey (chroma 0) value in print."""
+    light, _, _ = _themes()
+    printed = _print_tokens()
+    colours = {token for token in light if token.startswith(("--color-", "--chart-"))}
+    assert colours <= set(printed), sorted(colours - set(printed))
+    coloured = {token: value for token, value in printed.items() if not NEUTRAL.fullmatch(value.strip())}
+    assert coloured == {}
+
+
+def test_print_contrast_meets_aa() -> None:
+    printed = _print_tokens()
+    failures = [
+        f"{foreground} on {background} = {ratio:.2f} < {minimum}"
+        for foreground, background, minimum in TEXT_PAIRS + MARK_PAIRS
+        if (ratio := _contrast(printed[foreground], printed[background])) < minimum
+    ]
+    assert failures == []
