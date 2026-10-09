@@ -127,16 +127,16 @@ def refresh_runs_index(runs_dir: Path) -> tuple[Path, Path]: ...  # index.json, 
 ## 10. Tasks
 
 ### F-021.1 results.json and its schema
-- **Status**: To Do
+- **Status**: Verification
 - **Depends on**: —
 
 `src/sbretire/results_json.py` (`build_results`, `write_results_json`, `SCHEMA_VERSION`), numeric rounding helpers
 in `reporting.py`, `schemas/results.schema.json`, `jsonschema` dev dependency; `run` writes `results.json`.
 
 **Acceptance criteria**
-- [ ] On a seeded 300-path run (with and without a 12-month reserve) the built results validate against `schemas/results.schema.json`, and the schema rejects a document missing a section or with a wrong type — `test_results_json_validates_against_schema`
-- [ ] Summary, budgets, reserve budgets, returns and annual values equal the run's result objects, with budgets floored to 0.01 and returns ceiled to 1e-6 exactly as the CSVs; a `returns` key that shares a name with a `sustainability_results.csv` column has the same meaning (success at the required return is `*_at_required_return`); `columns` equals `COLUMN_GUIDE`; `inputs` equals the input rows — `test_results_json_matches_run_objects`
-- [ ] `sbretire run` (unnamed) writes `results.json` beside the CSVs; it validates against the schema, is strict JSON with no NaN, and is identical across two runs apart from `run.created_at` — `test_cli_run_writes_results_json`
+- [x] On a seeded 300-path run (with and without a 12-month reserve) the built results validate against `schemas/results.schema.json`, and the schema rejects a document missing a section or with a wrong type — `test_results_json_validates_against_schema`
+- [x] Summary, budgets, reserve budgets, returns and annual values equal the run's result objects, with budgets floored to 0.01 and returns ceiled to 1e-6 exactly as the CSVs; a `returns` key that shares a name with a `sustainability_results.csv` column has the same meaning (success at the required return is `*_at_required_return`); `columns` equals `COLUMN_GUIDE`; `inputs` equals the input rows — `test_results_json_matches_run_objects`
+- [x] `sbretire run` (unnamed) writes `results.json` beside the CSVs; it validates against the schema, is strict JSON with no NaN, and is identical across two runs apart from `run.created_at` — `test_cli_run_writes_results_json`
 
 **Notes**
 - 2026-10-09 `src/sbretire/results_json.py` (`build_results` from GuideContext + annual rows, `write_results_json` strict JSON, UTF-8, LF); `reporting.money_down`/`return_up` numeric rounding shared with the CSV text helpers; `schemas/results.schema.json` (draft 2020-12, additionalProperties false everywhere, generated once then maintained by hand); `run` writes `results.json` using run_metadata's hash and timestamp. Tests `tests/unit/test_results_json.py` (2) and `test_cli_run_writes_results_json`; `results.json` added to OUTPUT_FILES.
@@ -144,6 +144,7 @@ in `reporting.py`, `schemas/results.schema.json`, `jsonschema` dev dependency; `
   - results.json `returns[]` reuses the CSV names estimated_success_probability / standard_error / unresolved_fraction for the success at the solved required return, while sustainability_results.csv (and the JSON's own `columns` guide) use them for the configured-return figures: e.g. JSON 0.901 vs CSV 0.809 — contradicts §2 #1
   - no test validates a CLI-written results.json against the schema
   - otherwise: schema strict and valid, all lifestyle/annual/inputs values match the CSVs, ruff/mypy clean
+- 2026-10-09 Fix after /verify: `returns[]` keys renamed `success_probability_at_required_return`, `standard_error_at_required_return`, `unresolved_fraction_at_required_return` (code + schema descriptions); the test now forbids any returns key that shares a sustainability CSV column name without the same meaning, and the CLI test validates the written file against the schema.
 
 ### F-021.2 Named runs, index.json and runs.js
 - **Status**: Done

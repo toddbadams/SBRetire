@@ -56,13 +56,15 @@ def _budget(result: BudgetResult) -> dict[str, Any]:
 
 
 def _return(result: ReturnResult) -> dict[str, Any]:
+    """A required-return row. The success figures are at the solved return r*, so they are named
+    ``*_at_required_return``: sustainability_results.csv uses the plain names for the configured return."""
     return {
         "target_probability": result.target_probability,
         "monthly_budget_today": result.monthly_budget_today,
         "required_annual_return": return_up(result.required_annual_return),
-        "estimated_success_probability": result.estimated_success_probability,
-        "standard_error": result.standard_error,
-        "unresolved_fraction": result.unresolved_fraction,
+        "success_probability_at_required_return": result.estimated_success_probability,
+        "standard_error_at_required_return": result.standard_error,
+        "unresolved_fraction_at_required_return": result.unresolved_fraction,
         "return_tolerance": result.return_tolerance,
         "converged": result.converged,
         "iterations": result.iterations,

@@ -489,9 +489,9 @@
           "target_probability",
           "monthly_budget_today",
           "required_annual_return",
-          "estimated_success_probability",
-          "standard_error",
-          "unresolved_fraction",
+          "success_probability_at_required_return",
+          "standard_error_at_required_return",
+          "unresolved_fraction_at_required_return",
           "return_tolerance",
           "converged",
           "iterations",
@@ -513,26 +513,29 @@
             ],
             "description": "Annual effective rate (0.04 = 4%), ceiled to 1e-6; null if no solution"
           },
-          "estimated_success_probability": {
+          "success_probability_at_required_return": {
             "type": [
               "number",
               "null"
             ],
             "minimum": 0,
-            "maximum": 1
+            "maximum": 1,
+            "description": "Conservative success rate at the required return (a confirming run); not the configured-return rate"
           },
-          "standard_error": {
+          "standard_error_at_required_return": {
             "type": [
               "number",
               "null"
             ],
             "minimum": 0,
-            "maximum": 1
+            "maximum": 1,
+            "description": "Its Monte Carlo standard error (denominator: all paths)"
           },
-          "unresolved_fraction": {
+          "unresolved_fraction_at_required_return": {
             "type": "number",
             "minimum": 0,
-            "maximum": 1
+            "maximum": 1,
+            "description": "Unresolved share at the required return"
           },
           "return_tolerance": {
             "type": "number"
