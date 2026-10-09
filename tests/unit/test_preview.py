@@ -6,6 +6,7 @@ alex born 1958-03-01 (68 at As-Of), sam born 1962-07-15 (64 at As-Of).
 
 from __future__ import annotations
 
+import math
 from datetime import date
 from pathlib import Path
 from typing import Any
@@ -40,7 +41,7 @@ def test_death_months_from_ages_validates_range(valid_raw: dict[str, Any]) -> No
 
 
 def preview_raw(raw: dict[str, Any], *, inflation: float = 0.0, annual_return: float = 0.0) -> dict[str, Any]:
-    raw = set_at(raw, "inflation.annual_mean", inflation)
+    raw = set_at(raw, "inflation.log_mean", math.log1p(inflation))
     return set_at(raw, "portfolio.annual_return", annual_return)
 
 

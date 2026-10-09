@@ -7,10 +7,14 @@ which is what makes "today's GBP" amounts nominal: nominal = today's amount × I
 
 from __future__ import annotations
 
+from collections.abc import Sequence
+from dataclasses import dataclass
+from pathlib import Path
 from typing import Protocol
 
 import numpy as np
 
+from sbretire.config import InflationAssumptions
 from sbretire.portfolio import FloatArray
 
 
@@ -48,3 +52,23 @@ class AnnualStepPriceIndex:
 
     def level(self, month: int) -> FloatArray:
         return np.full(self._n_paths, self._growth ** (month // 12), dtype=np.float64)
+
+
+@dataclass(frozen=True)
+class Ar1LognormalParams:
+    log_mean: float
+    ar1_coefficient: float
+    innovation_sd: float
+    initial_rate: float
+
+
+def fit_ar1_lognormal(annual_rates: Sequence[float], initial_rate: float | None = None) -> Ar1LognormalParams:
+    raise NotImplementedError
+
+
+def load_cpi_series(path: Path) -> dict[int, float]:
+    raise NotImplementedError
+
+
+def calibrate_inflation(inflation: InflationAssumptions) -> Ar1LognormalParams:
+    raise NotImplementedError

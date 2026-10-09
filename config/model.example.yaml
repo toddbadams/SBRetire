@@ -22,10 +22,14 @@ budget:
 inflation:
   source: UK_CPI
   source_period: "1989-2025"
-  annual_mean: 0.025
-  annual_standard_deviation: 0.015
-  model: annual_lognormal_or_normal   # TODO: pick exact process before release (SPEC §4.1, §6)
-  parameter_units: annual_rate
+  data_file: ../data/uk_cpi.csv          # ONS D7G7 annual CPI rates; relative to this file's directory
+  model: ar1_lognormal                   # log(1+π_y) = μ + φ·(log(1+π_{y-1}) − μ) + σ·ε  (data-and-calibration §2)
+  parameter_units: log_annual            # all parameters are for log(1 + annual rate), not arithmetic moments
+  log_mean: 0.0277                       # μ; median annual rate e^μ − 1 ≈ 2.81%
+  ar1_coefficient: 0.6179                # φ; persistence of last year's deviation from μ
+  innovation_sd: 0.0154                  # σ; long-run SD of log(1+π) = σ/√(1−φ²) ≈ 0.0195
+  initial_rate: 0.034                    # π for the year before the As-Of date (latest observed: 2025)
+  # regenerate: uv run python scripts/calibrate_inflation.py --config config/model.example.yaml
 
 mortality:
   source: ONS_2024_BASED

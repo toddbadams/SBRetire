@@ -32,10 +32,13 @@ REQUIRED_KEYS = [
     "budget.survivor_budget_factor",
     "inflation.source",
     "inflation.source_period",
-    "inflation.annual_mean",
-    "inflation.annual_standard_deviation",
+    "inflation.data_file",
     "inflation.model",
     "inflation.parameter_units",
+    "inflation.log_mean",
+    "inflation.ar1_coefficient",
+    "inflation.innovation_sd",
+    "inflation.initial_rate",
     "mortality.source",
     "mortality.geography",
     "mortality.projection",
@@ -136,7 +139,6 @@ def test_strict_scalars_reject_coercion(valid_raw: dict[str, Any], path: str, va
         ("income[0].annual_amount_today", -5),
         ("income[0].survivor_percentage", 1.5),
         ("income[0].survivor_percentage", -0.1),
-        ("inflation.annual_standard_deviation", -0.01),
         ("model.confidence_levels", [0.9, 1.0]),
         ("model.confidence_levels", [0.0]),
         ("model.confidence_levels", []),
@@ -180,3 +182,37 @@ def test_config_accepts_128_bit_random_seed(valid_raw: dict[str, Any]) -> None:
     scenario = parse_scenario(set_at(valid_raw, "model.random_seed", seed), base_dir=Path(".")).scenario
     assert scenario.model.random_seed == seed
     assert isinstance(scenario.model.random_seed, int)
+
+
+@pytest.mark.parametrize(
+    ("path", "value"),
+    [
+        ("inflation.ar1_coefficient", 1.0),
+        ("inflation.ar1_coefficient", -1.0),
+        ("inflation.ar1_coefficient", 1.2),
+        ("inflation.innovation_sd", -0.001),
+        ("inflation.initial_rate", -1.0),
+        ("inflation.initial_rate", -1.5),
+        ("inflation.log_mean", "0.02"),
+        ("inflation.model", "annual_lognormal_or_normal"),
+        ("inflation.parameter_units", "annual_rate"),
+        ("inflation.source_period", "1989"),
+        ("inflation.source_period", "2025-1989"),
+        ("inflation.source_period", "89-25"),
+        ("inflation.annual_mean", 0.025),
+    ],
+)
+def test_inflation_config_rejects_invalid_values(valid_raw: dict[str, Any], path: str, value: object) -> None:
+    issues = issues_for(set_at(valid_raw, path, value))
+    assert issues and issues[0].location.startswith(path), issues
+
+
+def test_inflation_config_accepts_zero_inflation(valid_raw: dict[str, Any]) -> None:
+    raw = set_at(
+        set_at(set_at(valid_raw, "inflation.log_mean", 0.0), "inflation.innovation_sd", 0.0),
+        "inflation.initial_rate",
+        0.0,
+    )
+    inflation = parse_scenario(raw, base_dir=Path(".")).scenario.inflation
+    assert (inflation.log_mean, inflation.innovation_sd, inflation.initial_rate) == (0.0, 0.0, 0.0)
+    assert (inflation.first_year, inflation.last_year) == (1989, 2025)

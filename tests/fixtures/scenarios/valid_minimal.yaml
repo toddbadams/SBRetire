@@ -19,10 +19,13 @@ budget:
 inflation:
   source: UK_CPI
   source_period: "1989-2025"
-  annual_mean: 0.025
-  annual_standard_deviation: 0.015
-  model: placeholder
-  parameter_units: annual_rate
+  data_file: ../../../data/uk_cpi.csv
+  model: ar1_lognormal
+  parameter_units: log_annual
+  log_mean: 0.0247
+  ar1_coefficient: 0.6
+  innovation_sd: 0.015
+  initial_rate: 0.03
 
 mortality:
   source: ONS_2024_BASED

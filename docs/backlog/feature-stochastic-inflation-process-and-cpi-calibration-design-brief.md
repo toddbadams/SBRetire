@@ -146,10 +146,11 @@ inflation:
 - 2026-10-09 — Monthly compounding within As-Of-anchored years; replaces provisional simulation-conventions §3
   (Interview Q4; simulation-conventions §5).
 - 2026-10-09 — No non-CPI indexing in V1 (Interview Q5; data-and-calibration §3).
+- 2026-10-09 — F-006.2 AC for the fit reworded (see §9): exact on a hand-computed series, tolerance on a long synthetic one.
 
 ## 9. Surprises
 
-_(filled during implementation)_
+- 2026-10-09 — F-006.2: an AR(1) path with σ = 0 decays towards μ, so its sample mean is not μ and the fit cannot "recover μ and φ exactly" from it; the AC now uses a hand-computed short series (exact) plus a long seeded synthetic series (tolerance).
 
 ## 10. Tasks
 
@@ -171,7 +172,7 @@ _(filled during implementation)_
 - 2026-10-09 Added `scripts/build_uk_cpi.py` (CDID checks, contiguous years, Decimal % → decimal, D7BT cross-check ≤ 0.0015 else fail); built and committed `data/uk_cpi.csv` (1989–2025) and `data/uk_cpi.meta.json`; `data/README.md` rows + Inflation section. Tests `tests/tooling/test_build_uk_cpi.py` (4, incl. sidecar provenance).
 
 ### F-006.2 AR(1) calibration and inflation config schema
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-006.1
 
 `fit_ar1_lognormal` and `load_cpi_series` in `src/sbretire/inflation.py`; `scripts/calibrate_inflation.py`; new
@@ -179,7 +180,7 @@ _(filled during implementation)_
 `config/model.example.yaml`, fixtures and tests.
 
 **Acceptance criteria**
-- [ ] On a synthetic series built with σ = 0 the fit recovers μ and φ exactly; on real data it gives μ 0.027742, φ 0.617897, σ 0.015365 (to 6 dp) and `initial_rate` = the last year's rate — `test_fit_ar1_lognormal_known_answers`
+- [ ] A short hand-computed series gives exactly the §2 #4 formulas; a long seeded synthetic AR(1) series is recovered within tolerance; on real data the fit gives μ 0.027742, φ 0.617897, σ 0.015365 (to 6 dp) and `initial_rate` = the last year's rate — `test_fit_ar1_lognormal_known_answers`
 - [ ] `config/model.example.yaml` inflation parameters equal the calibration of its `source_period` from its `data_file`, rounded to 4 dp — `test_example_config_matches_calibration`
 - [ ] Invalid inflation config is rejected with its YAML location: `ar1_coefficient` ±1 or beyond, negative `innovation_sd`, `initial_rate` ≤ −1, `model`/`parameter_units` other than `ar1_lognormal`/`log_annual`, malformed `source_period`, and the removed `annual_mean` key — `test_inflation_config_rejects_invalid_values`
 - [ ] `scripts/calibrate_inflation.py --config config/model.example.yaml` prints a YAML block whose values match the fit — `test_calibrate_inflation_script_prints_block`
