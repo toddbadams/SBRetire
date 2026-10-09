@@ -2,7 +2,7 @@
 id: F-003
 type: feature
 parent: household-cash-flows
-status: in-progress
+status: done
 complexity: 4
 created: 2026-10-09
 updated: 2026-10-09

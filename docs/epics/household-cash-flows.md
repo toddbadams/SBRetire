@@ -1,16 +1,17 @@
 ---
 epic: household-cash-flows
 title: Household Cash Flows
-status: proposed
+status: active
 spec_sections: [§4.2, §6, §8]
 depends_on: [simulation-engine]
 milestones:
-  - { id: F-003, title: Income Streams, status: in-progress }
+  - { id: F-003, title: Income Streams, status: done }
   - { id: F-004, title: Spending with Survivor Budget Factor, status: proposed }
 created: 2026-10-09
 updated:
   - 2026-10-09: created by /decompose-spec
   - 2026-10-09: F-003 briefed
+  - 2026-10-09: F-003 done
 ---
 
 # Household Cash Flows
