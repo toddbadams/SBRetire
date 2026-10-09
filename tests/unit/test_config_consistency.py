@@ -78,3 +78,18 @@ def test_consistency_issues_reported_together(valid_raw: dict[str, Any]) -> None
     raw = set_at(valid_raw, "income[0].recipient", "nobody")
     raw = set_at(raw, "people[0].date_of_birth", "2027-01-01")
     assert [i.location for i in issues_for(raw)] == ["income[0].recipient", "people[0].date_of_birth"]
+
+
+def test_household_recipient_accepted(valid_raw: dict[str, Any]) -> None:
+    scenario = parse_scenario(
+        set_at(valid_raw, "income[0].recipient", "household"), base_dir=Path(".")
+    ).scenario
+    assert scenario.income[0].recipient == "household"
+
+
+def test_household_is_reserved_person_id(valid_raw: dict[str, Any]) -> None:
+    raw = set_at(valid_raw, "people[1].id", "household")
+    raw = set_at(raw, "income[1].recipient", "household")
+    issues = issues_for(raw)
+    assert [issue.location for issue in issues] == ["people[1].id"]
+    assert "reserved" in issues[0].message
