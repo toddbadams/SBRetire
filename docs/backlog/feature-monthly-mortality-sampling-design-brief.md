@@ -109,7 +109,7 @@ _(filled during implementation)_
 - 2026-10-09 Added `monthly_death_probabilities` (vectorised: months since birth month → completed-year ages → `annual_q` → q_m) and `survival_curve` to `src/sbretire/mortality.py`. Tests `tests/unit/test_mortality_sampling.py` (4; the §17.1 property runs through an in-memory constant-q table so hypothesis stays fast).
 
 ### F-008.2 Sampling death months
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-008.1
 
 `sample_death_months` (§2 #3–#5 and the precise rule) in `src/sbretire/mortality.py`.

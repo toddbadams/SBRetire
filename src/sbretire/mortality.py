@@ -265,3 +265,9 @@ def survival_curve(monthly_q: NDArray[np.float64]) -> NDArray[np.float64]:
         [[1.0], np.cumprod(1.0 - np.asarray(monthly_q, dtype=np.float64))]
     )
     return curve
+
+
+def sample_death_months(
+    scenario: Scenario, table: MortalityTable, rng: np.random.Generator, n_paths: int
+) -> NDArray[np.int64]:
+    raise NotImplementedError
