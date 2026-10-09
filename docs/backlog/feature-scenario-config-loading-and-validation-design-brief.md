@@ -2,7 +2,7 @@
 id: F-001
 type: feature
 parent: foundations
-status: in-progress
+status: done
 complexity: 3
 created: 2026-10-09
 updated: 2026-10-09
