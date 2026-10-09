@@ -270,4 +270,19 @@ def survival_curve(monthly_q: NDArray[np.float64]) -> NDArray[np.float64]:
 def sample_death_months(
     scenario: Scenario, table: MortalityTable, rng: np.random.Generator, n_paths: int
 ) -> NDArray[np.int64]:
-    raise NotImplementedError
+    """Random Death Months, shape (2, n_paths), rows in ``scenario.people`` order (simulation-conventions §6).
+
+    One uniform per person per path (``rng.random((2, n_paths))``, from the mortality Random Stream) is
+    mapped through the person's survival curve so that P(d <= k) = 1 - S_k. A death during month t gives
+    d = t + 1; d equal to ``horizon_months`` means alive throughout the horizon (censored).
+    """
+    if n_paths < 1:
+        raise ValueError(f"n_paths must be positive (got {n_paths})")
+    horizon = scenario.model.horizon_years * 12
+    uniforms = rng.random((2, n_paths))
+    deaths = np.empty((2, n_paths), dtype=np.int64)
+    for row, person in enumerate(scenario.people):
+        curve = survival_curve(monthly_death_probabilities(table, person, scenario.model.as_of_date, horizon))
+        died_by = 1.0 - curve[1:]
+        deaths[row] = np.minimum(np.searchsorted(died_by, uniforms[row], side="right") + 1, horizon)
+    return deaths

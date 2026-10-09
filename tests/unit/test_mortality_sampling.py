@@ -112,11 +112,11 @@ def _mortality_stream(seed: int) -> np.random.Generator:
 
 
 def test_sample_death_months_shape_and_range() -> None:
-    scenario = _example(horizon_years=60)
+    scenario = _example(horizon_years=30)
     deaths = sample_death_months(scenario, _real(), _mortality_stream(1), n_paths=5_000)
     assert deaths.shape == (2, 5_000) and deaths.dtype == np.int64
-    assert deaths.min() >= 1 and deaths.max() <= 720
-    assert (deaths == 720).any()  # some survive a 60-year horizon (female b. 1969 reaches 117)
+    assert deaths.min() >= 1 and deaths.max() <= 360
+    assert (deaths == 360).any()  # many survive a 30-year horizon (to 96 and 87)
 
 
 def test_sample_death_months_seed_42_known_answer() -> None:

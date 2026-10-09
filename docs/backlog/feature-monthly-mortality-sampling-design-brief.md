@@ -88,7 +88,7 @@ def sample_death_months(
 
 ## 9. Surprises
 
-_(filled during implementation)_
+- 2026-10-09 — F-008.2: `test_sample_death_months_shape_and_range` first assumed survivors at a 60-year horizon on the example (person b. 1969 reaches 117: P ≈ 1e-4, so 5,000 paths rarely have one); the test now uses a 30-year horizon. The AC (values in 1…H) is unchanged.
 
 ## 10. Tasks
 
@@ -109,18 +109,21 @@ _(filled during implementation)_
 - 2026-10-09 Added `monthly_death_probabilities` (vectorised: months since birth month → completed-year ages → `annual_q` → q_m) and `survival_curve` to `src/sbretire/mortality.py`. Tests `tests/unit/test_mortality_sampling.py` (4; the §17.1 property runs through an in-memory constant-q table so hypothesis stays fast).
 
 ### F-008.2 Sampling death months
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-008.1
 
 `sample_death_months` (§2 #3–#5 and the precise rule) in `src/sbretire/mortality.py`.
 
 **Acceptance criteria**
-- [ ] Result is int64, shape (2, n_paths), every value in 1 … horizon_months — `test_sample_death_months_shape_and_range`
-- [ ] Seed 42 (mortality stream) on the example scenario + real table gives pinned death months for 4 paths, computed independently from the uniforms — `test_sample_death_months_seed_42_known_answer`
-- [ ] 100,000 paths (seed 11): for k in {12, 120, 240, 360, H}, the share with d ≤ k is within 4 binomial SE of 1 − S_k for each person — `test_sample_death_months_matches_survival_curve`
-- [ ] The two people's death months are independent: |corr| < 0.01 over 100,000 paths — `test_sample_death_months_people_independent`
-- [ ] A 30-year horizon gives the same death months as a 60-year horizon wherever the 60-year death month < 360 (else 360) — `test_sample_death_months_horizon_stable`
-- [ ] A q = 1 table kills every path in month 0 (d = 1); a q = 0 table leaves every path alive (d = H) — `test_sample_death_months_degenerate_tables`
+- [x] Result is int64, shape (2, n_paths), every value in 1 … horizon_months — `test_sample_death_months_shape_and_range`
+- [x] Seed 42 (mortality stream) on the example scenario + real table gives pinned death months for 4 paths, computed independently from the uniforms — `test_sample_death_months_seed_42_known_answer`
+- [x] 100,000 paths (seed 11): for k in {12, 120, 240, 360, H}, the share with d ≤ k is within 4 binomial SE of 1 − S_k for each person — `test_sample_death_months_matches_survival_curve`
+- [x] The two people's death months are independent: |corr| < 0.01 over 100,000 paths — `test_sample_death_months_people_independent`
+- [x] A 30-year horizon gives the same death months as a 60-year horizon wherever the 60-year death month < 360 (else 360) — `test_sample_death_months_horizon_stable`
+- [x] A q = 1 table kills every path in month 0 (d = 1); a q = 0 table leaves every path alive (d = H) — `test_sample_death_months_degenerate_tables`
+
+**Notes**
+- 2026-10-09 Added `sample_death_months` (one `rng.random((2, n_paths))`, per-person survival curve, `searchsorted(1 − S[1:], u, right) + 1` capped at H) to `src/sbretire/mortality.py`. 6 tests in `tests/unit/test_mortality_sampling.py`; seed-42 known answer [[371, 368, 354, 179], [527, 245, 614, 452]] computed independently (own CSV parse, own survival loop, direct rule d = min{k ≥ 1 : u < 1 − S_k}).
 
 ### F-008.3 Deterministic mortality fixture end to end
 - **Status**: To Do
