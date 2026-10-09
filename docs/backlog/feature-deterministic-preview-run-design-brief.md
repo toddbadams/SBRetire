@@ -137,7 +137,7 @@ CSV header: `year,months,age_person_1,age_person_2,income,spending,investment_re
 Task format and statuses: `docs/project-sdlc.md` §2. Definition of done: `docs/project-sdlc.md` §4.
 
 ### F-015.1 Annual-step index and death months from ages
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: —
 
 `AnnualStepPriceIndex` in `src/sbretire/inflation.py` (brief §2 #2) and `death_months_from_ages` in
@@ -151,9 +151,14 @@ Task format and statuses: `docs/project-sdlc.md` §2. Definition of done: `docs/
 
 **Notes**
 - 2026-10-09: `src/sbretire/inflation.py` — `AnnualStepPriceIndex` (rejects rate ≤ −1). `src/sbretire/preview.py` — `death_months_from_ages` (birthday month via `month_index`; rejects ages ≤ 0 or Death Month ≤ 0 with "must be greater than their current age"). Tests: 2 added to `tests/unit/test_inflation.py`, 2 in `tests/unit/test_preview.py`.
+- 2026-10-09 /verify PASS:
+  - annual-step and death-month tests: 4 passed; months 257/309/5/9 recomputed by hand
+  - probe: DOB on the As-Of month at current age -> rejected; one year later -> month 12 accepted
+  - AnnualStepPriceIndex(1, -1.0) -> ValueError; matches simulation-conventions §2–§3
+  - ruff + mypy clean
 
 ### F-015.2 Preview run and calendar-year aggregation
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-015.1
 
 `run_preview`, `PreviewYear`, `PreviewResult` in `src/sbretire/preview.py` (brief §2 #3–#6, §5). Tests in
@@ -168,9 +173,14 @@ Task format and statuses: `docs/project-sdlc.md` §2. Definition of done: `docs/
 
 **Notes**
 - 2026-10-09: `src/sbretire/preview.py` — `run_preview` wraps `ScenarioCashFlows` in `_RecordingCashFlows` and records each simulated month via the engine observer (income, spending, opening × r_m, closing balance, alive, index), then groups by calendar year (`_by_calendar_year`, `_year_row`). `src/sbretire/timeline.py` gains `month_start` (inverse of `month_index`, with round-trip tests). Tests: 5 in `tests/unit/test_preview.py`, 2 in `tests/unit/test_timeline.py`.
+- 2026-10-09 /verify PASS:
+  - test_preview.py + test_timeline.py: 25 passed; 2026/2027 rows and depletion 2050-11 (shortfall 2000) recomputed
+  - closed-form investment return matches to ~1e-10 relative
+  - probe (2% inflation, 4% return, ages 85/90): net = spending - income, today = nominal / index on all 27 rows; cash-flow conservation residual 5.5e-10
+  - no engine change (git diff 345597f -- simulation.py empty); ruff + mypy clean
 
 ### F-015.3 Preview command, table and CSV
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-015.2
 
 `format_preview_table`, `write_preview_csv` in `src/sbretire/preview.py`; `preview` subcommand in
@@ -184,7 +194,11 @@ Task format and statuses: `docs/project-sdlc.md` §2. Definition of done: `docs/
 
 **Notes**
 - 2026-10-09: `src/sbretire/preview.py` — `format_preview_table(result, scenario, death_ages)` (takes `death_ages` too, to show each person's death month; brief §5 listed two parameters) and `write_preview_csv` (csv module, 2-dp money, 6-dp index, blank ages after death). `src/sbretire/__main__.py` — `preview` subcommand with `_death_ages` argparse type (two whole numbers) and `_preview` (ValueError from out-of-range ages → exit 2). The banner uses an ASCII hyphen ("DETERMINISTIC ILLUSTRATION - not a sustainability estimate") because CLI output is ASCII-only (F-001.4). README "Preview" section and CLAUDE.md command added. Smoke run on `config/model.example.yaml --death-ages 88,92`: 36 rows 2026–2061, money lasts, household end 2061-05. Tests: `tests/unit/test_cli_preview.py` (7).
-
+- 2026-10-09 /verify PASS:
+  - test_cli_preview.py: 7 passed
+  - real run on model.example.yaml: banner first, ASCII, 36 rows; CSV header exact, '.' decimals, no separators
+  - errors: one age -> exit 2; age 50 -> exit 2 'current age'; missing config -> exit 1; no CSV written
+  - README Preview section + CLAUDE.md command present; nothing written into the repository
 
 ## 11. Open Questions
 
