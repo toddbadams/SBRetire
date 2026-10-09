@@ -131,6 +131,13 @@ column in the same order.
 - A target with `maximum_monthly_budget_today: null` (infeasible) or `required_annual_return: null` (no solution
   within −50 % … +50 %): dash plus the `note`.
 - `completed_success_rate: null` (no future completed within the horizon).
+- Other `null` values (for example `maximum_annual_budget_today`, the `*_at_required_return` figures, and in
+  `annual` the portfolio percentiles, medians and `estimated_lifetime_success_rate` in years when no future is
+  still in scope): show a dash. Annual rows have no `note`; a tooltip such as "no simulated future still running
+  this year" is enough.
+- **Negative required returns** are normal for comfortable plans (the sample's `example-base` needs about −6.5 %
+  a year at 90 %): it means the plan would still work even if the savings lost value every year. Show the sign
+  clearly.
 - `converged: false` (search reached its cap or lower bound): mark the row.
 - Reserve off: hide part 5 and the reserve headline entirely.
 - 100 % success with ± 0.000 %: still meaningful; avoid a broken-looking chart.

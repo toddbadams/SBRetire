@@ -26,7 +26,7 @@ design doc the requirement for a common css theme to be determined."
 | 1 | Hand-off | `docs/design/claude-design-handoff.md`: purpose, data contract, page parts, wording and number rules, edge cases, theme requirement, deliverables | One document Claude Design can work from | user request |
 | 2 | Common theme | Every colour, font, size, space, radius, shadow and chart colour comes from CSS custom properties in **one** `theme.css`; the page's own CSS uses only `var(--…)`. Light and dark are two token sets in that file. The palette, typography and token names are **to be determined**: Claude Design proposes them, and the chosen theme is recorded as a decision before the page is built | User: common CSS theme, to be determined | user request |
 | 3 | Data | The page reads `window.SBRETIRE_RUNS` from `runs/runs.js` loaded with a `<script>` tag (F-021); no fetch, no server, no network | Works from `file://`, offline | F-021 §2 #6 |
-| 4 | Sample | `docs/design/sample/runs/` from the example config only: `example-base` and `example-stretch` (9,500/month, 4 % return, 12-month reserve, so failures and a reserve table appear) | Informative charts; no personal data | F-021 §2 #8 |
+| 4 | Sample | `docs/design/sample/runs/` from the example config only: `example-base` and `example-stretch` (10,500/month, 4 % return, 12-month reserve, so failures and a reserve table appear) | Informative charts; no personal data | F-021 §2 #8 |
 | 5 | Placement of the built page | Open: decided in F-022.3 with the design (e.g. `viewer/` copied next to `output/runs/`) | Depends on the design's file set | — |
 
 ## 3. Context
@@ -68,7 +68,7 @@ The page consumes `window.SBRETIRE_RUNS = {schema_version, index: [...], runs: {
 ## 10. Tasks
 
 ### F-022.1 Claude Design hand-off document
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-021.3
 
 `docs/design/claude-design-handoff.md` per §2 #1–#4; stretch sample variant in `scripts/build_design_sample.py`
@@ -81,6 +81,11 @@ and a regenerated `docs/design/sample/`.
 
 **Notes**
 - 2026-10-09 `docs/design/claude-design-handoff.md`: purpose and readers, deliverables (index.html, theme.css, optional viewer.css/js; no build, server or network), data contract (window.SBRETIRE_RUNS from runs/runs.js; index fields; every results.json section), 11 page parts, wording/number rules, edge cases, §7 Common CSS theme (one theme.css of custom properties, no colour literals in page CSS, light/dark via prefers-color-scheme and data-theme, theme to be determined with token groups to propose), layout/accessibility, privacy, next steps. `scripts/build_design_sample.py`: second run now `example-stretch` (10,500/month, 4 %, 12-month reserve; 81.6 % success); sample regenerated. Tests in `tests/unit/test_design_handoff.py` (3 for this task); full gate 411 passed.
+- 2026-10-09 /verify PASS:
+  - 4 hand-off tests pass and can fail; full suite 411
+  - every field the hand-off lists exists in the schema and the sample, none invented; sample table figures, return bounds, wording and rounding rules all match the code and THESAURUS
+  - common CSS theme section meets the user's request (one theme.css, custom properties only, light/dark, to be determined, token groups, WCAG AA)
+  - minor points then fixed in the hand-off: other nulls (incl. annual rows without a note) and negative required returns; brief §2 #4 figure corrected to 10,500
 
 ### F-022.2 Choose and record the common CSS theme
 - **Status**: To Do
