@@ -290,6 +290,15 @@ main { padding-bottom: var(--space-8); }
 .footer__inner { display: flex; flex-wrap: wrap; gap: var(--space-3); justify-content: space-between; align-items: center; }
 
 /* print: always the light token set (theme.css only applies dark on screen) */
+/* ---------------- print (F-023): A4, black and white via theme tokens, nothing split ---------------- */
+.print-only { display: none; }
+@page {
+  size: A4;
+  margin: 16mm 12mm 14mm;
+  @top-left { content: "SBRetire results"; font-family: var(--font-body); font-size: 8pt; color: var(--color-text-muted); }
+  @bottom-right { content: "Page " counter(page) " of " counter(pages); font-family: var(--font-body); font-size: 8pt; color: var(--color-text-muted); }
+}
+
 @media print {
   body { background: var(--color-surface); }
   .jump, .picker__panel, .picker__chev, #theme-toggle, .seg, .tabs, .skip, .hover-line, .chart-tip, .tip { display: none !important; }
@@ -302,4 +311,13 @@ main { padding-bottom: var(--space-8); }
   .year-box .t thead th, .year-box .t tbody th { position: static; }
   .table-box { overflow: visible; }
   a { color: var(--color-text); text-decoration: none; }
+  html, body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  #pdf-button, #pickers, .info, .screen-only, .year-box, .fold > summary { display: none !important; }
+  .print-only { display: block; }
+  .print-runs { font-weight: var(--weight-semibold); margin: var(--space-2) 0; }
+  .print-keep, figure, .about { break-inside: avoid; }
+  .year-print .t--print { font-size: 7.5pt; margin-bottom: var(--space-5); width: 100%; }
+  .year-print .t--print th, .year-print .t--print td { white-space: normal; padding-left: var(--space-1); padding-right: var(--space-1); }
+  .year-print caption { text-align: left; font-weight: var(--weight-semibold); padding-bottom: var(--space-2); }
+  .year-print thead { display: table-header-group; }
 }

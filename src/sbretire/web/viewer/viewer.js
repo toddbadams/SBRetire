@@ -584,7 +584,7 @@
       (multi ? legendSvg('<line x1="0" x2="28" y1="7" y2="7" class="fan-b-median"></line>', 'Median · ' + esc(list[1].r.run.name)) +
         legendSvg('<line x1="0" x2="28" y1="3" y2="3" class="fan-b-edge"></line><line x1="0" x2="28" y1="11" y2="11" class="fan-b-edge"></line>', '5th / 95th · ' + esc(list[1].r.run.name)) : '') + '</div>';
     $('#portfolio-body').innerHTML = '<div class="card">' + fanLegend + '<figure class="chart" id="chart-fan"><div class="chart-svg"></div><div class="chart-tip" hidden></div>' +
-      '<figcaption>Nominal pounds: not adjusted for inflation. Hover, or focus the chart and use the arrow keys, to read a year; the <a href="#years">year-by-year table</a> holds every value.' +
+      '<figcaption>Nominal pounds: not adjusted for inflation.<span class="screen-only"> Hover, or focus the chart and use the arrow keys, to read a year; the <a href="#years">year-by-year table</a> holds every value.</span>' +
       (state.allYears ? '' : ' Showing years until fewer than 0.1 % of futures are still running.') + '</figcaption></figure></div>';
     var survLegend = '<div class="chart-legend">' +
       legendSvg('<line x1="0" x2="28" y1="7" y2="7" class="ln ln-p1"></line>', esc(pp[0] ? pp[0].name : 'Person 1') + ' alive') +
@@ -599,6 +599,27 @@
   function drawCharts() { drawBudgetChart(); drawReturnChart(); drawFan(); drawSurvival(); }
 
   /* ---------------- year table ---------------- */
+  // Print shows the 19 annual columns as two tables that fit A4 portrait (F-023); the year repeats in both.
+  var PRINT_YEAR_COLUMNS = [['year', 'months', 'probability_both_alive', 'probability_person_1_alive', 'probability_person_2_alive', 'monthly_budget_today', 'monthly_budget_nominal_median', 'annual_budget_nominal_median', 'annual_income_median', 'annual_net_withdrawal_median'], ['year', 'portfolio_p05', 'portfolio_p25', 'portfolio_median', 'portfolio_p75', 'portfolio_p95', 'probability_not_depleted_yet', 'estimated_lifetime_success_rate', 'completed_paths', 'unresolved_paths']];
+  var PRINT_YEAR_TITLES = ['survival, spending and income (medians, nominal £)', 'portfolio (nominal £) and outcomes'];
+  var PRINT_YEAR_LABELS = { monthly_budget_today: 'Budget / month today', monthly_budget_nominal_median: 'Budget / month', annual_budget_nominal_median: 'Spending / year', annual_income_median: 'Income / year', annual_net_withdrawal_median: 'Net withdrawal', portfolio_p05: '5th', probability_not_depleted_yet: 'Not run out yet', estimated_lifetime_success_rate: 'Lifetime success' };
+  function yearCell(row, c, first) {
+    if (first) return '<th scope="row">' + row.year + '</th>';
+    var v = row[c[0]];
+    if (v == null) return '<td class="num"><span class="null" title="' + NULL_YEAR + '">' + DASH + '</span></td>';
+    return '<td class="num">' + (c[2] === 'rate' ? F.rate(v) : c[2] === 'gbp' ? F.gbp(v) : F.int(v)) + '</td>';
+  }
+  function printYearTables(r, cols) {
+    var byKey = { monthly_budget_today: ['monthly_budget_today', 'Budget / month (today’s money)', 'gbp'] };
+    cols.forEach(function (c) { byKey[c[0]] = c; });
+    return '<div class="print-only year-print">' + PRINT_YEAR_COLUMNS.map(function (keys, g) {
+      var group = keys.map(function (k) { return byKey[k]; });
+      return '<table class="t t--print"><caption>Year by year (' + (g + 1) + ' of 2): ' + PRINT_YEAR_TITLES[g] + ' · ' + esc(r.run.name) + '</caption>' +
+        '<thead><tr>' + group.map(function (c) { return '<th scope="col"' + (c[2] ? ' class="num"' : '') + '>' + (PRINT_YEAR_LABELS[c[0]] || c[1]) + '</th>'; }).join('') + '</tr></thead><tbody>' +
+        r.annual.map(function (row) { return '<tr>' + group.map(function (c, i) { return yearCell(row, c, i === 0); }).join('') + '</tr>'; }).join('') +
+        '</tbody></table>';
+    }).join('') + '</div>';
+  }
   function renderYears() {
     var list = runs();
     if (state.tableRun === 'b' && !state.b) state.tableRun = 'a';
@@ -613,19 +634,14 @@
     ];
     var head = '<tr>' + cols.map(function (c) { return th(c[1], r, file, c[0], c[2] ? 'num' : ''); }).join('') + '</tr>';
     var body = r.annual.map(function (row) {
-      return '<tr>' + cols.map(function (c, i) {
-        if (i === 0) return '<th scope="row">' + row.year + '</th>';
-        var v = row[c[0]];
-        if (v == null) return '<td class="num"><span class="null" title="' + NULL_YEAR + '">' + DASH + '</span></td>';
-        return '<td class="num">' + (c[2] === 'rate' ? F.rate(v) : c[2] === 'gbp' ? F.gbp(v) : F.int(v)) + '</td>';
-      }).join('') + '</tr>';
+      return '<tr>' + cols.map(function (c, i) { return yearCell(row, c, i === 0); }).join('') + '</tr>';
     }).join('');
     var tabs = list.length > 1 ? '<div class="tabs" role="tablist" aria-label="Run shown in the table">' + list.map(function (x) {
       return '<button type="button" role="tab" class="seg__btn" data-table-run="' + x.k + '" aria-selected="' + (x.k === o.k) + '">' + mark(x.k) + esc(x.r.run.name) + '</button>';
     }).join('') + '</div>' : '';
     var det = $('#years-fold'), open = det ? det.open : false;
     $('#years-body').innerHTML = '<details class="fold" id="years-fold"' + (open ? ' open' : '') + '><summary>Show the table <span class="muted">' + r.annual.length + ' rows · ' + r.annual[0].year + '–' + r.annual[r.annual.length - 1].year + '</span></summary>' +
-      '<div class="fold__body">' + tabs + '<div class="year-box"><table class="t"><caption class="visually-hidden">Year-by-year results for ' + esc(r.run.name) + '</caption><thead>' + head + '</thead><tbody>' + body + '</tbody></table></div>' +
+      '<div class="fold__body">' + tabs + '<div class="year-box"><table class="t"><caption class="visually-hidden">Year-by-year results for ' + esc(r.run.name) + '</caption><thead>' + head + '</thead><tbody>' + body + '</tbody></table></div>' + printYearTables(r, cols) +
       '<p class="note" style="margin-top:var(--space-3)">A dash means no simulated future was still running that year. Portfolio columns are year-end percentiles across futures.</p></div></details>';
     $$('[data-table-run]').forEach(function (b) { b.addEventListener('click', function () { state.tableRun = b.dataset.tableRun; renderYears(); var t = $('[data-table-run="' + state.tableRun + '"]'); if (t) t.focus(); }); });
   }
@@ -875,8 +891,51 @@
       return;
     }
     setSectionsHidden(false);
+    $('#print-runs').innerHTML = runs().map(function (o) { return mark(o.k) + ' ' + esc(o.r.run.name); }).join(' <span class="muted">vs</span> ');
+    // Page header for print: margin boxes cannot read the page, so the rule carries the run names.
+    $('#print-header').textContent = '@page { @top-right { content: ' + cssString(runs().map(function (o) { return o.r.run.name; }).join(' vs ')) + '; } }';
     renderMeta(); renderCompare(); renderHeadline(); renderBudgets(); renderReturns(); renderChartShells(); renderYears(); renderInputs(); renderGlossary();
     drawCharts();
+  }
+
+  /* ---------------- print (F-023) ---------------- */
+  var printUndo = null;
+  function cssString(s) { return '"' + String(s).replace(/[\\"]/g, '\\$&').replace(/[\n\r]/g, ' ') + '"'; }
+  function wrapForPrint() {
+    if (printUndo) return;
+    var undo = [];
+    $$('details').forEach(function (d) { if (!d.open) { d.open = true; undo.push(function () { d.open = false; }); } });
+    // Keep each section's heading block and intro on the same page as its first card. A failure in one
+    // section must not stop the others or lose the undo steps already recorded.
+    printUndo = undo;
+    $$('main .section').forEach(function (s) {
+      var title = s.querySelector('.section__title');
+      if (s.hidden || !title) return;
+      try {
+        var head = title.parentNode === s ? title : title.parentNode;
+        var intro = s.querySelector(':scope > .section__intro');
+        var body = s.querySelector(':scope > [id$="-body"]');
+        var first = body ? body.querySelector('.card, details, figure, table') : null;
+        var home = first ? first.parentNode : null, next = first ? first.nextSibling : null;
+        var keep = document.createElement('div');
+        keep.className = 'print-keep';
+        if (first) home.insertBefore(keep, first); else s.appendChild(keep);
+        keep.appendChild(head);
+        if (intro) keep.appendChild(intro);
+        if (first) keep.appendChild(first);
+        undo.push(function () {
+          if (first) home.insertBefore(first, next);
+          s.insertBefore(head, s.firstElementChild);
+          if (intro) head.after(intro);
+          keep.remove();
+        });
+      } catch (e) { /* leave this section as it is */ }
+    });
+  }
+  function unwrapAfterPrint() {
+    if (!printUndo) return;
+    printUndo.reverse().forEach(function (f) { f(); });
+    printUndo = null;
   }
 
   function init() {
@@ -893,7 +952,8 @@
     buildPickers(); syncPickers(); render();
     var lastW = window.innerWidth, t;
     window.addEventListener('resize', function () { clearTimeout(t); t = setTimeout(function () { if (window.innerWidth !== lastW) { lastW = window.innerWidth; drawCharts(); } }, 120); });
-    window.addEventListener('beforeprint', function () { var d = $('#years-fold'); if (d) d.open = true; });
+    window.addEventListener('beforeprint', wrapForPrint);
+    window.addEventListener('afterprint', unwrapAfterPrint);
   }
   init();
 })();

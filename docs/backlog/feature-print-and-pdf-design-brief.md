@@ -67,6 +67,14 @@ day, in which the viewer was printed to PDF with headless Edge before and after 
 
 ## 9. Surprises
 
+- 2026-10-09 — `@page` margin boxes work in Edge 154, but a `@page` rule added inside `beforeprint` was ignored; the
+  run-name header is now written whenever the page renders.
+- 2026-10-09 — The portfolio heading sits in a `.section__head` wrapper with the year toggle; the first wrapping code
+  assumed the heading was a direct child, threw, and left every later section unwrapped. Fixed with per-section
+  try/catch and direct child lookups.
+- 2026-10-09 — Headless Edge stopped producing PDFs mid-session (exit 0 in 0.1 s, no output) while the user's Edge
+  was open with a staged update (154 running, 155 installed); the review render waits for Edge to be closed.
+
 ## 10. Tasks
 
 ### F-023.1 Black-and-white print tokens
@@ -83,18 +91,21 @@ day, in which the viewer was printed to PDF with headless Edge before and after 
 - 2026-10-09 `theme.css` `@media print` block on `:root, :root[data-theme]`: all 33 colour/chart tokens as oklch greys (chroma 0; fan bands opaque; hover keeps alpha), the values tried in the investigation's experiment PDF. Screen dark rules are screen-only, so print always starts from light. Tests `test_print_tokens_are_neutral`, `test_print_contrast_meets_aa`.
 
 ### F-023.2 Print layout
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-023.1
 
 `viewer.css` print rules, `beforeprint`/`afterprint` keep-together wrapping, print-only year tables (§2 #4–#7).
 
 **Acceptance criteria**
-- [ ] The print CSS sets A4 portrait with margins and header/footer margin boxes, keeps cards, charts, rows and `.print-keep` blocks unbroken, hides the screen-only items and shows `.print-only` content only in print — `test_print_css_layout_rules`
-- [ ] `beforeprint` opens every fold and wraps each section's heading, intro and first card in `.print-keep`; `afterprint` restores the DOM — `test_print_keep_together_script`
-- [ ] The year table renders two print-only tables whose columns together cover every annual column exactly once (plus the year in both) — `test_print_year_tables_cover_all_columns`
+- [x] The print CSS sets A4 portrait with margins and header/footer margin boxes, keeps cards, charts, rows and `.print-keep` blocks unbroken, hides the screen-only items and shows `.print-only` content only in print — `test_print_css_layout_rules`
+- [x] `beforeprint` opens every fold and wraps each section's heading, intro and first card in `.print-keep`; `afterprint` restores the DOM — `test_print_keep_together_script`
+- [x] The year table renders two print-only tables whose columns together cover every annual column exactly once (plus the year in both) — `test_print_year_tables_cover_all_columns`
+
+**Notes**
+- 2026-10-09 viewer.css: `@page` A4 16/12/14 mm with `@top-left` "SBRetire results" and `@bottom-right` "Page X of Y"; print hides the PDF/theme buttons, pickers, (i), `.screen-only`, the screen year table and fold toggles; shows `.print-only`; keeps `.print-keep`, figures, the about panel, cards and rows unbroken. viewer.js: `wrapForPrint`/`unwrapAfterPrint` on beforeprint/afterprint (open every fold; wrap each section's heading block, intro and first card/details/figure/table in `.print-keep`; per-section try/catch; undo restores every element — checked in the browser, only whitespace differs); `#print-header` style written at render with the run names for `@top-right`; two print-only year tables (10 + 10 columns, short labels, every annual column once, year in both); hover help wrapped in `.screen-only`; `#print-runs` line. Edge PDFs of the sample during development: black and white, A4, header/footer, year tables complete, no split rows; the first version stranded three headings (the portfolio heading sits in a `.section__head` wrapper and threw), fixed and checked in the DOM.
 
 ### F-023.3 Save as PDF button
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-023.2
 
 `#pdf-button` in the masthead; `printPdf()` sets the title and calls `window.print()`, restoring the title after
