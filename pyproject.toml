@@ -59,7 +59,7 @@ ignore = ["RUF001", "RUF002", "RUF003"]  # allow unicode (£, π, ≥) in string
 
 [tool.ruff.lint.isort]
 known-first-party = ["sbretire"]
-known-local-folder = ["scenario_helpers", "cash_flow_doubles", "mortality_fixtures", "annual_fixtures", "backlog_check", "build_ons_mortality", "build_uk_cpi", "calibrate_inflation"]
+known-local-folder = ["scenario_helpers", "cash_flow_doubles", "mortality_fixtures", "annual_fixtures", "backlog_check", "build_ons_mortality", "build_uk_cpi", "calibrate_inflation", "render_viewer_pdf"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["B011"]
