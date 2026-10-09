@@ -8,6 +8,7 @@ which is what makes "today's GBP" amounts nominal: nominal = today's amount × I
 from __future__ import annotations
 
 import csv
+import json
 import math
 from collections.abc import Sequence
 from dataclasses import dataclass
@@ -17,8 +18,8 @@ from typing import Protocol
 import numpy as np
 from numpy.typing import NDArray
 
-from sbretire.config import InflationAssumptions, Scenario
-from sbretire.metadata import DataFileRecord
+from sbretire.config import InflationAssumptions, Scenario, ScenarioIssue
+from sbretire.metadata import DataFileRecord, file_sha256
 from sbretire.portfolio import FloatArray
 
 
@@ -39,23 +40,6 @@ class FlatPriceIndex:
 
     def level(self, month: int) -> FloatArray:
         return self._ones
-
-
-class AnnualStepPriceIndex:
-    """Constant inflation stepping once a year on As-Of anniversaries: I_t = (1 + rate)^floor(t / 12).
-
-    Deterministic illustration of SPEC §6's "one annual rate held for twelve months"
-    (simulation-conventions §3, provisional until F-006).
-    """
-
-    def __init__(self, n_paths: int, annual_rate: float) -> None:
-        if annual_rate <= -1:
-            raise ValueError(f"annual_rate must be greater than -1 (got {annual_rate})")
-        self._n_paths = n_paths
-        self._growth = 1.0 + annual_rate
-
-    def level(self, month: int) -> FloatArray:
-        return np.full(self._n_paths, self._growth ** (month // 12), dtype=np.float64)
 
 
 @dataclass(frozen=True)
@@ -216,8 +200,44 @@ class StochasticPriceIndex:
 
 
 def build_price_index(scenario: Scenario, rng: np.random.Generator, n_paths: int) -> StochasticPriceIndex:
-    raise NotImplementedError
+    """Draw the run's inflation paths from ``rng`` (the inflation Random Stream) for the whole horizon.
+
+    Call once per run and reuse the result for every candidate (Common Random Numbers,
+    simulation-conventions §4).
+    """
+    params = Ar1LognormalParams.from_config(scenario.inflation)
+    rates = draw_annual_rates(rng, params, n_paths=n_paths, n_years=scenario.model.horizon_years)
+    return StochasticPriceIndex(rates)
+
+
+def cpi_sidecar_path(path: Path) -> Path:
+    """``uk_cpi.csv`` -> ``uk_cpi.meta.json`` beside it."""
+    return path.with_name(path.stem + ".meta.json")
 
 
 def inflation_data_file_record(inflation: InflationAssumptions) -> DataFileRecord:
-    raise NotImplementedError
+    """The CPI calibration file as a Run Metadata entry (SHA-256 of the CSV; edition and retrieval date)."""
+    meta = json.loads(cpi_sidecar_path(inflation.data_file).read_text(encoding="utf-8"))
+    return DataFileRecord(
+        role="inflation",
+        path=str(inflation.data_file),
+        sha256=file_sha256(inflation.data_file),
+        version=str(meta["edition"]),
+        retrieved=str(meta["retrieved"]),
+    )
+
+
+def inflation_coverage_issues(inflation: InflationAssumptions) -> list[ScenarioIssue]:
+    """Problems reading ``inflation.data_file`` or years of ``source_period`` it lacks (SPEC §4.3)."""
+    try:
+        rates = load_cpi_series(inflation.data_file)
+    except ValueError as exc:
+        return [ScenarioIssue("inflation.data_file", str(exc))]
+    missing = [year for year in range(inflation.first_year, inflation.last_year + 1) if year not in rates]
+    if not missing:
+        return []
+    message = (
+        f"{inflation.data_file.name} covers {min(rates)}-{max(rates)} but source_period "
+        f"{inflation.source_period} needs {missing[0]}-{missing[-1]}"
+    )
+    return [ScenarioIssue("inflation.source_period", message)]

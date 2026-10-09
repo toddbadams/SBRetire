@@ -60,6 +60,23 @@ Income streams (full rules in `docs/decisions/configuration.md` §4–§5):
 - `recipient: household` marks income owned by the household (e.g. rent, a joint annuity): paid in full while both
   are alive and × `survivor_percentage` once one has died. `household` cannot be used as a person `id`.
 
+Inflation (full rules in `docs/decisions/data-and-calibration.md` §2–§3 and `simulation-conventions.md` §5):
+
+- `model: ar1_lognormal`: each simulated year draws one rate π per path, with
+  log(1 + π_y) = `log_mean` + `ar1_coefficient` × (log(1 + π_{y−1}) − `log_mean`) + `innovation_sd` × ε. So
+  high-inflation years tend to cluster, as in the 1990s and 2022–23, and 1 + π is always positive.
+- `parameter_units: log_annual`: every parameter describes log(1 + annual rate), not the arithmetic mean or standard
+  deviation of π. The median rate is e^`log_mean` − 1 (about 2.81 % for UK CPI 1989–2025); `initial_rate` is the year
+  before the as-of date (2025: 3.4 %).
+- Years start at the as-of month and the year's rate compounds monthly: prices are I_t = I_{12k} × (1 + π_k)^(m/12)
+  m months into year k, with I = 1 in the as-of month.
+- The parameters are calibrated from `inflation.data_file` (ONS CPI series D7G7, provenance in `data/README.md`) over
+  `source_period`. To recalibrate after updating the data, run
+  `uv run python scripts/calibrate_inflation.py --config config/model.yaml` and paste the block. You may also edit
+  them to stress-test, for example with a higher `log_mean`.
+- Every `inflation_linked: true` income follows this one UK CPI path. Income that really rises with another measure,
+  such as US Social Security's COLA paid in dollars, is approximated by UK CPI at your planning exchange rate.
+
 Mortality (full rules in `docs/decisions/data-and-calibration.md` §1; provenance in `data/README.md`):
 
 - `mortality.data_file` points at `data/ons_mortality.csv`: ONS 2024-based UK cohort death rates, principal
@@ -79,8 +96,8 @@ illustration, not a sustainability estimate**: there is no randomness and no pro
 
 - `--death-ages A,B` — age at death for each person, in the config's `people` order; each person is dead from the
   start of the month of that birthday. Ages at or below someone's current age are rejected.
-- Inflation is constant at `inflation.annual_mean`, stepping once a year on as-of anniversaries; the return is the
-  fixed `portfolio.annual_return`.
+- Inflation is constant at the median rate e^`log_mean` − 1, compounding monthly from the as-of month; the return
+  is the fixed `portfolio.annual_return`.
 - One row per calendar year (the first and last may be partial): `income`, `spending`, `investment_return`,
   `net_withdrawal` (spending − income) and `balance_end` in nominal GBP, `balance_end_today` deflated to today's
   GBP, and the `price_index`. In the month money runs out, `spending` shows what was needed; the unpaid part is the

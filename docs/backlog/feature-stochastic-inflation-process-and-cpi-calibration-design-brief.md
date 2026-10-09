@@ -153,6 +153,7 @@ inflation:
 - 2026-10-09 — F-006.2: an AR(1) path with σ = 0 decays towards μ, so its sample mean is not μ and the fit cannot "recover μ and φ exactly" from it; the AC now uses a hand-computed short series (exact) plus a long seeded synthetic series (tolerance).
 - 2026-10-09 — F-006.2: the brief's σ formula said n − 2 (n = observations) while its pinned value 0.015365 used m − 2 over the m = n − 1 residuals (34 for 1989–2025). The pinned value and example config were right; formula text, code and the hand-computed test now all use m − 2.
 - 2026-10-09 — F-006.2: `inflation.data_file` resolves to an absolute path and leaked into the Config Hash; it is now excluded like `mortality.data_file` (configuration §7 amended).
+- 2026-10-09 — F-006.4: removing `AnnualStepPriceIndex` retired three F-015 tests (two index tests, one preview index test); each was replaced by a monthly-compounding equivalent rather than deleted.
 
 ## 10. Tasks
 
@@ -210,7 +211,7 @@ inflation:
 - 2026-10-09 Added `draw_annual_rates` (one `standard_normal((n_years, n_paths))` call, year recursion vectorised over paths, returns π = expm1(x)) and `StochasticPriceIndex` (validates 2-D/finite/> −1; stores log growth + cumulative log level; `level` interpolates within the year; `constant`, `n_years`) in `src/sbretire/inflation.py`. Tests `tests/unit/test_inflation_process.py` (7; seed-42 known answers computed independently from `SeedSequence(42, spawn_key=(1,))`; 100k × 60 statistics run in < 1 s, so not marked slow).
 
 ### F-006.4 Wiring, preview, metadata and docs
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-006.3
 
 `build_price_index(scenario, rng, n_paths)`; preview uses `StochasticPriceIndex.constant(…, e^μ − 1)`; remove
@@ -219,12 +220,15 @@ inflation:
 data/README, THESAURUS; decisions already recorded with the brief.
 
 **Acceptance criteria**
-- [ ] `build_price_index` draws from the given generator: same seed → identical index; horizon from the scenario — `test_build_price_index_uses_inflation_stream`
-- [ ] Deterministic inflation fixture (σ = 0, μ = log 1.03, φ = 0, initial 0.03) through `ScenarioCashFlows` gives hand-computed nominal spending in months 0, 6, 12 and 30 (§17.2) — `test_deterministic_inflation_fixture_expected_nominal_spending`
-- [ ] Preview compounds monthly at the median rate; its year rows and CSV match hand-computed values for the fixture — `test_preview_uses_monthly_compounding`
-- [ ] `inflation_data_file_record` gives role `inflation`, the CSV SHA-256, version `D7G7 (released 2026-09-16)` and retrieved `2026-10-09` — `test_inflation_data_file_record`
-- [ ] `validate --require-data-files` exits 2 naming `inflation.source_period` when the file lacks a year in the period, 0 for the example — `test_cli_validate_reports_inflation_coverage`
-- [ ] README documents the process, log-space parameters, calibration command and the UK-CPI-for-all-linked-income approximation — `check: grep -n "ar1_lognormal" README.md`
+- [x] `build_price_index` draws from the given generator: same seed → identical index; horizon from the scenario — `test_build_price_index_uses_inflation_stream`
+- [x] Deterministic inflation fixture (σ = 0, μ = log 1.03, φ = 0, initial 0.03) through `ScenarioCashFlows` gives hand-computed nominal spending in months 0, 6, 12 and 30 (§17.2) — `test_deterministic_inflation_fixture_expected_nominal_spending`
+- [x] Preview compounds monthly at the median rate; its year rows and CSV match hand-computed values for the fixture — `test_preview_uses_monthly_compounding`
+- [x] `inflation_data_file_record` gives role `inflation`, the CSV SHA-256, version `D7G7 (released 2026-09-16)` and retrieved `2026-10-09` — `test_inflation_data_file_record`
+- [x] `validate --require-data-files` exits 2 naming `inflation.source_period` when the file lacks a year in the period, 0 for the example — `test_cli_validate_reports_inflation_coverage`
+- [x] README documents the process, log-space parameters, calibration command and the UK-CPI-for-all-linked-income approximation — `check: grep -n "ar1_lognormal" README.md`
+
+**Notes**
+- 2026-10-09 Added `build_price_index`, `inflation_data_file_record` (sidecar edition/retrieved), `inflation_coverage_issues`, `cpi_sidecar_path` to `src/sbretire/inflation.py`; removed `AnnualStepPriceIndex` (its two tests in `tests/unit/test_inflation.py` replaced by `test_constant_index_compounds_monthly_not_in_annual_steps`); preview uses `StochasticPriceIndex.constant` at e^μ − 1 (`test_run_preview_deflates_with_price_index` replaced by `test_preview_uses_monthly_compounding`); CLI `_check_data_files` reports CPI and mortality issues together. New tests: 2 in `tests/unit/test_inflation_process.py`, 1 in `tests/unit/test_cli.py`, `tests/integration/test_inflation_end_to_end.py`. README inflation section + preview line; THESAURUS Inflation Index. Example and personal configs validate with `--require-data-files`.
 
 ## 11. Open Questions
 

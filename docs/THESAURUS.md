@@ -92,7 +92,7 @@ suffix, bare unqualified `Service`, `confidence interval` (for success probabili
 - **Related terms**: Recipient, Survivor Percentage, Inflation Index
 
 ### Inflation Index (Price Level)
-- **Definition**: Cumulative price level I_y = I_{y-1}(1+π_y), I_0 = 1, with one annual draw per path per year held for twelve months (SPEC §6).
+- **Definition**: Cumulative price level, I = 1 in the As-Of month; one annual rate π_k per path per simulated year (AR(1) lognormal), compounding monthly within the year so I_{12k} = ∏_{j<k}(1+π_j) at anniversaries (SPEC §6; simulation-conventions §5).
 - **Synonyms to AVOID**: CPI (CPI is the calibration *source*, not the simulated index), deflator
 - **Related terms**: Today's GBP, Random Stream
 
