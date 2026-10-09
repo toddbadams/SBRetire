@@ -17,7 +17,8 @@ from typing import Protocol
 import numpy as np
 from numpy.typing import NDArray
 
-from sbretire.config import InflationAssumptions
+from sbretire.config import InflationAssumptions, Scenario
+from sbretire.metadata import DataFileRecord
 from sbretire.portfolio import FloatArray
 
 
@@ -212,3 +213,11 @@ class StochasticPriceIndex:
             log_level = log_level + (within / 12) * self._log_growth[year]
         result: FloatArray = np.exp(log_level)
         return result
+
+
+def build_price_index(scenario: Scenario, rng: np.random.Generator, n_paths: int) -> StochasticPriceIndex:
+    raise NotImplementedError
+
+
+def inflation_data_file_record(inflation: InflationAssumptions) -> DataFileRecord:
+    raise NotImplementedError

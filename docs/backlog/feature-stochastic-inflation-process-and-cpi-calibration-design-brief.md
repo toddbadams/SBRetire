@@ -210,7 +210,7 @@ inflation:
 - 2026-10-09 Added `draw_annual_rates` (one `standard_normal((n_years, n_paths))` call, year recursion vectorised over paths, returns π = expm1(x)) and `StochasticPriceIndex` (validates 2-D/finite/> −1; stores log growth + cumulative log level; `level` interpolates within the year; `constant`, `n_years`) in `src/sbretire/inflation.py`. Tests `tests/unit/test_inflation_process.py` (7; seed-42 known answers computed independently from `SeedSequence(42, spawn_key=(1,))`; 100k × 60 statistics run in < 1 s, so not marked slow).
 
 ### F-006.4 Wiring, preview, metadata and docs
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-006.3
 
 `build_price_index(scenario, rng, n_paths)`; preview uses `StochasticPriceIndex.constant(…, e^μ − 1)`; remove

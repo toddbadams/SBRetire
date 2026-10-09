@@ -14,7 +14,13 @@ from typing import Any
 import pytest
 
 from sbretire.config import Scenario, parse_scenario
-from sbretire.preview import PreviewResult, PreviewYear, death_months_from_ages, run_preview
+from sbretire.preview import (
+    PreviewResult,
+    PreviewYear,
+    death_months_from_ages,
+    run_preview,
+    write_preview_csv,
+)
 
 from scenario_helpers import set_at
 
@@ -75,15 +81,21 @@ def test_run_preview_reports_depletion(valid_raw: dict[str, Any]) -> None:
     assert result.household_end_date is None
 
 
-def test_run_preview_deflates_with_price_index(valid_raw: dict[str, Any]) -> None:
+def test_preview_uses_monthly_compounding(valid_raw: dict[str, Any], tmp_path: Path) -> None:
+    """Index compounds monthly from the As-Of month at the median rate (simulation-conventions §5)."""
     result = run_preview(scenario(preview_raw(valid_raw, inflation=0.02)), (130, 130))
     rows = by_year(result)
-    # last simulated month of 2027 is month 14 (Dec 2027): one anniversary passed
-    assert rows[2026].price_index == 1.0
-    assert rows[2027].price_index == pytest.approx(1.02)
-    assert rows[2028].price_index == pytest.approx(1.02**2)
+    # last simulated month of each calendar year: Dec 2026 = month 2, Dec 2027 = 14, Dec 2028 = 26
+    assert rows[2026].price_index == pytest.approx(1.02 ** (2 / 12), rel=1e-12)
+    assert rows[2027].price_index == pytest.approx(1.02 ** (14 / 12), rel=1e-12)
+    assert rows[2028].price_index == pytest.approx(1.02 ** (26 / 12), rel=1e-12)
     for row in result.rows:
         assert row.balance_end_today == pytest.approx(row.balance_end / row.price_index)
+    # Spending in Oct-Dec 2026: 3000 x 1.02^(t/12) for t = 0, 1, 2
+    assert rows[2026].spending == pytest.approx(sum(3000 * 1.02 ** (t / 12) for t in range(3)), rel=1e-12)
+    write_preview_csv(result, tmp_path / "preview.csv")
+    lines = (tmp_path / "preview.csv").read_text(encoding="utf-8").splitlines()
+    assert lines[2].endswith(f",{1.02 ** (14 / 12):.6f}")
 
 
 def test_run_preview_investment_return_matches_closed_form(valid_raw: dict[str, Any]) -> None:

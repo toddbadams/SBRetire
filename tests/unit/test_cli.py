@@ -86,3 +86,25 @@ def test_cli_run_validates_then_reports_engine_pending(
     assert main(["run", "--config", bad, "--output-dir", str(tmp_path / "out")]) == 2
     assert main(["run", "--config", str(EXAMPLE), "--output-dir", str(tmp_path / "out")]) == 1
     assert "not implemented" in capsys.readouterr().err
+
+
+def test_cli_validate_reports_inflation_coverage(
+    tmp_path: Path, valid_raw: dict[str, Any], capsys: pytest.CaptureFixture[str]
+) -> None:
+    root = EXAMPLE.parents[1]
+    assert main(["validate", "--config", str(EXAMPLE), "--require-data-files"]) == 0
+    capsys.readouterr()
+
+    short = tmp_path / "uk_cpi.csv"
+    rows = "".join(f"{year},0.02\n" for year in range(1989, 2021))
+    short.write_text("year,annual_rate\n" + rows, encoding="utf-8")
+    raw = set_at(valid_raw, "inflation.data_file", str(short))
+    raw = set_at(raw, "mortality.data_file", str(root / "data" / "ons_mortality.csv"))
+    config = write(tmp_path / "short.yaml", raw)
+    assert main(["validate", "--config", config, "--require-data-files"]) == 2
+    err = capsys.readouterr().err
+    assert "inflation.source_period" in err and "2021" in err
+
+    short.write_text("year,annual_rate\n1989,abc\n", encoding="utf-8")
+    assert main(["validate", "--config", config, "--require-data-files"]) == 2
+    assert "inflation.data_file" in capsys.readouterr().err

@@ -6,13 +6,22 @@ F-006 brief §2 #2, #7, #9, #10; simulation-conventions §5; SPEC §6, §17.1.
 from __future__ import annotations
 
 import math
+from pathlib import Path
 
 import numpy as np
 import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from sbretire.inflation import Ar1LognormalParams, StochasticPriceIndex, draw_annual_rates
+from sbretire.config import load_scenario
+from sbretire.inflation import (
+    Ar1LognormalParams,
+    StochasticPriceIndex,
+    build_price_index,
+    draw_annual_rates,
+    inflation_data_file_record,
+)
+from sbretire.metadata import file_sha256
 from sbretire.randomness import RandomStreams, ResolvedSeed
 
 EXAMPLE = Ar1LognormalParams(
@@ -127,3 +136,31 @@ def test_stochastic_price_index_rejects_bad_input() -> None:
     np.testing.assert_allclose(constant.level(36), [1.02**3, 1.02**3])
     with pytest.raises(ValueError, match="n_paths"):
         draw_annual_rates(_inflation_stream(1), EXAMPLE, n_paths=0, n_years=3)
+
+
+ROOT = Path(__file__).resolve().parents[2]
+EXAMPLE_CONFIG = ROOT / "config" / "model.example.yaml"
+
+
+def test_build_price_index_uses_inflation_stream() -> None:
+    scenario = load_scenario(EXAMPLE_CONFIG).scenario
+    first = build_price_index(scenario, _inflation_stream(42), n_paths=5)
+    second = build_price_index(scenario, _inflation_stream(42), n_paths=5)
+    other = build_price_index(scenario, _inflation_stream(43), n_paths=5)
+    assert first.n_years == scenario.model.horizon_years
+    for month in (0, 7, 12, 300, 12 * scenario.model.horizon_years):
+        np.testing.assert_array_equal(first.level(month), second.level(month))
+    assert not np.array_equal(first.level(12), other.level(12))
+    params = Ar1LognormalParams.from_config(scenario.inflation)
+    rates = draw_annual_rates(_inflation_stream(42), params, n_paths=5, n_years=scenario.model.horizon_years)
+    np.testing.assert_allclose(first.level(24), np.prod(1 + rates[:2], axis=0), rtol=1e-13)
+
+
+def test_inflation_data_file_record() -> None:
+    inflation = load_scenario(EXAMPLE_CONFIG).scenario.inflation
+    record = inflation_data_file_record(inflation)
+    assert record.role == "inflation"
+    assert record.path == str(inflation.data_file)
+    assert record.sha256 == file_sha256(inflation.data_file)
+    assert record.version == "D7G7 (released 2026-09-16)"
+    assert record.retrieved == "2026-10-09"
