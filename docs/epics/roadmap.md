@@ -12,7 +12,7 @@ Features in build order. Status: `proposed` → `briefed` → `in-progress` → 
 | F-004 | Spending with Survivor Budget Factor | [household-cash-flows](household-cash-flows.md) | F-002 | done |
 | F-015 | Deterministic Preview Run | [reporting-release](reporting-release.md) | F-003, F-004 | done |
 | F-016 | VS Code Test Setup | [v1-1-enhancements](v1-1-enhancements.md) | F-014 | done |
-| F-017 | Inputs Display and inputs.csv | [v1-1-enhancements](v1-1-enhancements.md) | F-013 | proposed |
+| F-017 | Inputs Display and inputs.csv | [v1-1-enhancements](v1-1-enhancements.md) | F-013 | briefed |
 | F-018 | Results Guide (columns, calculations, assumptions) | [v1-1-enhancements](v1-1-enhancements.md) | F-017 | proposed |
 | F-019 | End-of-Life Reserve Target | [v1-1-enhancements](v1-1-enhancements.md) | F-013 | proposed |
 | F-020 | Spend-At-Least-Income Option | [v1-1-enhancements](v1-1-enhancements.md) | F-013 | proposed |
@@ -112,6 +112,7 @@ Unmapped requirements: **none**.
 
 ## Change Log
 
+- 2026-10-09 — F-017 briefed: design brief + tasks F-017.1…F-017.2 (every Scenario field as a row; inputs.csv + console block).
 - 2026-10-09 — Added epic v1-1-enhancements: F-016 VS Code test setup (done, tooling-and-process §5); F-017 inputs display; F-018 results guide (Markdown); F-019 end-of-life reserve = 12 × monthly Budget; F-020 spend-at-least-income option (opt-in). Decisions from the user.
 - 2026-10-09 — F-014 done: V1 acceptance guards, SPEC §17 acceptance map, README for V1, version 1.0.0 + CHANGELOG, local tag v1.0.0 (367 tests). All 15 features done; all epics delivered. Post-release B-014.1 (guard hardening, README column coverage) verified (369 tests).
 - 2026-10-09 — F-014 briefed: design brief + tasks F-014.1…F-014.3 (release = 1.0.0 + CHANGELOG + local tag).

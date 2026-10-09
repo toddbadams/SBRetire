@@ -6,7 +6,7 @@ spec_sections: [§1.2, §11, §12, §14, §15]
 depends_on: [reporting-release]
 milestones:
   - { id: F-016, title: VS Code Test Setup, status: done }
-  - { id: F-017, title: Inputs Display and inputs.csv, status: proposed }
+  - { id: F-017, title: Inputs Display and inputs.csv, status: briefed }
   - { id: F-018, title: Results Guide (columns, calculations, assumptions), status: proposed }
   - { id: F-019, title: End-of-Life Reserve Target, status: proposed }
   - { id: F-020, title: Spend-At-Least-Income Option, status: proposed }
