@@ -34,9 +34,17 @@ class FlatPriceIndex:
 
 
 class AnnualStepPriceIndex:
+    """Constant inflation stepping once a year on As-Of anniversaries: I_t = (1 + rate)^floor(t / 12).
+
+    Deterministic illustration of SPEC §6's "one annual rate held for twelve months"
+    (simulation-conventions §3, provisional until F-006).
+    """
+
     def __init__(self, n_paths: int, annual_rate: float) -> None:
-        self.n_paths = n_paths
-        self.annual_rate = annual_rate
+        if annual_rate <= -1:
+            raise ValueError(f"annual_rate must be greater than -1 (got {annual_rate})")
+        self._n_paths = n_paths
+        self._growth = 1.0 + annual_rate
 
     def level(self, month: int) -> FloatArray:
-        raise NotImplementedError
+        return np.full(self._n_paths, self._growth ** (month // 12), dtype=np.float64)

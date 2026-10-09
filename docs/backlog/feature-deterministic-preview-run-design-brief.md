@@ -136,20 +136,23 @@ _(filled during implementation)_
 Task format and statuses: `docs/project-sdlc.md` §2. Definition of done: `docs/project-sdlc.md` §4.
 
 ### F-015.1 Annual-step index and death months from ages
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: —
 
 `AnnualStepPriceIndex` in `src/sbretire/inflation.py` (brief §2 #2) and `death_months_from_ages` in
 `src/sbretire/preview.py` (§2 #1). Tests in `tests/unit/test_inflation.py` and `tests/unit/test_preview.py`.
 
 **Acceptance criteria**
-- [ ] The index is 1 for months 0–11, (1+π) for 12–23, (1+π)^k for months 12k…12k+11 — `test_annual_step_index_steps_on_anniversaries`
-- [ ] A zero rate gives a constant index of 1 — `test_annual_step_index_zero_rate_is_flat`
-- [ ] A death age maps to the month index of that birthday's month (fixture: alex b. 1958-03 at age 90 → 2048-03 = month 257) — `test_death_months_from_ages_uses_birthday_month`
-- [ ] Ages at or below a person's current age are rejected; ages beyond the horizon give a Death Month ≥ the horizon — `test_death_months_from_ages_validates_range`
+- [x] The index is 1 for months 0–11, (1+π) for 12–23, (1+π)^k for months 12k…12k+11 — `test_annual_step_index_steps_on_anniversaries`
+- [x] A zero rate gives a constant index of 1 — `test_annual_step_index_zero_rate_is_flat`
+- [x] A death age maps to the month index of that birthday's month (fixture: alex b. 1958-03 at age 90 → 2048-03 = month 257) — `test_death_months_from_ages_uses_birthday_month`
+- [x] Ages at or below a person's current age are rejected; ages beyond the horizon give a Death Month ≥ the horizon — `test_death_months_from_ages_validates_range`
+
+**Notes**
+- 2026-10-09: `src/sbretire/inflation.py` — `AnnualStepPriceIndex` (rejects rate ≤ −1). `src/sbretire/preview.py` — `death_months_from_ages` (birthday month via `month_index`; rejects ages ≤ 0 or Death Month ≤ 0 with "must be greater than their current age"). Tests: 2 added to `tests/unit/test_inflation.py`, 2 in `tests/unit/test_preview.py`.
 
 ### F-015.2 Preview run and calendar-year aggregation
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-015.1
 
 `run_preview`, `PreviewYear`, `PreviewResult` in `src/sbretire/preview.py` (brief §2 #3–#6, §5). Tests in
