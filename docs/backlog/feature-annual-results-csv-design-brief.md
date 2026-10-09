@@ -90,22 +90,25 @@ def write_annual_results_csv(rows: Sequence[AnnualRow], path: Path) -> Path: ...
 
 ## 9. Surprises
 
-_(filled during implementation)_
+- 2026-10-09 — F-012.1: the engine stops once no path is running (here after month 25), so year rows whose last month was never observed must be closed from the run's final balances — handled by `_AnnualCollector.finish`.
 
 ## 10. Tasks
 
 ### F-012.1 Streaming annual aggregation
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: —
 
 `AnnualRow`, the collector (observer + recording cash flows), `annual_results` in `src/sbretire/reporting.py`
 (§2 #1–#9, #11); `run_monte_carlo` gains an optional `observer`. Tests in `tests/unit/test_reporting_annual.py`.
 
 **Acceptance criteria**
-- [ ] Deterministic 2-path fixture (step mortality, zero inflation, zero return): every row's survival probabilities, annual spending/income/net-withdrawal medians, portfolio percentiles, not-depleted, lifetime success and counts equal hand-computed values, including a partial first year and a path that depletes — `test_annual_results_hand_computed_fixture`
-- [ ] On a seeded 300-path run, every row equals an independent recomputation from full month × path arrays (recorded separately in the test) — `test_annual_results_match_full_history_recomputation`
-- [ ] Rows run from the As-Of year to the last year anyone is alive (≤ horizon), `months` sums to the simulated months, and years after the engine's early stop are still produced — `test_annual_results_row_span`
-- [ ] The collector holds only per-path (n_paths,) state — no month × path arrays — `check: grep -nE "horizon_months\s*,\s*n_paths|\(n_years, n_paths\)" src/sbretire/reporting.py returns nothing`
+- [x] Deterministic 2-path fixture (step mortality, zero inflation, zero return): every row's survival probabilities, annual spending/income/net-withdrawal medians, portfolio percentiles, not-depleted, lifetime success and counts equal hand-computed values, including a partial first year and a path that depletes — `test_annual_results_hand_computed_fixture`
+- [x] On a seeded 300-path run, every row equals an independent recomputation from full month × path arrays (recorded separately in the test) — `test_annual_results_match_full_history_recomputation`
+- [x] Rows run from the As-Of year to the last year anyone is alive (≤ horizon), `months` sums to the simulated months, and years after the engine's early stop are still produced — `test_annual_results_row_span`
+- [x] The collector holds only per-path (n_paths,) state — no month × path arrays — `check: grep -nE "horizon_months\s*,\s*n_paths|\(n_years, n_paths\)" src/sbretire/reporting.py returns nothing`
+
+**Notes**
+- 2026-10-09 Added `src/sbretire/reporting.py`: `AnnualRow`, `_RecordingCashFlows`, `_AnnualCollector` (engine observer; per-path current-year sums only; closes each year at its last month; `finish` closes years after the engine's early stop from final balances), `annual_results`. Calls `simulate_paths` directly with the recording wrapper on the same inputs instead of adding an observer to `run_monte_carlo` (brief §4 listed that change; not needed). Tests `tests/unit/test_reporting_annual.py` (3: hand fixture incl. depletion and early stop; 300-path recomputation from full month × path history kept only in the test; row span).
 
 ### F-012.2 annual_results.csv and run integration
 - **Status**: To Do
