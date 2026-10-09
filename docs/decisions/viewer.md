@@ -57,11 +57,11 @@ grey (chroma 0), so page CSS stays token-only and charts stay readable through t
 markers. Pages are A4 portrait with `@page` margin boxes: "SBRetire results" top left, the run names top right and
 "Page X of Y" bottom right. Cards, figures and table rows never break; before printing, each section's heading block
 and intro are wrapped with its first card so a heading is never stranded at a page foot, and every fold is opened;
-everything is restored after printing. The 19-column year table prints as two tables of ten columns (the year in
-both). `scripts/render_viewer_pdf.py` renders the example sample with headless Edge or Chrome for review. (F-023)
+everything is restored after printing. The 18-column year table prints as two tables of ten columns, adding the
+budget in today's money so every annual column appears, with the year in both. `scripts/render_viewer_pdf.py` renders the example sample with headless Edge or Chrome for review. (F-023)
 
 **Why**: the user asked for a button that makes a black-and-white PDF in which cards and tables do not cross pages.
 The browser's own print engine gives searchable vector text, needs no dependency and works offline; JavaScript PDF
 libraries rasterise the page, and a page cannot choose the PDF destination itself. Grey tokens rather than a
 greyscale filter keep the text sharp. An investigation on 2026-10-09 showed `break-after: avoid` alone did not keep
-headings with their content in Edge, and that 19 columns do not fit even landscape A4.
+headings with their content in Edge, and that the 18-column table does not fit even landscape A4.
