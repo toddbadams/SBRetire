@@ -2,7 +2,7 @@
 id: F-008
 type: feature
 parent: stochastic-inputs
-status: in-progress
+status: done
 complexity: 3
 created: 2026-10-09
 updated: 2026-10-09
@@ -93,7 +93,7 @@ def sample_death_months(
 ## 10. Tasks
 
 ### F-008.1 Monthly death probabilities and survival curve
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: —
 
 `monthly_death_probabilities` and `survival_curve` in `src/sbretire/mortality.py` (§2 #1–#2). Tests in
@@ -107,9 +107,14 @@ def sample_death_months(
 
 **Notes**
 - 2026-10-09 Added `monthly_death_probabilities` (vectorised: months since birth month → completed-year ages → `annual_q` → q_m) and `survival_curve` to `src/sbretire/mortality.py`. Tests `tests/unit/test_mortality_sampling.py` (4; the §17.1 property runs through an in-memory constant-q table so hypothesis stays fast).
+- 2026-10-09 /verify PASS:
+  - F-008.1 tests: 4 passed; assertions pin q slices per age and exact small survival case
+  - independent CSV probe: male 1958-03 and female 1962-07-15 q_m match to 0.0; ages step in the birthday month; DOB day irrelevant
+  - age-100 tail: 81 months at ≥ 100 all equal q(100, 1930); survival curve = cumprod(1 − q_m), twelve months compound to q (error ≤ 4.4e-16)
+  - vectorised (no month loop); ruff + mypy clean
 
 ### F-008.2 Sampling death months
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-008.1
 
 `sample_death_months` (§2 #3–#5 and the precise rule) in `src/sbretire/mortality.py`.
@@ -124,9 +129,14 @@ def sample_death_months(
 
 **Notes**
 - 2026-10-09 Added `sample_death_months` (one `rng.random((2, n_paths))`, per-person survival curve, `searchsorted(1 − S[1:], u, right) + 1` capped at H) to `src/sbretire/mortality.py`. 6 tests in `tests/unit/test_mortality_sampling.py`; seed-42 known answer [[371, 368, 354, 179], [527, 245, 614, 452]] computed independently (own CSV parse, own survival loop, direct rule d = min{k ≥ 1 : u < 1 − S_k}).
+- 2026-10-09 /verify PASS:
+  - sampling tests: 6 passed; mutating to d − 1 fails 5 of 6 (independence test unaffected, as expected)
+  - seed-42 answer recomputed independently: [[371, 368, 354, 179], [527, 245, 614, 452]] — identical
+  - own distribution check (seed 123, 200k paths, H 480): chi² 11.7 / 16.4 on 8 df, max |z| 2.2; P(d = H) matches S_{H−1}
+  - q = 1 → 1, q = 0 → H; no zeros; one rng.random((2, n_paths)) call; 100k × 720 in ≈ 0.01 s; ruff + mypy clean
 
 ### F-008.3 Deterministic mortality fixture end to end
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-008.2
 
 Integration test through `simulate_paths`; hypothesis invariant; README; THESAURUS.
@@ -138,6 +148,11 @@ Integration test through `simulate_paths`; hypothesis invariant; README; THESAUR
 
 **Notes**
 - 2026-10-09 Added `tests/integration/test_mortality_end_to_end.py` (step-table fixture: Death Months [[18], [130]] → both alive months 0–17, sam alone 18–129, Household End 130; q = 0 table → all censored; hypothesis over 25 seeds × 64 paths with the real table: alive non-increasing and equal to month < Death Month). README mortality bullets (q_m, inverse CDF, timing, censoring); THESAURUS Death Month. No production change was needed: these tests passed on the F-008.1–F-008.2 code, so this task had no separate red step.
+- 2026-10-09 /verify PASS:
+  - integration tests: 2 passed; fixture arithmetic (d = 18, 130) re-derived by hand
+  - own probe (q = 1 from 72): d = 42 / 94 hand-computed and returned; alive transitions and Household End 94; q = 0 → censored, end −1
+  - mutation reasoning: alive = month ≤ d would fail the state, length and Household End assertions; hypothesis test compares every month to month < d
+  - README bullets and THESAURUS Death Month accurate; full gate 311 passed
 
 ## 11. Open Questions
 
