@@ -91,7 +91,7 @@ Spending per path: `B_m × I_t × where(both alive, 1, where(only p alive, facto
 
 ## 9. Surprises
 
-_(filled during implementation)_
+- 2026-10-09 — No behavioural surprises. Recurring friction: module docstrings and explanatory test comments often exceed the 110-character line limit; each caught by the edit hook and wrapped by hand.
 
 ## 10. Tasks
 
@@ -115,7 +115,7 @@ sam has 0.65).
 - 2026-10-09: `src/sbretire/spending.py` — `ScenarioSpending` resolves each person's factor-as-survivor once (own override else household default); `spending()` picks the survivor's factor with `np.where(alive[0], …)` and is fully vectorised. Tests: `tests/unit/test_spending.py` (4).
 
 ### F-004.2 ScenarioCashFlows and end-to-end check
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-004.1
 
 `src/sbretire/cash_flows.py`: `ScenarioCashFlows` composing income and spending, validating the price index's path
@@ -123,10 +123,14 @@ count at construction (brief §2 #5, §5). Tests in `tests/unit/test_cash_flows.
 `tests/integration/test_cash_flows_end_to_end.py`; README budget rules.
 
 **Acceptance criteria**
-- [ ] `ScenarioCashFlows` returns exactly `ScenarioIncome` income and `ScenarioSpending` spending and is accepted by `simulate_paths` — `test_scenario_cash_flows_delegates_income_and_spending`
-- [ ] A price index whose path count differs from `n_paths` is rejected at construction — `test_scenario_cash_flows_rejects_mismatched_price_index`
-- [ ] With zero return, the engine's final balance equals start + hand-computed income − hand-computed spending over fixed Death Months — `test_cash_flows_end_to_end_matches_hand_total`
-- [ ] README documents the survivor budget factor precedence — `check: grep -n "survivor's own" README.md`
+- [x] `ScenarioCashFlows` returns exactly `ScenarioIncome` income and `ScenarioSpending` spending and is accepted by `simulate_paths` — `test_scenario_cash_flows_delegates_income_and_spending`
+- [x] A price index whose path count differs from `n_paths` is rejected at construction — `test_scenario_cash_flows_rejects_mismatched_price_index`
+- [x] With zero return, the engine's final balance equals start + hand-computed income − hand-computed spending over fixed Death Months — `test_cash_flows_end_to_end_matches_hand_total`
+- [x] README documents the survivor budget factor precedence — `check: grep -n "survivor's own" README.md`
+
+**Notes**
+- 2026-10-09: `src/sbretire/cash_flows.py` — `ScenarioCashFlows` validates `price_index.level(0).shape == (n_paths,)` at construction, then delegates to `ScenarioIncome` and `ScenarioSpending`. End-to-end test covers two completed paths (final 129 800 and 17 000) and one depleting path that is funded exactly at month 288 and depletes at month 289 with a 2000 shortfall. README gains a "Budget" section. Tests: `tests/unit/test_cash_flows.py` (2), `tests/integration/test_cash_flows_end_to_end.py` (1).
+
 
 ## 11. Open Questions
 

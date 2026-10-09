@@ -39,6 +39,14 @@ Configuration rules worth knowing (full list in `docs/decisions/configuration.md
 - Unknown or duplicated keys are errors; set `model.unknown_keys: warn` to report unknown keys as warnings instead.
 - Numbers, booleans and dates are not coerced from strings: write `0.05`, `true`, `"2026-10-01"`.
 
+Budget (full rules in `docs/decisions/configuration.md` §6):
+
+- `budget.monthly_amount_today` is the household's monthly spending in today's GBP while both people are alive;
+  it grows with inflation.
+- After the first death spending becomes the budget × the survivor's own `people[].survivor_budget_factor` (the
+  share of the joint budget that person needs living alone); if the survivor has none, the household
+  `budget.survivor_budget_factor` applies.
+
 Income streams (full rules in `docs/decisions/configuration.md` §4–§5):
 
 - `annual_amount_today` is in today's GBP. An `inflation_linked: true` stream grows with inflation from the
