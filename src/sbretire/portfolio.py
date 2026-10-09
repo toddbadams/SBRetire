@@ -29,12 +29,28 @@ class MonthResult(NamedTuple):
     shortfall: FloatArray  # unmet spending this month (0 where funded)
 
 
-def apply_month(balance: FloatArray, rate: float, income: FloatArray, spending: FloatArray) -> MonthResult:
+def monthly_return_rates(annual_return: float | FloatArray, n_paths: int) -> float | FloatArray:
+    """:func:`monthly_return_rate` for a scalar, or elementwise for one annual return per path (n_paths,)."""
+    values = np.asarray(annual_return, dtype=np.float64)
+    if values.ndim == 0:
+        return monthly_return_rate(float(values))
+    if values.shape != (n_paths,):
+        raise ValueError(f"annual_return must be a scalar or shape ({n_paths},) (got {values.shape})")
+    if not np.all(np.isfinite(values)) or np.any(values <= -1):
+        raise ValueError("annual_return must be finite and greater than -1 on every path")
+    rates: FloatArray = (1.0 + values) ** (1.0 / 12.0) - 1.0
+    return rates
+
+
+def apply_month(
+    balance: FloatArray, rate: float | FloatArray, income: FloatArray, spending: FloatArray
+) -> MonthResult:
     """One month of cash flows, in the documented order.
 
-    The monthly ``rate`` is applied to the opening ``balance``, then ``income`` is added. If the result is
-    less than ``spending`` the path is depleted: the available money is spent, the remainder is the shortfall
-    and the closing balance is 0. Otherwise spending is paid in full (equality is funded).
+    The monthly ``rate`` (scalar or per path) is applied to the opening ``balance``, then ``income`` is
+    added. If the result is less than ``spending`` the path is depleted: the available money is spent, the
+    remainder is the shortfall and the closing balance is 0. Otherwise spending is paid in full (equality is
+    funded).
     """
     available = balance * (1.0 + rate) + income
     depleted = available < spending

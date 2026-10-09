@@ -13,7 +13,7 @@ from typing import Protocol
 import numpy as np
 from numpy.typing import NDArray
 
-from sbretire.portfolio import BoolArray, FloatArray, apply_month, monthly_return_rate
+from sbretire.portfolio import BoolArray, FloatArray, apply_month, monthly_return_rates
 
 IntArray = NDArray[np.int64]
 
@@ -54,7 +54,7 @@ class PathOutcomes:
 def simulate_paths(
     *,
     starting_balance: float,
-    annual_return: float,
+    annual_return: float | FloatArray,
     death_month: IntArray,
     horizon_months: int,
     cash_flows: HouseholdCashFlows,
@@ -63,9 +63,10 @@ def simulate_paths(
     """Simulate every path month by month from the As-Of month (month 0).
 
     ``death_month[p, i]`` is the first month person ``p`` is dead on path ``i``; a value ≥ ``horizon_months``
-    means alive at the horizon. Each month: alive update → income and spending due → return on the opening
-    balance → add income → funding test → spend (simulation-conventions §2). A path stops at Depletion or
-    Household End; the loop stops early once no path is running.
+    means alive at the horizon. ``annual_return`` is one fixed annual effective return, or one per path
+    (n_paths,) for the return search (F-011). Each month: alive update → income and spending due → return
+    on the opening balance → add income → funding test → spend (simulation-conventions §2). A path stops at
+    Depletion or Household End; the loop stops early once no path is running.
     """
     death_month = np.asarray(death_month, dtype=np.int64)
     if death_month.ndim != 2 or death_month.shape[0] != 2:
@@ -76,7 +77,7 @@ def simulate_paths(
         raise ValueError(f"horizon_months must be positive (got {horizon_months})")
 
     n_paths = death_month.shape[1]
-    rate = monthly_return_rate(annual_return)
+    rate = monthly_return_rates(annual_return, n_paths)
     last_death = death_month.max(axis=0)
     censored = last_death >= horizon_months
 

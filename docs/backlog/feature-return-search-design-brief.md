@@ -115,16 +115,19 @@ _(filled during implementation)_
 ## 10. Tasks
 
 ### F-011.1 Per-path return in the engine
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: —
 
 `annual_return` as scalar or (n_paths,) through `simulate_paths` and `run_monte_carlo` (§2 #6). Tests in
 `tests/unit/test_simulation_per_path_return.py`.
 
 **Acceptance criteria**
-- [ ] With a per-path return array, each path's outcomes equal a scalar run of that path alone at its own return — `test_simulate_paths_per_path_return_matches_scalar_runs`
-- [ ] A scalar return gives results identical to before (fixture run equal across scalar and full array) — `test_simulate_paths_scalar_return_unchanged`
-- [ ] A return ≤ −1 (scalar or any entry) or an array of the wrong shape raises `ValueError` — `test_simulate_paths_rejects_bad_return`
+- [x] With a per-path return array, each path's outcomes equal a scalar run of that path alone at its own return — `test_simulate_paths_per_path_return_matches_scalar_runs`
+- [x] A scalar return gives results identical to before (fixture run equal across scalar and full array) — `test_simulate_paths_scalar_return_unchanged`
+- [x] A return ≤ −1 (scalar or any entry) or an array of the wrong shape raises `ValueError` — `test_simulate_paths_rejects_bad_return`
+
+**Notes**
+- 2026-10-09 Added `monthly_return_rates` (scalar → `monthly_return_rate`; (n_paths,) array validated finite, > −1, right shape) in `src/sbretire/portfolio.py`; `apply_month` takes a scalar or per-path rate; `simulate_paths` and `run_monte_carlo(annual_return=...)` accept a per-path return. Tests `tests/unit/test_simulation_per_path_return.py` (7).
 
 ### F-011.2 Return thresholds and the required return
 - **Status**: To Do
