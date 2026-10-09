@@ -36,7 +36,12 @@ from sbretire.optimization import (
 )
 from sbretire.preview import format_preview_table, run_preview, write_preview_csv
 from sbretire.randomness import ResolvedSeed, resolve_seed
-from sbretire.reporting import annual_results, write_annual_results_csv
+from sbretire.reporting import (
+    annual_results,
+    write_annual_results_csv,
+    write_lifestyle_results_csv,
+    write_sustainability_results_csv,
+)
 
 EXIT_OK, EXIT_FAILURE, EXIT_INVALID = 0, 1, 2
 
@@ -161,28 +166,50 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 
 def _run(args: argparse.Namespace, loaded: LoadedScenario) -> int:
-    """Monte Carlo for the configured Budget: summary on stdout, run_metadata.json in --output-dir (F-009)."""
+    """The full model: summary and tables on stdout; the three CSVs and run_metadata.json in --output-dir.
+
+    Every figure comes from one set of random inputs (Common Random Numbers). The output directory is checked
+    before the (long) computation so an unwritable path fails fast with exit 1.
+    """
+    output_dir: Path = args.output_dir
+    try:
+        output_dir.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        print(f"error: cannot write to output directory {output_dir}: {exc.strerror or exc}", file=sys.stderr)
+        return EXIT_FAILURE
     scenario = loaded.scenario
+    targets = scenario.model.confidence_levels
     table = load_mortality_table(scenario.mortality.data_file, scenario.mortality)
     seed = resolve_seed(scenario.model.random_seed)
     inputs = draw_random_inputs(scenario, table, seed)
     result = run_monte_carlo(scenario, inputs)
-    budgets = maximum_sustainable_budgets(
-        path_budget_thresholds(scenario, inputs), scenario.model.confidence_levels
-    )
-    returns = required_returns(path_return_thresholds(scenario, inputs), scenario.model.confidence_levels)
-    annual_path = write_annual_results_csv(
-        annual_results(scenario, inputs), args.output_dir / "annual_results.csv"
-    )
+    budgets = maximum_sustainable_budgets(path_budget_thresholds(scenario, inputs), targets)
+    returns = required_returns(path_return_thresholds(scenario, inputs), targets)
+    annual = annual_results(scenario, inputs)
     records = [table.data_file_record(), inflation_data_file_record(scenario.inflation)]
-    metadata_path = write_run_metadata(build_run_metadata(loaded, seed, records), args.output_dir)
+    try:
+        written = [
+            write_annual_results_csv(annual, output_dir / "annual_results.csv"),
+            write_sustainability_results_csv(
+                result.metrics,
+                scenario.portfolio.annual_return,
+                returns,
+                output_dir / "sustainability_results.csv",
+            ),
+            write_lifestyle_results_csv(budgets, output_dir / "lifestyle_results.csv"),
+            write_run_metadata(build_run_metadata(loaded, seed, records), output_dir),
+        ]
+    except OSError as exc:
+        print(f"error: cannot write to output directory {output_dir}: {exc.strerror or exc}", file=sys.stderr)
+        return EXIT_FAILURE
     print(format_run_summary(args.config, scenario, seed, result.metrics))
     print()
     print(format_budget_table(budgets))
     print()
     print(format_return_table(returns))
-    print(f"Wrote {annual_path}")
-    print(f"Wrote {metadata_path}")
+    print()
+    for path in written:
+        print(f"Wrote {path}")
     return EXIT_OK
 
 

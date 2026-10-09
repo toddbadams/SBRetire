@@ -231,6 +231,38 @@ can be partial years. Definitions are in `docs/decisions/simulation-conventions.
 | `estimated_lifetime_success_rate` | share | Of the paths not yet out of money at year end, the share that turn out Successful (unresolved paths count as not successful) |
 | `completed_paths`, `unresolved_paths` | count | Paths whose outcome is settled by year end (money ran out, or both have died), and the rest |
 
+### `lifestyle_results.csv`
+
+One row per `model.confidence_levels` target, holding the maximum sustainable budget (SPEC §14, §15.3;
+`docs/decisions/optimization.md` §1).
+
+| Column | Unit | Meaning |
+|---|---|---|
+| `target_probability` | share | Target conservative success rate |
+| `maximum_monthly_budget_today`, `maximum_annual_budget_today` | GBP, today's money | Largest budget meeting the target, rounded **down** to 0.01. Empty if the target is infeasible |
+| `estimated_success_probability`, `standard_error` | share | Conservative success rate at that budget, from a confirming run, and its Monte Carlo SE (denominator: all paths) |
+| `unresolved_fraction` | share | Paths with someone alive at the horizon that never ran out, at that budget |
+| `budget_tolerance` | GBP/month | Search precision (1.00) |
+| `converged`, `iterations` | true/false, count | Whether the search settled within its bounds, and how many engine runs it took |
+| `note` | text | Why a row is infeasible or capped, otherwise empty |
+
+### `sustainability_results.csv`
+
+One row per target at your configured budget (SPEC §13, §15.2; `docs/decisions/optimization.md` §2).
+
+| Column | Unit | Meaning |
+|---|---|---|
+| `monthly_budget_today`, `annual_return` | GBP/month today's money; annual effective rate | The configured budget and return behind the success columns |
+| `target_probability` | share | Target conservative success rate |
+| `estimated_success_probability` | share | Completed-path success rate: successful ÷ (successful + failed) |
+| `conservative_success_probability`, `standard_error` | share | Conservative success rate (unresolved paths count as non-successes) and its SE over all paths |
+| `unresolved_fraction` | share | Unresolved paths ÷ all paths |
+| `required_annual_return` | annual effective rate (0.04 = 4 %) | Lowest fixed return meeting the target at this budget, rounded **up** to 1e-6. Empty if there's no solution in −50 % … +50 % |
+| `return_tolerance`, `converged`, `iterations`, `note` | rate, true/false, count, text | Search precision (0.0001), convergence, engine runs, and the reason for any no-solution or lower-bound row |
+
+Running `run` twice on the same config and seed gives byte-identical CSVs. Only `created_at` in
+`run_metadata.json` differs.
+
 There is no `probability_funded` column, because SPEC §12 calls that name ambiguous. Use
 `probability_not_depleted_yet` or `estimated_lifetime_success_rate`.
 

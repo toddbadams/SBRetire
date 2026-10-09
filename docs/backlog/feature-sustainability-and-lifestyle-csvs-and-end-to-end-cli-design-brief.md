@@ -89,16 +89,19 @@ _(filled during implementation)_
 - 2026-10-09 Added `LIFESTYLE_COLUMNS`, `SUSTAINABILITY_COLUMNS`, `write_lifestyle_results_csv`, `write_sustainability_results_csv` and helpers (`_money_down` floor 0.01, `_return_up` ceil 1e-6, `_share` 6 dp, `_flag` true/false, `_write_rows`) to `src/sbretire/reporting.py`. Tests `tests/unit/test_result_csvs.py` (2).
 
 ### F-013.2 End-to-end `run` outputs
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-013.1
 
 `run` writes all four files and lists them; unwritable output → exit 1; README output sections for the two files.
 
 **Acceptance criteria**
-- [ ] `run` writes `annual_results.csv`, `sustainability_results.csv`, `lifestyle_results.csv` and `run_metadata.json`, and their contents match the library results for the same seed — `test_cli_run_writes_all_outputs`
-- [ ] Two runs of the same config and seed produce byte-identical CSVs (§17.3 #3) — `test_cli_run_csvs_reproducible`
-- [ ] An output path that cannot be created exits 1 with an error naming it — `test_cli_run_unwritable_output_dir`
-- [ ] README documents every column of both files with units — `check: grep -n "conservative_success_probability" README.md`
+- [x] `run` writes `annual_results.csv`, `sustainability_results.csv`, `lifestyle_results.csv` and `run_metadata.json`, and their contents match the library results for the same seed — `test_cli_run_writes_all_outputs`
+- [x] Two runs of the same config and seed produce byte-identical CSVs (§17.3 #3) — `test_cli_run_csvs_reproducible`
+- [x] An output path that cannot be created exits 1 with an error naming it — `test_cli_run_unwritable_output_dir`
+- [x] README documents every column of both files with units — `check: grep -n "conservative_success_probability" README.md`
+
+**Notes**
+- 2026-10-09 `_run` in `src/sbretire/__main__.py` creates the output directory first (OSError → exit 1 'cannot write to output directory …' before any computation), computes everything from one `RandomInputs`, writes all four files (any write OSError → exit 1), then prints the summary, both tables and one 'Wrote' line per file. Tests: `test_cli_run_writes_all_outputs`, `test_cli_run_csvs_reproducible`, `test_cli_run_unwritable_output_dir`. README sections for lifestyle_results.csv and sustainability_results.csv (every column, unit, rounding direction) and the reproducibility note.
 
 ## 11. Open Questions
 
