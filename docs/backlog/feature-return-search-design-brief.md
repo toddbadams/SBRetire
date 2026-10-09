@@ -178,7 +178,7 @@ recorded with the brief.
   - budget 60,000: 'no solution within bounds' rows, exit 0; README accurate; full gate 349 passed
 
 ### B-011.1 Round displayed budgets down and returns up
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-011.3
 
 Found by /verify F-011.3: the CLI rounds to the nearest unit, so a printed required return (−5.51 %) can sit just below
@@ -188,8 +188,11 @@ up to 0.01 %, so the printed figure always meets its target. Computation is unch
 `tests/unit/test_cli_run.py`.
 
 **Acceptance criteria**
-- [ ] Printed monthly and annual budgets are floor(B*) and floor(12·B*), and a run at the printed monthly budget meets the target — `test_cli_run_budget_display_rounds_down`
-- [ ] Printed required returns are r* rounded up to 0.01 %, and a run at the printed return meets the target — `test_cli_run_return_display_rounds_up`
+- [x] Printed monthly and annual budgets are floor(B*) and floor(12·B*), and a run at the printed monthly budget meets the target — `test_cli_run_budget_display_rounds_down`
+- [x] Printed required returns are r* rounded up to 0.01 %, and a run at the printed return meets the target — `test_cli_run_return_display_rounds_up`
+
+**Notes**
+- 2026-10-09 `format_budget_table` prints floor(B*) and floor(12·B*); `format_return_table` prints `_round_return_up` (ceil to 0.01 %, rounding to 9 places first to absorb float noise) in `src/sbretire/__main__.py`. New tests `test_cli_run_budget_display_rounds_down` and `test_cli_run_return_display_rounds_up` (each confirms a run at the printed figure meets its target); the two earlier table tests updated from nearest to conservative rounding. README note.
 
 ## 11. Open Questions
 

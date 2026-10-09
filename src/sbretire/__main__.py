@@ -10,6 +10,7 @@ Subcommands:
 from __future__ import annotations
 
 import argparse
+import math
 import sys
 from collections.abc import Sequence
 from pathlib import Path
@@ -180,6 +181,14 @@ def _run(args: argparse.Namespace, loaded: LoadedScenario) -> int:
     return EXIT_OK
 
 
+def _round_return_up(annual_return: float) -> float:
+    """Round up to the next 0.01 % so a printed required return always meets its target (B-011.1).
+
+    Rounding first to 9 places absorbs float noise just above a 0.01 % grid point.
+    """
+    return math.ceil(round(annual_return * 10_000, 9)) / 10_000
+
+
 def format_return_table(results: Sequence[ReturnResult]) -> str:
     """Plain-ASCII table of required annual returns at the configured Budget (SPEC §13)."""
     budget = results[0].monthly_budget_today if results else 0.0
@@ -198,7 +207,7 @@ def format_return_table(results: Sequence[ReturnResult]) -> str:
         assert result.estimated_success_probability is not None and result.standard_error is not None
         success = f"{result.estimated_success_probability:.2%} +/- {result.standard_error:.3%}"
         lines.append(
-            f"{target:>6}  {result.required_annual_return:>10.2%}  {success:>22}  "
+            f"{target:>6}  {_round_return_up(result.required_annual_return):>10.2%}  {success:>22}  "
             f"{result.unresolved_fraction:>10.2%}  {'yes' if result.converged else 'no'}"
         )
         if result.note:
@@ -225,8 +234,8 @@ def format_budget_table(results: Sequence[BudgetResult]) -> str:
         assert result.estimated_success_probability is not None and result.standard_error is not None
         success = f"{result.estimated_success_probability:.2%} +/- {result.standard_error:.3%}"
         lines.append(
-            f"{target:>6}  {result.maximum_monthly_budget_today:>11,.0f}  "
-            f"{result.maximum_annual_budget_today:>12,.0f}  "
+            f"{target:>6}  {math.floor(result.maximum_monthly_budget_today):>11,}  "
+            f"{math.floor(result.maximum_annual_budget_today):>12,}  "
             f"{success:>22}  {result.unresolved_fraction:>10.2%}  {'yes' if result.converged else 'no'}"
         )
         if result.note:

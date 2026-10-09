@@ -157,6 +157,8 @@ fixed annual return (nominal, after fees, earned every year) at which each confi
 - If a target can't be met even at +50 % a year, the row says **no solution within bounds**. A plan that meets the
   target even at −50 % shows "at or below −50 %" and is marked not converged.
 - The rate shown comes from one confirming run at the required return.
+- Displayed figures round in the cautious direction: budgets **down** to whole pounds, required returns **up** to
+  0.01 %. The number you read off therefore always meets its target.
 
 Required returns are model outputs under a fixed-return assumption. They are not forecasts of what markets will
 deliver. Expect `run` to take one to two minutes for 100,000 paths.
