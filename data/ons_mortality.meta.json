@@ -3,6 +3,7 @@
   "build": "scripts/build_ons_mortality.py",
   "columns": "sex,birth_year,age,qx",
   "dataset": "Mortality rates (qx), principal projection, UK — 2024-based",
+  "edition": "2024-based",
   "geography": "UK",
   "projection": "principal",
   "publication_date": "2026-05-15",

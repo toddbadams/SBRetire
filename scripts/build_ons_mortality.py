@@ -42,6 +42,7 @@ META = {
     "source": "ONS_2024_BASED",
     "geography": "UK",
     "projection": "principal",
+    "edition": "2024-based",
     "dataset": "Mortality rates (qx), principal projection, UK — 2024-based",
     "publication_date": "2026-05-15",
     "retrieved": "2026-10-09",

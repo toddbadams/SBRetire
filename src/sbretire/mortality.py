@@ -20,7 +20,8 @@ import numpy as np
 from numpy.typing import NDArray
 
 from sbretire.config import MortalityAssumptions, Scenario, ScenarioIssue
-from sbretire.metadata import DataFileRecord
+from sbretire.metadata import DataFileRecord, file_sha256
+from sbretire.timeline import month_index
 
 Sex = Literal["male", "female"]
 AGE_MAX: Final = 100
@@ -28,7 +29,7 @@ AGE_MAX: Final = 100
 SEXES: Final[tuple[Sex, ...]] = get_args(Sex)
 COLUMNS: Final = ("sex", "birth_year", "age", "qx")
 SIDECAR_SUFFIX: Final = ".meta.json"
-REQUIRED_META: Final = ("source", "geography", "projection", "publication_date", "retrieved")
+REQUIRED_META: Final = ("source", "geography", "projection", "edition", "publication_date", "retrieved")
 CHECKED_AGAINST_CONFIG: Final = ("source", "geography", "projection")
 
 
@@ -57,10 +58,41 @@ class MortalityTable:
         return 0 <= row < grid.shape[0] and 0 <= age < grid.shape[1] and not math.isnan(grid[row, age])
 
     def annual_q(self, sex: Sex, birth_year: int, ages: NDArray[np.int64]) -> NDArray[np.float64]:
-        raise NotImplementedError
+        """Annual probability of dying between exact age x and x + 1 for the cohort born in ``birth_year``.
+
+        Vectorised over ``ages`` (completed years, any shape); a person aged x uses q(x, birth_year + x) for
+        that whole year of age, and ages above :data:`AGE_MAX` use q(100, birth_year + 100). Raises
+        ``KeyError`` naming sex, birth year and age when the table does not cover a requested age.
+        """
+        ages = np.asarray(ages, dtype=np.int64)
+        grid = self.grids[sex]
+        row = birth_year - self.first_birth_year
+        if not 0 <= row < grid.shape[0]:
+            last = self.first_birth_year + grid.shape[0] - 1
+            raise KeyError(
+                f"no {sex} mortality rates for birth year {birth_year} in {self.path.name} "
+                f"(covers {self.first_birth_year}-{last})"
+            )
+        looked_up = np.minimum(ages, AGE_MAX)
+        inside = (looked_up >= 0) & (looked_up < grid.shape[1])
+        values = np.full(ages.shape, np.nan)
+        values[inside] = grid[row, looked_up[inside]]
+        missing = np.isnan(values)
+        if missing.any():
+            age = int(ages[missing].flat[0])
+            cohort = f"{sex} mortality rate for birth year {birth_year} at age {age}"
+            raise KeyError(f"no {cohort} in {self.path.name}")
+        return values
 
     def data_file_record(self) -> DataFileRecord:
-        raise NotImplementedError
+        """This table as a Run Metadata data-file entry (SHA-256 of the CSV; version and retrieval date)."""
+        return DataFileRecord(
+            role="mortality",
+            path=str(self.path),
+            sha256=file_sha256(self.path),
+            version=f"{self.meta['edition']} (published {self.meta['publication_date']})",
+            retrieved=str(self.meta["retrieved"]),
+        )
 
 
 def sidecar_path(path: Path) -> Path:
@@ -178,5 +210,33 @@ def load_mortality_table(path: Path, mortality: MortalityAssumptions | None = No
     return MortalityTable(path=path, meta=meta, first_birth_year=first, grids=grids)
 
 
+def _age_ranges(ages: list[int]) -> str:
+    """[91, 92, 93, 97] -> '91-93, 97' (ASCII, for CLI output)."""
+    spans: list[list[int]] = []
+    for age in ages:
+        if spans and age == spans[-1][1] + 1:
+            spans[-1][1] = age
+        else:
+            spans.append([age, age])
+    return ", ".join(str(low) if low == high else f"{low}-{high}" for low, high in spans)
+
+
 def coverage_issues(table: MortalityTable, scenario: Scenario) -> list[ScenarioIssue]:
-    raise NotImplementedError
+    """Ages each person needs that the table lacks: their age at the As-Of month up to :data:`AGE_MAX`.
+
+    Ages are completed years counted from the birth month; above 100 the age-100 rate is used (SPEC §4.3).
+    """
+    issues: list[ScenarioIssue] = []
+    as_of = scenario.model.as_of_date
+    for index, person in enumerate(scenario.people):
+        birth_year = person.date_of_birth.year
+        age_now = month_index(person.date_of_birth.replace(day=1), as_of) // 12
+        needed = range(min(age_now, AGE_MAX), AGE_MAX + 1)
+        missing = [age for age in needed if not table.has(person.sex, birth_year, age)]
+        if missing:
+            message = (
+                f"{table.path.name} has no {person.sex} rates for birth year {birth_year} at age(s) "
+                f"{_age_ranges(missing)}; the model needs ages {needed.start}-{AGE_MAX}"
+            )
+            issues.append(ScenarioIssue(f"people[{index}].date_of_birth", message))
+    return issues

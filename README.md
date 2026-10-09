@@ -59,6 +59,17 @@ Income streams (full rules in `docs/decisions/configuration.md` §4–§5):
 - `recipient: household` marks income owned by the household (e.g. rent, a joint annuity): paid in full while both
   are alive and × `survivor_percentage` once one has died. `household` cannot be used as a person `id`.
 
+Mortality (full rules in `docs/decisions/data-and-calibration.md` §1; provenance in `data/README.md`):
+
+- `mortality.data_file` points at `data/ons_mortality.csv`: ONS 2024-based UK cohort death rates, principal
+  projection, built from the exact ONS workbook in `data/raw/`. Its sidecar `data/ons_mortality.meta.json` must match
+  the config's `mortality.source`, `geography` and `projection`.
+- A person aged x (completed years, counted from their birth month) uses q(x, b + x), where b is their birth year:
+  the chance of dying before their next birthday, for the cohort they were born into. Above age 100 the cohort's
+  age-100 rate is held, so very long lives stay possible.
+- `sbretire validate --require-data-files` loads the table and checks it covers both people from their current age to
+  100; any gap or invalid row is reported with its location and exits 2.
+
 ## Preview (deterministic illustration)
 
 `sbretire preview --config config/model.yaml --death-ages 88,92` runs **one** household future and prints a

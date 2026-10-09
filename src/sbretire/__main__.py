@@ -15,7 +15,8 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from sbretire import __version__
-from sbretire.config import LoadedScenario, ScenarioError, load_scenario
+from sbretire.config import LoadedScenario, ScenarioError, ScenarioIssue, load_scenario
+from sbretire.mortality import MortalityTableError, coverage_issues, load_mortality_table
 from sbretire.preview import format_preview_table, run_preview, write_preview_csv
 
 EXIT_OK, EXIT_FAILURE, EXIT_INVALID = 0, 1, 2
@@ -85,13 +86,32 @@ def _load(config: Path, *, require_data_files: bool) -> LoadedScenario | int:
         print(f"error: cannot read {config}: {exc.strerror or exc}", file=sys.stderr)
         return EXIT_FAILURE
     except ScenarioError as exc:
-        print(f"{config}: {len(exc.issues)} problem(s)", file=sys.stderr)
-        for issue in exc.issues:
-            print(f"  {issue.location}: {issue.message}", file=sys.stderr)
-        return EXIT_INVALID
+        return _report(config, exc.issues)
     for warning in loaded.warnings:
         print(f"warning: {warning.location}: {warning.message}", file=sys.stderr)
+    if require_data_files:
+        failed = _check_mortality(config, loaded)
+        if failed is not None:
+            return failed
     return loaded
+
+
+def _report(config: Path, issues: Sequence[ScenarioIssue]) -> int:
+    print(f"{config}: {len(issues)} problem(s)", file=sys.stderr)
+    for issue in issues:
+        print(f"  {issue.location}: {issue.message}", file=sys.stderr)
+    return EXIT_INVALID
+
+
+def _check_mortality(config: Path, loaded: LoadedScenario) -> int | None:
+    """Load the mortality table and check it covers both people (F-007); an exit code on failure."""
+    mortality = loaded.scenario.mortality
+    try:
+        table = load_mortality_table(mortality.data_file, mortality)
+    except MortalityTableError as exc:
+        return _report(config, exc.issues)
+    issues = coverage_issues(table, loaded.scenario)
+    return _report(config, issues) if issues else None
 
 
 def _summary(config: Path, loaded: LoadedScenario) -> str:
