@@ -128,11 +128,16 @@ def test_annual_q_lookup_and_tail() -> None:
 
 @pytest.mark.parametrize(
     ("sex", "birth_year", "age", "fragment"),
-    [("male", 1964, 16, "age 16"), ("female", 1800, 90, "birth year 1800"), ("male", 1964, -1, "age -1")],
+    [
+        ("male", 1964, 16, "birth year 1964 at age 16"),
+        ("female", 1800, 90, "birth year 1800 at age 90"),
+        ("female", 2075, 0, "birth year 2075 at age 0"),
+        ("male", 1964, -1, "birth year 1964 at age -1"),
+    ],
 )
 def test_annual_q_uncovered_age_raises(sex: Any, birth_year: int, age: int, fragment: str) -> None:
     with pytest.raises(KeyError) as excinfo:
-        _real().annual_q(sex, birth_year, np.array([70, age]))
+        _real().annual_q(sex, birth_year, np.array([age, 70]))
     message = str(excinfo.value)
     assert fragment in message and sex in message
 
