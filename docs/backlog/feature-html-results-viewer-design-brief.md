@@ -2,7 +2,7 @@
 id: F-022
 type: feature
 parent: results-viewer
-status: done
+status: in-progress
 complexity: 5
 created: 2026-10-09
 updated: 2026-10-09
@@ -137,6 +137,20 @@ refined when the design is back.
   - full read of viewer.js: every string from runs.js reaches HTML through esc() or textContent
   - bun harness with a DOM shim and a payload in every text field (names, notes, column meanings, inputs, dates, run metadata): fixed page 0 injections; pre-fix page 3; discriminates
   - notes: numeric fields (horizon_years, annual year) are emitted unescaped — safe because sbretire writes them as integers; an assertion dropped in the fix commit was restored as an equivalent count check
+
+### B-022.1 Show short income streams as one-time or total payments
+- **Status**: In Progress
+- **Depends on**: F-022.3
+
+Reported by the user on 2026-10-09: a one-month stream (the NHS lump sum, modelled as `annual_amount_today` =
+12 × £180,000 paid for December 2028 only) shows "£2,160,000" under "Per year". The household income table's amount
+column becomes "Amount": a stream paying for one month shows the amount actually paid (annual ÷ 12) as a
+"one-time payment"; a stream paying for 2–11 months shows its total ("£X in total over N months"); longer or
+open-ended streams show "£X a year" as before.
+
+**Acceptance criteria**
+- [ ] viewer.js derives the months paid from `start_date`/`end_date` and labels one-month, short and yearly streams as above; the column is "Amount", not "Per year" — `test_viewer_labels_short_income_streams`
+- [ ] In the browser, a run with a one-month £180,000 stream (annual 2,160,000) shows "£180,000" as a one-time payment in Dec 2028, and the yearly streams still show "a year" — `check: built-in browser with a one-off income run`
 
 ## 11. Open Questions
 

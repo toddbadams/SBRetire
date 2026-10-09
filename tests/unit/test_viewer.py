@@ -148,3 +148,12 @@ def test_viewer_escapes_run_data() -> None:
     assert "var sex = p.sex ? esc(" in script
     # no unescaped copy of the inflation-source expression is left anywhere
     assert script.count("INFLATION_SOURCES[src] ||") == script.count("esc(INFLATION_SOURCES[src] ||")
+
+
+def test_viewer_labels_short_income_streams() -> None:
+    """B-022.1: a one-month stream is a one-time payment of annual / 12, not a yearly figure."""
+    script = _page_files()["viewer.js"]
+    assert "function monthsPaid(" in script
+    assert "one-time payment" in script and "in total over " in script and " a year" in script
+    assert '<th scope="col" class="num">Amount</th>' in script
+    assert '<th scope="col" class="num">Per year</th>' not in script

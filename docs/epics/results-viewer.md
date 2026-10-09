@@ -1,12 +1,12 @@
 ---
 epic: results-viewer
 title: Results Viewer
-status: delivered
+status: active
 spec_sections: [§11, §12, §13, §14, §15]
 depends_on: [v1-1-enhancements]
 milestones:
   - { id: F-021, title: Named Runs and results.json, status: done }
-  - { id: F-022, title: HTML Results Viewer, status: done }
+  - { id: F-022, title: HTML Results Viewer, status: in-progress }
 created: 2026-10-09
 updated:
   - 2026-10-09: created from the user's request to display results on an HTML page designed with Claude Design
