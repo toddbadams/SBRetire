@@ -78,7 +78,7 @@ day, in which the viewer was printed to PDF with headless Edge before and after 
 ## 10. Tasks
 
 ### F-023.1 Black-and-white print tokens
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: —
 
 `theme.css` `@media print` token set (§2 #3).
@@ -89,9 +89,10 @@ day, in which the viewer was printed to PDF with headless Edge before and after 
 
 **Notes**
 - 2026-10-09 `theme.css` `@media print` block on `:root, :root[data-theme]`: all 33 colour/chart tokens as oklch greys (chroma 0; fan bands opaque; hover keeps alpha), the values tried in the investigation's experiment PDF. Screen dark rules are screen-only, so print always starts from light. Tests `test_print_tokens_are_neutral`, `test_print_contrast_meets_aa`.
+- 2026-10-09 /verify PASS: tests parse the print block and compute contrast; all 33 colour/chart tokens grey (chroma 0); dark rules are screen-only so print always uses the grey set.
 
 ### F-023.2 Print layout
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-023.1
 
 `viewer.css` print rules, `beforeprint`/`afterprint` keep-together wrapping, print-only year tables (§2 #4–#7).
@@ -103,9 +104,14 @@ day, in which the viewer was printed to PDF with headless Edge before and after 
 
 **Notes**
 - 2026-10-09 viewer.css: `@page` A4 16/12/14 mm with `@top-left` "SBRetire results" and `@bottom-right` "Page X of Y"; print hides the PDF/theme buttons, pickers, (i), `.screen-only`, the screen year table and fold toggles; shows `.print-only`; keeps `.print-keep`, figures, the about panel, cards and rows unbroken. viewer.js: `wrapForPrint`/`unwrapAfterPrint` on beforeprint/afterprint (open every fold; wrap each section's heading block, intro and first card/details/figure/table in `.print-keep`; per-section try/catch; undo restores every element — checked in the browser, only whitespace differs); `#print-header` style written at render with the run names for `@top-right`; two print-only year tables (10 + 10 columns, short labels, every annual column once, year in both); hover help wrapped in `.screen-only`; `#print-runs` line. Edge PDFs of the sample during development: black and white, A4, header/footer, year tables complete, no split rows; the first version stranded three headings (the portfolio heading sits in a `.section__head` wrapper and threw), fixed and checked in the DOM.
+- 2026-10-09 /verify PASS:
+  - tests are mostly static; behaviour checked separately in bun + happy-dom with the real page and sample, single and compare: every visible section gets one .print-keep (portfolio's .section__head included), no exceptions, folds open, the DOM restores exactly after afterprint (twice)
+  - print tables 10 + 10 columns with values identical to the screen table; #print-header carries the run names, CSS-escaped
+  - doc fixes after the review: 18 (not 19) screen columns; Ctrl+P does not set the file name; margins 16/12/14 in §2 #4
+  - layout risk left to the F-023.4 visual review: whole folds wrapped as one keep block may leave a gap before them
 
 ### F-023.3 Save as PDF button
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-023.2
 
 `#pdf-button` in the masthead; `printPdf()` sets the title and calls `window.print()`, restoring the title after
@@ -116,6 +122,7 @@ day, in which the viewer was printed to PDF with headless Edge before and after 
 
 **Notes**
 - 2026-10-09 index.html: `#pdf-button` "Save as PDF" (title explains: choose Save as PDF, black and white, A4) beside the theme toggle in `.masthead__actions`. viewer.js: `pdfTitle()` ("SBRetire <run> [vs <run>] <created date>"), `printPdf()` sets the title and calls window.print(); `unwrapAfterPrint` restores it. Browser check with a stubbed print: title during print "SBRetire example-stretch vs example-base 2026-10-09", restored to "SBRetire · Results" after.
+- 2026-10-09 /verify PASS: in bun + happy-dom with print stubbed, the title is "SBRetire example-stretch 2026-10-09" (single) and "SBRetire example-base vs example-stretch 2026-10-09" (compare) during print, restored after; button hidden in print; no new unescaped data path.
 
 ### F-023.4 PDF review script and docs
 - **Status**: In Progress
