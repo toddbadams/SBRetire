@@ -87,20 +87,23 @@ def format_inputs(config: Path, rows: Sequence[InputRow]) -> str: ...
 ## 10. Tasks
 
 ### F-017.1 Input rows, inputs.csv writer and console block
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: —
 
 `src/sbretire/inputs_report.py` per §2 #1–#7 and §5. Tests in `tests/unit/test_inputs_report.py`.
 
 **Acceptance criteria**
-- [ ] Every leaf field of the validated Scenario (every section, every person, every income stream) has exactly one row whose `item` is its config path — `test_scenario_input_rows_cover_every_field`
-- [ ] Values are exact: numeric rows parse back to the validated value, dates are ISO, unset optional fields are empty, data files are file names only — `test_scenario_input_rows_values_exact`
-- [ ] Derived rows give the seed used and its source, each person's completed age at the As-Of Date and the Horizon's last month — `test_scenario_input_rows_derived`
-- [ ] `inputs.csv`: header `INPUT_COLUMNS`, UTF-8, LF, one line per row, round-trips — `test_inputs_csv_format`
-- [ ] The console block lists every row's label and value under its section — `test_format_inputs_lists_every_row`
+- [x] Every leaf field of the validated Scenario (every section, every person, every income stream) has exactly one row whose `item` is its config path — `test_scenario_input_rows_cover_every_field`
+- [x] Values are exact: numeric rows parse back to the validated value, dates are ISO, unset optional fields are empty, data files are file names only — `test_scenario_input_rows_values_exact`
+- [x] Derived rows give the seed used and its source, each person's completed age at the As-Of Date and the Horizon's last month — `test_scenario_input_rows_derived`
+- [x] `inputs.csv`: header `INPUT_COLUMNS`, UTF-8, LF, one line per row, round-trips — `test_inputs_csv_format`
+- [x] The console block lists every row's label and value under its section — `test_format_inputs_lists_every_row`
+
+**Notes**
+- 2026-10-09 Added `src/sbretire/inputs_report.py`: `InputRow`, `INPUT_COLUMNS`, `scenario_input_rows` (one row per validated field via the pydantic models; a label table keyed section.field raises KeyError for an unlabelled new field), derived rows (seed used, ages, last month), `write_inputs_csv`, `display_value`, `format_inputs` (date/file/month units left off the console only). Tests `tests/unit/test_inputs_report.py` (5).
 
 ### F-017.2 run prints the inputs and writes inputs.csv
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-017.1
 
 `_run` prints `format_inputs` before the summary and writes `inputs.csv`; README Outputs documents the file and its
