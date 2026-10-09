@@ -107,10 +107,13 @@ def maximum_sustainable_budgets(search: ThresholdSearch, targets: Sequence[float
 - 2026-10-09 — Per-path threshold bisection, one search for all targets (Interview Q1; optimization §1).
 - 2026-10-09 — Bounds £0 → doubling from 2 × Budget to a £1M cap; £1/month tolerance; infeasible targets reported
   (Interview Q2; optimization §1).
+- 2026-10-09 — (implementation) `maximum_sustainable_budgets` makes one confirming run per target at B* on the same
+  inputs; `estimated_success_probability`, its SE and `unresolved_fraction` come from that run, so they are exact
+  rather than inferred from bracket ends. `ThresholdSearch` carries the scenario and inputs for this (see §9).
 
 ## 9. Surprises
 
-_(filled during implementation)_
+- 2026-10-09 — F-010.2: a path's stored threshold is the feasible end of its £1 bracket, so its true threshold may sit just above B*; counting thresholds alone could understate the rate at B*, and the unresolved share at B* depends on which censored paths deplete there. One confirming engine run per target at B* (same CRN inputs) makes both exact; `ThresholdSearch` carries scenario and inputs so the planned `maximum_sustainable_budgets(search, targets)` signature stays.
 
 ## 10. Tasks
 
@@ -130,19 +133,22 @@ Optional `monthly_budget_today` (scalar or (n_paths,)) through `ScenarioSpending
 - 2026-10-09 Optional `monthly_budget_today` (scalar or (n_paths,), validated finite, non-negative and shaped like the price index) through `ScenarioSpending` (`_checked_budget`), `ScenarioCashFlows` and `run_monte_carlo`; default unchanged. Tests `tests/unit/test_spending_per_path.py` (6). The red commit failed with TypeError (missing keyword) rather than assertion — signature-level red.
 
 ### F-010.2 Thresholds and the maximum sustainable budget
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-010.1
 
 `ThresholdSearch`, `path_budget_thresholds`, `BudgetResult`, `maximum_sustainable_budgets` in
 `src/sbretire/optimization.py` (§2 #1–#6, #8). Tests in `tests/integration/test_optimization.py`.
 
 **Acceptance criteria**
-- [ ] Deterministic fixture (step mortality table, σ = 0 zero inflation, zero return, no income, 1 path): B* is within £1 below the closed form balance ÷ (m_both + f · m_one) and feasible (§17.2) — `test_optimization_deterministic_fixture_closed_form`
-- [ ] On the fixture scenario (seed pinned, 400 paths, three targets) B* equals a literal scalar bisection on the Conservative Success Rate to within £1 — `test_optimization_matches_scalar_bisection`
-- [ ] A confirming `run_monte_carlo` at B* (scalar) gives conservative rate ≥ p* and equal to `estimated_success_probability`; at B* + £2 the rate is < p* unless thresholds tie — `test_optimization_confirming_run`
-- [ ] A target above the share of completed-by-death paths returns B* None, converged False, note "infeasible" — `test_optimization_infeasible_target`
-- [ ] A scenario whose income exceeds any budget up to the cap flags `capped` paths and marks affected targets not converged with a "cap" note — `test_optimization_reports_cap`
-- [ ] B* is non-increasing as the target rises; iterations and tolerance are reported; the `RandomInputs` are unchanged after the search (CRN) — `test_optimization_monotone_and_crn`
+- [x] Deterministic fixture (step mortality table, σ = 0 zero inflation, zero return, no income, 1 path): B* is within £1 below the closed form balance ÷ (m_both + f · m_one) and feasible (§17.2) — `test_optimization_deterministic_fixture_closed_form`
+- [x] On the fixture scenario (seed pinned, 400 paths, three targets) B* equals a literal scalar bisection on the Conservative Success Rate to within £1 — `test_optimization_matches_scalar_bisection`
+- [x] A confirming `run_monte_carlo` at B* (scalar) gives conservative rate ≥ p* and equal to `estimated_success_probability`; at B* + £2 the rate is < p* unless thresholds tie — `test_optimization_confirming_run`
+- [x] A target above the share of completed-by-death paths returns B* None, converged False, note "infeasible" — `test_optimization_infeasible_target`
+- [x] A scenario whose income exceeds any budget up to the cap flags `capped` paths and marks affected targets not converged with a "cap" note — `test_optimization_reports_cap`
+- [x] B* is non-increasing as the target rises; iterations and tolerance are reported; the `RandomInputs` are unchanged after the search (CRN) — `test_optimization_monotone_and_crn`
+
+**Notes**
+- 2026-10-09 Added `src/sbretire/optimization.py`: `BUDGET_TOLERANCE` (£1), `BUDGET_CAP` (£1M), `ThresholdSearch`, `path_budget_thresholds` (doubling expansion from max(2 × Budget, £1,000) until every completed-by-death path fails or the cap; vectorised per-path bisection to ≤ £1; thresholds = feasible end, −inf for paths with someone alive at the horizon), `BudgetResult`, `maximum_sustainable_budgets` (k = ⌈p·N⌉-th largest threshold; confirming run at B* for rate, SE and unresolved share; infeasible and cap notes). Tests `tests/integration/test_optimization.py` (6, incl. a literal scalar bisection reference).
 
 ### F-010.3 `sbretire run` shows the maximum sustainable budgets
 - **Status**: To Do
