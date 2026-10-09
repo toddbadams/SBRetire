@@ -55,9 +55,9 @@ INPUT_COLUMNS: Final = ("section", "item", "label", "value", "unit")
 @dataclass(frozen=True)
 class InputRow:
     section: str  # model | portfolio | budget | inflation | mortality | people | income | derived
-    item: str     # config path, e.g. "people[person_1].date_of_birth"
-    label: str    # plain-English name
-    value: str    # exact validated value as text ("" when unset)
+    item: str  # config path, e.g. "people[person_1].date_of_birth"
+    label: str  # plain-English name
+    value: str  # exact validated value as text ("" when unset)
     unit: str
 
 
