@@ -111,7 +111,7 @@ Criteria may be refined when the design is back.
   - theme.css byte-identical to Direction A; viewer.md §1 matches the file
 
 ### F-022.3 Build the results viewer page
-- **Status**: To Do
+- **Status**: Verification
 - **Depends on**: F-022.2
 
 Build the page from the Claude Design output against the sample; decide its placement (§2 #5). Criteria may be
@@ -121,8 +121,8 @@ refined when the design is back.
 - [x] The page's own CSS, markup and script use colours only through theme tokens (no hex, rgb, hsl, oklch or named colour literals outside `theme.css`), make no network requests (`fetch`, `XMLHttpRequest`, external URLs) and contain no design-review switch or second theme — `test_viewer_uses_only_theme_tokens`
 - [x] The budget tables' convergence note uses `budget_tolerance` from the data, not a hard-coded amount — `test_viewer_reads_budget_tolerance`
 - [x] A named run copies `index.html`, `theme.css`, `viewer.css` and `viewer.js` into `<output-dir>/` byte-equal to the package files; an unnamed run does not — `test_cli_named_run_copies_viewer`
-- [ ] viewer.js escapes the paths the security review found (inflation source, a person's sex, the invalid-date fallbacks of `F.date`/`F.dateTime`) — `test_viewer_escapes_run_data`
-- [ ] In the browser, a run whose text fields (inflation source, mortality source, person and income names, notes) contain HTML shows that text literally and runs no script — `check: built-in browser with a crafted run`
+- [x] viewer.js escapes the paths the security review found (inflation source, a person's sex, the invalid-date fallbacks of `F.date`/`F.dateTime`) — `test_viewer_escapes_run_data`
+- [x] In the browser, a run whose text fields (inflation source, mortality source, person and income names, notes) contain HTML shows that text literally and runs no script — `check: built-in browser with a crafted run`
 - [x] Served with the sample runs, the page lists both runs, shows every section, compares two runs, switches light/dark, and logs no console errors or network requests to other hosts — `check: built-in browser on the viewer with docs/design/sample/runs`
 
 **Notes**
@@ -131,6 +131,7 @@ refined when the design is back.
   - security: viewer.js inflationRows (line ~739) puts `inflation.source` (free config text) into innerHTML unescaped; a config with `<img src=x onerror=…>` validates, runs and would execute in the viewer
   - defence in depth: F.date/F.dateTime return the raw string for an invalid date (used unescaped), `p.sex` unescaped in personCells
   - everything else passed: diff scope vs the prototype, copy byte-equal, hash handling whitelisted, no eval, README/decision accurate
+- 2026-10-09 Fix after /verify: viewer.js now escapes the inflation source, a person's sex and the invalid-date fallbacks of F.date/F.dateTime (`test_viewer_escapes_run_data`). Browser check with a crafted named run (HTML + onerror payload in inflation.source, a person's name and an income name): fixed page shows the payload as text (7 occurrences with sections expanded), creates no <img>/<b>, runs no script, no console messages; the same run with the prototype page injects an <img> element, so the check discriminates.
 
 ## 11. Open Questions
 

@@ -34,10 +34,10 @@
     date: function (iso) {
       if (!iso) return DASH;
       var d = new Date(iso.length === 10 ? iso + 'T00:00:00Z' : iso);
-      return isNaN(d) ? iso : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+      return isNaN(d) ? esc(iso) : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
     },
     dateTime: function (iso) {
-      var d = new Date(iso); if (isNaN(d)) return iso || DASH;
+      var d = new Date(iso); if (isNaN(d)) return esc(iso) || DASH;
       return d.toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'UTC' }) + ' UTC';
     },
     month: function (ym) {
@@ -693,7 +693,7 @@
   }
   function personCells(p) {
     var f = p.survivor_budget_factor, dob = p.date_of_birth ? F.month(p.date_of_birth.slice(0, 7)) : DASH;
-    var sex = p.sex ? p.sex.charAt(0).toUpperCase() + p.sex.slice(1) : DASH;
+    var sex = p.sex ? esc(p.sex.charAt(0).toUpperCase() + p.sex.slice(1)) : DASH;
     var surv = f === '' || f == null ? '<span class="muted">Household default</span>' : pctTrim(+f) + ' of budget';
     return '<td>' + dob + '</td><td>' + sex + '</td><td class="num">' + surv + '</td>';
   }
@@ -736,7 +736,7 @@
     var src = inputValue(r, 'inflation.source'), per = inputValue(r, 'inflation.source_period'), lm = inputValue(r, 'inflation.log_mean');
     var mean = lm !== null && lm !== '' && isFinite(+lm) ? pctTrim(Math.exp(+lm) - 1) + ' a year' : DASH;
     return [
-      ['Source', src ? (INFLATION_SOURCES[src] || src.replace(/_/g, ' ')) : DASH],
+      ['Source', src ? esc(INFLATION_SOURCES[src] || src.replace(/_/g, ' ')) : DASH],
       ['Years included', per ? esc(per).replace('-', '–') : DASH],
       ['Long-run average', mean]
     ];

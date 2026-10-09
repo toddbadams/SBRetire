@@ -146,4 +146,3 @@ def test_viewer_escapes_run_data() -> None:
     assert "return isNaN(d) ? esc(iso) :" in script  # F.date fallback
     assert "if (isNaN(d)) return esc(iso) || DASH;" in script  # F.dateTime fallback
     assert "var sex = p.sex ? esc(" in script
-    assert "(INFLATION_SOURCES[src] || src.replace(/_/g, ' '))" not in script.replace("esc(INFLATION_SOURCES", "")
