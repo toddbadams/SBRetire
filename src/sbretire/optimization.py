@@ -151,3 +151,42 @@ def maximum_sustainable_budgets(search: ThresholdSearch, targets: Sequence[float
             )
         )
     return results
+
+
+RETURN_LOWER: Final = -0.5
+RETURN_UPPER: Final = 0.5
+RETURN_TOLERANCE: Final = 0.0001
+
+
+@dataclass(frozen=True)
+class ReturnSearch:
+    thresholds: FloatArray
+    at_lower_bound: BoolArray
+    iterations: int
+    monthly_budget_today: float
+    scenario: Scenario = field(repr=False)
+    inputs: RandomInputs = field(repr=False)
+
+
+def path_return_thresholds(
+    scenario: Scenario, inputs: RandomInputs, monthly_budget_today: float | None = None
+) -> ReturnSearch:
+    raise NotImplementedError
+
+
+@dataclass(frozen=True)
+class ReturnResult:
+    monthly_budget_today: float
+    target_probability: float
+    required_annual_return: float | None
+    estimated_success_probability: float | None
+    standard_error: float | None
+    unresolved_fraction: float
+    return_tolerance: float
+    converged: bool
+    iterations: int
+    note: str
+
+
+def required_returns(search: ReturnSearch, targets: Sequence[float]) -> list[ReturnResult]:
+    raise NotImplementedError
