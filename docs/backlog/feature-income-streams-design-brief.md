@@ -150,23 +150,26 @@ Task format and statuses: `docs/project-sdlc.md` §2. Definition of done: `docs/
 - 2026-10-09: `src/sbretire/config.py` — `HOUSEHOLD = "household"` constant; consistency rules reject a person id `household` ("is reserved for household-level income streams") and accept `recipient: household`; recipient error now lists the ids and `'household'`. Tests added to `tests/unit/test_config_consistency.py`.
 
 ### F-003.3 ScenarioIncome
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-003.1, F-003.2
 
 `src/sbretire/income.py`: `ScenarioIncome(scenario, price_index).income(month, alive)` per brief §2 #1–#6, §5.
 Tests in `tests/unit/test_income.py` with a scripted test `PriceIndex`.
 
 **Acceptance criteria**
-- [ ] Inflation-linked income tracks the index (amount × I_t / 12), including a stream starting after the As-Of month — `test_linked_income_tracks_price_index`
-- [ ] Non-linked income stays at annual_amount_today / 12 nominal whatever the index — `test_unlinked_income_is_nominally_constant`
-- [ ] Income starts in its start month (month 0 if it started earlier) and stops at its exclusive end month — `test_income_starts_and_ends_on_configured_dates`
-- [ ] Survivor percentage applies only when the recipient has died and the other person is alive; full while the recipient lives, whoever else has died — `test_survivor_percentage_applies_only_after_recipient_death`
-- [ ] A recipient who dies before start_date leaves the survivor × survivor_percentage from start_date, nothing before — `test_recipient_dying_before_start_pays_survivor_from_start`
-- [ ] A household stream pays in full while both are alive and × survivor_percentage while one is alive — `test_household_stream_survivor_rule`
-- [ ] Streams sum per path with paths in different alive states evaluated together — `test_income_sums_streams_per_path`
+- [x] Inflation-linked income tracks the index (amount × I_t / 12), including a stream starting after the As-Of month — `test_linked_income_tracks_price_index`
+- [x] Non-linked income stays at annual_amount_today / 12 nominal whatever the index — `test_unlinked_income_is_nominally_constant`
+- [x] Income starts in its start month (month 0 if it started earlier) and stops at its exclusive end month — `test_income_starts_and_ends_on_configured_dates`
+- [x] Survivor percentage applies only when the recipient has died and the other person is alive; full while the recipient lives, whoever else has died — `test_survivor_percentage_applies_only_after_recipient_death`
+- [x] A recipient who dies before start_date leaves the survivor × survivor_percentage from start_date, nothing before — `test_recipient_dying_before_start_pays_survivor_from_start`
+- [x] A household stream pays in full while both are alive and × survivor_percentage while one is alive — `test_household_stream_survivor_rule`
+- [x] Streams sum per path with paths in different alive states evaluated together — `test_income_sums_streams_per_path`
+
+**Notes**
+- 2026-10-09: `src/sbretire/income.py` — `ScenarioIncome` precomputes per-stream rules (start/end month indices, monthly today's-GBP amount, linking, survivor %, recipient row or household); `income()` loops over the few paying streams, vectorised over paths, and validates that the price index covers the same paths. Tests: `tests/unit/test_income.py` (9, incl. no-streams and index-shape cases).
 
 ### F-003.4 End-to-end income check
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-003.3
 
 `tests/integration/test_income_end_to_end.py` (T2) and README configuration rules for income (brief §7).
