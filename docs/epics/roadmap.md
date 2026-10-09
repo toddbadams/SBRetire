@@ -20,7 +20,7 @@ Features in build order. Status: `proposed` → `briefed` → `in-progress` → 
 | F-011 | Return Search | [analysis-optimization](analysis-optimization.md) | F-010 | done |
 | F-012 | Annual Results CSV | [reporting-release](reporting-release.md) | F-009 | done |
 | F-013 | Sustainability and Lifestyle CSVs and End-to-End CLI | [reporting-release](reporting-release.md) | F-010, F-011, F-012 | done |
-| F-014 | V1 Release: README, Acceptance and Reproducibility Sweep | [reporting-release](reporting-release.md) | F-013 | in-progress |
+| F-014 | V1 Release: README, Acceptance and Reproducibility Sweep | [reporting-release](reporting-release.md) | F-013 | done |
 
 **Parallel lanes**: after F-001, the F-007 mortality data work (highest data-availability risk) can proceed alongside F-002…F-005. F-012 can proceed alongside F-010/F-011.
 
@@ -107,7 +107,7 @@ Unmapped requirements: **none**.
 
 ## Change Log
 
-- 2026-10-09 — F-014 done: V1 acceptance guards, SPEC §17 acceptance map, README for V1, version 1.0.0 + CHANGELOG, local tag v1.0.0 (367 tests). All 15 features done; all epics delivered. Follow-up B-014.1 recorded (guard hardening, README tidy).
+- 2026-10-09 — F-014 done: V1 acceptance guards, SPEC §17 acceptance map, README for V1, version 1.0.0 + CHANGELOG, local tag v1.0.0 (367 tests). All 15 features done; all epics delivered. Post-release B-014.1 (guard hardening, README column coverage) verified (369 tests).
 - 2026-10-09 — F-014 briefed: design brief + tasks F-014.1…F-014.3 (release = 1.0.0 + CHANGELOG + local tag).
 - 2026-10-09 — F-013 done: `sustainability_results.csv` and `lifestyle_results.csv` (conservative rounding), `sbretire run` writes all three CSVs + metadata, fails cleanly on unwritable output; F-013.1–F-013.2 verified (361 tests).
 - 2026-10-09 — F-012 done: `annual_results.csv` (streaming calendar-year aggregation, SPEC §12 columns) written by `sbretire run`; F-012.1–F-012.2 verified (356 tests).

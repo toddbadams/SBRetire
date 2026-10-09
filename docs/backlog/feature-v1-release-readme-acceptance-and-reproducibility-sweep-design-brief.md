@@ -2,7 +2,7 @@
 id: F-014
 type: feature
 parent: reporting-release
-status: in-progress
+status: done
 complexity: 3
 created: 2026-10-09
 updated: 2026-10-09
@@ -116,7 +116,7 @@ Bump to 1.0.0, write `CHANGELOG.md`, run the full gate and an end-to-end example
   - scratch end-to-end run writes all four files with software_version 1.0.0; full gate 367 passed
 
 ### B-014.1 Harden acceptance guards and tidy README after 1.0.0
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-014.3
 
 Non-blocking findings from /verify F-014 (post-release, no effect on results): the constraint guard misses
@@ -132,6 +132,11 @@ only the README headings, not that documented columns equal the code's column tu
 
 **Notes**
 - 2026-10-09 Constraint guard refactored into `FORBIDDEN` + `_constraint_violations` (tax: any 'tax' not preceded by a letter, so income_tax/apply_tax/TaxBand but not 'syntax'; network: any listed module on an import line incl. urllib3 and `import os, socket`; randomness: any `np.`/`numpy.random.<name>` other than Generator/PCG64/SeedSequence, `import numpy.random`, `from numpy import random`, `import random`, `from random import`). New tests `test_constraint_guard_catches_probe_patterns` (10 probes, src still clean) and `test_readme_documents_every_output_column` (each README table holds every column of its file's tuple). README: annual percentile row lists all five column names; one run-time statement (about 1½ minutes for 100,000 paths). Post-release; tag v1.0.0 unchanged.
+- 2026-10-09 /verify PASS:
+  - acceptance tests: 8 passed
+  - `_constraint_violations` flags all 13 probe violations (tax, randomness, network) and none of the 4 allowed strings or the 19 src modules
+  - README tables hold every column of their file (19 / 12 / 10), checked with an independent parser; one run-time statement; percentile row names `portfolio_median`
+  - full gate 369 passed; tag v1.0.0 still on f6182f6 (feat(F-014.3))
 
 ## 11. Open Questions
 
