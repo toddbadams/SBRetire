@@ -2,7 +2,7 @@
 id: F-019
 type: feature
 parent: v1-1-enhancements
-status: in-progress
+status: done
 complexity: 5
 created: 2026-10-09
 updated: 2026-10-09
@@ -159,7 +159,7 @@ default-valued options out; input-row label. Tests in `tests/unit/test_end_reser
   - monotonicity argument holds in code (budget enters only spending and the reserve requirement)
 
 ### F-019.3 Reserve outputs in run, guide and docs
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-019.2
 
 §2 #5, #9: summary line, second table and `lifestyle_reserve_results.csv` when R > 0; results guide reserve section and
@@ -174,6 +174,11 @@ column guide; README (config key, output file, columns); THESAURUS; decision opt
 
 **Notes**
 - 2026-10-09 `__main__._run`: with R > 0, reserve metrics and a reserve threshold search on the same inputs, `format_reserve_line` after the summary, `format_budget_table(results, R)` after the V1 table, `lifestyle_reserve_results.csv`; GuideContext gains `reserve_metrics`/`reserve_budgets`. `reporting`: `LIFESTYLE_RESERVE_COLUMNS`, shared `_lifestyle_row`, `write_lifestyle_reserve_results_csv`. Guide: reserve results subsection, End-of-life reserve calculation, COLUMN_GUIDE entry; budget-search paragraph corrected (bound = max(2 x budget, 1,000), doubling until every completed path fails — the F-018.1 verify remark). README: config row, budget bullet, `### Leaving an end-of-life reserve`, outputs row and column table; example config comment. Tests: 2 CLI, 1 guide, README guards extended. Example (5,000 paths, R = 12): 90 % budget 10,753 → 10,524 with the reserve.
+- 2026-10-09 /verify PASS (snapshot 3ddfe5b):
+  - 391 tests pass; the 4 named tests can each fail
+  - fixture run with and without R = 12: reserve line 73.90 % +/- 1.389 %, reserve table after V1 (2,767 / 2,669 vs 2,841 / 2,730); three V1 CSVs byte-identical; reserve CSV only with the option, header and first column correct; nothing reserve-related by default
+  - independent scalar bisection 2,768.19 vs 2,767.82 (within £1)
+  - guide reserve text and corrected budget-search paragraph match the code; README, THESAURUS, optimization §3 present; ruff + mypy clean
 
 ## 11. Open Questions
 
