@@ -13,13 +13,14 @@ import json
 import math
 from collections.abc import Mapping
 from dataclasses import dataclass, field
+from datetime import date
 from pathlib import Path
 from typing import Final, Literal, get_args
 
 import numpy as np
 from numpy.typing import NDArray
 
-from sbretire.config import MortalityAssumptions, Scenario, ScenarioIssue
+from sbretire.config import MortalityAssumptions, Person, Scenario, ScenarioIssue
 from sbretire.metadata import DataFileRecord, file_sha256
 from sbretire.timeline import month_index
 
@@ -241,3 +242,13 @@ def coverage_issues(table: MortalityTable, scenario: Scenario) -> list[ScenarioI
             )
             issues.append(ScenarioIssue(f"people[{index}].date_of_birth", message))
     return issues
+
+
+def monthly_death_probabilities(
+    table: MortalityTable, person: Person, as_of: date, horizon_months: int
+) -> NDArray[np.float64]:
+    raise NotImplementedError
+
+
+def survival_curve(monthly_q: NDArray[np.float64]) -> NDArray[np.float64]:
+    raise NotImplementedError

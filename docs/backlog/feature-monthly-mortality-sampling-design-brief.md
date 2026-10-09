@@ -2,7 +2,7 @@
 id: F-008
 type: feature
 parent: stochastic-inputs
-status: planned
+status: in-progress
 complexity: 3
 created: 2026-10-09
 updated: 2026-10-09
@@ -93,7 +93,7 @@ _(filled during implementation)_
 ## 10. Tasks
 
 ### F-008.1 Monthly death probabilities and survival curve
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: —
 
 `monthly_death_probabilities` and `survival_curve` in `src/sbretire/mortality.py` (§2 #1–#2). Tests in
