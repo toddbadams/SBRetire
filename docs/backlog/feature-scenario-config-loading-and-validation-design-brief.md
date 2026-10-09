@@ -141,7 +141,7 @@ Validate summary (stdout), e.g.: `OK config/model.yaml — 2 people, 3 income st
 Task format and statuses: `docs/project-sdlc.md` §2. Definition of done: `docs/project-sdlc.md` §4.
 
 ### F-001.1 Scenario field models and issue aggregation
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: —
 
 Build the typed Scenario models and parse_scenario with collect-all error reporting.
@@ -159,9 +159,14 @@ Build the typed Scenario models and parse_scenario with collect-all error report
 
 **Notes**
 - 2026-10-09: `src/sbretire/config.py` — frozen pydantic models (`_Frozen`: frozen, extra=forbid) for every §4.2 section; strict scalars via BeforeValidator types (`Number`, `Integer`, `Boolean`, `Text`, `IsoDate`); `parse_scenario` maps pydantic errors to `ScenarioIssue` (natural-sorted, "must be …" wording, offending value echoed). Added `pydantic>=2.9` + mypy plugin. Tests: `tests/unit/test_config_fields.py` (79 cases), helpers `tests/unit/scenario_helpers.py`, fixture `tests/fixtures/scenarios/valid_minimal.yaml`.
+- 2026-10-09 /verify PASS:
+  - test_config_fields.py: 79 passed; REQUIRED_KEYS covers every no-default field of all models
+  - coercion/range cases cover every AC category; each asserts the issue location
+  - probe: annual_return='0.05' -> portfolio.annual_return issue; assignment on Scenario -> 'Instance is frozen'
+  - ruff + mypy clean; pydantic>=2.9 and pydantic.mypy plugin present; no network/tax/personal literals in src
 
 ### F-001.2 Cross-field and date consistency rules
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-001.1
 
 Add cross-field validators to the Scenario models, reporting into the same issue list.
@@ -179,9 +184,14 @@ Add cross-field validators to the Scenario models, reporting into the same issue
 
 **Notes**
 - 2026-10-09: `src/sbretire/config.py` — `MonthStart` date type (1st-of-month, with a suggested correction) for `as_of_date`, `start_date`, `end_date`; `_consistency_issues` for duplicate ids, exactly two people, DOB < as-of, recipient ∈ people ids, `end_date` > start and > as-of. Tests: `tests/unit/test_config_consistency.py`.
+- 2026-10-09 /verify PASS:
+  - test_config_consistency.py: 12 passed; each rule asserts exact location + message fragment
+  - code matches configuration §3 and simulation-conventions §1 (exclusive end_date)
+  - boundary probe: end_date 2026-11-01 OK, 2026-10-01 rejected; DOB 2026-09-30 OK
+  - ruff + mypy clean
 
 ### F-001.3 YAML file loading, unknown keys and path resolution
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-001.2
 
 Add the file layer: load_scenario(path, *, require_data_files=False) -> LoadedScenario.
@@ -202,9 +212,14 @@ Add the file layer: load_scenario(path, *, require_data_files=False) -> LoadedSc
 
 **Notes**
 - 2026-10-09: `src/sbretire/_yaml.py` — `load_yaml` composes the node tree, reports every duplicate key with its YAML path and both line numbers, then constructs with the safe loader; syntax errors become issues with line/column. `config.py` — `load_scenario` (OSError if unreadable; ScenarioError otherwise), warn mode drops unknown keys and returns sorted "unknown key (ignored)" warnings while real errors still raise, `mortality.data_file` resolved against the config directory, `require_data_files` check. `config/model.example.yaml` gains `unknown_keys: error` and `../data/ons_mortality.csv`. Tests: `tests/unit/test_config_loading.py` (11).
+- 2026-10-09 /verify PASS:
+  - test_config_loading.py: 11 passed; tests change CWD / assert both duplicate locations / assert warn-mode load
+  - probe from another CWD: example data_file -> C:\sb\SBRetire\data\ons_mortality.csv, no warnings
+  - probe: duplicated income[0].recipient -> 'duplicate key on line 52 (first on line 51)'
+  - behaviour matches configuration §1–§2; example config updated; ruff + mypy clean
 
 ### F-001.4 CLI validate and run subcommands
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-001.3
 
 Expose validation to the user.
@@ -220,7 +235,11 @@ Expose validation to the user.
 
 **Notes**
 - 2026-10-09: `src/sbretire/__main__.py` — argparse subcommands `validate` (`--config`, `--require-data-files`) and `run` (`--config`, `--output-dir`); `main()` returns exit codes 0 / 1 (unreadable file, or engine pending on `run`) / 2 (invalid scenario, issues on stderr); warnings on stderr. CLI output is ASCII-only (Windows console). README Run section documents validate and the config rules; CLAUDE.md commands updated. Tests: `tests/unit/test_cli.py` (8).
-
+- 2026-10-09 /verify PASS:
+  - test_cli.py: 8 passed
+  - real process: validate example -> 'OK … 2 people, 3 income streams …' exit 0; invalid -> 2 issue lines, exit 2
+  - missing file -> exit 1 naming the file; run -> 'not implemented' exit 1, no files written
+  - README + CLAUDE.md document validate and exit codes; ruff + mypy clean
 
 ## 11. Open Questions
 
