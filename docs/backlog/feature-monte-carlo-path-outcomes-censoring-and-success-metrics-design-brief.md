@@ -131,6 +131,7 @@ config/data; exit 1 unreadable config.
 ## 9. Surprises
 
 - 2026-10-09 — F-009.2: the example config at its own budget succeeds on all 2,000 paths (100-year horizon, nothing unresolved), which made a weak regression snapshot; the snapshot now uses budget 11,000 and a 30-year horizon so successful, failed and unresolved paths all occur (725 / 203 / 1,072), plus the total final balance.
+- 2026-10-09 — F-009.3: SE printed to 2 dp showed '+/- 0.00%' for a 99.98 % rate over 100,000 paths (true SE ≈ 0.004 %); SEs now print to 3 dp.
 
 ## 10. Tasks
 
@@ -167,18 +168,21 @@ config/data; exit 1 unreadable config.
 - 2026-10-09 Added `src/sbretire/monte_carlo.py`: `RandomInputs` (seed, read-only death months, price index; `n_paths`), `draw_random_inputs` (`RandomStreams.from_seed` → `sample_death_months` + `build_price_index`, `simulation_count` paths), `MonteCarloResult`, `run_monte_carlo` (`ScenarioCashFlows` + `simulate_paths` + `SuccessMetrics`; never draws). Tests `tests/integration/test_monte_carlo.py` (5). Snapshot pinned after green from the code itself (regression, not an independent answer).
 
 ### F-009.3 `sbretire run`
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-009.2
 
 `run` in `src/sbretire/__main__.py` (§2 #5–#6); README "Running the model" and "Reading the results"; THESAURUS path
 terms; decision §7 already recorded with the brief. Tests in `tests/unit/test_cli_run.py`.
 
 **Acceptance criteria**
-- [ ] `run` on the fixture exits 0, prints ASCII lines with paths, successful/failed/unresolved counts, the conservative rate and completed-path rate each with SE and its denominator, the budget in today's GBP and the seed — `test_cli_run_prints_summary`
-- [ ] `run_metadata.json` is written to `--output-dir` with seed, seed source, config hash and two data-file records (mortality, inflation) with versions; with `random_seed: null` the seed is generated and flagged — `test_cli_run_writes_metadata`
-- [ ] Missing or invalid data files exit 2 with the issue location; nothing is written — `test_cli_run_rejects_bad_data`
-- [ ] The example config (100,000 paths × 100 years) completes; elapsed time recorded in Notes and under 120 s — `check: time uv run sbretire run --config config/model.example.yaml --output-dir <tmp>`
-- [ ] README documents running and reading the results (both rates, unresolved paths, SE, not a confidence interval) — `check: grep -n "Conservative" README.md`
+- [x] `run` on the fixture exits 0, prints ASCII lines with paths, successful/failed/unresolved counts, the conservative rate and completed-path rate each with SE and its denominator, the budget in today's GBP and the seed — `test_cli_run_prints_summary`
+- [x] `run_metadata.json` is written to `--output-dir` with seed, seed source, config hash and two data-file records (mortality, inflation) with versions; with `random_seed: null` the seed is generated and flagged — `test_cli_run_writes_metadata`
+- [x] Missing or invalid data files exit 2 with the issue location; nothing is written — `test_cli_run_rejects_bad_data`
+- [x] The example config (100,000 paths × 100 years) completes; elapsed time recorded in Notes and under 120 s — `check: time uv run sbretire run --config config/model.example.yaml --output-dir <tmp>`
+- [x] README documents running and reading the results (both rates, unresolved paths, SE, not a confidence interval) — `check: grep -n "Conservative" README.md`
+
+**Notes**
+- 2026-10-09 `sbretire run` implemented in `src/sbretire/__main__.py`: forces `require_data_files` (so the F-006/F-007 coverage checks run), loads the table, resolves the seed, draws once, runs, writes `run_metadata.json` with mortality + inflation records, prints `format_run_summary` (ASCII; rates to 2 dp, SEs to 3 dp so small SEs aren't shown as 0.00%). Tests `tests/unit/test_cli_run.py` (3); F-001's 'engine pending' check in `tests/unit/test_cli.py` replaced by `test_cli_run_rejects_invalid_config`. README 'Running the model' + 'Reading the results'; THESAURUS Censored/Completed/Depletion entries per §7. Timing: example config (100,000 paths, 100-year horizon) 3.4 s end to end; a 60-year-horizon personal config also 3.4 s (well under the 120 s budget).
 
 ## 11. Open Questions
 

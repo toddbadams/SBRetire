@@ -4,7 +4,7 @@ Subcommands:
     validate  check a scenario YAML and print a one-line summary (exit 0), every issue (exit 2),
               or an unreadable-file error (exit 1)
     preview   deterministic year-by-year illustration with chosen death ages (F-015)
-    run       validate, then run the model (engine arrives with F-013)
+    run       Monte Carlo: success metrics for the configured Budget + run_metadata.json (F-009)
 """
 
 from __future__ import annotations
@@ -15,10 +15,14 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from sbretire import __version__
-from sbretire.config import LoadedScenario, ScenarioError, ScenarioIssue, load_scenario
-from sbretire.inflation import inflation_coverage_issues
+from sbretire.config import LoadedScenario, Scenario, ScenarioError, ScenarioIssue, load_scenario
+from sbretire.inflation import inflation_coverage_issues, inflation_data_file_record
+from sbretire.metadata import build_run_metadata, write_run_metadata
+from sbretire.metrics import SuccessMetrics
+from sbretire.monte_carlo import draw_random_inputs, run_monte_carlo
 from sbretire.mortality import MortalityTableError, coverage_issues, load_mortality_table
 from sbretire.preview import format_preview_table, run_preview, write_preview_csv
+from sbretire.randomness import ResolvedSeed, resolve_seed
 
 EXIT_OK, EXIT_FAILURE, EXIT_INVALID = 0, 1, 2
 
@@ -52,9 +56,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--output-dir", type=Path, default=Path("output"), help="where preview.csv is written"
     )
 
-    run = commands.add_parser("run", help="validate a scenario and run the model")
+    run = commands.add_parser("run", help="run the Monte Carlo model for the configured budget")
     run.add_argument("--config", type=Path, required=True, help="scenario YAML file")
-    run.add_argument("--output-dir", type=Path, default=Path("output"), help="CSV output directory")
+    run.add_argument(
+        "--output-dir", type=Path, default=Path("output"), help="where run_metadata.json (and later CSVs) go"
+    )
     return parser
 
 
@@ -128,7 +134,8 @@ def _summary(config: Path, loaded: LoadedScenario) -> str:
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-    loaded = _load(args.config, require_data_files=getattr(args, "require_data_files", False))
+    require_data_files = args.command == "run" or getattr(args, "require_data_files", False)
+    loaded = _load(args.config, require_data_files=require_data_files)
     if isinstance(loaded, int):
         return loaded
     if args.command == "validate":
@@ -136,11 +143,53 @@ def main(argv: Sequence[str] | None = None) -> int:
         return EXIT_OK
     if args.command == "preview":
         return _preview(args, loaded)
-    print(
-        "error: simulation engine not implemented yet; see docs/epics/roadmap.md for the build plan.",
-        file=sys.stderr,
-    )
-    return EXIT_FAILURE
+    return _run(args, loaded)
+
+
+def _run(args: argparse.Namespace, loaded: LoadedScenario) -> int:
+    """Monte Carlo for the configured Budget: summary on stdout, run_metadata.json in --output-dir (F-009)."""
+    scenario = loaded.scenario
+    table = load_mortality_table(scenario.mortality.data_file, scenario.mortality)
+    seed = resolve_seed(scenario.model.random_seed)
+    result = run_monte_carlo(scenario, draw_random_inputs(scenario, table, seed))
+    records = [table.data_file_record(), inflation_data_file_record(scenario.inflation)]
+    metadata_path = write_run_metadata(build_run_metadata(loaded, seed, records), args.output_dir)
+    print(format_run_summary(args.config, scenario, seed, result.metrics))
+    print(f"Wrote {metadata_path}")
+    return EXIT_OK
+
+
+def format_run_summary(config: Path, scenario: Scenario, seed: ResolvedSeed, metrics: SuccessMetrics) -> str:
+    """Plain-ASCII summary of one run (SPEC §11): counts, both rates with SE and denominator."""
+    model = scenario.model
+    lines = [
+        f"SBRetire Monte Carlo - {config}",
+        f"As-of {model.as_of_date:%Y-%m}; {metrics.n_paths:,} paths; horizon {model.horizon_years} years; "
+        f"seed {seed.value} ({seed.source}).",
+        f"Budget {scenario.budget.monthly_amount_today:,.0f} GBP/month in today's money "
+        "(rises with inflation).",
+        "",
+        f"Paths: {metrics.n_paths:,} = successful {metrics.n_successful:,} + failed {metrics.n_failed:,} "
+        f"+ unresolved {metrics.n_unresolved:,}",
+        f"Conservative success rate     {metrics.conservative_success_rate:.2%} "
+        f"+/- {metrics.conservative_standard_error:.3%} (denominator: all {metrics.n_paths:,} paths)",
+    ]
+    if metrics.completed_success_rate is None or metrics.completed_standard_error is None:
+        lines.append("Completed-path success rate   n/a (no path completed within the horizon)")
+    else:
+        lines.append(
+            f"Completed-path success rate   {metrics.completed_success_rate:.2%} "
+            f"+/- {metrics.completed_standard_error:.3%} "
+            f"(denominator: {metrics.n_completed:,} completed paths)"
+        )
+    lines += [
+        f"Unresolved (someone alive at the horizon, never ran out): {metrics.unresolved_share:.2%}",
+        "",
+        "Rates are simulated proportions of paths; +/- is one Monte Carlo standard error, "
+        "not a confidence interval.",
+        "Failed = money ran out while someone was alive. Unresolved paths never count as successes.",
+    ]
+    return "\n".join(lines)
 
 
 if __name__ == "__main__":

@@ -95,6 +95,37 @@ Mortality (full rules in `docs/decisions/data-and-calibration.md` §1; provenanc
 - A person who dies during a month has that month's full income and spending and is gone from the next month. Anyone
   alive at the end of the horizon leaves the path unresolved (censored): it is never counted as a success.
 
+## Running the model
+
+```bash
+uv run sbretire run --config config/model.yaml --output-dir output
+```
+
+`run` validates the scenario, loads and checks both data files, then simulates `model.simulation_count` futures
+(Paths) of your household from the as-of month. Each future has its own random death months for both people and its
+own inflation path, while your fixed `portfolio.annual_return` stays the same. Every random draw comes from
+`model.random_seed`, so the same seed, config and data give identical results. The run prints a summary and writes
+`output/run_metadata.json`. 100,000 paths take a few seconds.
+
+### Reading the results
+
+Each Path ends as exactly one of:
+
+- **Successful**: the money paid every month's spending until both of you had died.
+- **Failed**: in some month the money (after that month's return and income) could not cover the spending.
+- **Unresolved**: the money never ran out, but someone is still alive at the end of the horizon, so the outcome is
+  unknown. These are never counted as successes.
+
+Two rates are reported:
+
+- **Conservative success rate** = successful ÷ all paths, with unresolved paths counted as non-successes. This is
+  the number to plan with, and what budget optimisation will target.
+- **Completed-path success rate** = successful ÷ (successful + failed), shown alongside for context.
+
+The `+/-` figure is one Monte Carlo standard error: √(p(1−p)/N), with the denominator printed beside it. It
+measures simulation noise only, so more paths shrink it. It is **not** a confidence interval and says nothing about
+whether the assumptions are right. A "95 % confidence level" in this model means "95 % of simulated paths succeed".
+
 ## Preview (deterministic illustration)
 
 `sbretire preview --config config/model.yaml --death-ages 88,92` runs **one** household future and prints a

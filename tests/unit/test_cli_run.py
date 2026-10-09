@@ -35,7 +35,7 @@ def _absolute_data(raw: dict[str, Any]) -> dict[str, Any]:
 def _write(tmp_path: Path, raw: dict[str, Any]) -> Path:
     tmp_path.mkdir(parents=True, exist_ok=True)
     path = tmp_path / "scenario.yaml"
-    path.write_text(yaml.safe_dump(_absolute_data(raw), sort_keys=False), encoding="utf-8")
+    path.write_text(yaml.safe_dump(raw, sort_keys=False), encoding="utf-8")
     return path
 
 
@@ -57,7 +57,7 @@ def test_cli_run_prints_summary(tmp_path: Path, capsys: pytest.CaptureFixture[st
     assert f"failed {expected.n_failed:,}" in out
     assert f"unresolved {expected.n_unresolved:,}" in out
     assert f"Conservative success rate     {expected.conservative_success_rate:.2%}" in out
-    assert f"+/- {expected.conservative_standard_error:.2%}" in out
+    assert f"+/- {expected.conservative_standard_error:.3%}" in out
     assert "denominator: all 1,000 paths" in out
     assert f"denominator: {expected.n_completed:,} completed paths" in out
     assert "3,000" in out and "today" in out
@@ -69,7 +69,7 @@ def test_cli_run_prints_summary(tmp_path: Path, capsys: pytest.CaptureFixture[st
 def test_cli_run_writes_metadata(
     tmp_path: Path, valid_raw: dict[str, Any], capsys: pytest.CaptureFixture[str]
 ) -> None:
-    config = _write(tmp_path, valid_raw)
+    config = _write(tmp_path, _absolute_data(valid_raw))
     out_dir = tmp_path / "out"
     assert main(["run", "--config", str(config), "--output-dir", str(out_dir)]) == 0
     meta = json.loads((out_dir / "run_metadata.json").read_text(encoding="utf-8"))
@@ -84,7 +84,7 @@ def test_cli_run_writes_metadata(
     assert records["inflation"]["sha256"] == file_sha256(ROOT / "data" / "uk_cpi.csv")
     assert records["inflation"]["version"] == "D7G7 (released 2026-09-16)"
 
-    generated = _write(tmp_path / "null", set_at(valid_raw, "model.random_seed", None))
+    generated = _write(tmp_path / "null", set_at(_absolute_data(valid_raw), "model.random_seed", None))
     assert main(["run", "--config", str(generated), "--output-dir", str(tmp_path / "out2")]) == 0
     meta2 = json.loads((tmp_path / "out2" / "run_metadata.json").read_text(encoding="utf-8"))
     assert meta2["seed_source"] == "generated"

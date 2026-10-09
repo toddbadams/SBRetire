@@ -26,7 +26,7 @@ suffix, bare unqualified `Service`, `confidence interval` (for success probabili
 - **Related terms**: Required Spending, Survivor Budget Factor, Maximum Sustainable Budget
 
 ### Censored Path (Unresolved Path)
-- **Definition**: A path that reaches the horizon with at least one person still alive; its lifetime outcome is unknown. Never counted as a success (SPEC §7.2, §11).
+- **Definition**: A path that never ran out of money and reaches the horizon with at least one person still alive; its lifetime outcome is unknown. Never counted as a success (SPEC §7.2, §11; simulation-conventions §7). A path that ran out of money is Failed even if someone would have outlived the horizon.
 - **Synonyms to AVOID**: survivor path, timeout, incomplete
 - **Related terms**: Completed Path, Conservative Success Rate, Horizon
 
@@ -36,7 +36,7 @@ suffix, bare unqualified `Service`, `confidence interval` (for success probabili
 - **Related terms**: Random Stream, Budget Optimization, Return Search
 
 ### Completed Path
-- **Definition**: A path in which both people die within the horizon, so its success/failure is fully resolved.
+- **Definition**: A path whose lifetime outcome is known: Successful (never depleted, both died within the horizon) or Failed (depleted at any month) — simulation-conventions §7.
 - **Related terms**: Censored Path, Successful Path, Failed Path
 
 ### Confidence Level
@@ -66,7 +66,7 @@ suffix, bare unqualified `Service`, `confidence interval` (for success probabili
 - **Related terms**: Household End, Path, Censored Path
 
 ### Depletion (Failed Path)
-- **Definition**: The first month in which balance after return and income is less than *Required Spending*; the path fails, balance is set to zero and the *Shortfall* recorded. No negative balance compounds (SPEC §9).
+- **Definition**: The first month in which balance after return and income is less than *Required Spending*; the path fails, balance is set to zero and the *Shortfall* recorded. No negative balance compounds (SPEC §9). A depleted path is a Failed Path whatever happens later (simulation-conventions §7).
 - **Synonyms to AVOID**: bankruptcy, ruin, negative balance, going broke
 - **Related terms**: Shortfall, Probability Not Depleted Yet
 
