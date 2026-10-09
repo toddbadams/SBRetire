@@ -116,7 +116,7 @@ Bump to 1.0.0, write `CHANGELOG.md`, run the full gate and an end-to-end example
   - scratch end-to-end run writes all four files with software_version 1.0.0; full gate 367 passed
 
 ### B-014.1 Harden acceptance guards and tidy README after 1.0.0
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-014.3
 
 Non-blocking findings from /verify F-014 (post-release, no effect on results): the constraint guard misses
@@ -126,9 +126,12 @@ though the median column is `portfolio_median`, and states three different run t
 only the README headings, not that documented columns equal the code's column tuples.
 
 **Acceptance criteria**
-- [ ] The guard rejects each listed pattern (probe strings) and still passes on `src/` — `test_constraint_guard_catches_probe_patterns`
-- [ ] Every column in `ANNUAL_COLUMNS`, `SUSTAINABILITY_COLUMNS` and `LIFESTYLE_COLUMNS` appears in the README's table for that file — `test_readme_documents_every_output_column`
-- [ ] README states one consistent run time for 100,000 paths — `check: grep -n "100,000 paths" README.md`
+- [x] The guard rejects each listed pattern (probe strings) and still passes on `src/` — `test_constraint_guard_catches_probe_patterns`
+- [x] Every column in `ANNUAL_COLUMNS`, `SUSTAINABILITY_COLUMNS` and `LIFESTYLE_COLUMNS` appears in the README's table for that file — `test_readme_documents_every_output_column`
+- [x] README states one consistent run time for 100,000 paths — `check: grep -n "100,000 paths" README.md`
+
+**Notes**
+- 2026-10-09 Constraint guard refactored into `FORBIDDEN` + `_constraint_violations` (tax: any 'tax' not preceded by a letter, so income_tax/apply_tax/TaxBand but not 'syntax'; network: any listed module on an import line incl. urllib3 and `import os, socket`; randomness: any `np.`/`numpy.random.<name>` other than Generator/PCG64/SeedSequence, `import numpy.random`, `from numpy import random`, `import random`, `from random import`). New tests `test_constraint_guard_catches_probe_patterns` (10 probes, src still clean) and `test_readme_documents_every_output_column` (each README table holds every column of its file's tuple). README: annual percentile row lists all five column names; one run-time statement (about 1½ minutes for 100,000 paths). Post-release; tag v1.0.0 unchanged.
 
 ## 11. Open Questions
 

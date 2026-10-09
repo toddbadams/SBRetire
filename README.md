@@ -150,7 +150,7 @@ uv run sbretire run --config config/model.yaml --output-dir output
 (Paths) of your household from the as-of month. Each future has its own random death months for both people and its
 own inflation path, while your fixed `portfolio.annual_return` stays the same. Every random draw comes from
 `model.random_seed`, so the same seed, config and data give identical results. The run prints a summary and writes
-`output/run_metadata.json`. 100,000 paths take a few seconds.
+`output/run_metadata.json`. A full run of 100,000 paths takes about 1½ minutes.
 
 ### Reading the results
 
@@ -185,7 +185,7 @@ least that share of simulated paths succeeds, using the conservative rate.
 - If too many paths still have someone alive at the horizon, a target can be **infeasible**: even spending nothing
   can't reach it. The row says so instead of showing a number. A row whose search reached the £1,000,000/month
   cap is marked as not converged.
-- Expect about 25 engine runs, under a minute for 100,000 paths.
+- Expect about 25 engine runs.
 
 These figures are model estimates from your assumptions (fixed return, no tax, simulated inflation and lifetimes).
 They are not financial advice and not a guarantee.
@@ -206,7 +206,7 @@ fixed annual return (nominal, after fees, earned every year) at which each confi
   0.01 %. The number you read off therefore always meets its target.
 
 Required returns are model outputs under a fixed-return assumption. They are not forecasts of what markets will
-deliver. Expect `run` to take one to two minutes for 100,000 paths.
+deliver. The return search adds about 16 engine runs.
 
 ## Preview (deterministic illustration)
 
@@ -271,7 +271,7 @@ can be partial years. Definitions are in `docs/decisions/simulation-conventions.
 | `annual_budget_nominal_median` | GBP/year, nominal | Median required household spending in the year (survivor factor applied), over paths still running in the year |
 | `annual_income_median` | GBP/year, nominal | Median income received in the year, same paths |
 | `annual_net_withdrawal_median` | GBP/year, nominal | Median of spending − income, same paths |
-| `portfolio_p05` … `portfolio_p95` | GBP, nominal | Percentiles (5, 25, 50, 75, 95) of the year-end balance over paths where someone is alive; paths that ran out count as 0 |
+| `portfolio_p05`, `portfolio_p25`, `portfolio_median`, `portfolio_p75`, `portfolio_p95` | GBP, nominal | 5th, 25th, 50th, 75th and 95th percentiles of the year-end balance over paths where someone is alive; paths that ran out count as 0 |
 | `probability_not_depleted_yet` | share of all paths | Money has not run out by year end |
 | `estimated_lifetime_success_rate` | share | Of the paths not yet out of money at year end, the share that turn out Successful (unresolved paths count as not successful) |
 | `completed_paths`, `unresolved_paths` | count | Paths whose outcome is settled by year end (money ran out, or both have died), and the rest |

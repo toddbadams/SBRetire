@@ -20,24 +20,28 @@ def _src_text() -> dict[str, str]:
     return {path.name: path.read_text(encoding="utf-8") for path in SRC.glob("*.py")}
 
 
+FORBIDDEN = {
+    # "tax" not preceded by a letter: tax, income_tax, apply_tax, TaxBand (but not "syntax").
+    "tax logic (SPEC §16)": re.compile(r"(?<![a-z])tax|hmrc|personal_allowance|national_insurance", re.I),
+    "network access (SPEC §2)": re.compile(
+        r"^\s*(import|from)\s+[^\n]*\b(requests|urllib3?|http|socket|ftplib|httpx|aiohttp)\b", re.M
+    ),
+    # Only Generator/PCG64/SeedSequence may be used from numpy.random; never the global functions or `random`.
+    "global randomness (SPEC §10.3)": re.compile(
+        r"\b(np|numpy)\.random\.(?!(Generator|PCG64|SeedSequence)\b)\w+"
+        r"|^\s*import\s+numpy\.random\b|^\s*from\s+numpy\s+import\s+random\b"
+        r"|^\s*import\s+random\b|^\s*from\s+random\s+import\b",
+        re.M,
+    ),
+}
+
+
+def _constraint_violations(text: str) -> list[str]:
+    return [rule for rule, pattern in FORBIDDEN.items() if pattern.search(text)]
+
+
 def test_src_has_no_tax_network_or_global_randomness() -> None:
-    forbidden = {
-        "tax logic (SPEC §16)": re.compile(r"\btax\w*|\bhmrc\b|personal_allowance|national_insurance", re.I),
-        "network access (SPEC §2)": re.compile(
-            r"^\s*(import|from)\s+(requests|urllib|http|socket|ftplib|httpx|aiohttp)\b", re.M
-        ),
-        "global randomness (SPEC §10.3)": re.compile(
-            r"np\.random\.(rand|randn|random|seed|normal|uniform|choice|randint|shuffle|permutation)\("
-            r"|^\s*import random\b",
-            re.M,
-        ),
-    }
-    hits = [
-        f"{name}: {rule}"
-        for name, text in _src_text().items()
-        for rule, pattern in forbidden.items()
-        if pattern.search(text)
-    ]
+    hits = [f"{name}: {rule}" for name, text in _src_text().items() for rule in _constraint_violations(text)]
     assert hits == []
 
 
