@@ -129,7 +129,8 @@ CSV header: `year,months,age_person_1,age_person_2,income,spending,investment_re
 
 ## 9. Surprises
 
-_(filled during implementation)_
+- 2026-10-09 — In a Depletion month the `spending` column shows the full Required Spending, not the amount actually paid; the unpaid part is the summary's Shortfall. Kept deliberately so rows show what the household needed; documented in the README preview section.
+- 2026-10-09 — Needed `timeline.month_start` (month index → date) for dates in the summary and calendar grouping; added with round-trip tests rather than an ad-hoc helper in preview.py.
 
 ## 10. Tasks
 
@@ -152,21 +153,24 @@ Task format and statuses: `docs/project-sdlc.md` §2. Definition of done: `docs/
 - 2026-10-09: `src/sbretire/inflation.py` — `AnnualStepPriceIndex` (rejects rate ≤ −1). `src/sbretire/preview.py` — `death_months_from_ages` (birthday month via `month_index`; rejects ages ≤ 0 or Death Month ≤ 0 with "must be greater than their current age"). Tests: 2 added to `tests/unit/test_inflation.py`, 2 in `tests/unit/test_preview.py`.
 
 ### F-015.2 Preview run and calendar-year aggregation
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-015.1
 
 `run_preview`, `PreviewYear`, `PreviewResult` in `src/sbretire/preview.py` (brief §2 #3–#6, §5). Tests in
 `tests/unit/test_preview.py` using the fixture with `annual_mean` and `annual_return` overridden.
 
 **Acceptance criteria**
-- [ ] Calendar-year rows aggregate months correctly: with zero inflation and return the 2026 row has 3 months, income 1 500, spending 9 000, net withdrawal 7 500, balance 492 500 — `test_run_preview_aggregates_calendar_years`
-- [ ] The summary reports Depletion month 289 on 2050-11-01 with shortfall 2 000, and rows stop at 2050 — `test_run_preview_reports_depletion`
-- [ ] With 2% inflation, `balance_end_today` = `balance_end` / `price_index` and the index steps on As-Of anniversaries — `test_run_preview_deflates_with_price_index`
-- [ ] `investment_return` sums opening balance × r_m: the first full year with no cash flows matches B(1+r_a)^… closed form — `test_run_preview_investment_return_matches_closed_form`
-- [ ] Household End before the horizon is reported as a date; rows stop there; ages are blank after a death — `test_run_preview_household_end_and_ages`
+- [x] Calendar-year rows aggregate months correctly: with zero inflation and return the 2026 row has 3 months, income 1 500, spending 9 000, net withdrawal 7 500, balance 492 500 — `test_run_preview_aggregates_calendar_years`
+- [x] The summary reports Depletion month 289 on 2050-11-01 with shortfall 2 000, and rows stop at 2050 — `test_run_preview_reports_depletion`
+- [x] With 2% inflation, `balance_end_today` = `balance_end` / `price_index` and the index steps on As-Of anniversaries — `test_run_preview_deflates_with_price_index`
+- [x] `investment_return` sums opening balance × r_m: the first full year with no cash flows matches B(1+r_a)^… closed form — `test_run_preview_investment_return_matches_closed_form`
+- [x] Household End before the horizon is reported as a date; rows stop there; ages are blank after a death — `test_run_preview_household_end_and_ages`
+
+**Notes**
+- 2026-10-09: `src/sbretire/preview.py` — `run_preview` wraps `ScenarioCashFlows` in `_RecordingCashFlows` and records each simulated month via the engine observer (income, spending, opening × r_m, closing balance, alive, index), then groups by calendar year (`_by_calendar_year`, `_year_row`). `src/sbretire/timeline.py` gains `month_start` (inverse of `month_index`, with round-trip tests). Tests: 5 in `tests/unit/test_preview.py`, 2 in `tests/unit/test_timeline.py`.
 
 ### F-015.3 Preview command, table and CSV
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-015.2
 
 `format_preview_table`, `write_preview_csv` in `src/sbretire/preview.py`; `preview` subcommand in
