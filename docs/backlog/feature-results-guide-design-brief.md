@@ -2,7 +2,7 @@
 id: F-018
 type: feature
 parent: v1-1-enhancements
-status: planned
+status: in-progress
 complexity: 4
 created: 2026-10-09
 updated: 2026-10-09
@@ -93,7 +93,7 @@ def round_return_up(annual_return: float) -> float: ...  # next 0.01 % up (B-011
 ## 10. Tasks
 
 ### F-018.1 Results guide content
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-017.2
 
 `src/sbretire/results_guide.py` per §2 #1–#7 and §5; `round_return_up` moved to `reporting.py`. Tests in

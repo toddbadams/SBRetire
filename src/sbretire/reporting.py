@@ -274,6 +274,14 @@ SUSTAINABILITY_COLUMNS: Final = (
 )
 
 
+def round_return_up(annual_return: float) -> float:
+    """Round up to the next 0.01 % so a displayed required return always meets its target (B-011.1).
+
+    Rounding first to 9 places absorbs float noise just above a 0.01 % grid point.
+    """
+    return math.ceil(round(annual_return * 10_000, 9)) / 10_000
+
+
 def _money_down(value: float | None) -> str:
     """GBP floored to 0.01 so a written budget never exceeds the one found feasible (B-011.1)."""
     return "" if value is None else f"{math.floor(round(value * 100, 6)) / 100:.2f}"
