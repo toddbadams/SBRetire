@@ -6,7 +6,7 @@ spec_sections: [§5, §7.2, §9, §10.1, §10.2, §10.4, §11]
 depends_on: [foundations]
 milestones:
   - { id: F-002, title: Deterministic Portfolio Engine (Walking Skeleton), status: done }
-  - { id: F-009, title: Monte Carlo Path Outcomes, Censoring and Success Metrics, status: proposed }
+  - { id: F-009, title: Monte Carlo Path Outcomes, Censoring and Success Metrics, status: briefed }
 created: 2026-10-09
 updated:
   - 2026-10-09: created by /decompose-spec
@@ -44,5 +44,5 @@ The monthly, path-vectorised engine that answers the primary question (SPEC §1.
 
 ## Risks and open questions
 
-- SPEC §7.2's sentence "exclude unresolved paths from neither numerator nor denominator without explicit reporting" is garbled; F-009 must pin the meaning (recommended: conservative rate = successes ÷ all paths; completed-path rate = successes ÷ completed; unresolved count always reported).
+- SPEC §7.2's sentence "exclude unresolved paths from neither numerator nor denominator without explicit reporting" is garbled; F-009 must pin the meaning (recommended: conservative rate = successes ÷ all paths; completed-path rate = successes ÷ completed; unresolved count always reported). → simulation-conventions §7.
 - Whether to keep per-path monthly history at all — only what F-012's percentiles need (SPEC §10.4).

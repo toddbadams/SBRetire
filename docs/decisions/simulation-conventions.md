@@ -5,7 +5,7 @@ Scope: within-month ordering, death timing, depletion/shortfall rule, horizon ce
 SPEC §18 items open in this topic (resolve each as a numbered `## N.` entry with a **Why** line):
 - ~~Valuation date and first simulated month (SPEC §5).~~ → §1
 - ~~Within-month cash-flow ordering and death timing (SPEC §5, §7.2).~~ → §2
-- Horizon-censoring policy and conservative sustainability denominator (SPEC §7.2, §11).
+- ~~Horizon-censoring policy and conservative sustainability denominator (SPEC §7.2, §11).~~ → §7
 - Definition of annual portfolio percentiles and funded probabilities (SPEC §12).
 
 ## 1. As-Of Date is the 1st of a month and is the first simulated month
@@ -43,4 +43,10 @@ Simulated year k covers months 12k to 12k + 12, starting in the As-Of month. One
 For each person, monthly death probabilities q_m = 1 − (1 − q)^(1/12) (q = the cohort rate for their age in completed years from the birth month, data-and-calibration §1) give a survival curve S_0 = 1, S_{t+1} = S_t (1 − q_m,t) over months 0 … H − 1, identical on every Path. One uniform u per person per Path (`rng.random((2, n_paths))` from the mortality Random Stream, person-major) gives the Death Month d = min(searchsorted(1 − S[1:], u, right) + 1, H): a death in month t gives d = t + 1 (§2), and d = H means alive through the horizon (censored). The two people are independent. (F-008)
 
 **Why**: statistically identical to SPEC §7.2's month-by-month conditional draws, but vectorised and needing 2 · n_paths draws instead of one per person, path and month (144M for 100k paths over 60 years). Because each death uses a single uniform, lengthening the horizon never changes deaths inside the shorter one, which keeps Common Random Numbers stable across runs and candidates. Per-month Bernoulli draws were rejected for cost and memory with no difference in distribution.
+
+## 7. Path classification and the conservative success denominator
+
+Every Path is exactly one of: **Failed** — depleted in some month (whether or not someone would have reached the Horizon); **Successful** — never depleted and both people died within the Horizon; **Unresolved (Censored)** — never depleted and at least one person alive at the Horizon. Completed = Successful + Failed. The Conservative Success Rate is N_successful / N_all paths — Unresolved Paths count as non-successes — and is the V1 optimisation target; the Completed-Path Success Rate N_successful / N_completed (undefined when nothing completed) and the Unresolved share N_unresolved / N_all are always reported beside it. Each rate carries a binomial Monte Carlo standard error √(p̂(1 − p̂)/N) with its own denominator stated. (F-009)
+
+**Why**: SPEC §11 requires a conservative lower bound that never lets a finite Horizon overstate sustainability, and SPEC §7.2 requires unresolved paths to be reported, not silently counted (its "exclude … from neither numerator nor denominator" sentence is read as: always in the conservative denominator, never in the numerator). Depletion is a definite lifetime failure, so a depleted Path is resolved even if the household would have outlived the Horizon; calling it unresolved would understate failure and overstate the unresolved share. Treating Unresolved Paths as failures in a single rate was rejected as hiding them; excluding them from the target denominator was rejected as optimistic.
 
