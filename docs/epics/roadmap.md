@@ -12,7 +12,7 @@ Features in build order. Status: `proposed` → `briefed` → `in-progress` → 
 | F-004 | Spending with Survivor Budget Factor | [household-cash-flows](household-cash-flows.md) | F-002 | done |
 | F-015 | Deterministic Preview Run | [reporting-release](reporting-release.md) | F-003, F-004 | done |
 | F-016 | VS Code Test Setup | [v1-1-enhancements](v1-1-enhancements.md) | F-014 | done |
-| F-017 | Inputs Display and inputs.csv | [v1-1-enhancements](v1-1-enhancements.md) | F-013 | briefed |
+| F-017 | Inputs Display and inputs.csv | [v1-1-enhancements](v1-1-enhancements.md) | F-013 | in-progress |
 | F-018 | Results Guide (columns, calculations, assumptions) | [v1-1-enhancements](v1-1-enhancements.md) | F-017 | proposed |
 | F-019 | End-of-Life Reserve Target | [v1-1-enhancements](v1-1-enhancements.md) | F-013 | proposed |
 | F-020 | Spend-At-Least-Income Option | [v1-1-enhancements](v1-1-enhancements.md) | F-013 | proposed |

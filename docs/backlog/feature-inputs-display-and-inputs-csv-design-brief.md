@@ -2,7 +2,7 @@
 id: F-017
 type: feature
 parent: v1-1-enhancements
-status: planned
+status: in-progress
 complexity: 3
 created: 2026-10-09
 updated: 2026-10-09
@@ -87,7 +87,7 @@ def format_inputs(config: Path, rows: Sequence[InputRow]) -> str: ...
 ## 10. Tasks
 
 ### F-017.1 Input rows, inputs.csv writer and console block
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: —
 
 `src/sbretire/inputs_report.py` per §2 #1–#7 and §5. Tests in `tests/unit/test_inputs_report.py`.
