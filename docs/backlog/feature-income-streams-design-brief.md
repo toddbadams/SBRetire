@@ -122,18 +122,21 @@ _(filled during implementation)_
 Task format and statuses: `docs/project-sdlc.md` §2. Definition of done: `docs/project-sdlc.md` §4.
 
 ### F-003.1 Timeline and price-index seam
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: —
 
 `src/sbretire/timeline.py` (`month_index`) and `src/sbretire/inflation.py` (`PriceIndex`, `FlatPriceIndex`) — brief
 §2 #7–#8, §5. Tests in `tests/unit/test_timeline.py`, `tests/unit/test_inflation.py`.
 
 **Acceptance criteria**
-- [ ] `month_index` is 0 for the As-Of month, counts calendar months across year ends, and is negative before the As-Of month — `test_month_index_counts_calendar_months`
-- [ ] Zero inflation keeps the price index constant at 1 for every path and month — `test_flat_price_index_is_constant`
+- [x] `month_index` is 0 for the As-Of month, counts calendar months across year ends, and is negative before the As-Of month — `test_month_index_counts_calendar_months`
+- [x] Zero inflation keeps the price index constant at 1 for every path and month — `test_flat_price_index_is_constant`
+
+**Notes**
+- 2026-10-09: `src/sbretire/timeline.py` (`month_index`), `src/sbretire/inflation.py` (`PriceIndex` protocol; `FlatPriceIndex` returns one shared read-only array of ones). Tests: `tests/unit/test_timeline.py` (8 cases), `tests/unit/test_inflation.py`.
 
 ### F-003.2 Household recipient in config
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: —
 
 `src/sbretire/config.py`: `income[].recipient` may be `household`; a person whose `id` is `household` is rejected
