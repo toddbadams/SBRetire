@@ -204,7 +204,7 @@ Add the file layer: load_scenario(path, *, require_data_files=False) -> LoadedSc
 - 2026-10-09: `src/sbretire/_yaml.py` — `load_yaml` composes the node tree, reports every duplicate key with its YAML path and both line numbers, then constructs with the safe loader; syntax errors become issues with line/column. `config.py` — `load_scenario` (OSError if unreadable; ScenarioError otherwise), warn mode drops unknown keys and returns sorted "unknown key (ignored)" warnings while real errors still raise, `mortality.data_file` resolved against the config directory, `require_data_files` check. `config/model.example.yaml` gains `unknown_keys: error` and `../data/ons_mortality.csv`. Tests: `tests/unit/test_config_loading.py` (11).
 
 ### F-001.4 CLI validate and run subcommands
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-001.3
 
 Expose validation to the user.
@@ -214,9 +214,13 @@ Expose validation to the user.
 - Update `tests/unit/test_cli.py`, README.md (Run section) and CLAUDE.md (Commands).
 
 **Acceptance criteria**
-- [ ] validate on the example config exits 0 and prints a summary — `test_cli_validate_example_config_exits_zero`
-- [ ] validate on an invalid config exits 2 and prints one line per issue — `test_cli_validate_invalid_exits_two_lists_issues`
-- [ ] validate on a missing file exits 1 — `test_cli_validate_missing_file_exits_one`
+- [x] validate on the example config exits 0 and prints a summary — `test_cli_validate_example_config_exits_zero`
+- [x] validate on an invalid config exits 2 and prints one line per issue — `test_cli_validate_invalid_exits_two_lists_issues`
+- [x] validate on a missing file exits 1 — `test_cli_validate_missing_file_exits_one`
+
+**Notes**
+- 2026-10-09: `src/sbretire/__main__.py` — argparse subcommands `validate` (`--config`, `--require-data-files`) and `run` (`--config`, `--output-dir`); `main()` returns exit codes 0 / 1 (unreadable file, or engine pending on `run`) / 2 (invalid scenario, issues on stderr); warnings on stderr. CLI output is ASCII-only (Windows console). README Run section documents validate and the config rules; CLAUDE.md commands updated. Tests: `tests/unit/test_cli.py` (8).
+
 
 ## 11. Open Questions
 

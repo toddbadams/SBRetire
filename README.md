@@ -22,10 +22,22 @@ uv sync
 
 ```bash
 cp config/model.example.yaml config/model.yaml   # then edit your own assumptions
-uv run sbretire --config config/model.yaml --output-dir output
+uv run sbretire validate --config config/model.yaml
+uv run sbretire run --config config/model.yaml --output-dir output
 ```
 
 `config/model.yaml` is git-ignored so personal inputs stay out of version control.
+
+`validate` checks the scenario without running the model: it prints a one-line summary and exits 0, or lists
+every problem with its YAML location (e.g. `income[2].survivor_percentage: must be less than or equal to 1`) and
+exits 2; an unreadable file exits 1. Add `--require-data-files` to also check that `mortality.data_file` exists.
+
+Configuration rules worth knowing (full list in `docs/decisions/configuration.md`):
+
+- `model.as_of_date` and every income `start_date` / `end_date` must be the 1st of a month; `end_date` is exclusive.
+- Relative paths (e.g. `mortality.data_file`) are resolved from the config file's own directory.
+- Unknown or duplicated keys are errors; set `model.unknown_keys: warn` to report unknown keys as warnings instead.
+- Numbers, booleans and dates are not coerced from strings: write `0.05`, `true`, `"2026-10-01"`.
 
 ## Outputs (V1)
 

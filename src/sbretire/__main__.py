@@ -1,11 +1,22 @@
-"""Command-line entry point: ``python -m sbretire`` / ``sbretire``."""
+"""Command-line entry point: ``python -m sbretire`` / ``sbretire``.
+
+Subcommands:
+    validate  check a scenario YAML and print a one-line summary (exit 0), every issue (exit 2),
+              or an unreadable-file error (exit 1)
+    run       validate, then run the model (engine arrives with F-013)
+"""
 
 from __future__ import annotations
 
 import argparse
+import sys
 from collections.abc import Sequence
+from pathlib import Path
 
 from sbretire import __version__
+from sbretire.config import LoadedScenario, ScenarioError, load_scenario
+
+EXIT_OK, EXIT_FAILURE, EXIT_INVALID = 0, 1, 2
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -14,22 +25,59 @@ def build_parser() -> argparse.ArgumentParser:
         description="Retirement Sustainability Model (Monte Carlo). See docs/SPEC.md.",
     )
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
-    parser.add_argument(
-        "--config",
-        default="config/model.yaml",
-        help="Path to the scenario YAML (default: %(default)s)",
+    commands = parser.add_subparsers(dest="command", required=True, metavar="COMMAND")
+
+    validate = commands.add_parser("validate", help="check a scenario file without running the model")
+    validate.add_argument("--config", type=Path, required=True, help="scenario YAML file")
+    validate.add_argument(
+        "--require-data-files", action="store_true", help="also fail if referenced data files are missing"
     )
-    parser.add_argument(
-        "--output-dir",
-        default="output",
-        help="Directory for CSV and run-metadata outputs (default: %(default)s)",
-    )
+
+    run = commands.add_parser("run", help="validate a scenario and run the model")
+    run.add_argument("--config", type=Path, required=True, help="scenario YAML file")
+    run.add_argument("--output-dir", type=Path, default=Path("output"), help="CSV output directory")
     return parser
 
 
+def _load(config: Path, *, require_data_files: bool) -> LoadedScenario | int:
+    """Load and validate, reporting problems on stderr; return an exit code on failure."""
+    try:
+        loaded = load_scenario(config, require_data_files=require_data_files)
+    except OSError as exc:
+        print(f"error: cannot read {config}: {exc.strerror or exc}", file=sys.stderr)
+        return EXIT_FAILURE
+    except ScenarioError as exc:
+        print(f"{config}: {len(exc.issues)} problem(s)", file=sys.stderr)
+        for issue in exc.issues:
+            print(f"  {issue.location}: {issue.message}", file=sys.stderr)
+        return EXIT_INVALID
+    for warning in loaded.warnings:
+        print(f"warning: {warning.location}: {warning.message}", file=sys.stderr)
+    return loaded
+
+
+def _summary(config: Path, loaded: LoadedScenario) -> str:
+    s = loaded.scenario
+    return (
+        f"OK {config} - {len(s.people)} people, {len(s.income)} income streams, "
+        f"as-of {s.model.as_of_date.isoformat()}, {s.model.simulation_count} paths, "
+        f"horizon {s.model.horizon_years} y"
+    )
+
+
 def main(argv: Sequence[str] | None = None) -> int:
-    build_parser().parse_args(argv)
-    raise SystemExit("Simulation engine not implemented yet — see docs/epics/roadmap.md for the build plan.")
+    args = build_parser().parse_args(argv)
+    loaded = _load(args.config, require_data_files=getattr(args, "require_data_files", False))
+    if isinstance(loaded, int):
+        return loaded
+    if args.command == "validate":
+        print(_summary(args.config, loaded))
+        return EXIT_OK
+    print(
+        "error: simulation engine not implemented yet; see docs/epics/roadmap.md for the build plan.",
+        file=sys.stderr,
+    )
+    return EXIT_FAILURE
 
 
 if __name__ == "__main__":

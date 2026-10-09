@@ -12,7 +12,8 @@ uv run python scripts/check.py            # full gate: ruff, ruff format --check
 uv run python scripts/check.py --fast     # skip @pytest.mark.slow
 uv run python scripts/check.py --fix      # ruff --fix + format, then gate
 uv run pytest tests/unit/test_x.py::test_y -q
-uv run sbretire --config config/model.yaml --output-dir output
+uv run sbretire validate --config config/model.yaml   # check a scenario (exit 0 ok / 2 invalid / 1 unreadable)
+uv run sbretire run --config config/model.yaml --output-dir output
 uv run python scripts/backlog_check.py --next   # what to work on next (markdown backlog)
 ```
 
