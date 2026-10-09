@@ -93,17 +93,20 @@ _(filled during implementation)_
 ## 10. Tasks
 
 ### F-008.1 Monthly death probabilities and survival curve
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: —
 
 `monthly_death_probabilities` and `survival_curve` in `src/sbretire/mortality.py` (§2 #1–#2). Tests in
 `tests/unit/test_mortality_sampling.py` (fixture tables via `tests/unit/mortality_fixtures.py`).
 
 **Acceptance criteria**
-- [ ] For any q in [0, 1], twelve months at q_m compound to q: 1 − (1 − q_m)^12 = q within 1e-12 (§17.1) — `test_monthly_conversion_reproduces_annual_probability`
-- [ ] With pinned As-Of 2026-10-01 and DOB 1958-03-01 (age 68), months 0–4 use age 68 and month 5 (2027-03) age 69; q_m equals the conversion of `annual_q` at those ages — `test_monthly_death_probabilities_age_steps_in_birthday_month`
-- [ ] Months at ages above 100 use the q(100, b + 100) rate — `test_monthly_death_probabilities_use_age_100_tail`
-- [ ] `survival_curve` has length H + 1, starts at 1, is non-increasing and equals the cumulative product of (1 − q_m) — `test_survival_curve_shape_and_monotone`
+- [x] For any q in [0, 1], twelve months at q_m compound to q: 1 − (1 − q_m)^12 = q within 1e-12 (§17.1) — `test_monthly_conversion_reproduces_annual_probability`
+- [x] With pinned As-Of 2026-10-01 and DOB 1958-03-01 (age 68), months 0–4 use age 68 and month 5 (2027-03) age 69; q_m equals the conversion of `annual_q` at those ages — `test_monthly_death_probabilities_age_steps_in_birthday_month`
+- [x] Months at ages above 100 use the q(100, b + 100) rate — `test_monthly_death_probabilities_use_age_100_tail`
+- [x] `survival_curve` has length H + 1, starts at 1, is non-increasing and equals the cumulative product of (1 − q_m) — `test_survival_curve_shape_and_monotone`
+
+**Notes**
+- 2026-10-09 Added `monthly_death_probabilities` (vectorised: months since birth month → completed-year ages → `annual_q` → q_m) and `survival_curve` to `src/sbretire/mortality.py`. Tests `tests/unit/test_mortality_sampling.py` (4; the §17.1 property runs through an in-memory constant-q table so hypothesis stays fast).
 
 ### F-008.2 Sampling death months
 - **Status**: To Do

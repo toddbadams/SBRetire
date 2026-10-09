@@ -247,8 +247,21 @@ def coverage_issues(table: MortalityTable, scenario: Scenario) -> list[ScenarioI
 def monthly_death_probabilities(
     table: MortalityTable, person: Person, as_of: date, horizon_months: int
 ) -> NDArray[np.float64]:
-    raise NotImplementedError
+    """Probability of dying during each simulated month, shape (horizon_months,), for one person.
+
+    Month t uses the person's age in completed years at that month's start, counted from the birth month,
+    and the cohort rate q(x, b + x) (ages above 100 hold the age-100 rate), converted with
+    q_m = 1 − (1 − q)^(1/12) (SPEC §7.2; data-and-calibration §1).
+    """
+    months_old = month_index(person.date_of_birth.replace(day=1), as_of) + np.arange(horizon_months)
+    annual = table.annual_q(person.sex, person.date_of_birth.year, months_old // 12)
+    monthly: NDArray[np.float64] = 1.0 - (1.0 - annual) ** (1.0 / 12.0)
+    return monthly
 
 
 def survival_curve(monthly_q: NDArray[np.float64]) -> NDArray[np.float64]:
-    raise NotImplementedError
+    """S_0 = 1, S_{t+1} = S_t (1 − q_m,t): probability of being alive at the start of month t, (H + 1,)."""
+    curve: NDArray[np.float64] = np.concatenate(
+        [[1.0], np.cumprod(1.0 - np.asarray(monthly_q, dtype=np.float64))]
+    )
+    return curve
