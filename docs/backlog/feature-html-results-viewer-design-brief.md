@@ -68,16 +68,19 @@ The page consumes `window.SBRETIRE_RUNS = {schema_version, index: [...], runs: {
 ## 10. Tasks
 
 ### F-022.1 Claude Design hand-off document
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-021.3
 
 `docs/design/claude-design-handoff.md` per §2 #1–#4; stretch sample variant in `scripts/build_design_sample.py`
 and a regenerated `docs/design/sample/`.
 
 **Acceptance criteria**
-- [ ] The hand-off names every `results.json` section and every page part (run picker, compare mode, headline, budget and reserve tables, required return, portfolio fan chart, survival curves, inputs, column notes), the wording rules, offline `file://` loading of `runs/runs.js`, light and dark, and points at the sample — `test_design_handoff_covers_schema_sections`
-- [ ] The hand-off requires one common `theme.css` of CSS custom properties with no hard-coded colours in page CSS, light and dark token sets, states that the theme is to be determined, and lists the token groups to propose — `test_design_handoff_requires_common_theme`
-- [ ] The sample's second run is `example-stretch` with failures and a reserve table, still example-only data — `test_design_sample_is_valid_example_data`
+- [x] The hand-off names every `results.json` section and every page part (run picker, compare mode, headline, budget and reserve tables, required return, portfolio fan chart, survival curves, inputs, column notes), the wording rules, offline `file://` loading of `runs/runs.js`, light and dark, and points at the sample — `test_design_handoff_covers_schema_sections`
+- [x] The hand-off requires one common `theme.css` of CSS custom properties with no hard-coded colours in page CSS, light and dark token sets, states that the theme is to be determined, and lists the token groups to propose — `test_design_handoff_requires_common_theme`
+- [x] The sample's second run is `example-stretch` with failures and a reserve table, still example-only data — `test_design_sample_is_valid_example_data`
+
+**Notes**
+- 2026-10-09 `docs/design/claude-design-handoff.md`: purpose and readers, deliverables (index.html, theme.css, optional viewer.css/js; no build, server or network), data contract (window.SBRETIRE_RUNS from runs/runs.js; index fields; every results.json section), 11 page parts, wording/number rules, edge cases, §7 Common CSS theme (one theme.css of custom properties, no colour literals in page CSS, light/dark via prefers-color-scheme and data-theme, theme to be determined with token groups to propose), layout/accessibility, privacy, next steps. `scripts/build_design_sample.py`: second run now `example-stretch` (10,500/month, 4 %, 12-month reserve; 81.6 % success); sample regenerated. Tests in `tests/unit/test_design_handoff.py` (3 for this task); full gate 411 passed.
 
 ### F-022.2 Choose and record the common CSS theme
 - **Status**: To Do

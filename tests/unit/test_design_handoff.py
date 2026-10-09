@@ -101,7 +101,9 @@ def test_design_handoff_covers_schema_sections() -> None:
 
 def test_design_handoff_requires_common_theme() -> None:
     text = HANDOFF.read_text(encoding="utf-8")
-    start = text.index("## Common CSS theme")
+    heading = re.search(r"^## (\d+\. )?Common CSS theme$", text, re.M)
+    assert heading is not None
+    start = heading.start()
     following = re.search(r"^## ", text[start + 3 :], re.M)
     section = (text[start : start + 3 + following.start()] if following else text[start:]).lower()
     for phrase in (

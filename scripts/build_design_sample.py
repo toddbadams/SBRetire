@@ -4,8 +4,9 @@ Usage:
     uv run python scripts/build_design_sample.py [--paths N]
 
 Runs ``sbretire run`` twice on the **example** config (never a personal one): ``example-base`` as configured,
-and ``example-4pct-reserve`` with a 4 % return and a 12-month End-of-Life Reserve. Only each run's
-``results.json`` plus the runs ``index.json`` and ``runs.js`` are kept: small, and no personal data.
+and ``example-stretch`` (10,500/month, 4 % return, 12-month End-of-Life Reserve), a plan that fails in some
+futures so the charts and tables have something to show. Only each run's ``results.json`` plus the runs
+``index.json`` and ``runs.js`` are kept: small, and no personal data.
 """
 
 from __future__ import annotations
@@ -26,7 +27,10 @@ EXAMPLE = ROOT / "config" / "model.example.yaml"
 SAMPLE = ROOT / "docs" / "design" / "sample" / "runs"
 VARIANTS: dict[str, dict[str, Any]] = {
     "example-base": {},
-    "example-4pct-reserve": {"portfolio": {"annual_return": 0.04}, "budget": {"end_reserve_months": 12}},
+    "example-stretch": {
+        "portfolio": {"annual_return": 0.04},
+        "budget": {"monthly_amount_today": 10_500, "end_reserve_months": 12},
+    },
 }
 
 
