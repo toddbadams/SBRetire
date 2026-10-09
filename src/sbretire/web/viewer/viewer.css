@@ -291,6 +291,7 @@ main { padding-bottom: var(--space-8); }
 
 /* print: always the light token set (theme.css only applies dark on screen) */
 /* ---------------- print (F-023): A4, black and white via theme tokens, nothing split ---------------- */
+.masthead__actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 .print-only { display: none; }
 @page {
   size: A4;

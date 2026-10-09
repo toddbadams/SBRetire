@@ -105,17 +105,20 @@ day, in which the viewer was printed to PDF with headless Edge before and after 
 - 2026-10-09 viewer.css: `@page` A4 16/12/14 mm with `@top-left` "SBRetire results" and `@bottom-right` "Page X of Y"; print hides the PDF/theme buttons, pickers, (i), `.screen-only`, the screen year table and fold toggles; shows `.print-only`; keeps `.print-keep`, figures, the about panel, cards and rows unbroken. viewer.js: `wrapForPrint`/`unwrapAfterPrint` on beforeprint/afterprint (open every fold; wrap each section's heading block, intro and first card/details/figure/table in `.print-keep`; per-section try/catch; undo restores every element — checked in the browser, only whitespace differs); `#print-header` style written at render with the run names for `@top-right`; two print-only year tables (10 + 10 columns, short labels, every annual column once, year in both); hover help wrapped in `.screen-only`; `#print-runs` line. Edge PDFs of the sample during development: black and white, A4, header/footer, year tables complete, no split rows; the first version stranded three headings (the portfolio heading sits in a `.section__head` wrapper and threw), fixed and checked in the DOM.
 
 ### F-023.3 Save as PDF button
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-023.2
 
 `#pdf-button` in the masthead; `printPdf()` sets the title and calls `window.print()`, restoring the title after
 (§2 #1–#2).
 
 **Acceptance criteria**
-- [ ] The masthead has a "Save as PDF" button that is hidden in print; its handler sets `document.title` from the run names and created date, calls `window.print()`, and restores the title on `afterprint` — `test_pdf_button_sets_title_and_prints`
+- [x] The masthead has a "Save as PDF" button that is hidden in print; its handler sets `document.title` from the run names and created date, calls `window.print()`, and restores the title on `afterprint` — `test_pdf_button_sets_title_and_prints`
+
+**Notes**
+- 2026-10-09 index.html: `#pdf-button` "Save as PDF" (title explains: choose Save as PDF, black and white, A4) beside the theme toggle in `.masthead__actions`. viewer.js: `pdfTitle()` ("SBRetire <run> [vs <run>] <created date>"), `printPdf()` sets the title and calls window.print(); `unwrapAfterPrint` restores it. Browser check with a stubbed print: title during print "SBRetire example-stretch vs example-base 2026-10-09", restored to "SBRetire · Results" after.
 
 ### F-023.4 PDF review script and docs
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-023.3
 
 `scripts/render_viewer_pdf.py`, slow test, README, CHANGELOG, decision viewer §3.

@@ -899,7 +899,17 @@
   }
 
   /* ---------------- print (F-023) ---------------- */
-  var printUndo = null;
+  var printUndo = null, savedTitle = null;
+  function pdfTitle() {
+    // The browser offers the page title as the PDF file name: "SBRetire base-4pct vs stress-3pct 2026-10-09".
+    var list = runs(), created = list.length ? String(list[0].r.run.created_at || '').slice(0, 10) : '';
+    return ['SBRetire', list.map(function (o) { return o.r.run.name; }).join(' vs '), created].filter(Boolean).join(' ');
+  }
+  function printPdf() {
+    if (savedTitle === null) savedTitle = document.title;
+    document.title = pdfTitle();
+    window.print();
+  }
   function cssString(s) { return '"' + String(s).replace(/[\\"]/g, '\\$&').replace(/[\n\r]/g, ' ') + '"'; }
   function wrapForPrint() {
     if (printUndo) return;
@@ -933,6 +943,7 @@
     });
   }
   function unwrapAfterPrint() {
+    if (savedTitle !== null) { document.title = savedTitle; savedTitle = null; }
     if (!printUndo) return;
     printUndo.reverse().forEach(function (f) { f(); });
     printUndo = null;
@@ -952,6 +963,7 @@
     buildPickers(); syncPickers(); render();
     var lastW = window.innerWidth, t;
     window.addEventListener('resize', function () { clearTimeout(t); t = setTimeout(function () { if (window.innerWidth !== lastW) { lastW = window.innerWidth; drawCharts(); } }, 120); });
+    $('#pdf-button').addEventListener('click', printPdf);
     window.addEventListener('beforeprint', wrapForPrint);
     window.addEventListener('afterprint', unwrapAfterPrint);
   }
