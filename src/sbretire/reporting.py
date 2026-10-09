@@ -8,6 +8,7 @@ shares of paths.
 from __future__ import annotations
 
 import csv
+import math
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -273,11 +274,77 @@ SUSTAINABILITY_COLUMNS: Final = (
 )
 
 
+def _money_down(value: float | None) -> str:
+    """GBP floored to 0.01 so a written budget never exceeds the one found feasible (B-011.1)."""
+    return "" if value is None else f"{math.floor(round(value * 100, 6)) / 100:.2f}"
+
+
+def _return_up(value: float | None) -> str:
+    """Annual return ceiled to 1e-6 so a written required return never falls below r* (B-011.1)."""
+    return "" if value is None else f"{math.ceil(round(value * 1_000_000, 6)) / 1_000_000:.6f}"
+
+
+def _share(value: float | None) -> str:
+    return "" if value is None else f"{value:.6f}"
+
+
+def _flag(value: bool) -> str:
+    return "true" if value else "false"
+
+
+def _write_rows(path: Path, columns: Sequence[str], rows: Sequence[Sequence[str]]) -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.writer(handle, lineterminator="\n")
+        writer.writerow(columns)
+        writer.writerows(rows)
+    return path
+
+
 def write_lifestyle_results_csv(results: Sequence[BudgetResult], path: Path) -> Path:
-    raise NotImplementedError
+    """Write ``lifestyle_results.csv``: one row per target (SPEC §14, §15.3); budgets in today's GBP."""
+    rows = [
+        [
+            _share(result.target_probability),
+            _money_down(result.maximum_monthly_budget_today),
+            _money_down(result.maximum_annual_budget_today),
+            _share(result.estimated_success_probability),
+            _share(result.standard_error),
+            _share(result.unresolved_fraction),
+            f"{result.budget_tolerance:.2f}",
+            _flag(result.converged),
+            str(result.iterations),
+            result.note,
+        ]
+        for result in results
+    ]
+    return _write_rows(path, LIFESTYLE_COLUMNS, rows)
 
 
 def write_sustainability_results_csv(
     metrics: SuccessMetrics, annual_return: float, returns: Sequence[ReturnResult], path: Path
 ) -> Path:
-    raise NotImplementedError
+    """Write ``sustainability_results.csv``: one row per target at the configured Budget (SPEC §13, §15.2).
+
+    The success columns describe the configured Budget at the configured ``annual_return``:
+    ``estimated_success_probability`` is the Completed-Path Success Rate, ``conservative_success_probability``
+    the Conservative Success Rate (its SE uses all paths). The return columns come from the Return Search.
+    """
+    rows = [
+        [
+            f"{result.monthly_budget_today:.2f}",
+            f"{annual_return:.6f}",
+            _share(result.target_probability),
+            _share(metrics.completed_success_rate),
+            _share(metrics.conservative_success_rate),
+            _share(metrics.conservative_standard_error),
+            _share(metrics.unresolved_share),
+            _return_up(result.required_annual_return),
+            f"{result.return_tolerance:.6f}",
+            _flag(result.converged),
+            str(result.iterations),
+            result.note,
+        ]
+        for result in returns
+    ]
+    return _write_rows(path, SUSTAINABILITY_COLUMNS, rows)

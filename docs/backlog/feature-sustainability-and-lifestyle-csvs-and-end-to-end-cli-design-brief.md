@@ -75,15 +75,18 @@ _(filled during implementation)_
 ## 10. Tasks
 
 ### F-013.1 Sustainability and lifestyle CSV writers
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: —
 
 `SUSTAINABILITY_COLUMNS`, `LIFESTYLE_COLUMNS`, both writers in `src/sbretire/reporting.py` (§2 #2–#5). Tests in
 `tests/unit/test_result_csvs.py`.
 
 **Acceptance criteria**
-- [ ] `lifestyle_results.csv`: header exactly `LIFESTYLE_COLUMNS`; one row per result; budgets floored to 0.01 (≤ B*), annual = floored 12·B*; infeasible rows have empty numbers and the note; booleans `true`/`false`; format per SPEC §15 — `test_lifestyle_results_csv`
-- [ ] `sustainability_results.csv`: header exactly `SUSTAINABILITY_COLUMNS`; one row per target; success columns from the run metrics; required return ceiled to 1e-6 (≥ r*); no-solution rows empty with note; format per SPEC §15 — `test_sustainability_results_csv`
+- [x] `lifestyle_results.csv`: header exactly `LIFESTYLE_COLUMNS`; one row per result; budgets floored to 0.01 (≤ B*), annual = floored 12·B*; infeasible rows have empty numbers and the note; booleans `true`/`false`; format per SPEC §15 — `test_lifestyle_results_csv`
+- [x] `sustainability_results.csv`: header exactly `SUSTAINABILITY_COLUMNS`; one row per target; success columns from the run metrics; required return ceiled to 1e-6 (≥ r*); no-solution rows empty with note; format per SPEC §15 — `test_sustainability_results_csv`
+
+**Notes**
+- 2026-10-09 Added `LIFESTYLE_COLUMNS`, `SUSTAINABILITY_COLUMNS`, `write_lifestyle_results_csv`, `write_sustainability_results_csv` and helpers (`_money_down` floor 0.01, `_return_up` ceil 1e-6, `_share` 6 dp, `_flag` true/false, `_write_rows`) to `src/sbretire/reporting.py`. Tests `tests/unit/test_result_csvs.py` (2).
 
 ### F-013.2 End-to-end `run` outputs
 - **Status**: To Do
