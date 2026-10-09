@@ -72,7 +72,7 @@ def test_load_mortality_table_reports_every_bad_row(tmp_path: Path) -> None:
 def test_load_mortality_table_rejects_mismatched_sidecar(tmp_path: Path) -> None:
     rows = full_rows(range(1960, 1961), range(65, 67))
     mortality = MortalityAssumptions(
-        source="ONS_2024_BASED", geography="UK", projection="principal", data_file=tmp_path / "x.csv"
+        source="ONS_2024_BASED", geography="UK", projection="principal", data_file="x.csv"
     )
 
     missing = write_table(tmp_path / "missing", rows, meta={})

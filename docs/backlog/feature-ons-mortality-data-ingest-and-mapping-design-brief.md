@@ -129,6 +129,7 @@ CSV columns: `sex,birth_year,age,qx`. Sidecar keys as §2 #7.
 
 - 2026-10-09 — The cohort sheets are indexed by **year of birth 1981–2074**, so they don't contain anyone born before
   1981; the period sheets do, and match the cohort sheets exactly on the diagonal.
+- 2026-10-09 — F-007.2: test fixtures are generated per test in tmp_path (`tests/unit/mortality_fixtures.py`) rather than committed under `tests/fixtures/mortality/` as §4 listed.
 
 ## 10. Tasks
 
@@ -151,16 +152,19 @@ the `data/README.md` row and document the build command. Tests in `tests/tooling
 - 2026-10-09 Added `scripts/build_ons_mortality.py` (openpyxl, layout checks per sheet, Decimal ÷ 100,000, cohort/period agreement asserted, log-linear gap); built and committed `data/ons_mortality.csv` (29,088 rows: 2 sexes × birth years 1881–2074) and `data/ons_mortality.meta.json`; `data/README.md` provenance + build section; `openpyxl`/`types-openpyxl` dev deps; ruff `known-local-folder` += build_ons_mortality. Tests `tests/tooling/test_build_ons_mortality.py` (5, incl. sidecar provenance).
 
 ### F-007.2 Mortality table loader and validation
-- **Status**: To Do
+- **Status**: Verification
 - **Depends on**: F-007.1
 
 `src/sbretire/mortality.py`: `load_mortality_table`, `MortalityTableError` (§5). Fixtures in
 `tests/fixtures/mortality/`; tests in `tests/unit/test_mortality.py`.
 
 **Acceptance criteria**
-- [ ] The real `data/ons_mortality.csv` loads and its sidecar matches `config/model.example.yaml` — `test_load_mortality_table_real_file`
-- [ ] Missing/extra column, non-numeric value, duplicate (sex, birth_year, age), qx outside [0, 1] or non-finite, and unknown sex each raise `MortalityTableError` with the file row and a fix-it message — `test_load_mortality_table_rejects_invalid_rows`
-- [ ] Missing sidecar, or sidecar `source`/`geography`/`projection` differing from the Scenario's `mortality`, is rejected naming both values — `test_load_mortality_table_rejects_mismatched_sidecar`
+- [x] The real `data/ons_mortality.csv` loads and its sidecar matches `config/model.example.yaml` — `test_load_mortality_table_real_file`
+- [x] Missing/extra column, non-numeric value, duplicate (sex, birth_year, age), qx outside [0, 1] or non-finite, and unknown sex each raise `MortalityTableError` with the file row and a fix-it message — `test_load_mortality_table_rejects_invalid_rows`
+- [x] Missing sidecar, or sidecar `source`/`geography`/`projection` differing from the Scenario's `mortality`, is rejected naming both values — `test_load_mortality_table_rejects_mismatched_sidecar`
+
+**Notes**
+- 2026-10-09 Added `src/sbretire/mortality.py`: `load_mortality_table` (csv module, collects every issue with `ons_mortality.csv:<line>` locations; header, value count, sex, whole-number ages, qx finite in [0, 1], duplicates; sidecar required keys and source/geography/projection vs config), `MortalityTableError(issues)`, `MortalityTable` with read-only dense per-sex grids and `has`, `sidecar_path`. Tests `tests/unit/test_mortality.py` (16) using `tests/unit/mortality_fixtures.py` (tables written to tmp_path instead of a committed `tests/fixtures/mortality/` dir — each case needs its own variant).
 
 ### F-007.3 Lookup, tail rule and coverage
 - **Status**: To Do
