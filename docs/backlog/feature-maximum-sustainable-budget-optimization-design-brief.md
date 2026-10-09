@@ -2,7 +2,7 @@
 id: F-010
 type: feature
 parent: analysis-optimization
-status: in-progress
+status: done
 complexity: 5
 created: 2026-10-09
 updated: 2026-10-09
@@ -118,7 +118,7 @@ def maximum_sustainable_budgets(search: ThresholdSearch, targets: Sequence[float
 ## 10. Tasks
 
 ### F-010.1 Per-path budget in the cash flows
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: —
 
 Optional `monthly_budget_today` (scalar or (n_paths,)) through `ScenarioSpending`, `ScenarioCashFlows`,
@@ -131,9 +131,13 @@ Optional `monthly_budget_today` (scalar or (n_paths,)) through `ScenarioSpending
 
 **Notes**
 - 2026-10-09 Optional `monthly_budget_today` (scalar or (n_paths,), validated finite, non-negative and shaped like the price index) through `ScenarioSpending` (`_checked_budget`), `ScenarioCashFlows` and `run_monte_carlo`; default unchanged. Tests `tests/unit/test_spending_per_path.py` (6). The red commit failed with TypeError (missing keyword) rather than assertion — signature-level red.
+- 2026-10-09 /verify PASS:
+  - spending/cash-flow tests: 12 passed
+  - own probe: random index (3 y × 6 paths), own budgets incl. 0 — spending = B_i × I × {1, 0.70, 0.65, 0} for months 0–36, error 0.0
+  - default, scalar and full-array budget give identical outcomes (seed 9, 300 paths); bad shape, 2-D, negative, NaN and inf rejected; scalar 0 accepted; ruff + mypy clean
 
 ### F-010.2 Thresholds and the maximum sustainable budget
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-010.1
 
 `ThresholdSearch`, `path_budget_thresholds`, `BudgetResult`, `maximum_sustainable_budgets` in
@@ -149,9 +153,14 @@ Optional `monthly_budget_today` (scalar or (n_paths,)) through `ScenarioSpending
 
 **Notes**
 - 2026-10-09 Added `src/sbretire/optimization.py`: `BUDGET_TOLERANCE` (£1), `BUDGET_CAP` (£1M), `ThresholdSearch`, `path_budget_thresholds` (doubling expansion from max(2 × Budget, £1,000) until every completed-by-death path fails or the cap; vectorised per-path bisection to ≤ £1; thresholds = feasible end, −inf for paths with someone alive at the horizon), `BudgetResult`, `maximum_sustainable_budgets` (k = ⌈p·N⌉-th largest threshold; confirming run at B* for rate, SE and unresolved share; infeasible and cap notes). Tests `tests/integration/test_optimization.py` (6, incl. a literal scalar bisection reference).
+- 2026-10-09 /verify PASS:
+  - optimization tests: 6 passed; scalar-bisection reference independent of the code under test
+  - closed form 5,506.61 vs B* 5,506.35 (within £1); own runs rate(B*) = 1, rate(B* + 1) = 0
+  - own bisection (seed 11, 600 paths): targets 0.3 / 0.8 / 0.95 agree within £0.34; rate(B*) ≥ p* and rate(B* + 1) < p*; SE and unresolved exact; censored thresholds −inf; iterations = 18 = engine calls
+  - infeasible note and cap flags correct; RandomInputs unchanged; ruff + mypy clean
 
 ### F-010.3 `sbretire run` shows the maximum sustainable budgets
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-010.2
 
 `run` adds a table (one row per confidence level) after the F-009 summary; README; timing.
@@ -163,6 +172,11 @@ Optional `monthly_budget_today` (scalar or (n_paths,)) through `ScenarioSpending
 
 **Notes**
 - 2026-10-09 `run` now reuses one `RandomInputs` for the summary run, `path_budget_thresholds` and `maximum_sustainable_budgets(model.confidence_levels)`, printing `format_budget_table` (target, per month, per year, success ± SE, unresolved, converged; infeasible rows print the note; ASCII). Test `test_cli_run_prints_maximum_budgets`. README 'Maximum sustainable budget' section. Timing: example config (100,000 paths, 100-year horizon) 44.1 s with 27 engine runs; a 60-year-horizon personal config 46.4 s with 25 runs — both under the 300 s budget.
+- 2026-10-09 /verify PASS:
+  - CLI tests: 4 passed
+  - example run: exit 0 in ≈ 46 s, ASCII; 90/95/99 % rows 10,752 / 10,459 / 9,972 per month, annual = 12 ×, success ≥ target, SEs match √(p(1−p)/1e5)
+  - own recompute at 100k paths: rate at printed 95 % budget 0.95007 ≥ 0.95; at B* + 2 0.9498 < 0.95
+  - 5-year horizon: all rows print the infeasible note, exit 0; README accurate; full gate 335 passed
 
 ## 11. Open Questions
 
