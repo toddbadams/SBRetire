@@ -2,7 +2,7 @@
 id: F-009
 type: feature
 parent: simulation-engine
-status: in-progress
+status: done
 complexity: 5
 created: 2026-10-09
 updated: 2026-10-09
@@ -136,7 +136,7 @@ config/data; exit 1 unreadable config.
 ## 10. Tasks
 
 ### F-009.1 Path classification and success metrics
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: —
 
 `PathClass`, `classify_paths`, `SuccessMetrics` in `src/sbretire/metrics.py` (§2 #1–#3). Tests in
@@ -149,9 +149,13 @@ config/data; exit 1 unreadable config.
 
 **Notes**
 - 2026-10-09 Added `src/sbretire/metrics.py`: `PathClass`, `classify_paths` (depletion ≥ 0 → FAILED, else censored → UNRESOLVED, else SUCCESSFUL), `SuccessMetrics.from_outcomes` (bincount; conservative and completed rates with binomial SEs on their own denominators; None when nothing completed). Tests `tests/unit/test_metrics.py` (3). The red commit carried an unused variable flagged by ruff; removed here.
+- 2026-10-09 /verify PASS:
+  - metrics tests: 3 passed; concrete class lists, counts, rates and SEs
+  - independent probe, 1,000 random outcomes: counts 523/295/182, both rates and SEs on their own denominators match; all 74 depleted+censored paths FAILED; empty completed → None
+  - classification reads only depletion_month and censored (garbage in other fields changes nothing); ruff + mypy clean
 
 ### F-009.2 Random inputs and the Monte Carlo run
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-009.1
 
 `RandomInputs`, `draw_random_inputs`, `MonteCarloResult`, `run_monte_carlo` in `src/sbretire/monte_carlo.py`
@@ -166,9 +170,14 @@ config/data; exit 1 unreadable config.
 
 **Notes**
 - 2026-10-09 Added `src/sbretire/monte_carlo.py`: `RandomInputs` (seed, read-only death months, price index; `n_paths`), `draw_random_inputs` (`RandomStreams.from_seed` → `sample_death_months` + `build_price_index`, `simulation_count` paths), `MonteCarloResult`, `run_monte_carlo` (`ScenarioCashFlows` + `simulate_paths` + `SuccessMetrics`; never draws). Tests `tests/integration/test_monte_carlo.py` (5). Snapshot pinned after green from the code itself (regression, not an independent answer).
+- 2026-10-09 /verify PASS:
+  - Monte Carlo tests: 5 passed; snapshot is a regression pin with a mix of outcomes (725 / 203 / 1,072)
+  - hand-wired streams → sample_death_months + build_price_index + simulate_paths gives identical outcomes to run_monte_carlo (seed 3, 500 paths)
+  - CRN: budgets 2,000 / 3,000 / 5,000 on one RandomInputs — success monotone per path; death months read-only; run_monte_carlo makes no rng calls
+  - plausibility: deaths by month 240 0.5982 vs 1 − S 0.5977 (z 0.15); median index at month 120 1.2875 vs 1.2895 expected; no month × path history; ruff + mypy clean
 
 ### F-009.3 `sbretire run`
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-009.2
 
 `run` in `src/sbretire/__main__.py` (§2 #5–#6); README "Running the model" and "Reading the results"; THESAURUS path
@@ -183,6 +192,11 @@ terms; decision §7 already recorded with the brief. Tests in `tests/unit/test_c
 
 **Notes**
 - 2026-10-09 `sbretire run` implemented in `src/sbretire/__main__.py`: forces `require_data_files` (so the F-006/F-007 coverage checks run), loads the table, resolves the seed, draws once, runs, writes `run_metadata.json` with mortality + inflation records, prints `format_run_summary` (ASCII; rates to 2 dp, SEs to 3 dp so small SEs aren't shown as 0.00%). Tests `tests/unit/test_cli_run.py` (3); F-001's 'engine pending' check in `tests/unit/test_cli.py` replaced by `test_cli_run_rejects_invalid_config`. README 'Running the model' + 'Reading the results'; THESAURUS Censored/Completed/Depletion entries per §7. Timing: example config (100,000 paths, 100-year horizon) 3.4 s end to end; a 60-year-horizon personal config also 3.4 s (well under the 120 s budget).
+- 2026-10-09 /verify PASS:
+  - CLI tests: 12 passed
+  - example run: exit 0 in 3.44 s, ASCII; metadata seed/source, config hash and both data-file sha256s and versions match
+  - stress config (budget 11,000, 5,000 paths, 30 y): 1,838 / 471 / 2,691; conservative 36.76 % ± 0.682 % and completed 79.60 % ± 0.839 % match own recomputation; reruns identical apart from 'Wrote' line and created_at
+  - missing data → exit 2, nothing written; null seed → generated, printed seed = metadata seed; README sections and THESAURUS match §7; full gate 322 passed
 
 ## 11. Open Questions
 
