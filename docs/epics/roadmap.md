@@ -17,7 +17,7 @@ Features in build order. Status: `proposed` → `briefed` → `in-progress` → 
 | F-019 | End-of-Life Reserve Target | [v1-1-enhancements](v1-1-enhancements.md) | F-013 | done |
 | F-020 | Spend-At-Least-Income Option | [v1-1-enhancements](v1-1-enhancements.md) | F-013 | done |
 | F-021 | Named Runs and results.json | [results-viewer](results-viewer.md) | F-020 | in-progress |
-| F-022 | HTML Results Viewer | [results-viewer](results-viewer.md) | F-021 | proposed |
+| F-022 | HTML Results Viewer | [results-viewer](results-viewer.md) | F-021 | briefed |
 | F-005 | Random Streams and Run Metadata | [foundations](foundations.md) | F-001 | done |
 | F-006 | Stochastic Inflation Process and CPI Calibration | [stochastic-inputs](stochastic-inputs.md) | F-003, F-004, F-005 | done |
 | F-007 | ONS Mortality Data Ingest and Mapping | [stochastic-inputs](stochastic-inputs.md) | F-001 | done |
@@ -114,6 +114,7 @@ Unmapped requirements: **none**.
 
 ## Change Log
 
+- 2026-10-09 — F-022 briefed: tasks F-022.1 (Claude Design hand-off with a common CSS theme, to be determined), F-022.2 (choose the theme), F-022.3 (build the page).
 - 2026-10-09 — Added epic results-viewer (F-021 named runs + results.json + runs.js, F-022 HTML viewer after Claude Design); F-021 briefed: tasks F-021.1…F-021.3.
 - 2026-10-09 — F-020 done: `budget.spend_at_least_income` floors Required Spending at the month's income (opt-in); epic v1-1-enhancements delivered (F-016…F-020); 398 tests. CHANGELOG [Unreleased] lists V1.1.
 - 2026-10-09 — F-019 done: `budget.end_reserve_months` adds a reserve success line, a second maximum-budget table and `lifestyle_reserve_results.csv`; V1 outputs and config hashes unchanged at the default; 391 tests.
