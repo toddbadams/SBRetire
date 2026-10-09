@@ -21,6 +21,12 @@ from sbretire.metadata import build_run_metadata, write_run_metadata
 from sbretire.metrics import SuccessMetrics
 from sbretire.monte_carlo import draw_random_inputs, run_monte_carlo
 from sbretire.mortality import MortalityTableError, coverage_issues, load_mortality_table
+from sbretire.optimization import (
+    BUDGET_TOLERANCE,
+    BudgetResult,
+    maximum_sustainable_budgets,
+    path_budget_thresholds,
+)
 from sbretire.preview import format_preview_table, run_preview, write_preview_csv
 from sbretire.randomness import ResolvedSeed, resolve_seed
 
@@ -151,12 +157,49 @@ def _run(args: argparse.Namespace, loaded: LoadedScenario) -> int:
     scenario = loaded.scenario
     table = load_mortality_table(scenario.mortality.data_file, scenario.mortality)
     seed = resolve_seed(scenario.model.random_seed)
-    result = run_monte_carlo(scenario, draw_random_inputs(scenario, table, seed))
+    inputs = draw_random_inputs(scenario, table, seed)
+    result = run_monte_carlo(scenario, inputs)
+    budgets = maximum_sustainable_budgets(
+        path_budget_thresholds(scenario, inputs), scenario.model.confidence_levels
+    )
     records = [table.data_file_record(), inflation_data_file_record(scenario.inflation)]
     metadata_path = write_run_metadata(build_run_metadata(loaded, seed, records), args.output_dir)
     print(format_run_summary(args.config, scenario, seed, result.metrics))
+    print()
+    print(format_budget_table(budgets))
     print(f"Wrote {metadata_path}")
     return EXIT_OK
+
+
+def format_budget_table(results: Sequence[BudgetResult]) -> str:
+    """Plain-ASCII table of Maximum Sustainable Budgets, one row per confidence level (SPEC §14)."""
+    runs = results[0].iterations if results else 0
+    lines = [
+        f"Maximum sustainable budget (today's GBP; tolerance {BUDGET_TOLERANCE:,.0f} GBP/month; "
+        f"{runs} engine runs, same random paths for every budget):",
+        f"{'target':>6}  {'per month':>11}  {'per year':>12}  {'success +/- SE':>22}  "
+        f"{'unresolved':>10}  converged",
+    ]
+    for result in results:
+        target = f"{result.target_probability:.0%}"
+        if result.maximum_monthly_budget_today is None:
+            lines.append(f"{target:>6}  {result.note}")
+            continue
+        assert result.maximum_annual_budget_today is not None
+        assert result.estimated_success_probability is not None and result.standard_error is not None
+        success = f"{result.estimated_success_probability:.2%} +/- {result.standard_error:.3%}"
+        lines.append(
+            f"{target:>6}  {result.maximum_monthly_budget_today:>11,.0f}  "
+            f"{result.maximum_annual_budget_today:>12,.0f}  "
+            f"{success:>22}  {result.unresolved_fraction:>10.2%}  {'yes' if result.converged else 'no'}"
+        )
+        if result.note:
+            lines.append(f"{'':>6}  note: {result.note}")
+    lines.append(
+        "A target's budget is the most you can spend per month (rising with inflation) while that share of "
+        "simulated paths never runs out."
+    )
+    return "\n".join(lines)
 
 
 def format_run_summary(config: Path, scenario: Scenario, seed: ResolvedSeed, metrics: SuccessMetrics) -> str:

@@ -126,6 +126,25 @@ The `+/-` figure is one Monte Carlo standard error: √(p(1−p)/N), with the de
 measures simulation noise only, so more paths shrink it. It is **not** a confidence interval and says nothing about
 whether the assumptions are right. A "95 % confidence level" in this model means "95 % of simulated paths succeed".
 
+### Maximum sustainable budget
+
+After the summary, `run` prints one row per `model.confidence_levels` target. Each row gives the **Maximum
+sustainable budget**: the largest monthly budget in today's GBP (rising with inflation each month) at which at
+least that share of simulated paths succeeds, using the conservative rate.
+
+- Every candidate budget is tested against the same simulated futures (common random numbers), so the results
+  differ only because the budget differs.
+- The search finds each path's own break-even budget to within £1/month (`docs/decisions/optimization.md` §1).
+  The reported budget is the feasible end of that range, and it is re-checked with one run at that exact budget.
+  The success rate and its standard error come from that check.
+- If too many paths still have someone alive at the horizon, a target can be **infeasible**: even spending nothing
+  can't reach it. The row says so instead of showing a number. A row whose search reached the £1,000,000/month
+  cap is marked as not converged.
+- Expect about 25 engine runs, under a minute for 100,000 paths.
+
+These figures are model estimates from your assumptions (fixed return, no tax, simulated inflation and lifetimes).
+They are not financial advice and not a guarantee.
+
 ## Preview (deterministic illustration)
 
 `sbretire preview --config config/model.yaml --death-ages 88,92` runs **one** household future and prints a

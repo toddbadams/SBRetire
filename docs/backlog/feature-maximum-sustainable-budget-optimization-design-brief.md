@@ -151,15 +151,18 @@ Optional `monthly_budget_today` (scalar or (n_paths,)) through `ScenarioSpending
 - 2026-10-09 Added `src/sbretire/optimization.py`: `BUDGET_TOLERANCE` (£1), `BUDGET_CAP` (£1M), `ThresholdSearch`, `path_budget_thresholds` (doubling expansion from max(2 × Budget, £1,000) until every completed-by-death path fails or the cap; vectorised per-path bisection to ≤ £1; thresholds = feasible end, −inf for paths with someone alive at the horizon), `BudgetResult`, `maximum_sustainable_budgets` (k = ⌈p·N⌉-th largest threshold; confirming run at B* for rate, SE and unresolved share; infeasible and cap notes). Tests `tests/integration/test_optimization.py` (6, incl. a literal scalar bisection reference).
 
 ### F-010.3 `sbretire run` shows the maximum sustainable budgets
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-010.2
 
 `run` adds a table (one row per confidence level) after the F-009 summary; README; timing.
 
 **Acceptance criteria**
-- [ ] `run` prints, per confidence level: target, B* per month and per year (today's GBP), estimated success ± SE, unresolved share, converged, iterations; infeasible targets say so; ASCII — `test_cli_run_prints_maximum_budgets`
-- [ ] Example config (100,000 paths) completes with the optimisation in under 300 s; elapsed recorded in Notes — `check: time uv run sbretire run --config config/model.example.yaml --output-dir <tmp>`
-- [ ] README documents the Maximum Sustainable Budget, the tolerance, infeasible targets and that it is not advice — `check: grep -n "Maximum sustainable budget" README.md`
+- [x] `run` prints, per confidence level: target, B* per month and per year (today's GBP), estimated success ± SE, unresolved share, converged, iterations; infeasible targets say so; ASCII — `test_cli_run_prints_maximum_budgets`
+- [x] Example config (100,000 paths) completes with the optimisation in under 300 s; elapsed recorded in Notes — `check: time uv run sbretire run --config config/model.example.yaml --output-dir <tmp>`
+- [x] README documents the Maximum Sustainable Budget, the tolerance, infeasible targets and that it is not advice — `check: grep -n "Maximum sustainable budget" README.md`
+
+**Notes**
+- 2026-10-09 `run` now reuses one `RandomInputs` for the summary run, `path_budget_thresholds` and `maximum_sustainable_budgets(model.confidence_levels)`, printing `format_budget_table` (target, per month, per year, success ± SE, unresolved, converged; infeasible rows print the note; ASCII). Test `test_cli_run_prints_maximum_budgets`. README 'Maximum sustainable budget' section. Timing: example config (100,000 paths, 100-year horizon) 44.1 s with 27 engine runs; a 60-year-horizon personal config 46.4 s with 25 runs — both under the 300 s budget.
 
 ## 11. Open Questions
 
