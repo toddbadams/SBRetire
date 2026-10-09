@@ -18,6 +18,9 @@ hashes are unchanged unless you switch them on.
   `lifestyle_reserve_results.csv` (F-019).
 - **Spend at least income:** `budget.spend_at_least_income: true` makes each month's spending at least that month's
   income, so surplus income is spent rather than saved (F-020).
+- **Named runs and results.json:** every run writes `results.json` (validated by `schemas/results.schema.json`).
+  `--name` keeps each run in `output/runs/<name>/` (refused if it exists, unless `--overwrite`), and
+  `output/runs/index.json` plus `runs.js` collect every named run for an offline web page (F-021).
 
 ## [1.0.0] - 2026-10-09
 

@@ -166,15 +166,18 @@ in `reporting.py`, `schemas/results.schema.json`, `jsonschema` dev dependency; `
   - notes (fixed in B-021.1): Windows reserved names (CON, COM1 accepted; nul refused as "already exists"); --overwrite deletes old outputs before computing
 
 ### F-021.3 Design sample and docs
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-021.2
 
 `scripts/build_design_sample.py`, `docs/design/sample/runs/` (two runs of the example config), README (named runs,
 results.json, viewer data), CHANGELOG. The Claude Design hand-off document moved to F-022.1 (user, 2026-10-09).
 
 **Acceptance criteria**
-- [ ] The committed sample has two runs whose `results.json` validate against the schema, `runs.js` matches them, and every input value comes from `config/model.example.yaml` (no other config) — `test_design_sample_is_valid_example_data`
-- [ ] README documents `--name`, `--overwrite`, `results.json`, `index.json` and `runs.js` — `check: grep -n "\-\-overwrite" README.md`
+- [x] The committed sample has two runs whose `results.json` validate against the schema, `runs.js` matches them, and every input value comes from `config/model.example.yaml` (no other config) — `test_design_sample_is_valid_example_data`
+- [x] README documents `--name`, `--overwrite`, `results.json`, `index.json` and `runs.js` — `check: grep -n "\-\-overwrite" README.md`
+
+**Notes**
+- 2026-10-09 `scripts/build_design_sample.py` runs the example config twice (`example-base`; `example-4pct-reserve` with 4 % and a 12-month reserve) at its full 100,000 paths into a temp dir and keeps only each `results.json` + rebuilt `index.json`/`runs.js` in `docs/design/sample/runs/` (~130 KB runs.js). README `## Named runs and results.json` + Outputs row; CHANGELOG entry. Test `test_design_sample_is_valid_example_data`.
 
 ### B-021.1 Reserved Windows run names and overwrite timing
 - **Status**: Verification

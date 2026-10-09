@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "runs": [
+    {
+      "name": "example-4pct-reserve",
+      "created_at": "2026-10-09T17:48:06Z",
+      "config_file": "model.example.yaml",
+      "paths": 100000,
+      "monthly_budget_today": 6667.0,
+      "annual_return": 0.04,
+      "conservative_success_rate": 1.0,
+      "conservative_standard_error": 0.0,
+      "first_target_probability": 0.9,
+      "first_target_maximum_monthly_budget_today": 10172.22
+    },
+    {
+      "name": "example-base",
+      "created_at": "2026-10-09T17:45:59Z",
+      "config_file": "model.example.yaml",
+      "paths": 100000,
+      "monthly_budget_today": 6667.0,
+      "annual_return": 0.05,
+      "conservative_success_rate": 1.0,
+      "conservative_standard_error": 0.0,
+      "first_target_probability": 0.9,
+      "first_target_maximum_monthly_budget_today": 10751.67
+    }
+  ]
+}

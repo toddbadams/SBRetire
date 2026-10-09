@@ -230,6 +230,33 @@ fixed annual return (nominal, after fees, earned every year) at which each confi
 Required returns are model outputs under a fixed-return assumption. They are not forecasts of what markets will
 deliver. The return search adds about 16 engine runs.
 
+## Named runs and results.json
+
+Give a run a name to keep it alongside others, for example to compare return assumptions:
+
+```bash
+uv run sbretire run --config config/model.yaml --name base-4pct
+uv run sbretire run --config config/model-3pct.yaml --name stress-3pct
+```
+
+- A named run writes all its files to `output/runs/<name>/` instead of `output/`. Names are 1–64 letters, digits,
+  `-` or `_`, starting with a letter or digit, and not a Windows device name such as `CON` or `NUL`.
+- Re-using a name is refused (exit 2) before anything is computed. Add `--overwrite` to replace that run; its old
+  files are removed only once the new results are ready, so a failed rerun leaves the old run in place.
+- Every run, named or not, also writes **`results.json`**: all of the run's results in one file (inputs, summary,
+  budget, reserve and return tables, annual rows and column notes). Its structure is fixed by
+  `schemas/results.schema.json` (`schema_version` `"1.0"`), and its numbers match the CSVs, including their
+  cautious rounding. In `returns`, the success figures at the required return are named
+  `*_at_required_return`, so they can't be confused with the configured-return columns of
+  `sustainability_results.csv`.
+- After each named run, `output/runs/index.json` (one line per run: name, date, headline figures) and
+  `output/runs/runs.js` are rebuilt from every run folder on disk. `runs.js` sets `window.SBRETIRE_RUNS`, so a
+  web page opened straight from disk (`file://`) can load every run with a `<script>` tag. Delete a run's folder to
+  drop it at the next named run.
+- `results.json` holds names, dates of birth and amounts from your config. `output/` is git-ignored; keep it that
+  way. `docs/design/sample/runs/` holds a sample built only from `config/model.example.yaml`
+  (`uv run python scripts/build_design_sample.py`).
+
 ## Preview (deterministic illustration)
 
 `sbretire preview --config config/model.yaml --death-ages 88,92` runs **one** household future and prints a
@@ -272,6 +299,7 @@ component never shifts the other's draws. Rules in `docs/decisions/simulation-co
 | `lifestyle_results.csv` | Maximum sustainable budget per confidence level (SPEC §14) |
 | `lifestyle_reserve_results.csv` | Only with `budget.end_reserve_months` > 0: the same, leaving the end-of-life reserve |
 | `run_metadata.json` | Seed, version, config hash, data-file versions/hashes (SPEC §10.3) |
+| `results.json` | Every result of the run in one JSON file for web pages (`schemas/results.schema.json`) |
 | `results_guide.md` | A plain-English guide to this run: your results, how each figure was calculated (with your numbers), the assumptions and limitations, every column of every file, and the inputs |
 
 All CSVs share the same format:
