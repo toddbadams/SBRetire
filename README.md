@@ -23,6 +23,7 @@ uv sync
 ```bash
 cp config/model.example.yaml config/model.yaml   # then edit your own assumptions
 uv run sbretire validate --config config/model.yaml
+uv run sbretire preview --config config/model.yaml --death-ages 88,92
 uv run sbretire run --config config/model.yaml --output-dir output
 ```
 
@@ -57,6 +58,21 @@ Income streams (full rules in `docs/decisions/configuration.md` §4–§5):
   from `start_date` if the recipient died before the stream started.
 - `recipient: household` marks income owned by the household (e.g. rent, a joint annuity): paid in full while both
   are alive and × `survivor_percentage` once one has died. `household` cannot be used as a person `id`.
+
+## Preview (deterministic illustration)
+
+`sbretire preview --config config/model.yaml --death-ages 88,92` runs **one** household future and prints a
+year-by-year table, then writes `output/preview.csv` (`--output-dir` to change). It is a **deterministic
+illustration, not a sustainability estimate**: there is no randomness and no probability of success.
+
+- `--death-ages A,B` — age at death for each person, in the config's `people` order; each person is dead from the
+  start of the month of that birthday. Ages at or below someone's current age are rejected.
+- Inflation is constant at `inflation.annual_mean`, stepping once a year on as-of anniversaries; the return is the
+  fixed `portfolio.annual_return`.
+- One row per calendar year (the first and last may be partial): `income`, `spending`, `investment_return`,
+  `net_withdrawal` (spending − income) and `balance_end` in nominal GBP, `balance_end_today` deflated to today's
+  GBP, and the `price_index`. In the month money runs out, `spending` shows what was needed; the unpaid part is the
+  shortfall in the summary.
 
 ## Outputs (V1)
 

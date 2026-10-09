@@ -3,6 +3,7 @@
 Subcommands:
     validate  check a scenario YAML and print a one-line summary (exit 0), every issue (exit 2),
               or an unreadable-file error (exit 1)
+    preview   deterministic year-by-year illustration with chosen death ages (F-015)
     run       validate, then run the model (engine arrives with F-013)
 """
 
@@ -15,6 +16,7 @@ from pathlib import Path
 
 from sbretire import __version__
 from sbretire.config import LoadedScenario, ScenarioError, load_scenario
+from sbretire.preview import format_preview_table, run_preview, write_preview_csv
 
 EXIT_OK, EXIT_FAILURE, EXIT_INVALID = 0, 1, 2
 
@@ -33,10 +35,46 @@ def build_parser() -> argparse.ArgumentParser:
         "--require-data-files", action="store_true", help="also fail if referenced data files are missing"
     )
 
+    preview = commands.add_parser(
+        "preview", help="year-by-year illustration for chosen death ages (not a sustainability result)"
+    )
+    preview.add_argument("--config", type=Path, required=True, help="scenario YAML file")
+    preview.add_argument(
+        "--death-ages",
+        type=_death_ages,
+        required=True,
+        metavar="A,B",
+        help="age at death for each person, in the config's people order (e.g. 88,92)",
+    )
+    preview.add_argument(
+        "--output-dir", type=Path, default=Path("output"), help="where preview.csv is written"
+    )
+
     run = commands.add_parser("run", help="validate a scenario and run the model")
     run.add_argument("--config", type=Path, required=True, help="scenario YAML file")
     run.add_argument("--output-dir", type=Path, default=Path("output"), help="CSV output directory")
     return parser
+
+
+def _death_ages(text: str) -> tuple[int, int]:
+    parts = [part.strip() for part in text.split(",")]
+    if len(parts) != 2 or not all(part.isdigit() for part in parts):
+        raise argparse.ArgumentTypeError(f"expected two whole-number ages like 88,92 (got {text!r})")
+    return int(parts[0]), int(parts[1])
+
+
+def _preview(args: argparse.Namespace, loaded: LoadedScenario) -> int:
+    try:
+        result = run_preview(loaded.scenario, args.death_ages)
+    except ValueError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return EXIT_INVALID
+    print(format_preview_table(result, loaded.scenario, args.death_ages))
+    csv_path = args.output_dir / "preview.csv"
+    write_preview_csv(result, csv_path)
+    print()
+    print(f"Wrote {csv_path}")
+    return EXIT_OK
 
 
 def _load(config: Path, *, require_data_files: bool) -> LoadedScenario | int:
@@ -73,6 +111,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.command == "validate":
         print(_summary(args.config, loaded))
         return EXIT_OK
+    if args.command == "preview":
+        return _preview(args, loaded)
     print(
         "error: simulation engine not implemented yet; see docs/epics/roadmap.md for the build plan.",
         file=sys.stderr,

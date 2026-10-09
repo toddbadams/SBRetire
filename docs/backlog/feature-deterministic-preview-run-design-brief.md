@@ -170,17 +170,21 @@ Task format and statuses: `docs/project-sdlc.md` §2. Definition of done: `docs/
 - 2026-10-09: `src/sbretire/preview.py` — `run_preview` wraps `ScenarioCashFlows` in `_RecordingCashFlows` and records each simulated month via the engine observer (income, spending, opening × r_m, closing balance, alive, index), then groups by calendar year (`_by_calendar_year`, `_year_row`). `src/sbretire/timeline.py` gains `month_start` (inverse of `month_index`, with round-trip tests). Tests: 5 in `tests/unit/test_preview.py`, 2 in `tests/unit/test_timeline.py`.
 
 ### F-015.3 Preview command, table and CSV
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-015.2
 
 `format_preview_table`, `write_preview_csv` in `src/sbretire/preview.py`; `preview` subcommand in
 `src/sbretire/__main__.py` (brief §2 #7–#9); README and CLAUDE.md. Tests in `tests/unit/test_cli_preview.py`.
 
 **Acceptance criteria**
-- [ ] `sbretire preview` prints the illustration banner, the table and the summary, writes `preview.csv`, exits 0 — `test_cli_preview_prints_table_and_writes_csv`
-- [ ] The CSV has the exact header, one row per year, `.` decimals and no thousands separators or currency symbols — `test_preview_csv_format`
-- [ ] Wrong `--death-ages` (count, non-integer, at or below current age) exits 2 with a message; an invalid config exits 2; a missing config exits 1 — `test_cli_preview_rejects_bad_arguments`
-- [ ] README documents the preview and its illustration-only status — `check: grep -n "sbretire preview" README.md`
+- [x] `sbretire preview` prints the illustration banner, the table and the summary, writes `preview.csv`, exits 0 — `test_cli_preview_prints_table_and_writes_csv`
+- [x] The CSV has the exact header, one row per year, `.` decimals and no thousands separators or currency symbols — `test_preview_csv_format`
+- [x] Wrong `--death-ages` (count, non-integer, at or below current age) exits 2 with a message; an invalid config exits 2; a missing config exits 1 — `test_cli_preview_rejects_bad_arguments`
+- [x] README documents the preview and its illustration-only status — `check: grep -n "sbretire preview" README.md`
+
+**Notes**
+- 2026-10-09: `src/sbretire/preview.py` — `format_preview_table(result, scenario, death_ages)` (takes `death_ages` too, to show each person's death month; brief §5 listed two parameters) and `write_preview_csv` (csv module, 2-dp money, 6-dp index, blank ages after death). `src/sbretire/__main__.py` — `preview` subcommand with `_death_ages` argparse type (two whole numbers) and `_preview` (ValueError from out-of-range ages → exit 2). The banner uses an ASCII hyphen ("DETERMINISTIC ILLUSTRATION - not a sustainability estimate") because CLI output is ASCII-only (F-001.4). README "Preview" section and CLAUDE.md command added. Smoke run on `config/model.example.yaml --death-ages 88,92`: 36 rows 2026–2061, money lasts, household end 2061-05. Tests: `tests/unit/test_cli_preview.py` (7).
+
 
 ## 11. Open Questions
 

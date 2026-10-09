@@ -5,8 +5,10 @@ A **deterministic illustration**, never a sustainability estimate (SPEC §14).
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+import csv
+from dataclasses import asdict, dataclass
 from datetime import date
+from pathlib import Path
 
 import numpy as np
 from numpy.typing import NDArray
@@ -173,3 +175,86 @@ def _year_row(scenario: Scenario, year: int, months: list[_MonthRecord]) -> Prev
         balance_end_today=last.balance / last.price_index,
         price_index=last.price_index,
     )
+
+
+BANNER = "DETERMINISTIC ILLUSTRATION - not a sustainability estimate"
+CSV_COLUMNS = (
+    "year",
+    "months",
+    "age_person_1",
+    "age_person_2",
+    "income",
+    "spending",
+    "investment_return",
+    "net_withdrawal",
+    "balance_end",
+    "balance_end_today",
+    "price_index",
+)
+_MONEY = ("income", "spending", "investment_return", "net_withdrawal", "balance_end", "balance_end_today")
+
+
+def format_preview_table(result: PreviewResult, scenario: Scenario, death_ages: tuple[int, int]) -> str:
+    """Human-readable preview: banner, assumptions, calendar-year table and summary (ASCII only)."""
+    as_of = scenario.model.as_of_date
+    deaths = death_months_from_ages(scenario, death_ages)[:, 0]
+    people = ", ".join(
+        f"{person.name} dies at {age} (from {month_start(as_of, int(month)):%Y-%m})"
+        for person, age, month in zip(scenario.people, death_ages, deaths, strict=True)
+    )
+    lines = [
+        BANNER,
+        f"As-of {as_of:%Y-%m}; {people}.",
+        f"Inflation {scenario.inflation.annual_mean:.2%}/yr (constant); "
+        f"return {scenario.portfolio.annual_return:.2%}/yr (fixed). "
+        "Money in nominal GBP unless marked 'today'.",
+        "",
+        f"{'year':>4} {'mo':>2} {'age1':>4} {'age2':>4} {'income':>12} {'spending':>12} {'return':>12}"
+        f" {'net_withdrawal':>14} {'balance_end':>14} {'balance_end_today':>17} {'index':>7}",
+    ]
+    for row in result.rows:
+        age1 = "-" if row.age_person_1 is None else str(row.age_person_1)
+        age2 = "-" if row.age_person_2 is None else str(row.age_person_2)
+        lines.append(
+            f"{row.year:>4} {row.months:>2} {age1:>4} {age2:>4} {row.income:>12,.0f} {row.spending:>12,.0f}"
+            f" {row.investment_return:>12,.0f} {row.net_withdrawal:>14,.0f} {row.balance_end:>14,.0f}"
+            f" {row.balance_end_today:>17,.0f} {row.price_index:>7.4f}"
+        )
+    lines.append("")
+    if result.depletion_date is None:
+        lines.append("Money lasts: never runs out while either person is alive in this illustration.")
+    else:
+        lines.append(
+            f"Money runs out: {result.depletion_date:%Y-%m} (month {result.depletion_month}),"
+            f" shortfall {result.shortfall:,.2f} that month."
+        )
+    if result.household_end_date is None:
+        horizon_end = month_start(as_of, scenario.model.horizon_years * 12)
+        lines.append(f"Household end: someone is still alive at the horizon ({horizon_end:%Y-%m}).")
+    else:
+        lines.append(f"Household end: {result.household_end_date:%Y-%m}.")
+    lines.append(
+        f"Final balance: {result.final_balance:,.0f} nominal "
+        f"({result.final_balance_today:,.0f} in today's GBP)."
+    )
+    return "\n".join(lines)
+
+
+def write_preview_csv(result: PreviewResult, path: Path) -> None:
+    """Write the yearly rows as UTF-8 CSV (header first, '.' decimals, no separators or symbols; SPEC §15)."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.writer(handle, lineterminator="\n")
+        writer.writerow(CSV_COLUMNS)
+        for row in result.rows:
+            values = asdict(row)
+            writer.writerow(
+                [
+                    f"{values[name]:.2f}"
+                    if name in _MONEY
+                    else f"{values[name]:.6f}"
+                    if name == "price_index"
+                    else ("" if values[name] is None else values[name])
+                    for name in CSV_COLUMNS
+                ]
+            )
