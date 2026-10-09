@@ -191,7 +191,7 @@ inflation:
 - 2026-10-09 `InflationAssumptions` reshaped (`source_period` YYYY-YYYY with `first_year`/`last_year`, `data_file` resolved like mortality and checked by `--require-data-files`, `model: ar1_lognormal`, `parameter_units: log_annual`, `log_mean`, `ar1_coefficient` ∈ (−1, 1), `innovation_sd` ≥ 0, `initial_rate` > −1; old keys now unknown). `Ar1LognormalParams`, `fit_ar1_lognormal`, `load_cpi_series`, `calibrate_inflation` in `src/sbretire/inflation.py`; `scripts/calibrate_inflation.py` prints the block (incl. relative `data_file`). Config Hash excludes `inflation.data_file`. Migrated example config, fixture, preview (constant median rate e^μ − 1, still annual step until F-006.4) and tests (config fields/loading, preview, mortality CLI). Personal `config/model.yaml` migrated locally (git-ignored) and validates. Tests: `tests/unit/test_inflation_calibration.py` (4), `tests/tooling/test_calibrate_inflation.py` (1), +14 config cases.
 
 ### F-006.3 AR(1) draws and StochasticPriceIndex
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-006.2
 
 `draw_annual_rates` and `StochasticPriceIndex` (§2 #2, #7, #9, #10) in `src/sbretire/inflation.py`. Tests in

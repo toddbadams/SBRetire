@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Protocol
 
 import numpy as np
+from numpy.typing import NDArray
 
 from sbretire.config import InflationAssumptions
 from sbretire.portfolio import FloatArray
@@ -147,3 +148,21 @@ def calibrate_inflation(inflation: InflationAssumptions) -> Ar1LognormalParams:
             f"{inflation.data_file.name} lacks years {missing} from source_period {inflation.source_period}"
         )
     return fit_ar1_lognormal([rates[year] for year in period])
+
+
+def draw_annual_rates(
+    rng: np.random.Generator, params: Ar1LognormalParams, n_paths: int, n_years: int
+) -> NDArray[np.float64]:
+    raise NotImplementedError
+
+
+class StochasticPriceIndex:
+    def __init__(self, annual_rates: NDArray[np.float64]) -> None:
+        raise NotImplementedError
+
+    @classmethod
+    def constant(cls, n_paths: int, n_years: int, annual_rate: float) -> StochasticPriceIndex:
+        raise NotImplementedError
+
+    def level(self, month: int) -> FloatArray:
+        raise NotImplementedError
