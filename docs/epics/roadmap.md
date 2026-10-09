@@ -16,7 +16,7 @@ Features in build order. Status: `proposed` → `briefed` → `in-progress` → 
 | F-018 | Results Guide (columns, calculations, assumptions) | [v1-1-enhancements](v1-1-enhancements.md) | F-017 | done |
 | F-019 | End-of-Life Reserve Target | [v1-1-enhancements](v1-1-enhancements.md) | F-013 | done |
 | F-020 | Spend-At-Least-Income Option | [v1-1-enhancements](v1-1-enhancements.md) | F-013 | done |
-| F-021 | Named Runs and results.json | [results-viewer](results-viewer.md) | F-020 | briefed |
+| F-021 | Named Runs and results.json | [results-viewer](results-viewer.md) | F-020 | in-progress |
 | F-022 | HTML Results Viewer | [results-viewer](results-viewer.md) | F-021 | proposed |
 | F-005 | Random Streams and Run Metadata | [foundations](foundations.md) | F-001 | done |
 | F-006 | Stochastic Inflation Process and CPI Calibration | [stochastic-inputs](stochastic-inputs.md) | F-003, F-004, F-005 | done |

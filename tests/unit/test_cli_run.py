@@ -286,6 +286,7 @@ OUTPUT_FILES = (
     "lifestyle_results.csv",
     "run_metadata.json",
     "results_guide.md",
+    "results.json",
 )
 
 
@@ -456,6 +457,26 @@ def test_cli_run_spend_at_least_income(
     assert (out_dir / "sustainability_results.csv").read_bytes() == (
         expected / "sustainability.csv"
     ).read_bytes()
+
+
+def _strict_json(path: Path) -> Any:
+    def reject(constant: str) -> None:
+        raise ValueError(f"non-JSON constant {constant}")
+
+    return json.loads(path.read_text(encoding="utf-8"), parse_constant=reject)
+
+
+def test_cli_run_writes_results_json(tmp_path: Path, valid_raw: dict[str, Any]) -> None:
+    config = _write(tmp_path / "json", set_at(_absolute_data(valid_raw), "model.confidence_levels", [0.9]))
+    for name in ("first", "second"):
+        assert main(["run", "--config", str(config), "--output-dir", str(tmp_path / name)]) == 0
+    first = _strict_json(tmp_path / "first" / "results.json")
+    second = _strict_json(tmp_path / "second" / "results.json")
+    assert (tmp_path / "first" / "annual_results.csv").is_file()
+    assert first["run"]["name"] is None and first["summary"]["n_paths"] == 1_000
+    first["run"].pop("created_at")
+    second["run"].pop("created_at")
+    assert first == second
 
 
 def test_cli_run_csvs_reproducible(tmp_path: Path, valid_raw: dict[str, Any]) -> None:

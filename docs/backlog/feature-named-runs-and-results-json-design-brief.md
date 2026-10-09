@@ -2,7 +2,7 @@
 id: F-021
 type: feature
 parent: results-viewer
-status: planned
+status: in-progress
 complexity: 5
 created: 2026-10-09
 updated: 2026-10-09
@@ -119,7 +119,7 @@ def refresh_runs_index(runs_dir: Path) -> tuple[Path, Path]: ...  # index.json, 
 ## 10. Tasks
 
 ### F-021.1 results.json and its schema
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: —
 
 `src/sbretire/results_json.py` (`build_results`, `write_results_json`, `SCHEMA_VERSION`), numeric rounding helpers
