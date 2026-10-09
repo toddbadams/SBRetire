@@ -31,6 +31,7 @@ from sbretire.randomness import ResolvedSeed
 from sbretire.reporting import (
     annual_results,
     write_annual_results_csv,
+    write_lifestyle_reserve_results_csv,
     write_lifestyle_results_csv,
     write_sustainability_results_csv,
 )
@@ -362,6 +363,68 @@ def test_cli_run_writes_results_guide(
     )
     expected = write_results_guide(context, tmp_path / "expected.md")
     assert guide.read_bytes() == expected.read_bytes()
+
+
+def _section_of(out: str, title: str) -> str:
+    start = out.index(title)
+    end = out.find("\n\n", start)
+    return out[start:] if end < 0 else out[start:end]
+
+
+def test_cli_run_reserve_table_and_csv(
+    tmp_path: Path, valid_raw: dict[str, Any], capsys: pytest.CaptureFixture[str]
+) -> None:
+    raw = set_at(_absolute_data(valid_raw), "model.confidence_levels", [0.5, 0.9])
+    plain = _write(tmp_path / "plain", raw)
+    reserve = _write(tmp_path / "reserve", set_at(raw, "budget.end_reserve_months", 12))
+    assert main(["run", "--config", str(plain), "--output-dir", str(tmp_path / "out_plain")]) == 0
+    capsys.readouterr()
+    out_dir = tmp_path / "out_reserve"
+    assert main(["run", "--config", str(reserve), "--output-dir", str(out_dir)]) == 0
+    out = capsys.readouterr().out
+    assert out.isascii()
+
+    scenario = load_scenario(reserve).scenario
+    inputs = draw_random_inputs(
+        scenario, load_mortality_table(scenario.mortality.data_file), ResolvedSeed(7, "config")
+    )
+    metrics = run_monte_carlo(scenario, inputs, end_reserve_months=12).metrics
+    assert (
+        f"Conservative success rate leaving a 12-month reserve {metrics.conservative_success_rate:.2%} "
+        f"+/- {metrics.conservative_standard_error:.3%}" in out
+    )
+    expected = maximum_sustainable_budgets(
+        path_budget_thresholds(scenario, inputs, end_reserve_months=12), [0.5, 0.9]
+    )
+    table = _section_of(out, "Maximum sustainable budget leaving a 12-month reserve")
+    for result in expected:
+        assert result.maximum_monthly_budget_today is not None
+        row = next(
+            line
+            for line in table.splitlines()
+            if line.lstrip().startswith(f"{result.target_probability:.0%}")
+        )
+        assert f"{math.floor(result.maximum_monthly_budget_today):,}" in row
+    assert out.index("Maximum sustainable budget (") < out.index("leaving a 12-month reserve (")
+
+    written = out_dir / "lifestyle_reserve_results.csv"
+    assert f"Wrote {written}" in out
+    expected_csv = write_lifestyle_reserve_results_csv(expected, 12, tmp_path / "expected.csv")
+    assert written.read_bytes() == expected_csv.read_bytes()
+    for name in ("annual_results.csv", "sustainability_results.csv", "lifestyle_results.csv"):
+        assert (out_dir / name).read_bytes() == (tmp_path / "out_plain" / name).read_bytes(), name
+
+
+def test_cli_run_no_reserve_outputs_by_default(
+    tmp_path: Path, valid_raw: dict[str, Any], capsys: pytest.CaptureFixture[str]
+) -> None:
+    config = _write(tmp_path / "default", set_at(_absolute_data(valid_raw), "model.confidence_levels", [0.9]))
+    out_dir = tmp_path / "out"
+    assert main(["run", "--config", str(config), "--output-dir", str(out_dir)]) == 0
+    out = capsys.readouterr().out
+    assert "month reserve" not in out
+    assert not (out_dir / "lifestyle_reserve_results.csv").exists()
+    assert not (out_dir / "results_guide.md").read_text(encoding="utf-8").count("month reserve")
 
 
 def test_cli_run_csvs_reproducible(tmp_path: Path, valid_raw: dict[str, Any]) -> None:

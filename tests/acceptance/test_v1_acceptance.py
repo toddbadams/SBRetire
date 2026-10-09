@@ -132,7 +132,7 @@ def test_readme_covers_v1_sections() -> None:
         "survivor_budget_factor", "source_period", "data_file", "log_mean", "ar1_coefficient",
         "innovation_sd", "initial_rate", "geography", "projection", "date_of_birth", "sex", "start_date",
         "end_date",
-        "annual_amount_today", "inflation_linked", "survivor_percentage", "recipient",
+        "annual_amount_today", "inflation_linked", "survivor_percentage", "recipient", "end_reserve_months",
     )  # fmt: skip
     for key in config_keys:
         assert f"`{key}`" in readme, key
@@ -181,7 +181,12 @@ def _readme_table(readme: str, file_name: str) -> str:
 
 def test_readme_documents_every_output_column() -> None:
     from sbretire.inputs_report import INPUT_COLUMNS
-    from sbretire.reporting import ANNUAL_COLUMNS, LIFESTYLE_COLUMNS, SUSTAINABILITY_COLUMNS
+    from sbretire.reporting import (
+        ANNUAL_COLUMNS,
+        LIFESTYLE_COLUMNS,
+        LIFESTYLE_RESERVE_COLUMNS,
+        SUSTAINABILITY_COLUMNS,
+    )
 
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     for file_name, columns in (
@@ -189,6 +194,7 @@ def test_readme_documents_every_output_column() -> None:
         ("sustainability_results.csv", SUSTAINABILITY_COLUMNS),
         ("lifestyle_results.csv", LIFESTYLE_COLUMNS),
         ("inputs.csv", INPUT_COLUMNS),
+        ("lifestyle_reserve_results.csv", LIFESTYLE_RESERVE_COLUMNS),
     ):
         table = _readme_table(readme, file_name)
         missing = [column for column in columns if f"`{column}`" not in table]

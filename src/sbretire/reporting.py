@@ -356,3 +356,12 @@ def write_sustainability_results_csv(
         for result in returns
     ]
     return _write_rows(path, SUSTAINABILITY_COLUMNS, rows)
+
+
+LIFESTYLE_RESERVE_COLUMNS: Final = ("end_reserve_months", *LIFESTYLE_COLUMNS)
+
+
+def write_lifestyle_reserve_results_csv(
+    results: Sequence[BudgetResult], end_reserve_months: int, path: Path
+) -> Path:
+    raise NotImplementedError

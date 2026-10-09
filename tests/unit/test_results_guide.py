@@ -7,6 +7,7 @@ no-solution return row.
 
 from __future__ import annotations
 
+import dataclasses
 import math
 import re
 from pathlib import Path
@@ -21,7 +22,13 @@ from sbretire.optimization import (
     path_return_thresholds,
     required_returns,
 )
-from sbretire.reporting import ANNUAL_COLUMNS, LIFESTYLE_COLUMNS, SUSTAINABILITY_COLUMNS, round_return_up
+from sbretire.reporting import (
+    ANNUAL_COLUMNS,
+    LIFESTYLE_COLUMNS,
+    LIFESTYLE_RESERVE_COLUMNS,
+    SUSTAINABILITY_COLUMNS,
+    round_return_up,
+)
 from sbretire.results_guide import COLUMN_GUIDE, GuideContext, results_guide_markdown
 
 from annual_fixtures import seeded
@@ -64,6 +71,7 @@ def test_column_guide_matches_csv_columns() -> None:
         "annual_results.csv": ANNUAL_COLUMNS,
         "sustainability_results.csv": SUSTAINABILITY_COLUMNS,
         "lifestyle_results.csv": LIFESTYLE_COLUMNS,
+        "lifestyle_reserve_results.csv": LIFESTYLE_RESERVE_COLUMNS,
     }
     assert set(COLUMN_GUIDE) == set(expected)
     for file_name, columns in expected.items():
@@ -147,3 +155,29 @@ def test_results_guide_sections_columns_and_inputs() -> None:
     for row in context.input_rows:
         assert f"`{row.item}`" in inputs, row.item
         assert row.value in inputs, row.item
+
+
+def test_results_guide_reserve_section() -> None:
+    plain = _context()
+    assert "month reserve" not in results_guide_markdown(plain)
+
+    scenario, inputs = seeded(300, 3_000)
+    scenario = scenario.model_copy(
+        update={"budget": scenario.budget.model_copy(update={"end_reserve_months": 12})}
+    )
+    reserve_metrics = run_monte_carlo(scenario, inputs, end_reserve_months=12).metrics
+    reserve_budgets = maximum_sustainable_budgets(
+        path_budget_thresholds(scenario, inputs, end_reserve_months=12), scenario.model.confidence_levels
+    )
+    context = dataclasses.replace(
+        plain, scenario=scenario, reserve_metrics=reserve_metrics, reserve_budgets=reserve_budgets
+    )
+    text = results_guide_markdown(context)
+    results = _section(text, "### Maximum sustainable budget leaving a 12-month reserve")
+    assert f"{reserve_metrics.conservative_success_rate:.2%}" in results
+    for budget in reserve_budgets:
+        assert budget.maximum_monthly_budget_today is not None
+        assert f"{math.floor(budget.maximum_monthly_budget_today):,}" in results
+    calculations = _section(text, "## How the figures are calculated")
+    reserve = _section(calculations, "### End-of-life reserve")
+    assert "12 x B x I_d" in reserve and "3,000" in reserve and "Failed" in reserve
