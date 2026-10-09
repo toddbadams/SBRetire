@@ -114,14 +114,17 @@ def round_return_up(annual_return: float) -> float: ...  # next 0.01 % up (B-011
 - 2026-10-09 Added `src/sbretire/results_guide.py`: `COLUMN_GUIDE` (4 files), `GuideContext`, `results_guide_markdown` (header; Your results with counts, rates, budget and return tables at display rounding and notes; calculations with this run's values; assumptions; limitations; column tables; inputs table), `write_results_guide` (UTF-8, LF). `round_return_up` moved unchanged to `reporting.py`. Tests `tests/unit/test_results_guide.py` (4).
 
 ### F-018.2 run writes results_guide.md
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-018.1
 
 `_run` writes `output/results_guide.md` after the CSVs and prints its path; README Outputs lists it.
 
 **Acceptance criteria**
-- [ ] `sbretire run` writes `results_guide.md` byte-equal to `write_results_guide` for the same inputs, and a second run writes an identical file — `test_cli_run_writes_results_guide`
-- [ ] README's Outputs section lists `results_guide.md` — `check: grep -n "results_guide.md" README.md`
+- [x] `sbretire run` writes `results_guide.md` byte-equal to `write_results_guide` for the same inputs, and a second run writes an identical file — `test_cli_run_writes_results_guide`
+- [x] README's Outputs section lists `results_guide.md` — `check: grep -n "results_guide.md" README.md`
+
+**Notes**
+- 2026-10-09 `_run` writes `results_guide.md` last among the outputs (after run_metadata.json) from a `GuideContext` of the run's own results; README Outputs table lists it. Test `test_cli_run_writes_results_guide` (byte-equal to the library, identical across two runs); `results_guide.md` added to `OUTPUT_FILES`.
 
 ## 11. Open Questions
 

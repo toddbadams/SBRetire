@@ -44,6 +44,7 @@ from sbretire.reporting import (
     write_lifestyle_results_csv,
     write_sustainability_results_csv,
 )
+from sbretire.results_guide import GuideContext, write_results_guide
 
 EXIT_OK, EXIT_FAILURE, EXIT_INVALID = 0, 1, 2
 
@@ -204,6 +205,10 @@ def _run(args: argparse.Namespace, loaded: LoadedScenario) -> int:
             ),
             write_lifestyle_results_csv(budgets, output_dir / "lifestyle_results.csv"),
             write_run_metadata(build_run_metadata(loaded, seed, records), output_dir),
+            write_results_guide(
+                GuideContext(args.config, scenario, seed, input_rows, result.metrics, budgets, returns),
+                output_dir / "results_guide.md",
+            ),
         ]
     except OSError as exc:
         print(f"error: cannot write to output directory {output_dir}: {exc.strerror or exc}", file=sys.stderr)

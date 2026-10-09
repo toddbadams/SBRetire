@@ -250,6 +250,7 @@ component never shifts the other's draws. Rules in `docs/decisions/simulation-co
 | `sustainability_results.csv` | Success probabilities and required-return search per budget/target (SPEC §13) |
 | `lifestyle_results.csv` | Maximum sustainable budget per confidence level (SPEC §14) |
 | `run_metadata.json` | Seed, version, config hash, data-file versions/hashes (SPEC §10.3) |
+| `results_guide.md` | A plain-English guide to this run: your results, how each figure was calculated (with your numbers), the assumptions and limitations, every column of every file, and the inputs |
 
 All CSVs share the same format:
 
