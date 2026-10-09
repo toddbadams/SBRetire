@@ -2,7 +2,7 @@
 id: F-020
 type: feature
 parent: v1-1-enhancements
-status: in-progress
+status: done
 complexity: 3
 created: 2026-10-09
 updated: 2026-10-09
@@ -93,7 +93,7 @@ class ScenarioCashFlows:
 ## 10. Tasks
 
 ### F-020.1 Spend-at-least-income in the cash flows
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: —
 
 §2 #1–#4, #7: config field, the floor in `ScenarioCashFlows.spending`, Config Hash exclusion at default, input-row
@@ -106,9 +106,13 @@ label. Tests in `tests/unit/test_spend_at_least_income.py`.
 
 **Notes**
 - 2026-10-09 `BudgetAssumptions.spend_at_least_income` (Boolean, default false); `ScenarioCashFlows.spending` returns max(budget-based spending, the same month's income) when on; added to `metadata._OPTIONS_HASHED_ONLY_WHEN_SET`; input-row label. Tests `tests/unit/test_spend_at_least_income.py` (3).
+- 2026-10-09 /verify PASS:
+  - 398 tests pass; validation, floor (4 alive states x 4 budgets) and pinned hash tests can each fail
+  - own month-by-month loop from ScenarioIncome/ScenarioSpending with max() equals run_monte_carlo exactly, including runs with 129k–178k topped-up path-months
+  - key absent vs false: CSVs byte-identical, hash = pinned V1 hash; true changes it; ruff, format, mypy clean
 
 ### F-020.2 Searches, run output and docs with the option
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-020.1
 
 §2 #5–#6, #8: verify the searches, print the option line, guide text, README, THESAURUS, decision configuration §9,
@@ -125,6 +129,10 @@ example config comment.
 **Notes**
 - 2026-10-09 No search code changed: the floor lives in `ScenarioCashFlows`, so both searches see it; closed form and seeded monotonicity tests confirm. `format_run_summary` prints the option line when on; results guide Spending section adds the max(B x I_t x F_t, Y_t) rule when on; README config row and budget bullet; example config comment; THESAURUS + configuration §9 committed with the brief. Tests: 2 in `test_spend_at_least_income.py`, `test_cli_run_spend_at_least_income`, `test_results_guide_spend_at_least_income`, README key guard. Full gate 398 passed.
 - 2026-10-09 One gate run during the red phase hit a transient MemoryError and a failed `--version` subprocess; both passed on three reruns with ample free memory (not reproducible).
+- 2026-10-09 /verify PASS:
+  - closed forms re-derived by hand (122,000/60 off, 50,000/36 on); the on case fails without the floor
+  - CLI line only when on; at the fixture budget the floor never binds (90 % budget 2,841.79 both ways); guide, README, THESAURUS, configuration §9 accurate; preview uses the same ScenarioCashFlows
+  - README wording then changed from "lowers every" to "can only lower (never raise)" after this remark
 
 ## 11. Open Questions
 

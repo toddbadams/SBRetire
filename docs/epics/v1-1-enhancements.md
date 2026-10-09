@@ -1,7 +1,7 @@
 ---
 epic: v1-1-enhancements
 title: V1.1 Enhancements
-status: active
+status: done
 spec_sections: [§1.2, §11, §12, §14, §15]
 depends_on: [reporting-release]
 milestones:
@@ -9,10 +9,11 @@ milestones:
   - { id: F-017, title: Inputs Display and inputs.csv, status: done }
   - { id: F-018, title: Results Guide (columns, calculations, assumptions), status: done }
   - { id: F-019, title: End-of-Life Reserve Target, status: done }
-  - { id: F-020, title: Spend-At-Least-Income Option, status: in-progress }
+  - { id: F-020, title: Spend-At-Least-Income Option, status: done }
 created: 2026-10-09
 updated:
   - 2026-10-09: created from the user's post-V1 requests and decisions
+  - 2026-10-09: all five features done
 ---
 
 # V1.1 Enhancements

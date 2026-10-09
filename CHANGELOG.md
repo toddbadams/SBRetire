@@ -2,6 +2,23 @@
 
 All notable changes to SBRetire. Dates are ISO (YYYY-MM-DD).
 
+## [Unreleased]
+
+V1.1 enhancements (epic `v1-1-enhancements`). Both new model options are off by default, so V1 results and config
+hashes are unchanged unless you switch them on.
+
+### Added
+
+- **VS Code test setup:** shared workspace settings, debug configurations and recommended extensions (F-016).
+- **Inputs display:** `run` first prints every setting it will use, and writes them to `inputs.csv` (F-017).
+- **Results guide:** every run writes `results_guide.md`. It covers your results, how each figure was calculated
+  (with your numbers), the assumptions and limitations, every column of every file, and the inputs (F-018).
+- **End-of-life reserve:** `budget.end_reserve_months` (e.g. `12`) adds a success rate and a second maximum-budget
+  table for leaving R × the monthly budget, inflated, in savings at the second death. Also adds
+  `lifestyle_reserve_results.csv` (F-019).
+- **Spend at least income:** `budget.spend_at_least_income: true` makes each month's spending at least that month's
+  income, so surplus income is spent rather than saved (F-020).
+
 ## [1.0.0] - 2026-10-09
 
 First complete release of the Retirement Sustainability Model (V1). It meets every SPEC §17 test and acceptance

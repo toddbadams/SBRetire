@@ -99,7 +99,7 @@ Budget (full rules in `docs/decisions/configuration.md` §6):
   that many months of budget in savings when the second person dies (see below).
 - `budget.spend_at_least_income: true` (optional, default `false`) makes each month's spending the larger of the
   budget-based spending and that month's household income. V1 saves any income above the budget; with this option
-  the household spends it instead, which lowers every success rate and budget figure
+  the household spends it instead, which can only lower (never raise) the success rates and budgets
   (`docs/decisions/configuration.md` §9). `annual_budget_nominal_median` then includes the top-up.
 
 Income streams (full rules in `docs/decisions/configuration.md` §4–§5):

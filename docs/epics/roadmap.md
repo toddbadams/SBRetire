@@ -1,6 +1,6 @@
 # SBRetire V1 Roadmap
 
-**Last updated**: 2026-10-09 — V1.1 enhancements planned (F-016 done).
+**Last updated**: 2026-10-09 — V1.1 enhancements delivered (F-016…F-020).
 
 Features in build order. Status: `proposed` → `briefed` → `in-progress` → `done` (or `superseded`). Briefs live in `docs/backlog/`; tasks are inside each brief.
 
@@ -15,7 +15,7 @@ Features in build order. Status: `proposed` → `briefed` → `in-progress` → 
 | F-017 | Inputs Display and inputs.csv | [v1-1-enhancements](v1-1-enhancements.md) | F-013 | done |
 | F-018 | Results Guide (columns, calculations, assumptions) | [v1-1-enhancements](v1-1-enhancements.md) | F-017 | done |
 | F-019 | End-of-Life Reserve Target | [v1-1-enhancements](v1-1-enhancements.md) | F-013 | done |
-| F-020 | Spend-At-Least-Income Option | [v1-1-enhancements](v1-1-enhancements.md) | F-013 | in-progress |
+| F-020 | Spend-At-Least-Income Option | [v1-1-enhancements](v1-1-enhancements.md) | F-013 | done |
 | F-005 | Random Streams and Run Metadata | [foundations](foundations.md) | F-001 | done |
 | F-006 | Stochastic Inflation Process and CPI Calibration | [stochastic-inputs](stochastic-inputs.md) | F-003, F-004, F-005 | done |
 | F-007 | ONS Mortality Data Ingest and Mapping | [stochastic-inputs](stochastic-inputs.md) | F-001 | done |
@@ -112,6 +112,7 @@ Unmapped requirements: **none**.
 
 ## Change Log
 
+- 2026-10-09 — F-020 done: `budget.spend_at_least_income` floors Required Spending at the month's income (opt-in); epic v1-1-enhancements delivered (F-016…F-020); 398 tests. CHANGELOG [Unreleased] lists V1.1.
 - 2026-10-09 — F-019 done: `budget.end_reserve_months` adds a reserve success line, a second maximum-budget table and `lifestyle_reserve_results.csv`; V1 outputs and config hashes unchanged at the default; 391 tests.
 - 2026-10-09 — F-020 briefed: design brief + tasks F-020.1…F-020.2 (Required Spending = max(budget-based, income) when on; configuration §9).
 - 2026-10-09 — F-019 briefed: design brief + tasks F-019.1…F-019.3 (reserve = R × Budget × I at Household End; short-of-reserve counts as Failed; opt-in; optimization §3).
