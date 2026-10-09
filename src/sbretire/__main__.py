@@ -204,8 +204,6 @@ def _run(args: argparse.Namespace, loaded: LoadedScenario) -> int:
                 file=sys.stderr,
             )
             return EXIT_INVALID
-        for file_name in RUN_OUTPUT_FILES:
-            (output_dir / file_name).unlink(missing_ok=True)
     try:
         output_dir.mkdir(parents=True, exist_ok=True)
     except OSError as exc:
@@ -231,6 +229,9 @@ def _run(args: argparse.Namespace, loaded: LoadedScenario) -> int:
     annual = annual_results(scenario, inputs)
     records = [table.data_file_record(), inflation_data_file_record(scenario.inflation)]
     try:
+        if name is not None:  # --overwrite: drop the old run's files only now the new results exist
+            for file_name in RUN_OUTPUT_FILES:
+                (output_dir / file_name).unlink(missing_ok=True)
         written = [
             write_inputs_csv(input_rows, output_dir / "inputs.csv"),
             write_annual_results_csv(annual, output_dir / "annual_results.csv"),

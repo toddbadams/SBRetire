@@ -38,6 +38,9 @@ RUN_OUTPUT_FILES: Final = (
 )
 """Every file a run can write; ``--overwrite`` removes only these from a run folder."""
 RUNS_JS_PREFIX: Final = "window.SBRETIRE_RUNS = "
+_WINDOWS_RESERVED: Final = frozenset(
+    {"CON", "PRN", "AUX", "NUL"} | {f"{device}{n}" for device in ("COM", "LPT") for n in range(1, 10)}
+)
 
 
 def _budget(result: BudgetResult) -> dict[str, Any]:
@@ -133,9 +136,11 @@ def write_results_json(results: dict[str, Any], path: Path) -> Path:
 
 def check_run_name(name: str) -> str | None:
     """None when ``name`` is a valid run name (a safe folder name everywhere), else what is wrong with it."""
-    if RUN_NAME_RULE.fullmatch(name):
-        return None
-    return f"invalid run name {name!r}: use {RUN_NAME_HELP}"
+    if not RUN_NAME_RULE.fullmatch(name):
+        return f"invalid run name {name!r}: use {RUN_NAME_HELP}"
+    if name.upper() in _WINDOWS_RESERVED:
+        return f"invalid run name {name!r}: it is a reserved device name on Windows"
+    return None
 
 
 def _index_entry(results: dict[str, Any]) -> dict[str, Any]:

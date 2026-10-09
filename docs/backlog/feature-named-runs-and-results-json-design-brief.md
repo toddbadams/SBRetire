@@ -177,7 +177,7 @@ results.json, viewer data), CHANGELOG. The Claude Design hand-off document moved
 - [ ] README documents `--name`, `--overwrite`, `results.json`, `index.json` and `runs.js` — `check: grep -n "\-\-overwrite" README.md`
 
 ### B-021.1 Reserved Windows run names and overwrite timing
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-021.2
 
 From the F-021.2 verify notes: reject Windows reserved device names (CON, PRN, AUX, NUL, COM1–COM9, LPT1–LPT9, any
@@ -185,8 +185,11 @@ case) in `check_run_name`; with `--overwrite`, remove the old run's files only a
 before writing, so a failed rerun keeps the previous run.
 
 **Acceptance criteria**
-- [ ] `CON`, `nul`, `Com1`, `lpt9` are rejected with a message naming the reserved-name rule; `console`, `com10` are accepted — `test_run_name_rejects_windows_reserved_names`
-- [ ] If the computation fails during an `--overwrite` rerun, the previous run's files are all still there — `test_cli_overwrite_keeps_old_run_when_computation_fails`
+- [x] `CON`, `nul`, `Com1`, `lpt9` are rejected with a message naming the reserved-name rule; `console`, `com10` are accepted — `test_run_name_rejects_windows_reserved_names`
+- [x] If the computation fails during an `--overwrite` rerun, the previous run's files are all still there — `test_cli_overwrite_keeps_old_run_when_computation_fails`
+
+**Notes**
+- 2026-10-09 `check_run_name` rejects CON/PRN/AUX/NUL/COM1-9/LPT1-9 in any case (`_WINDOWS_RESERVED`); `run` removes an old run's known files inside the write block, after the computation. Tests: 2 in `tests/unit/test_named_runs.py`.
 
 ## 11. Open Questions
 
