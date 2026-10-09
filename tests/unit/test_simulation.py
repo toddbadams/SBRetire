@@ -6,10 +6,11 @@ from dataclasses import dataclass, field
 
 import numpy as np
 import pytest
-from cash_flow_doubles import PerPersonCashFlows, constant
 
 from sbretire.portfolio import BoolArray, FloatArray
 from sbretire.simulation import PathOutcomes, simulate_paths
+
+from cash_flow_doubles import PerPersonCashFlows, constant
 
 FAR = 10_000  # a Death Month beyond any horizon used here
 

@@ -53,6 +53,10 @@ src = ["src", "tests"]
 select = ["E", "F", "W", "I", "B", "UP", "SIM", "NPY", "PD", "RUF"]
 ignore = ["RUF001", "RUF002", "RUF003"]  # allow unicode (£, π, ≥) in strings/docstrings
 
+[tool.ruff.lint.isort]
+known-first-party = ["sbretire"]
+known-local-folder = ["scenario_helpers", "cash_flow_doubles", "backlog_check"]
+
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["B011"]
 

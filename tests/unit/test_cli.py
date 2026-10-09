@@ -7,10 +7,11 @@ from typing import Any
 
 import pytest
 import yaml
-from scenario_helpers import set_at
 
 from sbretire import __version__
 from sbretire.__main__ import main
+
+from scenario_helpers import set_at
 
 EXAMPLE = Path(__file__).resolve().parents[2] / "config" / "model.example.yaml"
 

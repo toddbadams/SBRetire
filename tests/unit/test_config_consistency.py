@@ -8,9 +8,10 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from scenario_helpers import set_at
 
 from sbretire.config import ScenarioError, ScenarioIssue, parse_scenario
+
+from scenario_helpers import set_at
 
 
 def issues_for(raw: dict[str, Any]) -> tuple[ScenarioIssue, ...]:

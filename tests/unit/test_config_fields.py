@@ -7,9 +7,10 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from scenario_helpers import delete_at, set_at
 
 from sbretire.config import Scenario, ScenarioError, ScenarioIssue, parse_scenario
+
+from scenario_helpers import delete_at, set_at
 
 REQUIRED_KEYS = [
     "model",

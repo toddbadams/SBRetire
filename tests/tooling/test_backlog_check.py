@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import backlog_check
 import pytest
+
+import backlog_check
 
 ROADMAP = """# Roadmap
 

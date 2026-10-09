@@ -8,9 +8,10 @@ from typing import Any
 
 import pytest
 import yaml
-from scenario_helpers import set_at
 
 from sbretire.config import Scenario, ScenarioError, load_scenario
+
+from scenario_helpers import set_at
 
 REPO = Path(__file__).resolve().parents[2]
 
