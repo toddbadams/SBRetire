@@ -55,3 +55,9 @@ While exactly one person is alive, Required Spending is the Budget × I_t × the
 When `model.random_seed` is `null`, the run seeds from `numpy.random.SeedSequence().entropy` (128 bits of OS entropy) and records it in Run Metadata with `seed_source: "generated"`; pasting that number into `random_seed` reproduces the run. (F-005)
 
 **Why**: SPEC §4.2 allows `null` but requires the generated seed to be recorded. NumPy's own entropy makes collisions between runs practically impossible, and YAML/pydantic accept integers of any size. A shorter 63-bit seed was considered for readability; forbidding `null` was rejected as contradicting SPEC §4.2.
+
+## 9. `budget.spend_at_least_income`: optional floor of Required Spending at the month's income, default off
+
+With `budget.spend_at_least_income: true`, each month's Required Spending is max(B × I_t × F_t, Y_t), where Y_t is that month's household income on the Path (every stream, survivor shares applied); both are 0 once both people have died. The floor is applied in `ScenarioCashFlows.spending`, so the Monte Carlo run, both searches, the annual results and `preview` use the same Required Spending. The budget search stays valid (Required Spending is non-decreasing in the Budget) and the return search is unaffected (spending does not depend on the return); a test verifies budget monotonicity with the option on. `annual_budget_nominal_median` includes the top-up; the End-of-Life Reserve (optimization §3) still uses the Budget. Default `false` keeps V1 behaviour, and the option is left out of the Config Hash at its default (§7). (F-020)
+
+**Why**: the user asked to model a household that spends at least its income — option (a), "spend all income" — instead of V1's implicit saving of surplus income. A per-month floor is the direct reading, needs no new state, and keeps one definition of Required Spending everywhere.

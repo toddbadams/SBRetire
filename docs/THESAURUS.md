@@ -130,7 +130,7 @@ suffix, bare unqualified `Service`, `confidence interval` (for success probabili
 - **Related terms**: Income Stream, Household Stream, Survivor Percentage
 
 ### Required Spending
-- **Definition**: Nominal spending due in a month, S_t = B_m × I_t × F_t.
+- **Definition**: Nominal spending due in a month, S_t = B_m × I_t × F_t. With `budget.spend_at_least_income: true` it is max(S_t, that month's household income), so surplus income is spent rather than saved (configuration §9).
 - **Related terms**: Budget, Survivor Budget Factor, Depletion
 
 ### Return Search
