@@ -79,13 +79,11 @@ def test_cli_validate_require_data_files(
     assert "mortality.data_file" in capsys.readouterr().err
 
 
-def test_cli_run_validates_then_reports_engine_pending(
-    tmp_path: Path, valid_raw: dict[str, Any], capsys: pytest.CaptureFixture[str]
-) -> None:
+def test_cli_run_rejects_invalid_config(tmp_path: Path, valid_raw: dict[str, Any]) -> None:
+    """Replaces the F-001 'engine pending' check: run still validates first (the engine now exists, F-009)."""
     bad = write(tmp_path / "bad.yaml", set_at(valid_raw, "model.currency", "EUR"))
     assert main(["run", "--config", bad, "--output-dir", str(tmp_path / "out")]) == 2
-    assert main(["run", "--config", str(EXAMPLE), "--output-dir", str(tmp_path / "out")]) == 1
-    assert "not implemented" in capsys.readouterr().err
+    assert not (tmp_path / "out").exists()
 
 
 def test_cli_validate_reports_inflation_coverage(

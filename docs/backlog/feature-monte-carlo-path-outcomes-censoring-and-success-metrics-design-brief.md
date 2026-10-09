@@ -167,7 +167,7 @@ config/data; exit 1 unreadable config.
 - 2026-10-09 Added `src/sbretire/monte_carlo.py`: `RandomInputs` (seed, read-only death months, price index; `n_paths`), `draw_random_inputs` (`RandomStreams.from_seed` → `sample_death_months` + `build_price_index`, `simulation_count` paths), `MonteCarloResult`, `run_monte_carlo` (`ScenarioCashFlows` + `simulate_paths` + `SuccessMetrics`; never draws). Tests `tests/integration/test_monte_carlo.py` (5). Snapshot pinned after green from the code itself (regression, not an independent answer).
 
 ### F-009.3 `sbretire run`
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-009.2
 
 `run` in `src/sbretire/__main__.py` (§2 #5–#6); README "Running the model" and "Reading the results"; THESAURUS path
