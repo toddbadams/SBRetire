@@ -2,7 +2,7 @@
 id: F-002
 type: feature
 parent: simulation-engine
-status: planned
+status: in-progress
 complexity: 4
 created: 2026-10-09
 updated: 2026-10-09
@@ -147,7 +147,7 @@ _(filled during implementation)_
 Task format and statuses: `docs/project-sdlc.md` §2. Definition of done: `docs/project-sdlc.md` §4.
 
 ### F-002.1 Monthly portfolio step
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: —
 
 `src/sbretire/portfolio.py`: `monthly_return_rate` and `apply_month` / `MonthResult` (brief §2 #1–#3, §5). Pure
