@@ -2,7 +2,7 @@
 id: F-022
 type: feature
 parent: results-viewer
-status: planned
+status: in-progress
 complexity: 5
 created: 2026-10-09
 updated: 2026-10-09
@@ -68,7 +68,7 @@ The page consumes `window.SBRETIRE_RUNS = {schema_version, index: [...], runs: {
 ## 10. Tasks
 
 ### F-022.1 Claude Design hand-off document
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-021.3
 
 `docs/design/claude-design-handoff.md` per §2 #1–#4; stretch sample variant in `scripts/build_design_sample.py`
