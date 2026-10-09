@@ -150,7 +150,7 @@ _(filled during implementation)_
 - 2026-10-09 Added `src/sbretire/metrics.py`: `PathClass`, `classify_paths` (depletion ≥ 0 → FAILED, else censored → UNRESOLVED, else SUCCESSFUL), `SuccessMetrics.from_outcomes` (bincount; conservative and completed rates with binomial SEs on their own denominators; None when nothing completed). Tests `tests/unit/test_metrics.py` (3). The red commit carried an unused variable flagged by ruff; removed here.
 
 ### F-009.2 Random inputs and the Monte Carlo run
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-009.1
 
 `RandomInputs`, `draw_random_inputs`, `MonteCarloResult`, `run_monte_carlo` in `src/sbretire/monte_carlo.py`
