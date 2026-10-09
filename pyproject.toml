@@ -25,6 +25,8 @@ dev = [
     "mypy>=1.13",
     "pandas-stubs>=2.2",
     "types-PyYAML>=6.0",
+    "openpyxl>=3.1",
+    "types-openpyxl>=3.1.5.20260827",
 ]
 
 [build-system]
@@ -55,7 +57,7 @@ ignore = ["RUF001", "RUF002", "RUF003"]  # allow unicode (£, π, ≥) in string
 
 [tool.ruff.lint.isort]
 known-first-party = ["sbretire"]
-known-local-folder = ["scenario_helpers", "cash_flow_doubles", "backlog_check"]
+known-local-folder = ["scenario_helpers", "cash_flow_doubles", "backlog_check", "build_ons_mortality"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["B011"]
