@@ -2,7 +2,7 @@
 id: F-009
 type: feature
 parent: simulation-engine
-status: planned
+status: in-progress
 complexity: 5
 created: 2026-10-09
 updated: 2026-10-09
@@ -135,7 +135,7 @@ _(filled during implementation)_
 ## 10. Tasks
 
 ### F-009.1 Path classification and success metrics
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: —
 
 `PathClass`, `classify_paths`, `SuccessMetrics` in `src/sbretire/metrics.py` (§2 #1–#3). Tests in
