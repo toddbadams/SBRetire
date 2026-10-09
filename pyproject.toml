@@ -1,6 +1,6 @@
 [project]
 name = "sbretire"
-version = "0.1.0"
+version = "1.0.0"
 description = "Retirement Sustainability Model — Monte Carlo estimate of the maximum sustainable household budget (docs/SPEC.md)"
 readme = "README.md"
 authors = [{ name = "Todd Badams" }]

@@ -5,4 +5,4 @@ for two people's joint lifetimes. See ``docs/SPEC.md`` for the authoritative
 specification.
 """
 
-__version__ = "0.1.0"
+__version__ = "1.0.0"

@@ -88,14 +88,17 @@ Complete the README per §2 #4.
 - 2026-10-09 README: V1 status line (no longer 'scaffold'); Windows PowerShell quick start; '## Configuration' reference table covering every key with units/meaning; separate '## Assumptions' (returns, inflation, mortality, ordering, success definition) and '## Limitations' (no tax, no market risk, foreign income/FX, exclusions, parameter uncertainty, not advice) sections. `test_readme_covers_v1_sections` passes.
 
 ### F-014.3 Version 1.0.0, CHANGELOG and tag
-- **Status**: To Do
+- **Status**: Verification
 - **Depends on**: F-014.2
 
 Bump to 1.0.0, write `CHANGELOG.md`, run the full gate and an end-to-end example run, then tag `v1.0.0` locally.
 
 **Acceptance criteria**
-- [ ] `sbretire --version` prints 1.0.0 and `run_metadata.json` records `software_version` 1.0.0; CHANGELOG has a 1.0.0 entry — `test_version_is_1_0_0`
-- [ ] Annotated tag `v1.0.0` exists on the release commit — `check: git tag -l v1.0.0 -n1`
+- [x] `sbretire --version` prints 1.0.0 and `run_metadata.json` records `software_version` 1.0.0; CHANGELOG has a 1.0.0 entry — `test_version_is_1_0_0`
+- [x] Annotated tag `v1.0.0` exists on the release commit — `check: git tag -l v1.0.0 -n1`
+
+**Notes**
+- 2026-10-09 Version 1.0.0 in `pyproject.toml`, `src/sbretire/__init__.py` and `uv.lock`; `CHANGELOG.md` 1.0.0 entry (features F-001…F-015, fix B-011.1). Full gate 367 passed. PowerShell end-to-end run of the example: exit 0 in 94 s, four files written, `software_version` 1.0.0. Annotated tag `v1.0.0` created locally on this commit (not pushed).
 
 ## 11. Open Questions
 
