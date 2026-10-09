@@ -23,9 +23,15 @@ from sbretire.monte_carlo import draw_random_inputs, run_monte_carlo
 from sbretire.mortality import MortalityTableError, coverage_issues, load_mortality_table
 from sbretire.optimization import (
     BUDGET_TOLERANCE,
+    RETURN_LOWER,
+    RETURN_TOLERANCE,
+    RETURN_UPPER,
     BudgetResult,
+    ReturnResult,
     maximum_sustainable_budgets,
     path_budget_thresholds,
+    path_return_thresholds,
+    required_returns,
 )
 from sbretire.preview import format_preview_table, run_preview, write_preview_csv
 from sbretire.randomness import ResolvedSeed, resolve_seed
@@ -162,13 +168,43 @@ def _run(args: argparse.Namespace, loaded: LoadedScenario) -> int:
     budgets = maximum_sustainable_budgets(
         path_budget_thresholds(scenario, inputs), scenario.model.confidence_levels
     )
+    returns = required_returns(path_return_thresholds(scenario, inputs), scenario.model.confidence_levels)
     records = [table.data_file_record(), inflation_data_file_record(scenario.inflation)]
     metadata_path = write_run_metadata(build_run_metadata(loaded, seed, records), args.output_dir)
     print(format_run_summary(args.config, scenario, seed, result.metrics))
     print()
     print(format_budget_table(budgets))
+    print()
+    print(format_return_table(returns))
     print(f"Wrote {metadata_path}")
     return EXIT_OK
+
+
+def format_return_table(results: Sequence[ReturnResult]) -> str:
+    """Plain-ASCII table of required annual returns at the configured Budget (SPEC §13)."""
+    budget = results[0].monthly_budget_today if results else 0.0
+    runs = results[0].iterations if results else 0
+    lines = [
+        f"Required return for a budget of {budget:,.0f} GBP/month (fixed annual effective return; "
+        f"search {RETURN_LOWER:.0%} to +{RETURN_UPPER:.0%}, "
+        f"tolerance {RETURN_TOLERANCE * 100:.2f} percentage points; {runs} engine runs, same random paths):",
+        f"{'target':>6}  {'return/yr':>10}  {'success +/- SE':>22}  {'unresolved':>10}  converged",
+    ]
+    for result in results:
+        target = f"{result.target_probability:.0%}"
+        if result.required_annual_return is None:
+            lines.append(f"{target:>6}  {result.note}")
+            continue
+        assert result.estimated_success_probability is not None and result.standard_error is not None
+        success = f"{result.estimated_success_probability:.2%} +/- {result.standard_error:.3%}"
+        lines.append(
+            f"{target:>6}  {result.required_annual_return:>10.2%}  {success:>22}  "
+            f"{result.unresolved_fraction:>10.2%}  {'yes' if result.converged else 'no'}"
+        )
+        if result.note:
+            lines.append(f"{'':>6}  note: {result.note}")
+    lines.append("Required returns are model outputs under a fixed-return assumption, not forecasts.")
+    return "\n".join(lines)
 
 
 def format_budget_table(results: Sequence[BudgetResult]) -> str:

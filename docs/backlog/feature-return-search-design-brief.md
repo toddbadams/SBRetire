@@ -148,16 +148,19 @@ _(filled during implementation)_
 - 2026-10-09 Added to `src/sbretire/optimization.py`: `RETURN_LOWER`/`RETURN_UPPER` (±50 %), `RETURN_TOLERANCE` (0.0001), `ReturnSearch`, `path_return_thresholds` (bound checks at −50 % and +50 %, then vectorised per-path bisection for paths failing at −50 % and succeeding at +50 %; threshold = feasible upper end; −50 % if Successful there; +inf if not Successful at +50 %), `ReturnResult`, `required_returns` (⌈p·N⌉-th smallest threshold, confirming run; 'no solution within bounds' with the unresolved share at +50 %; '≤ −50 %' not converged). Tests `tests/integration/test_return_search.py` (6; closed form via independent scipy brentq; literal scalar bisection reference). `test_success_is_monotone_in_return` passed already in the red commit — it verifies an existing engine property, as SPEC §13 requires.
 
 ### F-011.3 `sbretire run` shows the required returns
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-011.2
 
 `run` adds a required-return table after the budget table (reusing the same `RandomInputs`); README; decision §2
 recorded with the brief.
 
 **Acceptance criteria**
-- [ ] `run` prints, per confidence level at the configured budget: target, required annual return (%), estimated success ± SE, unresolved share, converged, iterations; no-solution and lower-bound rows say so; ASCII — `test_cli_run_prints_required_returns`
-- [ ] The example config completes in under 300 s with both searches; elapsed recorded in Notes — `check: time uv run sbretire run --config config/model.example.yaml --output-dir <tmp>`
-- [ ] README documents the required return, its bounds/tolerance, no-solution behaviour and that it is not a forecast — `check: grep -n "Required return" README.md`
+- [x] `run` prints, per confidence level at the configured budget: target, required annual return (%), estimated success ± SE, unresolved share, converged, iterations; no-solution and lower-bound rows say so; ASCII — `test_cli_run_prints_required_returns`
+- [x] The example config completes in under 300 s with both searches; elapsed recorded in Notes — `check: time uv run sbretire run --config config/model.example.yaml --output-dir <tmp>`
+- [x] README documents the required return, its bounds/tolerance, no-solution behaviour and that it is not a forecast — `check: grep -n "Required return" README.md`
+
+**Notes**
+- 2026-10-09 `run` reuses the same `RandomInputs` for `path_return_thresholds` + `required_returns(model.confidence_levels)` at the configured Budget and prints `format_return_table` (target, return/yr, success ± SE, unresolved, converged; no-solution rows print the note; ASCII). Test `test_cli_run_prints_required_returns`. README 'Required return' section. Timing (all three stages): example config 81.8 s (16 return-search engine runs); a 60-year-horizon personal config 86.2 s — both under the 300 s budget.
 
 ## 11. Open Questions
 

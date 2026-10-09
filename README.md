@@ -145,6 +145,22 @@ least that share of simulated paths succeeds, using the conservative rate.
 These figures are model estimates from your assumptions (fixed return, no tax, simulated inflation and lifetimes).
 They are not financial advice and not a guarantee.
 
+### Required return
+
+Last, `run` prints the **Required return** for your configured `budget.monthly_amount_today`. That is the lowest
+fixed annual return (nominal, after fees, earned every year) at which each confidence level is still met.
+
+- It is a stress test of the return you assumed. If your `portfolio.annual_return` is well above the required
+  return for your chosen confidence level, the plan has a margin. If it is below, it doesn't.
+- The search runs from −50 % to +50 % a year, to within 0.01 percentage points, against the same simulated
+  futures (`docs/decisions/optimization.md` §2). A test confirms that success never falls as the return rises.
+- If a target can't be met even at +50 % a year, the row says **no solution within bounds**. A plan that meets the
+  target even at −50 % shows "at or below −50 %" and is marked not converged.
+- The rate shown comes from one confirming run at the required return.
+
+Required returns are model outputs under a fixed-return assumption. They are not forecasts of what markets will
+deliver. Expect `run` to take one to two minutes for 100,000 paths.
+
 ## Preview (deterministic illustration)
 
 `sbretire preview --config config/model.yaml --death-ages 88,92` runs **one** household future and prints a
