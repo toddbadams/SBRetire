@@ -74,8 +74,8 @@ class ScenarioCashFlows:
 
 - **T1**: cash-flow unit test where income is below, equal to and above the budget-based spending; default off equals
   V1 exactly.
-- **T2**: closed form — zero return and inflation, no income for 24 months then 3,000/month, both die in month 60,
-  balance 50,000: B* = (50,000 + 36 × 3,000) / 60 = 2,633.33 off and 50,000 / 24 = 2,083.33 on; seeded
+- **T2**: closed form — zero return and inflation, 3,000/month income in months 0–23 only, both die in month 60,
+  balance 50,000: B* = (50,000 + 24 × 3,000) / 60 = 2,033.33 off and 50,000 / 36 = 1,388.89 on; seeded
   monotonicity with the option on.
 - **T3**: CLI run with the option prints the line and its CSVs equal the library output.
 
@@ -84,6 +84,11 @@ class ScenarioCashFlows:
 - 2026-10-09 — §2 #1–#2 from the user's choice (a); #3–#8 by me (configuration §9).
 
 ## 9. Surprises
+
+- 2026-10-09 — F-020.2: the briefed closed form (no income for 24 months, then 3,000/month) is wrong: the binding
+  constraint is running out in month 23, which is the same with the option on or off (both 2,083.33). Replaced by
+  income first (months 0–23) then none, where the option changes B* from 2,033.33 to 1,388.89. Brief §7 and the AC
+  updated before the code.
 
 ## 10. Tasks
 
@@ -110,7 +115,7 @@ label. Tests in `tests/unit/test_spend_at_least_income.py`.
 example config comment.
 
 **Acceptance criteria**
-- [ ] Closed form (§7 T2): B* in (2,632.33, 2,633.34] with the option off and (2,082.33, 2,083.34] with it on — `test_spend_at_least_income_closed_form`
+- [ ] Closed form (§7 T2): B* within £1 below 2,033.33 with the option off and below 1,388.89 with it on — `test_spend_at_least_income_closed_form`
 - [ ] With the option on, on 400 seeded paths the successful set never grows as the budget rises and each path's threshold separates its successes from its failures — `test_spend_at_least_income_budget_monotone`
 - [ ] `run` with the option prints that spending is at least income, and its lifestyle and sustainability CSVs equal the library output on the same inputs — `test_cli_run_spend_at_least_income`
 - [ ] The results guide states the rule when on and not when off — `test_results_guide_spend_at_least_income`

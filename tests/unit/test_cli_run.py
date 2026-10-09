@@ -427,6 +427,37 @@ def test_cli_run_no_reserve_outputs_by_default(
     assert not (out_dir / "results_guide.md").read_text(encoding="utf-8").count("month reserve")
 
 
+def test_cli_run_spend_at_least_income(
+    tmp_path: Path, valid_raw: dict[str, Any], capsys: pytest.CaptureFixture[str]
+) -> None:
+    raw = set_at(_absolute_data(valid_raw), "model.confidence_levels", [0.9])
+    config = _write(tmp_path / "floor", set_at(raw, "budget.spend_at_least_income", True))
+    out_dir = tmp_path / "out"
+    assert main(["run", "--config", str(config), "--output-dir", str(out_dir)]) == 0
+    out = capsys.readouterr().out
+    assert "Spending is at least each month's income (budget.spend_at_least_income)" in out
+
+    scenario = load_scenario(config).scenario
+    inputs = draw_random_inputs(
+        scenario, load_mortality_table(scenario.mortality.data_file), ResolvedSeed(7, "config")
+    )
+    expected = tmp_path / "expected"
+    write_lifestyle_results_csv(
+        maximum_sustainable_budgets(path_budget_thresholds(scenario, inputs), [0.9]),
+        expected / "lifestyle.csv",
+    )
+    write_sustainability_results_csv(
+        run_monte_carlo(scenario, inputs).metrics,
+        scenario.portfolio.annual_return,
+        required_returns(path_return_thresholds(scenario, inputs), [0.9]),
+        expected / "sustainability.csv",
+    )
+    assert (out_dir / "lifestyle_results.csv").read_bytes() == (expected / "lifestyle.csv").read_bytes()
+    assert (out_dir / "sustainability_results.csv").read_bytes() == (
+        expected / "sustainability.csv"
+    ).read_bytes()
+
+
 def test_cli_run_csvs_reproducible(tmp_path: Path, valid_raw: dict[str, Any]) -> None:
     raw = set_at(_absolute_data(valid_raw), "model.confidence_levels", [0.9])
     config = _write(tmp_path / "repro", raw)

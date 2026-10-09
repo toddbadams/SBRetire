@@ -181,3 +181,16 @@ def test_results_guide_reserve_section() -> None:
     calculations = _section(text, "## How the figures are calculated")
     reserve = _section(calculations, "### End-of-life reserve")
     assert "12 x B x I_d" in reserve and "3,000" in reserve and "Failed" in reserve
+
+
+def test_results_guide_spend_at_least_income() -> None:
+    plain = _context()
+    assert "spend_at_least_income" not in _section(
+        results_guide_markdown(plain), "## How the figures are calculated"
+    )
+    scenario = plain.scenario
+    scenario = scenario.model_copy(
+        update={"budget": scenario.budget.model_copy(update={"spend_at_least_income": True})}
+    )
+    spending = _section(results_guide_markdown(dataclasses.replace(plain, scenario=scenario)), "### Spending")
+    assert "spend_at_least_income" in spending and "max(B x I_t x F_t, Y_t)" in spending

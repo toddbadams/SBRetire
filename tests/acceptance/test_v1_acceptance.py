@@ -133,6 +133,7 @@ def test_readme_covers_v1_sections() -> None:
         "innovation_sd", "initial_rate", "geography", "projection", "date_of_birth", "sex", "start_date",
         "end_date",
         "annual_amount_today", "inflation_linked", "survivor_percentage", "recipient", "end_reserve_months",
+        "spend_at_least_income",
     )  # fmt: skip
     for key in config_keys:
         assert f"`{key}`" in readme, key
