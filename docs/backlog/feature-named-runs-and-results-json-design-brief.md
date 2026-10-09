@@ -137,19 +137,22 @@ in `reporting.py`, `schemas/results.schema.json`, `jsonschema` dev dependency; `
 - 2026-10-09 `src/sbretire/results_json.py` (`build_results` from GuideContext + annual rows, `write_results_json` strict JSON, UTF-8, LF); `reporting.money_down`/`return_up` numeric rounding shared with the CSV text helpers; `schemas/results.schema.json` (draft 2020-12, additionalProperties false everywhere, generated once then maintained by hand); `run` writes `results.json` using run_metadata's hash and timestamp. Tests `tests/unit/test_results_json.py` (2) and `test_cli_run_writes_results_json`; `results.json` added to OUTPUT_FILES.
 
 ### F-021.2 Named runs, index.json and runs.js
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-021.1
 
 `--name`, `--overwrite`, `check_run_name`, run folders, `refresh_runs_index` (§2 #3–#7).
 
 **Acceptance criteria**
-- [ ] Names follow the rule: `base-4pct`, `A_1` accepted; empty, `-x`, `a b`, `../x`, `a/b`, 65 characters rejected with exit 2 and the rule in the message — `test_run_name_rule`
-- [ ] `--name base` writes every output (CSVs, guide, metadata, `results.json`) to `<output-dir>/runs/base/` and nothing to `<output-dir>/` itself except `runs/` — `test_cli_named_run_writes_run_folder`
-- [ ] Re-running an existing name exits 2 before computing and leaves the folder untouched; with `--overwrite` it is replaced and a stale `lifestyle_reserve_results.csv` from an earlier reserve run is removed — `test_cli_named_run_refuses_existing_unless_overwrite`
-- [ ] After two named runs, `index.json` lists both (newest first, with the §2 #7 fields) and `runs.js` is `window.SBRETIRE_RUNS = …;` whose JSON payload equals the index plus each run's `results.json`; deleting a run folder and running again drops it — `test_runs_index_and_runs_js`
+- [x] Names follow the rule: `base-4pct`, `A_1` accepted; empty, `-x`, `a b`, `../x`, `a/b`, 65 characters rejected with exit 2 and the rule in the message — `test_run_name_rule`
+- [x] `--name base` writes every output (CSVs, guide, metadata, `results.json`) to `<output-dir>/runs/base/` and nothing to `<output-dir>/` itself except `runs/` — `test_cli_named_run_writes_run_folder`
+- [x] Re-running an existing name exits 2 before computing and leaves the folder untouched; with `--overwrite` it is replaced and a stale `lifestyle_reserve_results.csv` from an earlier reserve run is removed — `test_cli_named_run_refuses_existing_unless_overwrite`
+- [x] After two named runs, `index.json` lists both (newest first, with the §2 #7 fields) and `runs.js` is `window.SBRETIRE_RUNS = …;` whose JSON payload equals the index plus each run's `results.json`; deleting a run folder and running again drops it — `test_runs_index_and_runs_js`
+
+**Notes**
+- 2026-10-09 `results_json`: `RUN_NAME_RULE`/`RUN_NAME_HELP`/`check_run_name`, `RUN_OUTPUT_FILES`, `refresh_runs_index` (rebuilds index.json + runs.js from disk; folder name is the run name; unreadable results skipped with a warning). `run`: `--name`, `--overwrite`; name and existence checked before loading data or printing anything (exit 2); `--overwrite` removes only known output files; named runs write to `<output-dir>/runs/<name>/` and refresh the index. Tests `tests/unit/test_named_runs.py` (4).
 
 ### F-021.3 Claude Design hand-off
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-021.2
 
 `scripts/build_design_sample.py`, `docs/design/sample/` (two runs of the example config),

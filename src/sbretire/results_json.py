@@ -11,6 +11,8 @@ from __future__ import annotations
 
 import dataclasses
 import json
+import re
+import sys
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Any, Final
@@ -22,6 +24,20 @@ from sbretire.results_guide import COLUMN_GUIDE, GuideContext
 from sbretire.timeline import month_start
 
 SCHEMA_VERSION: Final = "1.0"
+RUN_NAME_RULE: Final = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]{0,63}")
+RUN_NAME_HELP: Final = "1-64 letters, digits, '-' or '_', starting with a letter or digit"
+RUN_OUTPUT_FILES: Final = (
+    "inputs.csv",
+    "annual_results.csv",
+    "sustainability_results.csv",
+    "lifestyle_results.csv",
+    "lifestyle_reserve_results.csv",
+    "run_metadata.json",
+    "results_guide.md",
+    "results.json",
+)
+"""Every file a run can write; ``--overwrite`` removes only these from a run folder."""
+RUNS_JS_PREFIX: Final = "window.SBRETIRE_RUNS = "
 
 
 def _budget(result: BudgetResult) -> dict[str, Any]:
@@ -114,4 +130,54 @@ def write_results_json(results: dict[str, Any], path: Path) -> Path:
 
 
 def check_run_name(name: str) -> str | None:
-    return None
+    """None when ``name`` is a valid run name (a safe folder name everywhere), else what is wrong with it."""
+    if RUN_NAME_RULE.fullmatch(name):
+        return None
+    return f"invalid run name {name!r}: use {RUN_NAME_HELP}"
+
+
+def _index_entry(results: dict[str, Any]) -> dict[str, Any]:
+    run, summary, first = results["run"], results["summary"], results["budgets"][0]
+    return {
+        "name": run["name"],
+        "created_at": run["created_at"],
+        "config_file": run["config_file"],
+        "paths": run["paths"],
+        "monthly_budget_today": run["monthly_budget_today"],
+        "annual_return": run["annual_return"],
+        "conservative_success_rate": summary["conservative_success_rate"],
+        "conservative_standard_error": summary["conservative_standard_error"],
+        "first_target_probability": first["target_probability"],
+        "first_target_maximum_monthly_budget_today": first["maximum_monthly_budget_today"],
+    }
+
+
+def refresh_runs_index(runs_dir: Path) -> tuple[Path, Path]:
+    """Rebuild ``index.json`` and ``runs.js`` in ``runs_dir`` from every ``<name>/results.json`` on disk.
+
+    ``runs.js`` assigns ``window.SBRETIRE_RUNS = {schema_version, index, runs}`` so a page opened from disk
+    (``file://``) can load every run with a ``<script>`` tag. Runs are listed newest first, then by name; a
+    folder whose ``results.json`` is missing is skipped, and an unreadable one is skipped with a warning.
+    """
+    runs: dict[str, dict[str, Any]] = {}
+    entries: list[dict[str, Any]] = []
+    for folder in sorted(path for path in runs_dir.iterdir() if path.is_dir()):
+        source = folder / "results.json"
+        if not source.is_file():
+            continue
+        try:
+            results = json.loads(source.read_text(encoding="utf-8"))
+            entry = _index_entry(results)
+        except (OSError, ValueError, KeyError, IndexError, TypeError) as exc:
+            print(f"warning: skipping {source} in the runs index: {exc}", file=sys.stderr)
+            continue
+        runs[folder.name] = results
+        entries.append({**entry, "name": folder.name})  # the folder name is the run's name
+    index = sorted(sorted(entries, key=lambda e: e["name"]), key=lambda e: e["created_at"], reverse=True)
+    index_path = runs_dir / "index.json"
+    write_results_json({"schema_version": SCHEMA_VERSION, "runs": index}, index_path)
+    payload = {"schema_version": SCHEMA_VERSION, "index": index, "runs": runs}
+    script = RUNS_JS_PREFIX + json.dumps(payload, ensure_ascii=False, allow_nan=False) + ";\n"
+    js_path = runs_dir / "runs.js"
+    js_path.write_bytes(script.encode("utf-8"))
+    return index_path, js_path

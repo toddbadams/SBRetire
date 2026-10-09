@@ -46,7 +46,14 @@ from sbretire.reporting import (
     write_sustainability_results_csv,
 )
 from sbretire.results_guide import GuideContext, write_results_guide
-from sbretire.results_json import build_results, write_results_json
+from sbretire.results_json import (
+    RUN_NAME_HELP,
+    RUN_OUTPUT_FILES,
+    build_results,
+    check_run_name,
+    refresh_runs_index,
+    write_results_json,
+)
 
 EXIT_OK, EXIT_FAILURE, EXIT_INVALID = 0, 1, 2
 
@@ -83,8 +90,14 @@ def build_parser() -> argparse.ArgumentParser:
     run = commands.add_parser("run", help="run the Monte Carlo model for the configured budget")
     run.add_argument("--config", type=Path, required=True, help="scenario YAML file")
     run.add_argument(
-        "--output-dir", type=Path, default=Path("output"), help="where run_metadata.json (and later CSVs) go"
+        "--output-dir", type=Path, default=Path("output"), help="where the CSVs, guide and JSON files go"
     )
+    run.add_argument(
+        "--name",
+        help="name this run: its files go to <output-dir>/runs/<name>/ and the runs index is refreshed "
+        f"({RUN_NAME_HELP})",
+    )
+    run.add_argument("--overwrite", action="store_true", help="replace an existing run of the same --name")
     return parser
 
 
@@ -176,7 +189,23 @@ def _run(args: argparse.Namespace, loaded: LoadedScenario) -> int:
     Every figure comes from one set of random inputs (Common Random Numbers). The output directory is checked
     before the (long) computation so an unwritable path fails fast with exit 1.
     """
+    name: str | None = args.name
     output_dir: Path = args.output_dir
+    if name is not None:
+        problem = check_run_name(name)
+        if problem:
+            print(f"error: {problem}", file=sys.stderr)
+            return EXIT_INVALID
+        output_dir = args.output_dir / "runs" / name
+        if output_dir.exists() and not args.overwrite:
+            print(
+                f"error: run '{name}' already exists in {output_dir}; "
+                "choose another --name or add --overwrite",
+                file=sys.stderr,
+            )
+            return EXIT_INVALID
+        for file_name in RUN_OUTPUT_FILES:
+            (output_dir / file_name).unlink(missing_ok=True)
     try:
         output_dir.mkdir(parents=True, exist_ok=True)
     except OSError as exc:
@@ -234,7 +263,7 @@ def _run(args: argparse.Namespace, loaded: LoadedScenario) -> int:
         results = build_results(
             context,
             annual,
-            name=None,
+            name=name,
             config_sha256=metadata.config_sha256,
             created_at=metadata.created_at,
         )
@@ -243,6 +272,8 @@ def _run(args: argparse.Namespace, loaded: LoadedScenario) -> int:
             write_results_guide(context, output_dir / "results_guide.md"),
             write_results_json(results, output_dir / "results.json"),
         ]
+        if name is not None:
+            written += refresh_runs_index(output_dir.parent)
     except OSError as exc:
         print(f"error: cannot write to output directory {output_dir}: {exc.strerror or exc}", file=sys.stderr)
         return EXIT_FAILURE
