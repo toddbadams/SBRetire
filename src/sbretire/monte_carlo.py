@@ -12,6 +12,7 @@ from sbretire.config import Scenario
 from sbretire.inflation import StochasticPriceIndex, build_price_index
 from sbretire.metrics import SuccessMetrics
 from sbretire.mortality import MortalityTable, sample_death_months
+from sbretire.portfolio import FloatArray
 from sbretire.randomness import RandomStreams, ResolvedSeed
 from sbretire.simulation import PathOutcomes, simulate_paths
 
@@ -48,9 +49,14 @@ class MonteCarloResult:
     metrics: SuccessMetrics
 
 
-def run_monte_carlo(scenario: Scenario, inputs: RandomInputs) -> MonteCarloResult:
-    """Simulate every Path of ``inputs`` with the Scenario's cash flows and summarise them (no new draws)."""
-    cash_flows = ScenarioCashFlows(scenario, inputs.price_index, inputs.n_paths)
+def run_monte_carlo(
+    scenario: Scenario, inputs: RandomInputs, monthly_budget_today: float | FloatArray | None = None
+) -> MonteCarloResult:
+    """Simulate every Path of ``inputs`` with the Scenario's cash flows and summarise them (no new draws).
+
+    ``monthly_budget_today`` overrides the Budget (today's GBP/month), as a scalar or per path (F-010).
+    """
+    cash_flows = ScenarioCashFlows(scenario, inputs.price_index, inputs.n_paths, monthly_budget_today)
     outcomes = simulate_paths(
         starting_balance=scenario.portfolio.starting_balance,
         annual_return=scenario.portfolio.annual_return,

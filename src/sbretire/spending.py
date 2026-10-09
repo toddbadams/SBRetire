@@ -16,16 +16,35 @@ from sbretire.inflation import PriceIndex
 from sbretire.portfolio import BoolArray, FloatArray
 
 
+def _checked_budget(budget: float | FloatArray, paths_shape: tuple[int, ...]) -> float | FloatArray:
+    values = np.asarray(budget, dtype=np.float64)
+    if values.ndim not in (0, 1) or (values.ndim == 1 and values.shape != paths_shape):
+        raise ValueError(f"monthly_budget_today must be a scalar or shape {paths_shape} (got {values.shape})")
+    if not np.all(np.isfinite(values)) or np.any(values < 0):
+        raise ValueError("monthly_budget_today must be finite and non-negative")
+    return float(values) if values.ndim == 0 else values
+
+
 class ScenarioSpending:
     """Monthly Required Spending for every path, built from a validated Scenario."""
 
-    def __init__(self, scenario: Scenario, price_index: PriceIndex) -> None:
+    def __init__(
+        self,
+        scenario: Scenario,
+        price_index: PriceIndex,
+        monthly_budget_today: float | FloatArray | None = None,
+    ) -> None:
+        """``monthly_budget_today`` (today's GBP per month) overrides the Scenario's Budget: a scalar, or one
+        value per path, shape (n_paths,) — used by the budget search (F-010)."""
         default = scenario.budget.survivor_budget_factor
         factors = [
             p.survivor_budget_factor if p.survivor_budget_factor is not None else default
             for p in scenario.people
         ]
-        self._budget_today = scenario.budget.monthly_amount_today
+        self._budget_today = _checked_budget(
+            scenario.budget.monthly_amount_today if monthly_budget_today is None else monthly_budget_today,
+            price_index.level(0).shape,
+        )
         self._survivor_factor = np.array(factors, dtype=np.float64)  # factor when that person is the survivor
         self._price_index = price_index
 

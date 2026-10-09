@@ -115,16 +115,19 @@ _(filled during implementation)_
 ## 10. Tasks
 
 ### F-010.1 Per-path budget in the cash flows
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: —
 
 Optional `monthly_budget_today` (scalar or (n_paths,)) through `ScenarioSpending`, `ScenarioCashFlows`,
 `run_monte_carlo` (§2 #7). Tests in `tests/unit/test_spending_per_path.py`.
 
 **Acceptance criteria**
-- [ ] With a per-path budget array, spending for path i = B_i × I_t × F_t (both alive and survivor cases) — `test_spending_per_path_budget`
-- [ ] Omitting the argument or passing the Scenario's Budget as a scalar gives results identical to before (fixture run equal to F-009's) — `test_spending_default_budget_unchanged`
-- [ ] A budget array of the wrong shape, or any negative or non-finite entry, raises `ValueError` — `test_spending_rejects_bad_budget`
+- [x] With a per-path budget array, spending for path i = B_i × I_t × F_t (both alive and survivor cases) — `test_spending_per_path_budget`
+- [x] Omitting the argument or passing the Scenario's Budget as a scalar gives results identical to before (fixture run equal to F-009's) — `test_spending_default_budget_unchanged`
+- [x] A budget array of the wrong shape, or any negative or non-finite entry, raises `ValueError` — `test_spending_rejects_bad_budget`
+
+**Notes**
+- 2026-10-09 Optional `monthly_budget_today` (scalar or (n_paths,), validated finite, non-negative and shaped like the price index) through `ScenarioSpending` (`_checked_budget`), `ScenarioCashFlows` and `run_monte_carlo`; default unchanged. Tests `tests/unit/test_spending_per_path.py` (6). The red commit failed with TypeError (missing keyword) rather than assertion — signature-level red.
 
 ### F-010.2 Thresholds and the maximum sustainable budget
 - **Status**: To Do

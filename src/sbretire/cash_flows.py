@@ -17,12 +17,18 @@ from sbretire.spending import ScenarioSpending
 class ScenarioCashFlows:
     """Monthly income and Required Spending (nominal GBP) for ``n_paths`` paths of one Scenario."""
 
-    def __init__(self, scenario: Scenario, price_index: PriceIndex, n_paths: int) -> None:
+    def __init__(
+        self,
+        scenario: Scenario,
+        price_index: PriceIndex,
+        n_paths: int,
+        monthly_budget_today: float | FloatArray | None = None,
+    ) -> None:
         shape = price_index.level(0).shape
         if shape != (n_paths,):
             raise ValueError(f"price index covers {shape} paths but n_paths is {n_paths}")
         self._income = ScenarioIncome(scenario, price_index)
-        self._spending = ScenarioSpending(scenario, price_index)
+        self._spending = ScenarioSpending(scenario, price_index, monthly_budget_today)
 
     def income(self, month: int, alive: BoolArray) -> FloatArray:
         return self._income.income(month, alive)
