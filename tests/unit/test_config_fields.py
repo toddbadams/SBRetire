@@ -173,3 +173,10 @@ def test_all_issues_reported_together(valid_raw: dict[str, Any]) -> None:
     assert len(lines) == 3
     assert lines[0].startswith("income[1].survivor_percentage: ")
     assert "2" in lines[0]  # the offending value is echoed back
+
+
+def test_config_accepts_128_bit_random_seed(valid_raw: dict[str, Any]) -> None:
+    seed = 2**128 - 1
+    scenario = parse_scenario(set_at(valid_raw, "model.random_seed", seed), base_dir=Path(".")).scenario
+    assert scenario.model.random_seed == seed
+    assert isinstance(scenario.model.random_seed, int)
