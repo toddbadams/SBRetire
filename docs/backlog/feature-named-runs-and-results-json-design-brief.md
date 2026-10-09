@@ -2,7 +2,7 @@
 id: F-021
 type: feature
 parent: results-viewer
-status: in-progress
+status: done
 complexity: 5
 created: 2026-10-09
 updated: 2026-10-09
@@ -127,7 +127,7 @@ def refresh_runs_index(runs_dir: Path) -> tuple[Path, Path]: ...  # index.json, 
 ## 10. Tasks
 
 ### F-021.1 results.json and its schema
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: —
 
 `src/sbretire/results_json.py` (`build_results`, `write_results_json`, `SCHEMA_VERSION`), numeric rounding helpers
@@ -145,6 +145,9 @@ in `reporting.py`, `schemas/results.schema.json`, `jsonschema` dev dependency; `
   - no test validates a CLI-written results.json against the schema
   - otherwise: schema strict and valid, all lifestyle/annual/inputs values match the CSVs, ruff/mypy clean
 - 2026-10-09 Fix after /verify: `returns[]` keys renamed `success_probability_at_required_return`, `standard_error_at_required_return`, `unresolved_fraction_at_required_return` (code + schema descriptions); the test now forbids any returns key that shares a sustainability CSV column name without the same meaning, and the CLI test validates the written file against the schema.
+- 2026-10-09 /verify PASS (re-verify, snapshot 165b0d2):
+  - mutation: restoring the CSV names in returns[] fails all three tests; removing the CLI write fails the CLI test
+  - CLI run with a 12-month reserve: results.json validates; 947 same-named values checked against the four CSVs, 0 mismatches; only the three *_at_required_return keys are JSON-only; schema descriptions explain them
 
 ### F-021.2 Named runs, index.json and runs.js
 - **Status**: Done
@@ -166,7 +169,7 @@ in `reporting.py`, `schemas/results.schema.json`, `jsonschema` dev dependency; `
   - notes (fixed in B-021.1): Windows reserved names (CON, COM1 accepted; nul refused as "already exists"); --overwrite deletes old outputs before computing
 
 ### F-021.3 Design sample and docs
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-021.2
 
 `scripts/build_design_sample.py`, `docs/design/sample/runs/` (two runs of the example config), README (named runs,
@@ -178,9 +181,13 @@ results.json, viewer data), CHANGELOG. The Claude Design hand-off document moved
 
 **Notes**
 - 2026-10-09 `scripts/build_design_sample.py` runs the example config twice (`example-base`; `example-4pct-reserve` with 4 % and a 12-month reserve) at its full 100,000 paths into a temp dir and keeps only each `results.json` + rebuilt `index.json`/`runs.js` in `docs/design/sample/runs/` (~130 KB runs.js). README `## Named runs and results.json` + Outputs row; CHANGELOG entry. Test `test_design_sample_is_valid_example_data`.
+- 2026-10-09 /verify PASS (snapshot 165b0d2):
+  - sample test can fail (config_file or a date of birth changed); two runs valid, only example data; rebuild reproduces the files exactly
+  - script reads only config/model.example.yaml; README section accurate
+  - later (F-022.1) the second run became example-stretch; F-022.1 tests cover it
 
 ### B-021.1 Reserved Windows run names and overwrite timing
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-021.2
 
 From the F-021.2 verify notes: reject Windows reserved device names (CON, PRN, AUX, NUL, COM1–COM9, LPT1–LPT9, any
@@ -193,6 +200,10 @@ before writing, so a failed rerun keeps the previous run.
 
 **Notes**
 - 2026-10-09 `check_run_name` rejects CON/PRN/AUX/NUL/COM1-9/LPT1-9 in any case (`_WINDOWS_RESERVED`); `run` removes an old run's known files inside the write block, after the computation. Tests: 2 in `tests/unit/test_named_runs.py`.
+- 2026-10-09 /verify PASS (snapshot 165b0d2):
+  - both tests pass and fail under mutation (check disabled, range widened, unlink moved before compute)
+  - CLI: CON, nul, Com1, lpt9 exit 2 with the reserved-name message; console, com10 accepted
+  - old files are removed only inside the write block after all results exist
 
 ## 11. Open Questions
 
