@@ -111,10 +111,14 @@ def write_lifestyle_reserve_results_csv(results, end_reserve_months: int, path: 
 
 ## 9. Surprises
 
+- 2026-10-09 — F-019.1: the hand fixture's censored path (alex alive at the horizon) runs out of money in month 25,
+  so it is Failed, not Unresolved; the test's assumption "one Unresolved path" was wrong and now asserts the path is
+  censored and that both tests give the same Unresolved count.
+
 ## 10. Tasks
 
 ### F-019.1 Reserve config, per-path index and reserve-aware metrics
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: —
 
 §2 #1–#3, #6, #7: `budget.end_reserve_months`; `level_at`; `classify_paths` / `SuccessMetrics.from_outcomes` with
@@ -122,14 +126,17 @@ def write_lifestyle_reserve_results_csv(results, end_reserve_months: int, path: 
 default-valued options out; input-row label. Tests in `tests/unit/test_end_reserve.py`.
 
 **Acceptance criteria**
-- [ ] `end_reserve_months` defaults to 0, accepts 12 and rejects -1, 1.5 and "12" with a located message — `test_budget_end_reserve_months_validated`
-- [ ] `level_at(months)` equals `level(m)[i]` for every path i and month m in 0 … 12·n_years — `test_price_index_level_at_matches_level`
-- [ ] A Successful path whose final balance is just below its Required End Balance is Failed; at or above it, Successful; Failed and Unresolved paths are unchanged; no requirement gives the V1 classes — `test_classify_paths_end_reserve`
-- [ ] On the hand fixture (zero return, 3 % inflation), the Required End Balance equals R × B × 1.03^(d/12) at each path's Household End month and 0 for a censored path, and the reserve metrics count accordingly — `test_required_end_balance_hand_computed`
-- [ ] A V1 config's Config Hash is unchanged by the new default; setting `end_reserve_months: 12` changes it — `test_config_sha256_default_options_excluded`
+- [x] `end_reserve_months` defaults to 0, accepts 12 and rejects -1, 1.5 and "12" with a located message — `test_budget_end_reserve_months_validated`
+- [x] `level_at(months)` equals `level(m)[i]` for every path i and month m in 0 … 12·n_years — `test_price_index_level_at_matches_level`
+- [x] A Successful path whose final balance is just below its Required End Balance is Failed; at or above it, Successful; Failed and Unresolved paths are unchanged; no requirement gives the V1 classes — `test_classify_paths_end_reserve`
+- [x] On the hand fixture (zero return, 3 % inflation), the Required End Balance equals R × B × 1.03^(d/12) at each path's Household End month and 0 for a censored path, and the reserve metrics count accordingly — `test_required_end_balance_hand_computed`
+- [x] A V1 config's Config Hash is unchanged by the new default; setting `end_reserve_months: 12` changes it — `test_config_sha256_default_options_excluded`
+
+**Notes**
+- 2026-10-09 `config.BudgetAssumptions.end_reserve_months` (Integer ≥ 0, default 0); `StochasticPriceIndex.level_at` (vectorised per-path month); `classify_paths` / `SuccessMetrics.from_outcomes` take an optional `required_end_balance` (short of it → Failed; censored untouched); `monte_carlo.required_end_balance` and `run_monte_carlo(..., end_reserve_months)`; `metadata._OPTIONS_HASHED_ONLY_WHEN_SET` keeps V1 hashes (fixture hash pinned); input-row label. Tests `tests/unit/test_end_reserve.py` (5).
 
 ### F-019.2 Maximum sustainable budget leaving a reserve
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-019.1
 
 §2 #4: `path_budget_thresholds(..., end_reserve_months)` and the confirming runs in `maximum_sustainable_budgets`.

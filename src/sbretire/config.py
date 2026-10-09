@@ -124,10 +124,15 @@ class PortfolioAssumptions(_Frozen):
 
 
 class BudgetAssumptions(_Frozen):
-    """Base monthly Budget in today's GBP and the household Survivor Budget Factor (SPEC §4.2 Budget)."""
+    """Base monthly Budget in today's GBP and the household Survivor Budget Factor (SPEC §4.2 Budget).
+
+    ``end_reserve_months`` (R, default 0 = off) adds the End-of-Life Reserve target: R × Budget, inflated to
+    the Household End month, must remain at the second death (optimization §3).
+    """
 
     monthly_amount_today: NonNegative
     survivor_budget_factor: NonNegative
+    end_reserve_months: Annotated[Integer, Field(ge=0)] = 0
 
 
 class InflationAssumptions(_Frozen):

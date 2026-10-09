@@ -49,17 +49,38 @@ class MonteCarloResult:
     metrics: SuccessMetrics
 
 
+def required_end_balance(
+    inputs: RandomInputs,
+    outcomes: PathOutcomes,
+    monthly_budget_today: float | FloatArray,
+    end_reserve_months: int,
+) -> FloatArray:
+    """Required End Balance per path, nominal GBP: R × Budget × I at Household End (optimization §3).
+
+    ``monthly_budget_today`` is in today's GBP per month (scalar or per path). Paths whose household has not
+    ended within the Horizon get 0 — they are Unresolved whatever their balance.
+    """
+    ended = outcomes.household_end_month >= 0
+    level = inputs.price_index.level_at(np.where(ended, outcomes.household_end_month, 0))
+    required: FloatArray = np.where(ended, end_reserve_months * np.asarray(monthly_budget_today) * level, 0.0)
+    return required
+
+
 def run_monte_carlo(
     scenario: Scenario,
     inputs: RandomInputs,
     monthly_budget_today: float | FloatArray | None = None,
     annual_return: float | FloatArray | None = None,
+    end_reserve_months: int = 0,
 ) -> MonteCarloResult:
     """Simulate every Path of ``inputs`` with the Scenario's cash flows and summarise them (no new draws).
 
     ``monthly_budget_today`` overrides the Budget (today's GBP/month), as a scalar or per path (F-010);
-    ``annual_return`` overrides ``portfolio.annual_return``, as a scalar or per path (F-011).
+    ``annual_return`` overrides ``portfolio.annual_return``, as a scalar or per path (F-011);
+    ``end_reserve_months`` > 0 makes the metrics apply the End-of-Life Reserve (F-019). The outcomes never
+    depend on it.
     """
+    budget = scenario.budget.monthly_amount_today if monthly_budget_today is None else monthly_budget_today
     cash_flows = ScenarioCashFlows(scenario, inputs.price_index, inputs.n_paths, monthly_budget_today)
     outcomes = simulate_paths(
         starting_balance=scenario.portfolio.starting_balance,
@@ -68,13 +89,7 @@ def run_monte_carlo(
         horizon_months=scenario.model.horizon_years * 12,
         cash_flows=cash_flows,
     )
-    return MonteCarloResult(outcomes=outcomes, metrics=SuccessMetrics.from_outcomes(outcomes))
-
-
-def required_end_balance(
-    inputs: RandomInputs,
-    outcomes: PathOutcomes,
-    monthly_budget_today: float | FloatArray,
-    end_reserve_months: int,
-) -> FloatArray:
-    raise NotImplementedError
+    required = (
+        required_end_balance(inputs, outcomes, budget, end_reserve_months) if end_reserve_months > 0 else None
+    )
+    return MonteCarloResult(outcomes=outcomes, metrics=SuccessMetrics.from_outcomes(outcomes, required))

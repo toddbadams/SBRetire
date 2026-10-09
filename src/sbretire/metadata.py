@@ -10,6 +10,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from typing import Final
 
 import numpy as np
 
@@ -23,13 +24,22 @@ METADATA_SCHEMA = 1
 RUN_METADATA_FILE = "run_metadata.json"
 
 
+_OPTIONS_HASHED_ONLY_WHEN_SET: Final[tuple[tuple[str, str, object], ...]] = (
+    ("budget", "end_reserve_months", 0),
+)
+"""Options added after V1, left out of the hash at their default so every V1 config keeps its hash."""
+
+
 def config_sha256(scenario: Scenario) -> str:
     """SHA-256 (lowercase hex) of the validated Scenario as canonical JSON, without data-file paths.
 
     Comments, key order and YAML formatting never reach the validated Scenario, so cannot change the hash;
     the data-file path is machine-specific and its content is hashed separately (configuration §7).
     """
-    excluded = {"mortality": {"data_file"}, "inflation": {"data_file"}}
+    excluded: dict[str, set[str]] = {"mortality": {"data_file"}, "inflation": {"data_file"}}
+    for section, field, default in _OPTIONS_HASHED_ONLY_WHEN_SET:
+        if getattr(getattr(scenario, section), field) == default:
+            excluded.setdefault(section, set()).add(field)
     payload = scenario.model_dump(mode="json", exclude=excluded)
     canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
     return hashlib.sha256(canonical.encode("ascii")).hexdigest()

@@ -198,6 +198,23 @@ class StochasticPriceIndex:
         result: FloatArray = np.exp(log_level)
         return result
 
+    def level_at(self, months: NDArray[np.int64]) -> FloatArray:
+        """I at ``months[i]`` on path ``i`` (each 0 … 12·n_years), shape (n_paths,) — one month per path."""
+        months = np.asarray(months, dtype=np.int64)
+        n_paths = self._log_level.shape[1]
+        if months.shape != (n_paths,):
+            raise ValueError(f"months must have shape ({n_paths},) (got {months.shape})")
+        if np.any(months < 0) or np.any(months > 12 * self._n_years):
+            raise ValueError(f"every month must be between 0 and {12 * self._n_years}")
+        year, within = np.divmod(months, 12)
+        paths = np.arange(n_paths)
+        log_level = self._log_level[year, paths]
+        if self._n_years:
+            growth = self._log_growth[np.minimum(year, self._n_years - 1), paths]
+            log_level = log_level + np.where(year < self._n_years, (within / 12) * growth, 0.0)
+        result: FloatArray = np.exp(log_level)
+        return result
+
 
 def build_price_index(scenario: Scenario, rng: np.random.Generator, n_paths: int) -> StochasticPriceIndex:
     """Draw the run's inflation paths from ``rng`` (the inflation Random Stream) for the whole horizon.

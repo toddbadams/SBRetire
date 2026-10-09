@@ -107,7 +107,8 @@ def test_required_end_balance_hand_computed() -> None:
     reserve = run_monte_carlo(scenario, inputs, end_reserve_months=12).metrics
     meets = (classify_paths(outcomes) == PathClass.SUCCESSFUL) & (outcomes.final_balance >= required)
     assert reserve.n_successful == int(meets.sum())
-    assert reserve.n_unresolved == v1.n_unresolved == 1
+    # path 1 (someone alive at the horizon) runs out first, so it is Failed under both tests
+    assert outcomes.censored[1] and reserve.n_unresolved == v1.n_unresolved
     assert reserve.n_successful + reserve.n_failed == v1.n_successful + v1.n_failed
     budget = np.array([3_000.0, 3_000.0, 3_000.0])
     per_path = required_end_balance(inputs, outcomes, budget, 12)

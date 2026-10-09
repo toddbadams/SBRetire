@@ -52,6 +52,7 @@ _FIELD_TEXT: Final[dict[str, tuple[str, str]]] = {
     "portfolio.annual_return": ("Fixed annual return (after fees)", "annual effective rate (0.05 = 5%)"),
     "budget.monthly_amount_today": ("Monthly budget", "GBP/month, today's money"),
     "budget.survivor_budget_factor": ("Survivor budget factor (household default)", "share of the budget"),
+    "budget.end_reserve_months": ("End-of-life reserve (0 = off)", "months of budget"),
     "inflation.source": ("Inflation source", ""),
     "inflation.source_period": ("Calibration period", "years"),
     "inflation.data_file": ("CPI data file", "file"),

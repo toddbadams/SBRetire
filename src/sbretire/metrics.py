@@ -9,6 +9,7 @@ from enum import IntEnum
 import numpy as np
 from numpy.typing import NDArray
 
+from sbretire.portfolio import FloatArray
 from sbretire.simulation import PathOutcomes
 
 
@@ -20,9 +21,17 @@ class PathClass(IntEnum):
     UNRESOLVED = 2
 
 
-def classify_paths(outcomes: PathOutcomes) -> NDArray[np.int8]:
-    """Failed if ever depleted; else Unresolved if someone is alive at the Horizon; else Successful."""
+def classify_paths(
+    outcomes: PathOutcomes, required_end_balance: FloatArray | None = None
+) -> NDArray[np.int8]:
+    """Failed if ever depleted; else Unresolved if someone is alive at the Horizon; else Successful.
+
+    With ``required_end_balance`` (nominal GBP per path; the End-of-Life Reserve, optimization §3), a path
+    that would be Successful but ends with a balance below it is Failed instead.
+    """
     depleted = outcomes.depletion_month >= 0
+    if required_end_balance is not None:
+        depleted = depleted | (~outcomes.censored & (outcomes.final_balance < required_end_balance))
     classes = np.where(
         depleted, PathClass.FAILED, np.where(outcomes.censored, PathClass.UNRESOLVED, PathClass.SUCCESSFUL)
     )
@@ -58,8 +67,11 @@ class SuccessMetrics:
     """n_unresolved / n_paths."""
 
     @classmethod
-    def from_outcomes(cls, outcomes: PathOutcomes) -> SuccessMetrics:
-        counts = np.bincount(classify_paths(outcomes), minlength=len(PathClass))
+    def from_outcomes(
+        cls, outcomes: PathOutcomes, required_end_balance: FloatArray | None = None
+    ) -> SuccessMetrics:
+        """Counts and rates; ``required_end_balance`` applies the End-of-Life Reserve (see classify_paths)."""
+        counts = np.bincount(classify_paths(outcomes, required_end_balance), minlength=len(PathClass))
         n_successful, n_failed, n_unresolved = (int(count) for count in counts)
         n_paths = n_successful + n_failed + n_unresolved
         if n_paths == 0:
