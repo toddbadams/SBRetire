@@ -17,8 +17,9 @@ import numpy as np
 
 from sbretire.cash_flows import ScenarioCashFlows
 from sbretire.config import Scenario
-from sbretire.metrics import PathClass, classify_paths
+from sbretire.metrics import PathClass, SuccessMetrics, classify_paths
 from sbretire.monte_carlo import RandomInputs
+from sbretire.optimization import BudgetResult, ReturnResult
 from sbretire.portfolio import BoolArray, FloatArray
 from sbretire.simulation import PathOutcomes, simulate_paths
 from sbretire.timeline import month_start
@@ -242,3 +243,41 @@ def write_annual_results_csv(rows: Sequence[AnnualRow], path: Path) -> Path:
         for row in rows:
             writer.writerow([_cell(column, getattr(row, column)) for column in ANNUAL_COLUMNS])
     return path
+
+
+LIFESTYLE_COLUMNS: Final = (
+    "target_probability",
+    "maximum_monthly_budget_today",
+    "maximum_annual_budget_today",
+    "estimated_success_probability",
+    "standard_error",
+    "unresolved_fraction",
+    "budget_tolerance",
+    "converged",
+    "iterations",
+    "note",
+)
+SUSTAINABILITY_COLUMNS: Final = (
+    "monthly_budget_today",
+    "annual_return",
+    "target_probability",
+    "estimated_success_probability",
+    "conservative_success_probability",
+    "standard_error",
+    "unresolved_fraction",
+    "required_annual_return",
+    "return_tolerance",
+    "converged",
+    "iterations",
+    "note",
+)
+
+
+def write_lifestyle_results_csv(results: Sequence[BudgetResult], path: Path) -> Path:
+    raise NotImplementedError
+
+
+def write_sustainability_results_csv(
+    metrics: SuccessMetrics, annual_return: float, returns: Sequence[ReturnResult], path: Path
+) -> Path:
+    raise NotImplementedError

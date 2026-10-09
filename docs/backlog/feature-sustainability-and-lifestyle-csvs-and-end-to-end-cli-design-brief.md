@@ -2,7 +2,7 @@
 id: F-013
 type: feature
 parent: reporting-release
-status: planned
+status: in-progress
 complexity: 3
 created: 2026-10-09
 updated: 2026-10-09
@@ -75,7 +75,7 @@ _(filled during implementation)_
 ## 10. Tasks
 
 ### F-013.1 Sustainability and lifestyle CSV writers
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: —
 
 `SUSTAINABILITY_COLUMNS`, `LIFESTYLE_COLUMNS`, both writers in `src/sbretire/reporting.py` (§2 #2–#5). Tests in
