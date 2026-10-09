@@ -2,7 +2,7 @@
 id: F-022
 type: feature
 parent: results-viewer
-status: in-progress
+status: done
 complexity: 5
 created: 2026-10-09
 updated: 2026-10-09
@@ -139,7 +139,7 @@ refined when the design is back.
   - notes: numeric fields (horizon_years, annual year) are emitted unescaped — safe because sbretire writes them as integers; an assertion dropped in the fix commit was restored as an equivalent count check
 
 ### B-022.1 Show short income streams as one-time or total payments
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-022.3
 
 Reported by the user on 2026-10-09: a one-month stream (the NHS lump sum, modelled as `annual_amount_today` =
@@ -154,6 +154,10 @@ open-ended streams show "£X a year" as before.
 
 **Notes**
 - 2026-10-09 viewer.js: `monthsPaid` (start to end-exclusive, null when open-ended), `incomeAmount` (1 month → annual/12 "one-time payment"; 2–11 → total "in total over N months"; else "a year"); column header "Amount". Browser check on a fixture run with a one-month 2,160,000/yr stream and a 6-month 12,000/yr stream: "£180,000 / one-time payment", "£6,000 / in total over 6 months", yearly streams "a year", no console messages. Test `test_viewer_labels_short_income_streams`.
+- 2026-10-09 /verify PASS:
+  - functions run verbatim under bun: 1, 6, 192 months and open-ended/invalid/reversed dates give the expected labels; output safe
+  - month arithmetic matches income.py (annual/12 for start <= month < end); compare-mode key unaffected; no "Per year" header left
+  - then fixed its minor note: the short-stream total is now annual × n / 12 rounded once (was penny-rounded per month first)
 
 ## 11. Open Questions
 

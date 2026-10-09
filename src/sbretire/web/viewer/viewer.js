@@ -778,7 +778,7 @@
     if (s.annual_amount_today === '' || !isFinite(+s.annual_amount_today)) return DASH;
     var annual = +s.annual_amount_today, n = monthsPaid(s), monthly = Math.round(annual / 12 * 100) / 100;
     if (n === 1) return money(monthly) + '<span class="sub">one-time payment</span>';
-    if (n !== null && n < 12) return money(Math.round(monthly * n * 100) / 100) + '<span class="sub">in total over ' + n + ' months</span>';
+    if (n !== null && n < 12) return money(Math.round(annual * n / 12 * 100) / 100) + '<span class="sub">in total over ' + n + ' months</span>';
     return money(annual) + '<span class="sub"> a year</span>';
   }
   function incomeCells(r, s) {
