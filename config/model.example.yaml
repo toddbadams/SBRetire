@@ -9,6 +9,7 @@ model:
   frequency: monthly
   horizon_years: 100
   random_seed: 42
+  unknown_keys: error             # error | warn — unknown keys are rejected or reported as warnings
 
 portfolio:
   starting_balance: 1500000
@@ -30,7 +31,7 @@ mortality:
   source: ONS_2024_BASED
   geography: UK
   projection: principal
-  data_file: data/ons_mortality.csv
+  data_file: ../data/ons_mortality.csv   # relative to this file's directory
 
 people:
   - id: person_1

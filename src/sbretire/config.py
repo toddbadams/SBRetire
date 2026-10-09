@@ -12,12 +12,14 @@ from __future__ import annotations
 
 import re
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import date, datetime
 from pathlib import Path
 from typing import Annotated, Any, Literal, NamedTuple
 
 from pydantic import AfterValidator, BaseModel, BeforeValidator, ConfigDict, Field, ValidationError
+
+from sbretire._yaml import YamlLoadError, load_yaml
 
 _ISO_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
@@ -260,7 +262,33 @@ def _consistency_issues(scenario: Scenario) -> list[ScenarioIssue]:
     return issues
 
 
-# ---------------------------------------------------------------- entry point
+# ---------------------------------------------------------------- entry points
+
+
+def _without(raw: object, loc: Sequence[int | str]) -> object:
+    """Deep copy of ``raw`` with the key at ``loc`` removed (used to drop unknown keys in warn mode)."""
+    if not loc:
+        return raw
+    head, rest = loc[0], loc[1:]
+    if isinstance(raw, Mapping):
+        return {
+            k: (v if k != head else _without(v, rest)) for k, v in raw.items() if not (k == head and not rest)
+        }
+    if isinstance(raw, list) and isinstance(head, int) and head < len(raw):
+        return [item if i != head else _without(item, rest) for i, item in enumerate(raw)]
+    return raw
+
+
+def _warn_on_unknown(raw: Mapping[str, object]) -> bool:
+    model = raw.get("model")
+    return isinstance(model, Mapping) and model.get("unknown_keys") == "warn"
+
+
+def _resolve_data_file(scenario: Scenario, base_dir: Path) -> Scenario:
+    data_file = scenario.mortality.data_file
+    resolved = (data_file if data_file.is_absolute() else base_dir / data_file).resolve()
+    mortality = scenario.mortality.model_copy(update={"data_file": resolved})
+    return scenario.model_copy(update={"mortality": mortality})
 
 
 def parse_scenario(
@@ -268,17 +296,54 @@ def parse_scenario(
 ) -> LoadedScenario:
     """Validate an already-loaded scenario mapping.
 
-    ``base_dir`` is the directory relative paths resolve against (the config file's directory).
+    Relative paths resolve against ``base_dir`` (the config file's directory — configuration decisions §2).
+    Unknown keys are errors unless ``model.unknown_keys: warn``, which returns them as warnings (§1).
     Raises :class:`ScenarioError` with every issue found.
     """
+    warnings: list[ScenarioIssue] = []
     try:
         scenario = Scenario.model_validate(raw)
     except ValidationError as exc:
-        raise ScenarioError([_issue(e) for e in exc.errors()]) from None
-    if issues := _consistency_issues(scenario):
+        errors = exc.errors()
+        unknown = [e for e in errors if e["type"] == "extra_forbidden"]
+        if not (unknown and _warn_on_unknown(raw)):
+            raise ScenarioError([_issue(e) for e in errors]) from None
+        warnings = [ScenarioIssue(_format_location(e["loc"]), "unknown key (ignored)") for e in unknown]
+        cleaned: object = raw
+        for error in unknown:
+            cleaned = _without(cleaned, error["loc"])
+        try:
+            scenario = Scenario.model_validate(cleaned)
+        except ValidationError as retry:
+            raise ScenarioError([_issue(e) for e in retry.errors()]) from None
+
+    scenario = _resolve_data_file(scenario, base_dir)
+    issues = _consistency_issues(scenario)
+    if require_data_files and not scenario.mortality.data_file.is_file():
+        issues.append(ScenarioIssue("mortality.data_file", f"file not found: {scenario.mortality.data_file}"))
+    if issues:
         raise ScenarioError(issues)
-    return LoadedScenario(scenario=scenario, source_path=None, warnings=())
+    warnings.sort(key=lambda issue: _location_key(issue.location))
+    return LoadedScenario(scenario=scenario, source_path=None, warnings=tuple(warnings))
 
 
 def load_scenario(path: Path | str, *, require_data_files: bool = False) -> LoadedScenario:
-    raise NotImplementedError
+    """Read, parse and validate a scenario YAML file.
+
+    Raises :class:`OSError` if the file can't be read, :class:`ScenarioError` for anything wrong inside it
+    (invalid YAML, duplicate keys, invalid values).
+    """
+    source = Path(path).resolve()
+    text = source.read_text(encoding="utf-8")
+    try:
+        raw = load_yaml(text)
+    except YamlLoadError as exc:
+        raise ScenarioError(
+            [ScenarioIssue(_format_location(loc), msg) for loc, msg in exc.problems]
+        ) from None
+    if not isinstance(raw, Mapping):
+        raise ScenarioError(
+            [ScenarioIssue("(scenario)", "top level must be a mapping of sections (model, ...)")]
+        )
+    loaded = parse_scenario(raw, base_dir=source.parent, require_data_files=require_data_files)
+    return replace(loaded, source_path=source)

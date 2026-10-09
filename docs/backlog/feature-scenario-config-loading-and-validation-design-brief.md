@@ -134,6 +134,7 @@ Validate summary (stdout), e.g.: `OK config/model.yaml — 2 people, 3 income st
 
 - 2026-10-09 — pydantic's built-in `strict=True` rejects YAML lists for tuple fields and ISO strings for dates, so strictness is implemented per scalar type with BeforeValidators instead of model-wide strict mode. `income` is optional (defaults to no streams); `random_seed` is required but may be null.
 - 2026-10-09 — Relational rules (ids, people count, DOB, recipient, end-date ordering) run only after every field is valid, so a scenario with field errors gets a second round of relational issues once those are fixed. Day-of-month rules are field-level and always reported in the first round.
+- 2026-10-09 — YAML-level problems (syntax errors, duplicate keys) are reported before any field validation, so they form their own first round.
 
 ## 10. Tasks
 
@@ -180,7 +181,7 @@ Add cross-field validators to the Scenario models, reporting into the same issue
 - 2026-10-09: `src/sbretire/config.py` — `MonthStart` date type (1st-of-month, with a suggested correction) for `as_of_date`, `start_date`, `end_date`; `_consistency_issues` for duplicate ids, exactly two people, DOB < as-of, recipient ∈ people ids, `end_date` > start and > as-of. Tests: `tests/unit/test_config_consistency.py`.
 
 ### F-001.3 YAML file loading, unknown keys and path resolution
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-001.2
 
 Add the file layer: load_scenario(path, *, require_data_files=False) -> LoadedScenario.
@@ -192,12 +193,15 @@ Add the file layer: load_scenario(path, *, require_data_files=False) -> LoadedSc
 - Tests in `tests/unit/test_config_loading.py` (use tmp_path; never depend on CWD).
 
 **Acceptance criteria**
-- [ ] The committed example config loads into a Scenario with every SPEC §4.2 field typed — `test_load_example_config_returns_typed_scenario`
-- [ ] Unknown keys at top level and nested are errors by default — `test_unknown_keys_error_by_default`
-- [ ] With unknown_keys: warn, unknown keys are returned as warnings and loading succeeds — `test_unknown_keys_warn_mode_returns_warnings`
-- [ ] Duplicate YAML keys in any mapping are rejected with their location — `test_duplicate_yaml_keys_rejected`
-- [ ] mortality.data_file resolves relative to the config file's directory regardless of CWD — `test_data_file_resolved_relative_to_config`
-- [ ] A missing data file is an issue only with require_data_files=True — `test_missing_data_file_only_when_required`
+- [x] The committed example config loads into a Scenario with every SPEC §4.2 field typed — `test_load_example_config_returns_typed_scenario`
+- [x] Unknown keys at top level and nested are errors by default — `test_unknown_keys_error_by_default`
+- [x] With unknown_keys: warn, unknown keys are returned as warnings and loading succeeds — `test_unknown_keys_warn_mode_returns_warnings`
+- [x] Duplicate YAML keys in any mapping are rejected with their location — `test_duplicate_yaml_keys_rejected`
+- [x] mortality.data_file resolves relative to the config file's directory regardless of CWD — `test_data_file_resolved_relative_to_config`
+- [x] A missing data file is an issue only with require_data_files=True — `test_missing_data_file_only_when_required`
+
+**Notes**
+- 2026-10-09: `src/sbretire/_yaml.py` — `load_yaml` composes the node tree, reports every duplicate key with its YAML path and both line numbers, then constructs with the safe loader; syntax errors become issues with line/column. `config.py` — `load_scenario` (OSError if unreadable; ScenarioError otherwise), warn mode drops unknown keys and returns sorted "unknown key (ignored)" warnings while real errors still raise, `mortality.data_file` resolved against the config directory, `require_data_files` check. `config/model.example.yaml` gains `unknown_keys: error` and `../data/ons_mortality.csv`. Tests: `tests/unit/test_config_loading.py` (11).
 
 ### F-001.4 CLI validate and run subcommands
 - **Status**: To Do
