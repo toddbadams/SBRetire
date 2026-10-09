@@ -19,9 +19,12 @@ from typing import Final, Literal, get_args
 import numpy as np
 from numpy.typing import NDArray
 
-from sbretire.config import MortalityAssumptions, ScenarioIssue
+from sbretire.config import MortalityAssumptions, Scenario, ScenarioIssue
+from sbretire.metadata import DataFileRecord
 
 Sex = Literal["male", "female"]
+AGE_MAX: Final = 100
+"""Last tabulated age; above it the cohort's age-100 rate is held (data-and-calibration §1)."""
 SEXES: Final[tuple[Sex, ...]] = get_args(Sex)
 COLUMNS: Final = ("sex", "birth_year", "age", "qx")
 SIDECAR_SUFFIX: Final = ".meta.json"
@@ -52,6 +55,12 @@ class MortalityTable:
         row = birth_year - self.first_birth_year
         grid = self.grids[sex]
         return 0 <= row < grid.shape[0] and 0 <= age < grid.shape[1] and not math.isnan(grid[row, age])
+
+    def annual_q(self, sex: Sex, birth_year: int, ages: NDArray[np.int64]) -> NDArray[np.float64]:
+        raise NotImplementedError
+
+    def data_file_record(self) -> DataFileRecord:
+        raise NotImplementedError
 
 
 def sidecar_path(path: Path) -> Path:
@@ -167,3 +176,7 @@ def load_mortality_table(path: Path, mortality: MortalityAssumptions | None = No
     for grid in grids.values():
         grid.flags.writeable = False
     return MortalityTable(path=path, meta=meta, first_birth_year=first, grids=grids)
+
+
+def coverage_issues(table: MortalityTable, scenario: Scenario) -> list[ScenarioIssue]:
+    raise NotImplementedError
