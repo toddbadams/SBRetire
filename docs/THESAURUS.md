@@ -54,6 +54,11 @@ suffix, bare unqualified `Service`, `confidence interval` (for success probabili
 - **Definition**: N_success / N_completed — reported alongside, never optimized against in V1.
 - **Related terms**: Conservative Success Rate
 
+### Config Hash
+- **Definition**: SHA-256 of the validated Scenario in canonical JSON, excluding the data-file path; unchanged by comments, key order or formatting, changed by any value (configuration §7).
+- **Synonyms to AVOID**: file hash, checksum of the YAML
+- **Related terms**: Run Metadata, Scenario
+
 ### Death Month
 - **Definition**: For one person on one Path, the first month index in which they are dead. They are alive — with full income and spending — through the month before; supplied up front as `death_month[person, path]`, a value ≥ the Horizon meaning alive at the Horizon (simulation-conventions §2).
 - **NOT**: The month they were last alive; a calendar date of death.
@@ -126,6 +131,11 @@ suffix, bare unqualified `Service`, `confidence interval` (for success probabili
 - **Definition**: Bracketed root-find for the minimum fixed annual effective return reaching a target Conservative Success Rate at a fixed Budget (SPEC §13).
 - **Synonyms to AVOID**: required yield, hurdle rate
 - **Related terms**: Common Random Numbers, Maximum Sustainable Budget
+
+### Run Metadata
+- **Definition**: The record written as `run_metadata.json` that makes a run reproducible and auditable: seed and its source, software version, Config Hash, data-file hashes and versions, environment versions, `created_at` (SPEC §10.3).
+- **Synonyms to AVOID**: run info, run log
+- **Related terms**: Config Hash, Random Stream
 
 ### Scenario
 - **Definition**: One validated YAML configuration — the full set of assumptions for a run.

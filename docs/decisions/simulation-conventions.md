@@ -25,3 +25,9 @@ Each simulated month runs, for every active path: (1) update alive state; (2) de
 Deterministic constant inflation steps once a year on As-Of anniversaries: I_t = (1 + π)^floor(t/12), so prices are flat for months 0–11 and step up at months 12, 24, …. First used by the F-015 preview (`AnnualStepPriceIndex`). F-006 must confirm this year boundary for stochastic draws or replace it; the preview follows whatever F-006 decides. (F-015)
 
 **Why**: SPEC §6 recommends one annual rate held for the twelve monthly steps of each simulated year, and "today's GBP" is the As-Of month, so simulation years naturally start there. Smooth monthly compounding was rejected because it would differ from the annual-draw process F-006 will build; calendar-year (January) steps were rejected for now because the first step would come only a few months after the As-Of date — F-006 may still choose it to align with calendar-year reporting.
+
+## 4. Random Streams by fixed spawn index; Common Random Numbers by creating streams once per run
+
+One `numpy.random.SeedSequence(seed)` roots all randomness. Each stochastic component gets its own Random Stream — a `Generator(PCG64)` on a fixed child: mortality = child 0, inflation = child 1; a future component takes the next unused index. Streams are created once per run; the mortality and inflation draws they produce are reused unchanged for every candidate Budget or return in a search (Common Random Numbers) — candidates never re-seed. (F-005)
+
+**Why**: SPEC §10.3 requires separate streams so a change to one component leaves the other's draws identical, and CRN across candidates so optimisation compares like with like. Fixed indices (rather than spawn order at call sites) mean adding a stream never shifts existing draws; a known-answer test pins them. A single shared generator was rejected because consuming more inflation draws would shift every later mortality draw.

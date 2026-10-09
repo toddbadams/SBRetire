@@ -43,3 +43,15 @@ An Income Stream with `recipient: household` belongs to the household rather tha
 While exactly one person is alive, Required Spending is the Budget × I_t × the factor of the person still alive: their `people[].survivor_budget_factor` if set, otherwise `budget.survivor_budget_factor`. While both are alive the factor is 1. (F-004)
 
 **Why**: spending after a death is the survivor's lifestyle, so the person living on owns the number — "my share of the joint budget when I'm the one left". It allows different factors depending on who survives. Using the deceased's factor was rejected as describing someone else's spending; ignoring per-person factors was rejected because SPEC §4.2 lists them.
+
+## 7. Config Hash: SHA-256 of the canonical validated Scenario, without the data-file path
+
+`config_sha256` is the SHA-256 of the validated `Scenario` serialised as canonical JSON (`model_dump(mode="json")`, sorted keys, no whitespace) with `mortality.data_file` removed. Data files are hashed separately by content and recorded in Run Metadata. (F-005)
+
+**Why**: the hash should change exactly when the model's inputs change. Comments, key order and YAML formatting don't change results, so they must not change the hash; the resolved `data_file` is an absolute, machine-specific path, so including it would make the same config hash differently on two machines. Hashing raw YAML bytes was rejected (a comment edit looks like a new config); recording both hashes was rejected as two numbers to explain for no extra protection.
+
+## 8. `random_seed: null` generates a 128-bit seed and records it
+
+When `model.random_seed` is `null`, the run seeds from `numpy.random.SeedSequence().entropy` (128 bits of OS entropy) and records it in Run Metadata with `seed_source: "generated"`; pasting that number into `random_seed` reproduces the run. (F-005)
+
+**Why**: SPEC §4.2 allows `null` but requires the generated seed to be recorded. NumPy's own entropy makes collisions between runs practically impossible, and YAML/pydantic accept integers of any size. A shorter 63-bit seed was considered for readability; forbidding `null` was rejected as contradicting SPEC §4.2.

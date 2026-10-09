@@ -6,7 +6,7 @@ spec_sections: [§4, §4.2, §4.3, §5, §10.3]
 depends_on: []
 milestones:
   - { id: F-001, title: Scenario Config Loading and Validation, status: done }
-  - { id: F-005, title: Random Streams and Run Metadata, status: proposed }
+  - { id: F-005, title: Random Streams and Run Metadata, status: briefed }
 created: 2026-10-09
 updated:
   - 2026-10-09: created by /decompose-spec
@@ -42,4 +42,4 @@ Every run starts from a validated **Scenario** and a reproducible random state. 
 
 ## Risks and open questions
 
-- Config hash must be stable across YAML formatting changes? Decide whether to hash raw bytes or a canonicalised form (F-005).
+- ~~Config hash must be stable across YAML formatting changes? Decide whether to hash raw bytes or a canonicalised form (F-005).~~ → canonical validated Scenario (configuration §7).
