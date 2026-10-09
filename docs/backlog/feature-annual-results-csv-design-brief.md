@@ -2,7 +2,7 @@
 id: F-012
 type: feature
 parent: reporting-release
-status: planned
+status: in-progress
 complexity: 5
 created: 2026-10-09
 updated: 2026-10-09
@@ -95,7 +95,7 @@ _(filled during implementation)_
 ## 10. Tasks
 
 ### F-012.1 Streaming annual aggregation
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: —
 
 `AnnualRow`, the collector (observer + recording cash flows), `annual_results` in `src/sbretire/reporting.py`

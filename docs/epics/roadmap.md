@@ -18,7 +18,7 @@ Features in build order. Status: `proposed` → `briefed` → `in-progress` → 
 | F-009 | Monte Carlo Path Outcomes, Censoring and Success Metrics | [simulation-engine](simulation-engine.md) | F-006, F-008 | done |
 | F-010 | Maximum Sustainable Budget Optimization | [analysis-optimization](analysis-optimization.md) | F-009 | done |
 | F-011 | Return Search | [analysis-optimization](analysis-optimization.md) | F-010 | done |
-| F-012 | Annual Results CSV | [reporting-release](reporting-release.md) | F-009 | briefed |
+| F-012 | Annual Results CSV | [reporting-release](reporting-release.md) | F-009 | in-progress |
 | F-013 | Sustainability and Lifestyle CSVs and End-to-End CLI | [reporting-release](reporting-release.md) | F-010, F-011, F-012 | proposed |
 | F-014 | V1 Release: README, Acceptance and Reproducibility Sweep | [reporting-release](reporting-release.md) | F-013 | proposed |
 
