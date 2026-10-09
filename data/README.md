@@ -6,7 +6,9 @@ Per SPEC §19, a file is listed as present only once it has been downloaded, che
 |---|---|---|---|---|---|---|
 | `raw/ukppp24qx.xlsx` | ONS | [Mortality rates (qx), principal projection, UK](https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/lifeexpectancies/datasets/mortalityratesqxprincipalprojectionunitedkingdom) — 2024-based edition | published 2026-05-15 | 2026-10-09 | `fbc6991bbeeab2691e0e7ce6aabf697fbcbe341a84f8dba6d11f48b29f4e6dac` | Exact download, unmodified. Period and cohort qx per 100,000, males/females, ages 0–100, 1981–2074 |
 | `ons_mortality.csv` (+ `ons_mortality.meta.json`) | built | from `raw/ukppp24qx.xlsx` by `scripts/build_ons_mortality.py` | 2024-based | 2026-10-09 | in `run_metadata.json` | `sex,birth_year,age,qx`, qx a probability; rules in `docs/decisions/data-and-calibration.md` §1 |
-| `uk_cpi.csv` | ONS | CPI annual rate (series D7G7 or equivalent) | _tbd_ | _tbd_ | _tbd_ | Calibration period recorded in config |
+| `raw/ons_cpi_d7g7.csv` | ONS | [CPI annual rate 00: all items 2015=100](https://www.ons.gov.uk/economy/inflationandpriceindices/timeseries/d7g7/mm23) (series D7G7, dataset MM23) | released 2026-09-16 | 2026-10-09 | `ff87e9f1cc2412d1688a35b21c67243be6902b463ccbd9df19387109978fdcae` | Exact download, unmodified; annual rows 1989–2025 (%) plus quarterly/monthly rows |
+| `raw/ons_cpi_d7bt.csv` | ONS | [CPI index 00: all items 2015=100](https://www.ons.gov.uk/economy/inflationandpriceindices/timeseries/d7bt/mm23) (series D7BT, dataset MM23) | released 2026-09-16 | 2026-10-09 | `27a2473f818423a499fce4be23a2816d6670b1ae93b8eaaa11687c2237322865` | Exact download, unmodified; used only to cross-check D7G7 |
+| `uk_cpi.csv` (+ `uk_cpi.meta.json`) | built | from `raw/ons_cpi_d7g7.csv` by `scripts/build_uk_cpi.py` | D7G7 (released 2026-09-16) | 2026-10-09 | in `run_metadata.json` | `year,annual_rate` (decimal), 1989–2025; calibration rules in `docs/decisions/data-and-calibration.md` §2 |
 
 Reference landing pages (starting points only — record the exact file you download):
 
@@ -34,3 +36,16 @@ uv run python scripts/build_ons_mortality.py
   rate is held (`docs/decisions/data-and-calibration.md` §1).
 - `ons_mortality.meta.json` records source, geography, projection, publication and retrieval dates and the raw
   file's SHA-256; the loader checks it against the config's `mortality` section.
+
+## Inflation (`uk_cpi.csv`)
+
+Rebuild from the raw downloads (output is byte-identical to the committed files):
+
+```bash
+uv run python scripts/build_uk_cpi.py
+```
+
+- **Columns**: `year`, `annual_rate` = the D7G7 calendar-year CPI annual rate as a decimal (5.2 % → 0.052).
+- **Check**: every year must agree with the change in the D7BT annual-average index within 0.15 percentage points
+  (the index is published to one decimal place); the build fails otherwise.
+- `uk_cpi.meta.json` records series, dataset, release and retrieval dates and both raw files' SHA-256.

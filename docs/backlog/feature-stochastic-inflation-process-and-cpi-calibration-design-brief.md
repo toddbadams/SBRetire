@@ -2,7 +2,7 @@
 id: F-006
 type: feature
 parent: stochastic-inputs
-status: planned
+status: in-progress
 complexity: 6
 created: 2026-10-09
 updated: 2026-10-09
@@ -154,7 +154,7 @@ _(filled during implementation)_
 ## 10. Tasks
 
 ### F-006.1 CPI data build and provenance
-- **Status**: To Do
+- **Status**: Verification
 - **Depends on**: —
 
 `scripts/build_uk_cpi.py`: read `data/raw/ons_cpi_d7g7.csv` (annual `"YYYY","r.r"` rows), write
@@ -162,10 +162,13 @@ _(filled during implementation)_
 `data/README.md`. Tests in `tests/tooling/test_build_uk_cpi.py`.
 
 **Acceptance criteria**
-- [ ] Rebuilding into a temp dir reproduces the committed CSV and sidecar byte-for-byte — `test_build_uk_cpi_reproduces_committed_files`
-- [ ] Known values: 1989 = 0.052, 2015 = 0.0, 2022 = 0.091, 2025 = 0.034; years 1989–2025 contiguous, header `year,annual_rate` — `test_uk_cpi_known_values`
-- [ ] Every D7G7 rate is within 0.0015 of the D7BT annual-average index change for that year — `test_uk_cpi_agrees_with_index`
-- [ ] `data/README.md` and the sidecar record both raw SHA-256s, the series, release and retrieval dates — `check: grep ff87e9f1cc2412d1688a35b21c67243be6902b463ccbd9df19387109978fdcae data/README.md data/uk_cpi.meta.json`
+- [x] Rebuilding into a temp dir reproduces the committed CSV and sidecar byte-for-byte — `test_build_uk_cpi_reproduces_committed_files`
+- [x] Known values: 1989 = 0.052, 2015 = 0.0, 2022 = 0.091, 2025 = 0.034; years 1989–2025 contiguous, header `year,annual_rate` — `test_uk_cpi_known_values`
+- [x] Every D7G7 rate is within 0.0015 of the D7BT annual-average index change for that year — `test_uk_cpi_agrees_with_index`
+- [x] `data/README.md` and the sidecar record both raw SHA-256s, the series, release and retrieval dates — `check: grep ff87e9f1cc2412d1688a35b21c67243be6902b463ccbd9df19387109978fdcae data/README.md data/uk_cpi.meta.json`
+
+**Notes**
+- 2026-10-09 Added `scripts/build_uk_cpi.py` (CDID checks, contiguous years, Decimal % → decimal, D7BT cross-check ≤ 0.0015 else fail); built and committed `data/uk_cpi.csv` (1989–2025) and `data/uk_cpi.meta.json`; `data/README.md` rows + Inflation section. Tests `tests/tooling/test_build_uk_cpi.py` (4, incl. sidecar provenance).
 
 ### F-006.2 AR(1) calibration and inflation config schema
 - **Status**: To Do

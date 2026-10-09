@@ -1,0 +1,18 @@
+{
+  "build": "scripts/build_uk_cpi.py",
+  "columns": "year,annual_rate",
+  "dataset": "MM23",
+  "edition": "D7G7 (released 2026-09-16)",
+  "index_raw_file": "raw/ons_cpi_d7bt.csv",
+  "index_raw_sha256": "27a2473f818423a499fce4be23a2816d6670b1ae93b8eaaa11687c2237322865",
+  "index_series": "D7BT",
+  "raw_file": "raw/ons_cpi_d7g7.csv",
+  "raw_sha256": "ff87e9f1cc2412d1688a35b21c67243be6902b463ccbd9df19387109978fdcae",
+  "release_date": "2026-09-16",
+  "retrieved": "2026-10-09",
+  "series": "D7G7",
+  "source": "UK_CPI",
+  "source_url": "https://www.ons.gov.uk/economy/inflationandpriceindices/timeseries/d7g7/mm23",
+  "title": "CPI ANNUAL RATE 00: ALL ITEMS 2015=100",
+  "units": "annual_rate_decimal"
+}
