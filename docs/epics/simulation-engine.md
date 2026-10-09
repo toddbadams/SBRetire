@@ -5,11 +5,12 @@ status: proposed
 spec_sections: [§5, §7.2, §9, §10.1, §10.2, §10.4, §11]
 depends_on: [foundations]
 milestones:
-  - { id: F-002, title: Deterministic Portfolio Engine (Walking Skeleton), status: proposed }
+  - { id: F-002, title: Deterministic Portfolio Engine (Walking Skeleton), status: briefed }
   - { id: F-009, title: Monte Carlo Path Outcomes, Censoring and Success Metrics, status: proposed }
 created: 2026-10-09
 updated:
   - 2026-10-09: created by /decompose-spec
+  - 2026-10-09: F-002 briefed
 ---
 
 # Simulation Engine

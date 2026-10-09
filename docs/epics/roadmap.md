@@ -1,13 +1,13 @@
 # SBRetire V1 Roadmap
 
-**Last updated**: 2026-10-09 — F-001 done.
+**Last updated**: 2026-10-09 — F-002 briefed.
 
 Features in build order. Status: `proposed` → `briefed` → `in-progress` → `done` (or `superseded`). Briefs live in `docs/backlog/`; tasks are inside each brief.
 
 | # | Feature | Epic | depends_on | Status |
 |---|---|---|---|---|
 | F-001 | Scenario Config Loading and Validation | [foundations](foundations.md) | — | done |
-| F-002 | Deterministic Portfolio Engine (Walking Skeleton) | [simulation-engine](simulation-engine.md) | F-001 | proposed |
+| F-002 | Deterministic Portfolio Engine (Walking Skeleton) | [simulation-engine](simulation-engine.md) | F-001 | briefed |
 | F-003 | Income Streams | [household-cash-flows](household-cash-flows.md) | F-002 | proposed |
 | F-004 | Spending with Survivor Budget Factor | [household-cash-flows](household-cash-flows.md) | F-002 | proposed |
 | F-005 | Random Streams and Run Metadata | [foundations](foundations.md) | F-001 | proposed |
@@ -106,6 +106,7 @@ Unmapped requirements: **none**.
 
 ## Change Log
 
+- 2026-10-09 — F-002 briefed: design brief + tasks F-002.1…F-002.3; decision simulation-conventions §2; thesaurus Death Month, Household End.
 - 2026-10-09 — F-001 done: scenario config loading/validation and `sbretire validate`; F-001.1–F-001.4 verified (124 tests).
 - 2026-10-09 — Backlog.md dropped; markdown-only backlog (`docs/decisions/tooling-and-process.md` §4).
 - 2026-10-09 — F-001 briefed: design brief + tasks F-001.1…F-001.4; decisions simulation-conventions §1, configuration §1–3.

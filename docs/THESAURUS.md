@@ -54,6 +54,12 @@ suffix, bare unqualified `Service`, `confidence interval` (for success probabili
 - **Definition**: N_success / N_completed — reported alongside, never optimized against in V1.
 - **Related terms**: Conservative Success Rate
 
+### Death Month
+- **Definition**: For one person on one Path, the first month index in which they are dead. They are alive — with full income and spending — through the month before; supplied up front as `death_month[person, path]`, a value ≥ the Horizon meaning alive at the Horizon (simulation-conventions §2).
+- **NOT**: The month they were last alive; a calendar date of death.
+- **Synonyms to AVOID**: date of death, mortality month, death date
+- **Related terms**: Household End, Path, Censored Path
+
 ### Depletion (Failed Path)
 - **Definition**: The first month in which balance after return and income is less than *Required Spending*; the path fails, balance is set to zero and the *Shortfall* recorded. No negative balance compounds (SPEC §9).
 - **Synonyms to AVOID**: bankruptcy, ruin, negative balance, going broke
@@ -62,6 +68,12 @@ suffix, bare unqualified `Service`, `confidence interval` (for success probabili
 ### Horizon
 - **Definition**: `model.horizon_years` — a computational cap on simulated months, not an assumed age of death.
 - **Related terms**: Censored Path
+
+### Household End
+- **Definition**: The first month in which both people are dead; the Path stops before that month's cash flows (`PathOutcomes.household_end_month`).
+- **NOT**: The first death (that triggers the Survivor Budget Factor, not the end).
+- **Synonyms to AVOID**: second death date, joint death, end of plan
+- **Related terms**: Death Month, Completed Path, Censored Path
 
 ### Income Stream
 - **Definition**: One configured inflow (`income[]`) with a start date, annual amount in today's GBP, inflation-linking flag, recipient and survivor percentage. Monthly amount is annual / 12.
