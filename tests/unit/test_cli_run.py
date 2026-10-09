@@ -19,6 +19,7 @@ from sbretire.config import load_scenario
 from sbretire.metadata import config_sha256, file_sha256
 from sbretire.monte_carlo import draw_random_inputs, run_monte_carlo
 from sbretire.mortality import load_mortality_table
+from sbretire.optimization import maximum_sustainable_budgets, path_budget_thresholds
 from sbretire.randomness import ResolvedSeed
 
 from scenario_helpers import set_at
@@ -109,3 +110,41 @@ def test_cli_run_rejects_bad_data(
     assert main(["run", "--config", str(gapped), "--output-dir", str(tmp_path / "out")]) == 2
     assert "inflation.source_period" in capsys.readouterr().err
     assert not (tmp_path / "out").exists()
+
+
+def test_cli_run_prints_maximum_budgets(
+    tmp_path: Path, valid_raw: dict[str, Any], capsys: pytest.CaptureFixture[str]
+) -> None:
+    raw = set_at(_absolute_data(valid_raw), "model.confidence_levels", [0.5, 0.9])
+    config = _write(tmp_path / "feasible", raw)
+    assert main(["run", "--config", str(config), "--output-dir", str(tmp_path / "out")]) == 0
+    out = capsys.readouterr().out
+    assert out.isascii()
+
+    scenario = load_scenario(config).scenario
+    inputs = draw_random_inputs(
+        scenario, load_mortality_table(scenario.mortality.data_file), ResolvedSeed(7, "config")
+    )
+    expected = maximum_sustainable_budgets(path_budget_thresholds(scenario, inputs), [0.5, 0.9])
+    assert "Maximum sustainable budget" in out and "tolerance 1 GBP/month" in out
+    for result in expected:
+        assert (
+            result.maximum_monthly_budget_today is not None and result.maximum_annual_budget_today is not None
+        )
+        assert result.estimated_success_probability is not None and result.standard_error is not None
+        row = next(
+            line for line in out.splitlines() if line.lstrip().startswith(f"{result.target_probability:.0%}")
+        )
+        assert f"{result.maximum_monthly_budget_today:,.0f}" in row
+        assert f"{result.maximum_annual_budget_today:,.0f}" in row
+        assert f"{result.estimated_success_probability:.2%} +/- {result.standard_error:.3%}" in row
+        assert f"{result.unresolved_fraction:.2%}" in row
+        assert row.rstrip().endswith("yes")
+    assert f"{expected[0].iterations} engine runs" in out
+
+    short = set_at(set_at(raw, "model.horizon_years", 10), "model.confidence_levels", [0.01, 0.9])
+    config = _write(tmp_path / "short", short)
+    assert main(["run", "--config", str(config), "--output-dir", str(tmp_path / "out2")]) == 0
+    out = capsys.readouterr().out
+    row = next(line for line in out.splitlines() if line.lstrip().startswith("90%"))
+    assert "infeasible" in row

@@ -151,7 +151,7 @@ Optional `monthly_budget_today` (scalar or (n_paths,)) through `ScenarioSpending
 - 2026-10-09 Added `src/sbretire/optimization.py`: `BUDGET_TOLERANCE` (£1), `BUDGET_CAP` (£1M), `ThresholdSearch`, `path_budget_thresholds` (doubling expansion from max(2 × Budget, £1,000) until every completed-by-death path fails or the cap; vectorised per-path bisection to ≤ £1; thresholds = feasible end, −inf for paths with someone alive at the horizon), `BudgetResult`, `maximum_sustainable_budgets` (k = ⌈p·N⌉-th largest threshold; confirming run at B* for rate, SE and unresolved share; infeasible and cap notes). Tests `tests/integration/test_optimization.py` (6, incl. a literal scalar bisection reference).
 
 ### F-010.3 `sbretire run` shows the maximum sustainable budgets
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-010.2
 
 `run` adds a table (one row per confidence level) after the F-009 summary; README; timing.
