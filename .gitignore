@@ -34,3 +34,4 @@ Thumbs.db
 # Claude Code per-user state
 .claude/settings.local.json
 .claude/worktrees/
+.VSCodeCounter
