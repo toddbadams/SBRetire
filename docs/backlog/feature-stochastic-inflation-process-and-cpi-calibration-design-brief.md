@@ -29,7 +29,7 @@ simulation-conventions §3 with §5. Makes passable SPEC §17.1 "Zero inflation 
 | 1 | Calibration data | ONS MM23 series **D7G7** "CPI annual rate 00: all items 2015=100" (release 2026-09-16, retrieved 2026-10-09), annual values 1989–2025; **D7BT** (CPI index) kept as a cross-check. Raw CSVs in `data/raw/` unmodified; `scripts/build_uk_cpi.py` → `data/uk_cpi.csv` (`year,annual_rate`, decimal) + `data/uk_cpi.meta.json` | Official UK CPI; the config already names `UK_CPI 1989-2025`; annual-average rates match annual draws | SPEC §4.2, §19 |
 | 2 | Process | **AR(1) lognormal**: x_y = log(1 + π_y); x_y = μ + φ (x_{y−1} − μ) + σ ε_y, ε ~ N(0, 1) iid. 1 + π = exp(x) > 0 always | UK inflation is persistent (φ ≈ 0.62); with a fixed nominal portfolio return, runs of high inflation are the main inflation risk and iid draws would halve long-run price-level dispersion | Interview Q1; data-and-calibration §2 |
 | 3 | Parameter meaning | All parameters are **log-space** (`parameter_units: log_annual`): `log_mean` μ, `ar1_coefficient` φ ∈ (−1, 1), `innovation_sd` σ ≥ 0. Implied median rate e^μ − 1; stationary log SD σ/√(1−φ²) — documented, never silently converted from arithmetic moments | SPEC §6 forbids silently equating arithmetic moments with lognormal parameters | SPEC §6 |
-| 4 | Estimator | μ = mean of x over the calibration years; φ = Σ(x_{t−1}−μ)(x_t−μ) / Σ(x_{t−1}−μ)²; σ = √(Σ e² / (n − 2)), e_t = (x_t−μ) − φ(x_{t−1}−μ), n − 1 residuals. 1989–2025 → μ 0.027742, φ 0.617897, σ 0.015365 (stationary SD 0.01954, median rate 2.81 %) | Simple, reproducible, documented | Brief author |
+| 4 | Estimator | μ = mean of x over the calibration years; φ = Σ(x_{t−1}−μ)(x_t−μ) / Σ(x_{t−1}−μ)²; σ = √(Σ e² / (m − 2)) over the m = n − 1 residuals e_t = (x_t−μ) − φ(x_{t−1}−μ) (two fitted parameters). 1989–2025 → μ 0.027742, φ 0.617897, σ 0.015365 (stationary SD 0.01954, median rate 2.81 %) | Simple, reproducible, documented | Brief author |
 | 5 | Start state | x_{−1} = log(1 + `initial_rate`); `initial_rate` defaults in the example to the last observed year (2025: 0.034) | Year 1 reflects current conditions, reverting at ≈ 38 %/yr | Interview Q2 |
 | 6 | Config | `inflation: {source, source_period "YYYY-YYYY", data_file, model: ar1_lognormal, parameter_units: log_annual, log_mean, ar1_coefficient, innovation_sd, initial_rate}`; `annual_mean` / `annual_standard_deviation` removed. `scripts/calibrate_inflation.py` prints the calibrated block | Explicit, editable for stress tests; one source of truth per run | Interview Q3 |
 | 7 | Within-year timing | Simulated years run from the As-Of month. I_0 = 1; for 12k ≤ t ≤ 12(k+1): I_t = I_{12k} · (1 + π_k)^((t − 12k)/12). At anniversaries I_{12k} = ∏_{j<k}(1 + π_j) = SPEC's I_y | SPEC §6 "apply it to each of the twelve monthly steps"; replaces the provisional annual step | Interview Q4; simulation-conventions §5 |
@@ -151,6 +151,8 @@ inflation:
 ## 9. Surprises
 
 - 2026-10-09 — F-006.2: an AR(1) path with σ = 0 decays towards μ, so its sample mean is not μ and the fit cannot "recover μ and φ exactly" from it; the AC now uses a hand-computed short series (exact) plus a long seeded synthetic series (tolerance).
+- 2026-10-09 — F-006.2: the brief's σ formula said n − 2 (n = observations) while its pinned value 0.015365 used m − 2 over the m = n − 1 residuals (34 for 1989–2025). The pinned value and example config were right; formula text, code and the hand-computed test now all use m − 2.
+- 2026-10-09 — F-006.2: `inflation.data_file` resolves to an absolute path and leaked into the Config Hash; it is now excluded like `mortality.data_file` (configuration §7 amended).
 
 ## 10. Tasks
 
@@ -172,7 +174,7 @@ inflation:
 - 2026-10-09 Added `scripts/build_uk_cpi.py` (CDID checks, contiguous years, Decimal % → decimal, D7BT cross-check ≤ 0.0015 else fail); built and committed `data/uk_cpi.csv` (1989–2025) and `data/uk_cpi.meta.json`; `data/README.md` rows + Inflation section. Tests `tests/tooling/test_build_uk_cpi.py` (4, incl. sidecar provenance).
 
 ### F-006.2 AR(1) calibration and inflation config schema
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-006.1
 
 `fit_ar1_lognormal` and `load_cpi_series` in `src/sbretire/inflation.py`; `scripts/calibrate_inflation.py`; new
@@ -180,10 +182,13 @@ inflation:
 `config/model.example.yaml`, fixtures and tests.
 
 **Acceptance criteria**
-- [ ] A short hand-computed series gives exactly the §2 #4 formulas; a long seeded synthetic AR(1) series is recovered within tolerance; on real data the fit gives μ 0.027742, φ 0.617897, σ 0.015365 (to 6 dp) and `initial_rate` = the last year's rate — `test_fit_ar1_lognormal_known_answers`
-- [ ] `config/model.example.yaml` inflation parameters equal the calibration of its `source_period` from its `data_file`, rounded to 4 dp — `test_example_config_matches_calibration`
-- [ ] Invalid inflation config is rejected with its YAML location: `ar1_coefficient` ±1 or beyond, negative `innovation_sd`, `initial_rate` ≤ −1, `model`/`parameter_units` other than `ar1_lognormal`/`log_annual`, malformed `source_period`, and the removed `annual_mean` key — `test_inflation_config_rejects_invalid_values`
-- [ ] `scripts/calibrate_inflation.py --config config/model.example.yaml` prints a YAML block whose values match the fit — `test_calibrate_inflation_script_prints_block`
+- [x] A short hand-computed series gives exactly the §2 #4 formulas; a long seeded synthetic AR(1) series is recovered within tolerance; on real data the fit gives μ 0.027742, φ 0.617897, σ 0.015365 (to 6 dp) and `initial_rate` = the last year's rate — `test_fit_ar1_lognormal_known_answers`
+- [x] `config/model.example.yaml` inflation parameters equal the calibration of its `source_period` from its `data_file`, rounded to 4 dp — `test_example_config_matches_calibration`
+- [x] Invalid inflation config is rejected with its YAML location: `ar1_coefficient` ±1 or beyond, negative `innovation_sd`, `initial_rate` ≤ −1, `model`/`parameter_units` other than `ar1_lognormal`/`log_annual`, malformed `source_period`, and the removed `annual_mean` key — `test_inflation_config_rejects_invalid_values`
+- [x] `scripts/calibrate_inflation.py --config config/model.example.yaml` prints a YAML block whose values match the fit — `test_calibrate_inflation_script_prints_block`
+
+**Notes**
+- 2026-10-09 `InflationAssumptions` reshaped (`source_period` YYYY-YYYY with `first_year`/`last_year`, `data_file` resolved like mortality and checked by `--require-data-files`, `model: ar1_lognormal`, `parameter_units: log_annual`, `log_mean`, `ar1_coefficient` ∈ (−1, 1), `innovation_sd` ≥ 0, `initial_rate` > −1; old keys now unknown). `Ar1LognormalParams`, `fit_ar1_lognormal`, `load_cpi_series`, `calibrate_inflation` in `src/sbretire/inflation.py`; `scripts/calibrate_inflation.py` prints the block (incl. relative `data_file`). Config Hash excludes `inflation.data_file`. Migrated example config, fixture, preview (constant median rate e^μ − 1, still annual step until F-006.4) and tests (config fields/loading, preview, mortality CLI). Personal `config/model.yaml` migrated locally (git-ignored) and validates. Tests: `tests/unit/test_inflation_calibration.py` (4), `tests/tooling/test_calibrate_inflation.py` (1), +14 config cases.
 
 ### F-006.3 AR(1) draws and StochasticPriceIndex
 - **Status**: To Do

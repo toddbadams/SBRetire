@@ -18,14 +18,14 @@ EXAMPLE = ROOT / "config" / "model.example.yaml"
 
 
 def test_fit_ar1_lognormal_known_answers() -> None:
-    # Hand-computed: x = log(1 + r); μ = mean(x); φ = Σ d_{t-1} d_t / Σ d_{t-1}²; σ = √(Σ e² / (n - 2)).
+    # Hand-computed: x = log(1 + r); μ = mean(x); φ = Σ d_{t-1} d_t / Σ d_{t-1}²; σ = √(Σ e² / (m - 2)).
     rates = [0.01, 0.03, 0.02, 0.04, 0.025]
     x = [math.log1p(r) for r in rates]
     mu = sum(x) / len(x)
     d = [v - mu for v in x]
     phi = sum(a * b for a, b in pairwise(d)) / sum(a * a for a in d[:-1])
     residuals = [b - phi * a for a, b in pairwise(d)]
-    sigma = math.sqrt(sum(e * e for e in residuals) / (len(rates) - 2))
+    sigma = math.sqrt(sum(e * e for e in residuals) / (len(residuals) - 2))  # 2 fitted parameters
     fitted = fit_ar1_lognormal(rates)
     assert fitted.log_mean == pytest.approx(mu, rel=1e-12)
     assert fitted.ar1_coefficient == pytest.approx(phi, rel=1e-12)
@@ -56,12 +56,12 @@ def test_fit_ar1_lognormal_known_answers() -> None:
 
 
 def test_fit_ar1_lognormal_rejects_degenerate_series() -> None:
-    with pytest.raises(ValueError, match="at least 3"):
-        fit_ar1_lognormal([0.02, 0.03])
+    with pytest.raises(ValueError, match="at least 4"):
+        fit_ar1_lognormal([0.02, 0.03, 0.01])
     with pytest.raises(ValueError, match="constant"):
         fit_ar1_lognormal([0.02, 0.02, 0.02, 0.02])
     with pytest.raises(ValueError, match="greater than -1"):
-        fit_ar1_lognormal([0.02, -1.0, 0.03])
+        fit_ar1_lognormal([0.02, -1.0, 0.03, 0.01])
 
 
 def test_example_config_matches_calibration() -> None:

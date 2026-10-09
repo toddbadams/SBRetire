@@ -46,7 +46,7 @@ While exactly one person is alive, Required Spending is the Budget × I_t × the
 
 ## 7. Config Hash: SHA-256 of the canonical validated Scenario, without the data-file path
 
-`config_sha256` is the SHA-256 of the validated `Scenario` serialised as canonical JSON (`model_dump(mode="json")`, sorted keys, no whitespace) with `mortality.data_file` removed. Data files are hashed separately by content and recorded in Run Metadata. (F-005)
+`config_sha256` is the SHA-256 of the validated `Scenario` serialised as canonical JSON (`model_dump(mode="json")`, sorted keys, no whitespace) with the data-file paths (`mortality.data_file`, and `inflation.data_file` from F-006) removed. Data files are hashed separately by content and recorded in Run Metadata. (F-005)
 
 **Why**: the hash should change exactly when the model's inputs change. Comments, key order and YAML formatting don't change results, so they must not change the hash; the resolved `data_file` is an absolute, machine-specific path, so including it would make the same config hash differently on two machines. Hashing raw YAML bytes was rejected (a comment edit looks like a new config); recording both hashes was rejected as two numbers to explain for no extra protection.
 

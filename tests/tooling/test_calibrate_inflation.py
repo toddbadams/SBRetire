@@ -28,3 +28,4 @@ def test_calibrate_inflation_script_prints_block(capsys: pytest.CaptureFixture[s
     assert block["innovation_sd"] == round(fitted.innovation_sd, 4)
     assert block["initial_rate"] == round(fitted.initial_rate, 4)
     assert "1989-2025" in out
+    assert block["data_file"] == "../data/uk_cpi.csv"

@@ -176,6 +176,7 @@ def test_cli_validate_reports_mortality_coverage(
     table = _gapped_table(tmp_path / "data")
     config = tmp_path / "gapped.yaml"
     raw = set_at(valid_raw, "mortality.data_file", "data/ons_mortality.csv")
+    raw = set_at(raw, "inflation.data_file", str(ROOT / "data" / "uk_cpi.csv"))
     config.write_text(yaml.safe_dump(raw), encoding="utf-8")
     assert main(["validate", "--config", str(config)]) == 0  # contents checked only on request
     assert main(["validate", "--config", str(config), "--require-data-files"]) == 2

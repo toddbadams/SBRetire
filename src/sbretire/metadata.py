@@ -24,12 +24,13 @@ RUN_METADATA_FILE = "run_metadata.json"
 
 
 def config_sha256(scenario: Scenario) -> str:
-    """SHA-256 (lowercase hex) of the validated Scenario as canonical JSON, without ``mortality.data_file``.
+    """SHA-256 (lowercase hex) of the validated Scenario as canonical JSON, without data-file paths.
 
     Comments, key order and YAML formatting never reach the validated Scenario, so cannot change the hash;
     the data-file path is machine-specific and its content is hashed separately (configuration §7).
     """
-    payload = scenario.model_dump(mode="json", exclude={"mortality": {"data_file"}})
+    excluded = {"mortality": {"data_file"}, "inflation": {"data_file"}}
+    payload = scenario.model_dump(mode="json", exclude=excluded)
     canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
     return hashlib.sha256(canonical.encode("ascii")).hexdigest()
 

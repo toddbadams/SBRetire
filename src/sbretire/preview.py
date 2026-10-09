@@ -6,6 +6,7 @@ A **deterministic illustration**, never a sustainability estimate (SPEC §14).
 from __future__ import annotations
 
 import csv
+import math
 from dataclasses import asdict, dataclass
 from datetime import date
 from pathlib import Path
@@ -97,12 +98,12 @@ class _RecordingCashFlows:
 def run_preview(scenario: Scenario, death_ages: tuple[int, int]) -> PreviewResult:
     """Simulate one deterministic Path and aggregate it into calendar-year rows (F-015 brief §2).
 
-    Death Months come from ``death_ages``; inflation is constant at ``inflation.annual_mean`` stepping on
+    Death Months come from ``death_ages``; inflation is constant at the median rate e^μ − 1 stepping on
     As-Of anniversaries; the return is the configured fixed ``portfolio.annual_return``. Money is nominal GBP
     except ``balance_end_today`` (deflated by the index at the year's last simulated month).
     """
     as_of = scenario.model.as_of_date
-    index = AnnualStepPriceIndex(1, scenario.inflation.annual_mean)
+    index = AnnualStepPriceIndex(1, math.expm1(scenario.inflation.log_mean))
     flows = _RecordingCashFlows(ScenarioCashFlows(scenario, index, n_paths=1))
     rate = monthly_return_rate(scenario.portfolio.annual_return)
     records: list[_MonthRecord] = []
@@ -205,7 +206,7 @@ def format_preview_table(result: PreviewResult, scenario: Scenario, death_ages: 
     lines = [
         BANNER,
         f"As-of {as_of:%Y-%m}; {people}.",
-        f"Inflation {scenario.inflation.annual_mean:.2%}/yr (constant); "
+        f"Inflation {math.expm1(scenario.inflation.log_mean):.2%}/yr (constant, median); "
         f"return {scenario.portfolio.annual_return:.2%}/yr (fixed). "
         "Money in nominal GBP unless marked 'today'.",
         "",

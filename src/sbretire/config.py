@@ -21,6 +21,7 @@ from pydantic import AfterValidator, BaseModel, BeforeValidator, ConfigDict, Fie
 
 from sbretire._yaml import YamlLoadError, load_yaml
 
+_YEAR_RANGE = re.compile(r"(?P<first>\d{4})-(?P<last>\d{4})")
 _ISO_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 HOUSEHOLD = "household"
@@ -68,6 +69,13 @@ def _iso_date(value: object) -> object:
 def _first_of_month(value: date) -> date:
     if value.day != 1:
         raise ValueError(f"must be the 1st of a month, e.g. {value:%Y-%m}-01 (got {value.isoformat()})")
+    return value
+
+
+def _year_range(value: str) -> str:
+    match = _YEAR_RANGE.fullmatch(value)
+    if match is None or int(match["first"]) > int(match["last"]):
+        raise ValueError(f'must be "YYYY-YYYY" with the first year not after the last (got {value!r})')
     return value
 
 
@@ -123,14 +131,32 @@ class BudgetAssumptions(_Frozen):
 
 
 class InflationAssumptions(_Frozen):
-    """Inflation source and parameters; F-006 narrows ``model`` to a precise process (SPEC §4.2, §6)."""
+    """AR(1) lognormal inflation and its calibration data (SPEC §4.2, §6; data-and-calibration §2).
+
+    x_y = log(1 + π_y) = μ + φ (x_{y-1} − μ) + σ ε_y. All parameters are log-space (``parameter_units:
+    log_annual``), never arithmetic moments of π; ``initial_rate`` is the annual rate π of the year before
+    the As-Of date.
+    """
 
     source: Text
-    source_period: Text
-    annual_mean: Number
-    annual_standard_deviation: NonNegative
-    model: Text
-    parameter_units: Text
+    source_period: Annotated[Text, AfterValidator(_year_range)]
+    data_file: Annotated[Path, BeforeValidator(_text)]
+    model: Literal["ar1_lognormal"]
+    parameter_units: Literal["log_annual"]
+    log_mean: Number
+    ar1_coefficient: Annotated[Number, Field(gt=-1, lt=1)]
+    innovation_sd: NonNegative
+    initial_rate: Annotated[Number, Field(gt=-1)]
+
+    @property
+    def first_year(self) -> int:
+        """First calendar year of ``source_period``."""
+        return int(self.source_period[:4])
+
+    @property
+    def last_year(self) -> int:
+        """Last calendar year of ``source_period``."""
+        return int(self.source_period[-4:])
 
 
 class MortalityAssumptions(_Frozen):
@@ -290,11 +316,19 @@ def _warn_on_unknown(raw: Mapping[str, object]) -> bool:
     return isinstance(model, Mapping) and model.get("unknown_keys") == "warn"
 
 
+def _resolve(base_dir: Path, data_file: Path) -> Path:
+    return (data_file if data_file.is_absolute() else base_dir / data_file).resolve()
+
+
 def _resolve_data_file(scenario: Scenario, base_dir: Path) -> Scenario:
-    data_file = scenario.mortality.data_file
-    resolved = (data_file if data_file.is_absolute() else base_dir / data_file).resolve()
-    mortality = scenario.mortality.model_copy(update={"data_file": resolved})
-    return scenario.model_copy(update={"mortality": mortality})
+    """Resolve ``mortality.data_file`` and ``inflation.data_file`` against the config directory (§2)."""
+    mortality = scenario.mortality.model_copy(
+        update={"data_file": _resolve(base_dir, scenario.mortality.data_file)}
+    )
+    inflation = scenario.inflation.model_copy(
+        update={"data_file": _resolve(base_dir, scenario.inflation.data_file)}
+    )
+    return scenario.model_copy(update={"mortality": mortality, "inflation": inflation})
 
 
 def parse_scenario(
@@ -325,8 +359,11 @@ def parse_scenario(
 
     scenario = _resolve_data_file(scenario, base_dir)
     issues = _consistency_issues(scenario)
-    if require_data_files and not scenario.mortality.data_file.is_file():
-        issues.append(ScenarioIssue("mortality.data_file", f"file not found: {scenario.mortality.data_file}"))
+    if require_data_files:
+        for section in (scenario.mortality, scenario.inflation):
+            if not section.data_file.is_file():
+                where = "mortality" if section is scenario.mortality else "inflation"
+                issues.append(ScenarioIssue(f"{where}.data_file", f"file not found: {section.data_file}"))
     if issues:
         raise ScenarioError(issues)
     warnings.sort(key=lambda issue: _location_key(issue.location))

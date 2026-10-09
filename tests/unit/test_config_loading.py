@@ -122,15 +122,19 @@ def test_absolute_data_file_kept(tmp_path: Path, valid_raw: dict[str, Any]) -> N
 
 
 def test_missing_data_file_only_when_required(tmp_path: Path, valid_raw: dict[str, Any]) -> None:
-    config = write_scenario(tmp_path / "s.yaml", set_at(valid_raw, "mortality.data_file", "m.csv"))
+    raw = set_at(set_at(valid_raw, "mortality.data_file", "m.csv"), "inflation.data_file", "c.csv")
+    config = write_scenario(tmp_path / "s.yaml", raw)
 
-    assert load_scenario(config).scenario.mortality.data_file.name == "m.csv"
+    loaded = load_scenario(config).scenario
+    assert (loaded.mortality.data_file.name, loaded.inflation.data_file.name) == ("m.csv", "c.csv")
+    assert loaded.inflation.data_file == (tmp_path / "c.csv").resolve()
     with pytest.raises(ScenarioError) as exc:
         load_scenario(config, require_data_files=True)
-    assert [i.location for i in exc.value.issues] == ["mortality.data_file"]
-    assert "not found" in exc.value.issues[0].message
+    assert [i.location for i in exc.value.issues] == ["inflation.data_file", "mortality.data_file"]
+    assert all("not found" in issue.message for issue in exc.value.issues)
 
     (tmp_path / "m.csv").write_text("age,q\n", encoding="utf-8")
+    (tmp_path / "c.csv").write_text("year,annual_rate\n", encoding="utf-8")
     assert load_scenario(config, require_data_files=True).scenario.mortality.data_file.is_file()
 
 
