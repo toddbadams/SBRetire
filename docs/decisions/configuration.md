@@ -5,7 +5,7 @@ Scope: YAML schema, validation and unknown-key strictness, survivor budget facto
 SPEC §18 items open in this topic (resolve each as a numbered `## N.` entry with a **Why** line):
 - ~~Behaviour of each income stream after recipient death (SPEC §8).~~ → §4
 - ~~Treatment of household-level income and survivor benefits (SPEC §4.2, §8).~~ → §5
-- Survivor budget factor precedence: per-person override vs household default (SPEC §4.2, §6).
+- ~~Survivor budget factor precedence: per-person override vs household default (SPEC §4.2, §6).~~ → §6
 - ~~Unknown-key strictness setting (SPEC §4.3).~~ → §1
 
 ## 1. Unknown keys: `model.unknown_keys: error | warn`, default `error`
@@ -37,3 +37,9 @@ A person-level Income Stream pays in full while its Recipient is alive (whoever 
 An Income Stream with `recipient: household` belongs to the household rather than one person: full while both people are alive, × `survivor_percentage` while exactly one is alive. `household` is reserved — no person may use it as an `id`. (F-003)
 
 **Why**: SPEC §4.2 asks for explicitly configured household-level income with defined survivor behaviour. Reusing `recipient` and `survivor_percentage` keeps one meaning ("what continues after a death") — 1.0 for rent, less for a reducing joint annuity. Omitting `recipient` was rejected because a forgotten field would silently become household income instead of a validation error.
+
+## 6. Survivor Budget Factor precedence: the survivor's own factor, else the household default
+
+While exactly one person is alive, Required Spending is the Budget × I_t × the factor of the person still alive: their `people[].survivor_budget_factor` if set, otherwise `budget.survivor_budget_factor`. While both are alive the factor is 1. (F-004)
+
+**Why**: spending after a death is the survivor's lifestyle, so the person living on owns the number — "my share of the joint budget when I'm the one left". It allows different factors depending on who survives. Using the deceased's factor was rejected as describing someone else's spending; ignoring per-person factors was rejected because SPEC §4.2 lists them.

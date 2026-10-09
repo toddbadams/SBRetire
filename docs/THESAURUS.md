@@ -137,7 +137,7 @@ suffix, bare unqualified `Service`, `confidence interval` (for success probabili
 - **Related terms**: Depletion
 
 ### Survivor Budget Factor
-- **Definition**: Multiplier F_t applied to the Budget while exactly one person is alive; per-person overrides take precedence over the household default (precedence recorded in decisions).
+- **Definition**: Multiplier F_t applied to the Budget while exactly one person is alive: the survivor's own `people[].survivor_budget_factor` if set, otherwise `budget.survivor_budget_factor` (configuration §6). F_t = 1 while both are alive.
 - **Synonyms to AVOID**: widow factor, single-life adjustment
 - **Related terms**: Budget, Required Spending
 
