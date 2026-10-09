@@ -1,6 +1,6 @@
 # SBRetire V1 Roadmap
 
-**Last updated**: 2026-10-09 — F-011 done.
+**Last updated**: 2026-10-09 — F-012 briefed.
 
 Features in build order. Status: `proposed` → `briefed` → `in-progress` → `done` (or `superseded`). Briefs live in `docs/backlog/`; tasks are inside each brief.
 
@@ -18,7 +18,7 @@ Features in build order. Status: `proposed` → `briefed` → `in-progress` → 
 | F-009 | Monte Carlo Path Outcomes, Censoring and Success Metrics | [simulation-engine](simulation-engine.md) | F-006, F-008 | done |
 | F-010 | Maximum Sustainable Budget Optimization | [analysis-optimization](analysis-optimization.md) | F-009 | done |
 | F-011 | Return Search | [analysis-optimization](analysis-optimization.md) | F-010 | done |
-| F-012 | Annual Results CSV | [reporting-release](reporting-release.md) | F-009 | proposed |
+| F-012 | Annual Results CSV | [reporting-release](reporting-release.md) | F-009 | briefed |
 | F-013 | Sustainability and Lifestyle CSVs and End-to-End CLI | [reporting-release](reporting-release.md) | F-010, F-011, F-012 | proposed |
 | F-014 | V1 Release: README, Acceptance and Reproducibility Sweep | [reporting-release](reporting-release.md) | F-013 | proposed |
 
@@ -107,6 +107,7 @@ Unmapped requirements: **none**.
 
 ## Change Log
 
+- 2026-10-09 — F-012 briefed: design brief + tasks F-012.1…F-012.2; decision simulation-conventions §8 (annual definitions) — last SPEC §18 item resolved.
 - 2026-10-09 — F-011 done: required fixed return per confidence level at the configured Budget by per-path threshold bisection (±50 %, 0.01 pp, monotonicity verified), shown by `sbretire run`; B-011.1 conservative display rounding (budgets down, returns up); F-011.1–F-011.3 + B-011.1 verified (351 tests). Analysis & Optimization epic complete.
 - 2026-10-09 — F-011 briefed: design brief + tasks F-011.1…F-011.3; decision optimization §2 (per-path return search, ±50 % bounds, 0.01 pp tolerance).
 - 2026-10-09 — F-010 done: Maximum Sustainable Budget per confidence level by per-path threshold bisection (CRN, £1 tolerance, confirming run), shown by `sbretire run`; F-010.1–F-010.3 verified (335 tests).

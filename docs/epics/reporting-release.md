@@ -5,7 +5,7 @@ status: active
 spec_sections: [§1.2, §2, §12, §15, §16, §17.3, §19]
 depends_on: [simulation-engine, analysis-optimization, foundations, household-cash-flows]
 milestones:
-  - { id: F-012, title: Annual Results CSV, status: proposed }
+  - { id: F-012, title: Annual Results CSV, status: briefed }
   - { id: F-013, title: Sustainability and Lifestyle CSVs and End-to-End CLI, status: proposed }
   - { id: F-014, title: "V1 Release: README, Acceptance and Reproducibility Sweep", status: proposed }
   - { id: F-015, title: Deterministic Preview Run, status: done }
