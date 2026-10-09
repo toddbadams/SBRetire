@@ -1,0 +1,71 @@
+# Example scenario — values are ILLUSTRATIVE ONLY (docs/SPEC.md §4.1), not verified inputs.
+# Copy to config/model.yaml (git-ignored) and edit.
+
+model:
+  currency: GBP
+  as_of_date: "2026-10-01"        # valuation date; first simulated month (SPEC §5)
+  simulation_count: 100000
+  confidence_levels: [0.90, 0.95, 0.99]
+  frequency: monthly
+  horizon_years: 100
+  random_seed: 42
+
+portfolio:
+  starting_balance: 1500000
+  annual_return: 0.05
+
+budget:
+  monthly_amount_today: 6667
+  survivor_budget_factor: 0.70
+
+inflation:
+  source: UK_CPI
+  source_period: "1989-2025"
+  annual_mean: 0.025
+  annual_standard_deviation: 0.015
+  model: annual_lognormal_or_normal   # TODO: pick exact process before release (SPEC §4.1, §6)
+  parameter_units: annual_rate
+
+mortality:
+  source: ONS_2024_BASED
+  geography: UK
+  projection: principal
+  data_file: data/ons_mortality.csv
+
+people:
+  - id: person_1
+    name: Person 1
+    date_of_birth: "1960-09-14"
+    sex: male
+    survivor_budget_factor: 0.70
+
+  - id: person_2
+    name: Person 2
+    date_of_birth: "1969-05-01"
+    sex: female
+    survivor_budget_factor: 0.70
+
+income:
+  - id: social_security
+    name: Social Security
+    start_date: "2027-09-01"
+    annual_amount_today: 20000
+    inflation_linked: true
+    survivor_percentage: 1.0
+    recipient: person_1
+
+  - id: state_pension
+    name: UK State Pension
+    start_date: "2028-09-01"
+    annual_amount_today: 20000
+    inflation_linked: true
+    survivor_percentage: 1.0
+    recipient: person_2
+
+  - id: nhs_pension
+    name: NHS Pension
+    start_date: "2029-01-01"
+    annual_amount_today: 31000
+    inflation_linked: true
+    survivor_percentage: 0.50
+    recipient: person_2

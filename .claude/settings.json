@@ -1,0 +1,46 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(uv run python scripts/check.py*)",
+      "Bash(uv run pytest *)",
+      "Bash(uv run ruff *)",
+      "Bash(uv run mypy*)",
+      "Bash(uv sync*)",
+      "Bash(.venv/Scripts/python.exe scripts/check.py*)",
+      "Bash(.venv/Scripts/python.exe -m pytest *)",
+      "Bash(.venv/Scripts/python.exe -m ruff *)",
+      "Bash(.venv/Scripts/python.exe -m mypy*)",
+      "Bash(backlog task *)",
+      "Bash(backlog board*)",
+      "Bash(git status*)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git add *)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".venv/Scripts/python.exe scripts/hook_check_edit.py",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "DIRTY=$(git status --porcelain -- backlog/ docs/ 2>/dev/null); if [ -n \"$DIRTY\" ]; then echo 'Reminder: uncommitted governance docs (backlog/, docs/) — commit them before ending the session.'; fi",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}

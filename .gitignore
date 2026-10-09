@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+
+# Tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+.coverage
+coverage.xml
+htmlcov/
+
+# Model runs — regenerate from config + data
+output/
+
+# Personal scenario — keep real inputs out of git; commit model.example.yaml instead
+config/model.yaml
+config/*.local.yaml
+
+# Editors / OS
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
+
+# Claude Code per-user state
+.claude/settings.local.json
+.claude/worktrees/
