@@ -278,3 +278,7 @@ def parse_scenario(
     if issues := _consistency_issues(scenario):
         raise ScenarioError(issues)
     return LoadedScenario(scenario=scenario, source_path=None, warnings=())
+
+
+def load_scenario(path: Path | str, *, require_data_files: bool = False) -> LoadedScenario:
+    raise NotImplementedError

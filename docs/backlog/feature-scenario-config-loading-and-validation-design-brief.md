@@ -180,7 +180,7 @@ Add cross-field validators to the Scenario models, reporting into the same issue
 - 2026-10-09: `src/sbretire/config.py` — `MonthStart` date type (1st-of-month, with a suggested correction) for `as_of_date`, `start_date`, `end_date`; `_consistency_issues` for duplicate ids, exactly two people, DOB < as-of, recipient ∈ people ids, `end_date` > start and > as-of. Tests: `tests/unit/test_config_consistency.py`.
 
 ### F-001.3 YAML file loading, unknown keys and path resolution
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-001.2
 
 Add the file layer: load_scenario(path, *, require_data_files=False) -> LoadedScenario.
