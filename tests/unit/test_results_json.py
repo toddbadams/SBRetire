@@ -109,7 +109,7 @@ def test_results_json_matches_run_objects() -> None:
     assert context.reserve_metrics is not None
     assert built["reserve_summary"]["n_successful"] == context.reserve_metrics.n_successful
     run = built["run"]
-    assert (run["name"], run["paths"], run["seed"]) == ("test-run", 300, {"value": 21, "source": "config"})
+    assert (run["name"], run["paths"], run["seed"]) == ("test-run", 300, {"value": "21", "source": "config"})
     assert run["options"] == {"end_reserve_months": 12, "spend_at_least_income": False}
     assert run["config_file"] == "example.yaml"
     for key, results in (("budgets", context.budgets), ("reserve_budgets", context.reserve_budgets)):

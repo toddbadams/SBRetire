@@ -46,6 +46,7 @@ from sbretire.reporting import (
     write_sustainability_results_csv,
 )
 from sbretire.results_guide import GuideContext, write_results_guide
+from sbretire.results_json import build_results, write_results_json
 
 EXIT_OK, EXIT_FAILURE, EXIT_INVALID = 0, 1, 2
 
@@ -229,9 +230,18 @@ def _run(args: argparse.Namespace, loaded: LoadedScenario) -> int:
             reserve_metrics=reserve_metrics,
             reserve_budgets=reserve_budgets,
         )
+        metadata = build_run_metadata(loaded, seed, records)
+        results = build_results(
+            context,
+            annual,
+            name=None,
+            config_sha256=metadata.config_sha256,
+            created_at=metadata.created_at,
+        )
         written += [
-            write_run_metadata(build_run_metadata(loaded, seed, records), output_dir),
+            write_run_metadata(metadata, output_dir),
             write_results_guide(context, output_dir / "results_guide.md"),
+            write_results_json(results, output_dir / "results.json"),
         ]
     except OSError as exc:
         print(f"error: cannot write to output directory {output_dir}: {exc.strerror or exc}", file=sys.stderr)

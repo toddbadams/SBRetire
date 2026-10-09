@@ -283,14 +283,24 @@ def round_return_up(annual_return: float) -> float:
     return math.ceil(round(annual_return * 10_000, 9)) / 10_000
 
 
-def _money_down(value: float | None) -> str:
+def money_down(value: float | None) -> float | None:
     """GBP floored to 0.01 so a written budget never exceeds the one found feasible (B-011.1)."""
-    return "" if value is None else f"{math.floor(round(value * 100, 6)) / 100:.2f}"
+    return None if value is None else math.floor(round(value * 100, 6)) / 100
+
+
+def return_up(value: float | None) -> float | None:
+    """Annual return ceiled to 1e-6 so a written required return never falls below r* (B-011.1)."""
+    return None if value is None else math.ceil(round(value * 1_000_000, 6)) / 1_000_000
+
+
+def _money_down(value: float | None) -> str:
+    rounded = money_down(value)
+    return "" if rounded is None else f"{rounded:.2f}"
 
 
 def _return_up(value: float | None) -> str:
-    """Annual return ceiled to 1e-6 so a written required return never falls below r* (B-011.1)."""
-    return "" if value is None else f"{math.ceil(round(value * 1_000_000, 6)) / 1_000_000:.6f}"
+    rounded = return_up(value)
+    return "" if rounded is None else f"{rounded:.6f}"
 
 
 def _share(value: float | None) -> str:

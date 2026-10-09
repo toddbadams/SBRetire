@@ -1,1 +1,707 @@
-{}
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sbretire.local/schemas/results.schema.json",
+  "title": "SBRetire results.json",
+  "description": "Every result of one sbretire run (F-021). schema_version changes when this structure changes.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run",
+    "people",
+    "inputs",
+    "summary",
+    "reserve_summary",
+    "budgets",
+    "reserve_budgets",
+    "returns",
+    "annual",
+    "columns"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "run": {
+      "description": "Run identity and headline settings.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "created_at",
+        "sbretire_version",
+        "config_file",
+        "config_sha256",
+        "seed",
+        "as_of_date",
+        "horizon_years",
+        "last_month",
+        "paths",
+        "monthly_budget_today",
+        "annual_return",
+        "options"
+      ],
+      "properties": {
+        "name": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "--name of a named run; null for an unnamed run"
+        },
+        "created_at": {
+          "type": "string",
+          "description": "ISO-8601 timestamp (UTC)"
+        },
+        "sbretire_version": {
+          "type": "string"
+        },
+        "config_file": {
+          "type": "string",
+          "description": "Config file name only (no directory)"
+        },
+        "config_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "seed": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "source"
+          ],
+          "properties": {
+            "value": {
+              "type": "string",
+              "pattern": "^[0-9]+$",
+              "description": "Decimal; may exceed 2^53"
+            },
+            "source": {
+              "enum": [
+                "config",
+                "generated"
+              ]
+            }
+          }
+        },
+        "as_of_date": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-01$"
+        },
+        "horizon_years": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "last_month": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}$"
+        },
+        "paths": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "monthly_budget_today": {
+          "type": "number"
+        },
+        "annual_return": {
+          "type": "number"
+        },
+        "options": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "end_reserve_months",
+            "spend_at_least_income"
+          ],
+          "properties": {
+            "end_reserve_months": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "spend_at_least_income": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "people": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "people[0] is person_1 in the annual columns, people[1] person_2"
+    },
+    "inputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "section",
+          "item",
+          "label",
+          "value",
+          "unit"
+        ],
+        "properties": {
+          "section": {
+            "type": "string"
+          },
+          "item": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "unit": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Every setting the run used (inputs.csv rows)"
+    },
+    "summary": {
+      "description": "Path counts and success rates (SPEC §11). Rates are shares of paths, 0-1.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "n_paths",
+        "n_successful",
+        "n_failed",
+        "n_unresolved",
+        "n_completed",
+        "conservative_success_rate",
+        "conservative_standard_error",
+        "completed_success_rate",
+        "completed_standard_error",
+        "unresolved_share"
+      ],
+      "properties": {
+        "n_paths": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "n_successful": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "n_failed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "n_unresolved": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "n_completed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "conservative_success_rate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "conservative_standard_error": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "completed_success_rate": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "completed_standard_error": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "unresolved_share": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "reserve_summary": {
+      "description": "As summary, under the End-of-Life Reserve; null when end_reserve_months is 0",
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "description": "Path counts and success rates (SPEC §11). Rates are shares of paths, 0-1.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "n_paths",
+            "n_successful",
+            "n_failed",
+            "n_unresolved",
+            "n_completed",
+            "conservative_success_rate",
+            "conservative_standard_error",
+            "completed_success_rate",
+            "completed_standard_error",
+            "unresolved_share"
+          ],
+          "properties": {
+            "n_paths": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "n_successful": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "n_failed": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "n_unresolved": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "n_completed": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "conservative_success_rate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "conservative_standard_error": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "completed_success_rate": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 1
+            },
+            "completed_standard_error": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 1
+            },
+            "unresolved_share": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        }
+      ]
+    },
+    "budgets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "description": "One Maximum Sustainable Budget row (lifestyle_results.csv columns).",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "target_probability",
+          "maximum_monthly_budget_today",
+          "maximum_annual_budget_today",
+          "estimated_success_probability",
+          "standard_error",
+          "unresolved_fraction",
+          "budget_tolerance",
+          "converged",
+          "iterations",
+          "note"
+        ],
+        "properties": {
+          "target_probability": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "maximum_monthly_budget_today": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "GBP/month, today's money, floored to 0.01; null if infeasible"
+          },
+          "maximum_annual_budget_today": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "estimated_success_probability": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 1
+          },
+          "standard_error": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 1
+          },
+          "unresolved_fraction": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "budget_tolerance": {
+            "type": "number"
+          },
+          "converged": {
+            "type": "boolean"
+          },
+          "iterations": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "reserve_budgets": {
+      "type": "array",
+      "items": {
+        "description": "One Maximum Sustainable Budget row (lifestyle_results.csv columns).",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "target_probability",
+          "maximum_monthly_budget_today",
+          "maximum_annual_budget_today",
+          "estimated_success_probability",
+          "standard_error",
+          "unresolved_fraction",
+          "budget_tolerance",
+          "converged",
+          "iterations",
+          "note"
+        ],
+        "properties": {
+          "target_probability": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "maximum_monthly_budget_today": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "GBP/month, today's money, floored to 0.01; null if infeasible"
+          },
+          "maximum_annual_budget_today": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "estimated_success_probability": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 1
+          },
+          "standard_error": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 1
+          },
+          "unresolved_fraction": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "budget_tolerance": {
+            "type": "number"
+          },
+          "converged": {
+            "type": "boolean"
+          },
+          "iterations": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Empty when end_reserve_months is 0"
+    },
+    "returns": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "description": "One required-return row at the configured budget (SPEC §13).",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "target_probability",
+          "monthly_budget_today",
+          "required_annual_return",
+          "estimated_success_probability",
+          "standard_error",
+          "unresolved_fraction",
+          "return_tolerance",
+          "converged",
+          "iterations",
+          "note"
+        ],
+        "properties": {
+          "target_probability": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "monthly_budget_today": {
+            "type": "number"
+          },
+          "required_annual_return": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Annual effective rate (0.04 = 4%), ceiled to 1e-6; null if no solution"
+          },
+          "estimated_success_probability": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 1
+          },
+          "standard_error": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 1
+          },
+          "unresolved_fraction": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "return_tolerance": {
+            "type": "number"
+          },
+          "converged": {
+            "type": "boolean"
+          },
+          "iterations": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "annual": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "description": "One calendar year (annual_results.csv columns; nominal GBP).",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "year",
+          "months",
+          "probability_both_alive",
+          "probability_person_1_alive",
+          "probability_person_2_alive",
+          "monthly_budget_today",
+          "monthly_budget_nominal_median",
+          "annual_budget_nominal_median",
+          "annual_income_median",
+          "annual_net_withdrawal_median",
+          "portfolio_p05",
+          "portfolio_p25",
+          "portfolio_median",
+          "portfolio_p75",
+          "portfolio_p95",
+          "probability_not_depleted_yet",
+          "estimated_lifetime_success_rate",
+          "completed_paths",
+          "unresolved_paths"
+        ],
+        "properties": {
+          "year": {
+            "type": "integer"
+          },
+          "months": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 12
+          },
+          "probability_both_alive": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "probability_person_1_alive": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "probability_person_2_alive": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "monthly_budget_today": {
+            "type": "number"
+          },
+          "monthly_budget_nominal_median": {
+            "type": "number"
+          },
+          "annual_budget_nominal_median": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "annual_income_median": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "annual_net_withdrawal_median": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "portfolio_p05": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "portfolio_p25": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "portfolio_median": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "portfolio_p75": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "portfolio_p95": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "probability_not_depleted_yet": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "estimated_lifetime_success_rate": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 1
+          },
+          "completed_paths": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "unresolved_paths": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "columns": {
+      "type": "object",
+      "description": "file name -> column -> {unit, meaning}",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "unit",
+            "meaning"
+          ],
+          "properties": {
+            "unit": {
+              "type": "string"
+            },
+            "meaning": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

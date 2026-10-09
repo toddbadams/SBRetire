@@ -116,22 +116,28 @@ def refresh_runs_index(runs_dir: Path) -> tuple[Path, Path]: ...  # index.json, 
 
 ## 9. Surprises
 
+- 2026-10-09 — F-021.1: `run.seed.value` is a decimal **string**, not a number: a generated seed is 128-bit and
+  JavaScript cannot hold it exactly. The test was changed to expect `"21"` before the code went green.
+
 ## 10. Tasks
 
 ### F-021.1 results.json and its schema
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: —
 
 `src/sbretire/results_json.py` (`build_results`, `write_results_json`, `SCHEMA_VERSION`), numeric rounding helpers
 in `reporting.py`, `schemas/results.schema.json`, `jsonschema` dev dependency; `run` writes `results.json`.
 
 **Acceptance criteria**
-- [ ] On a seeded 300-path run (with and without a 12-month reserve) the built results validate against `schemas/results.schema.json`, and the schema rejects a document missing a section or with a wrong type — `test_results_json_validates_against_schema`
-- [ ] Summary, budgets, reserve budgets, returns and annual values equal the run's result objects, with budgets floored to 0.01 and returns ceiled to 1e-6 exactly as the CSVs; `columns` equals `COLUMN_GUIDE`; `inputs` equals the input rows — `test_results_json_matches_run_objects`
-- [ ] `sbretire run` (unnamed) writes `results.json` beside the CSVs; it is valid JSON with no NaN, and identical across two runs apart from `run.created_at` — `test_cli_run_writes_results_json`
+- [x] On a seeded 300-path run (with and without a 12-month reserve) the built results validate against `schemas/results.schema.json`, and the schema rejects a document missing a section or with a wrong type — `test_results_json_validates_against_schema`
+- [x] Summary, budgets, reserve budgets, returns and annual values equal the run's result objects, with budgets floored to 0.01 and returns ceiled to 1e-6 exactly as the CSVs; `columns` equals `COLUMN_GUIDE`; `inputs` equals the input rows — `test_results_json_matches_run_objects`
+- [x] `sbretire run` (unnamed) writes `results.json` beside the CSVs; it is valid JSON with no NaN, and identical across two runs apart from `run.created_at` — `test_cli_run_writes_results_json`
+
+**Notes**
+- 2026-10-09 `src/sbretire/results_json.py` (`build_results` from GuideContext + annual rows, `write_results_json` strict JSON, UTF-8, LF); `reporting.money_down`/`return_up` numeric rounding shared with the CSV text helpers; `schemas/results.schema.json` (draft 2020-12, additionalProperties false everywhere, generated once then maintained by hand); `run` writes `results.json` using run_metadata's hash and timestamp. Tests `tests/unit/test_results_json.py` (2) and `test_cli_run_writes_results_json`; `results.json` added to OUTPUT_FILES.
 
 ### F-021.2 Named runs, index.json and runs.js
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-021.1
 
 `--name`, `--overwrite`, `check_run_name`, run folders, `refresh_runs_index` (§2 #3–#7).
