@@ -18,7 +18,6 @@ from sbretire import __version__
 from sbretire.__main__ import main
 from sbretire.config import load_scenario
 from sbretire.inputs_report import scenario_input_rows, write_inputs_csv
-from sbretire.results_guide import GuideContext, write_results_guide
 from sbretire.metadata import config_sha256, file_sha256
 from sbretire.monte_carlo import draw_random_inputs, run_monte_carlo
 from sbretire.mortality import load_mortality_table
@@ -35,6 +34,7 @@ from sbretire.reporting import (
     write_lifestyle_results_csv,
     write_sustainability_results_csv,
 )
+from sbretire.results_guide import GuideContext, write_results_guide
 
 from scenario_helpers import set_at
 
