@@ -141,6 +141,7 @@ No randomness: nothing to pin.
 ## 9. Surprises
 
 - 2026-10-09 — Timing at SPEC scale (100k paths × 1,200 months, constant cash flows): 1.65 s per run on the dev box. A budget bisection of ~20 iterations × 3 confidence levels is ~100 s — acceptable for V1, but F-010 should reuse precomputed draws and may cache cash-flow arrays per month.
+- 2026-10-09 — F-002.3 is pure verification of F-002.1/.2 behaviour: written test-first is impossible for known-answer checks of existing code, so it was committed as a single `test(F-002.3)` commit with a documented sensitivity check.
 
 ## 10. Tasks
 
@@ -183,15 +184,19 @@ array functions, float64, no loops. Tests in `tests/unit/test_portfolio.py`.
 - 2026-10-09: `src/sbretire/simulation.py` — `HouseholdCashFlows` / `MonthObserver` protocols, frozen `PathOutcomes`, `simulate_paths` (input validation; `alive = month < death_month`; only active paths change; loop stops when none active). Test doubles `tests/unit/cash_flow_doubles.py`; tests `tests/unit/test_simulation.py` (14, incl. early stop and input validation).
 
 ### F-002.3 Closed-form known-answer checks
-- **Status**: To Do
+- **Status**: Verification
 - **Depends on**: F-002.2
 
 `tests/integration/test_engine_closed_form.py` (T3): the engine reproduces closed-form annuity and perpetuity
 results, so the month loop is checked against mathematics rather than against itself.
 
 **Acceptance criteria**
-- [ ] With constant spending and no income, the depletion month equals the closed-form annuity month for several (balance, rate, spending) cases — `test_engine_depletion_month_matches_annuity_formula`
-- [ ] Spending equal to the monthly interest on the starting balance never depletes and keeps the balance constant — `test_engine_interest_only_spending_is_perpetual`
+- [x] With constant spending and no income, the depletion month equals the closed-form annuity month for several (balance, rate, spending) cases — `test_engine_depletion_month_matches_annuity_formula`
+- [x] Spending equal to the monthly interest on the starting balance never depletes and keeps the balance constant — `test_engine_interest_only_spending_is_perpetual`
+
+**Notes**
+- 2026-10-09: `tests/integration/test_engine_closed_form.py` — annuity depletion month (5 cases incl. negative and zero return) and interest-only perpetuity (3 cases). Known-answer tests against existing code, so there was no red phase; sensitivity checked instead: under a spend-before-return ordering two of the five annuity cases change month (175→174, 254→250), so the test would catch an ordering regression.
+
 
 ## 11. Open Questions
 
