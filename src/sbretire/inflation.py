@@ -153,16 +153,62 @@ def calibrate_inflation(inflation: InflationAssumptions) -> Ar1LognormalParams:
 def draw_annual_rates(
     rng: np.random.Generator, params: Ar1LognormalParams, n_paths: int, n_years: int
 ) -> NDArray[np.float64]:
-    raise NotImplementedError
+    """Annual inflation rates π, shape (n_years, n_paths), for simulated years starting at the As-Of month.
+
+    Draws ε = ``rng.standard_normal((n_years, n_paths))`` in one call, year-major, so a shorter horizon reuses
+    the same early-year draws; then x_y = μ + φ (x_{y-1} − μ) + σ ε_y from x_{-1} = log(1 + initial_rate).
+    The recursion over years runs once per run, before the month loop, vectorised over paths.
+    """
+    if n_paths < 1 or n_years < 1:
+        raise ValueError(f"n_paths and n_years must be positive (got {n_paths}, {n_years})")
+    shocks = rng.standard_normal((n_years, n_paths))
+    mu, phi, sigma = params.log_mean, params.ar1_coefficient, params.innovation_sd
+    log_growth = np.empty((n_years, n_paths), dtype=np.float64)
+    previous = np.full(n_paths, math.log1p(params.initial_rate))
+    for year in range(n_years):
+        previous = mu + phi * (previous - mu) + sigma * shocks[year]
+        log_growth[year] = previous
+    return np.expm1(log_growth)
 
 
 class StochasticPriceIndex:
+    """Cumulative Inflation Index from annual rates compounding monthly (simulation-conventions §5).
+
+    I_0 = 1 in the As-Of month; for 12k ≤ t ≤ 12(k + 1), I_t = I_{12k} · (1 + π_k)^((t − 12k)/12), so at
+    anniversaries I_{12k} = ∏_{j<k}(1 + π_j). Stores log growth (n_years, n_paths) and cumulative log levels
+    (n_years + 1, n_paths); ``level`` is computed on demand.
+    """
+
     def __init__(self, annual_rates: NDArray[np.float64]) -> None:
-        raise NotImplementedError
+        rates = np.asarray(annual_rates, dtype=np.float64)
+        if rates.ndim != 2:
+            raise ValueError(f"annual_rates must be 2-D (n_years, n_paths), got shape {rates.shape}")
+        if not np.all(np.isfinite(rates)):
+            raise ValueError("annual_rates must be finite")
+        if not np.all(rates > -1):
+            raise ValueError("every annual rate must be greater than -1")
+        self._log_growth: FloatArray = np.log1p(rates)
+        self._log_level: FloatArray = np.vstack(
+            [np.zeros((1, rates.shape[1])), np.cumsum(self._log_growth, axis=0)]
+        )
+        self._n_years: int = int(rates.shape[0])
 
     @classmethod
     def constant(cls, n_paths: int, n_years: int, annual_rate: float) -> StochasticPriceIndex:
-        raise NotImplementedError
+        """Every path and year at ``annual_rate`` (deterministic preview)."""
+        return cls(np.full((n_years, n_paths), annual_rate, dtype=np.float64))
+
+    @property
+    def n_years(self) -> int:
+        return self._n_years
 
     def level(self, month: int) -> FloatArray:
-        raise NotImplementedError
+        """I_t for ``month`` (0 = As-Of month … 12·n_years), shape (n_paths,)."""
+        if not 0 <= month <= 12 * self._n_years:
+            raise ValueError(f"month must be between 0 and {12 * self._n_years} (got {month})")
+        year, within = divmod(month, 12)
+        log_level = self._log_level[year]
+        if year < self._n_years:
+            log_level = log_level + (within / 12) * self._log_growth[year]
+        result: FloatArray = np.exp(log_level)
+        return result

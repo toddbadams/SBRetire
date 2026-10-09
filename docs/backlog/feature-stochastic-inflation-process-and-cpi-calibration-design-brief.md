@@ -191,20 +191,23 @@ inflation:
 - 2026-10-09 `InflationAssumptions` reshaped (`source_period` YYYY-YYYY with `first_year`/`last_year`, `data_file` resolved like mortality and checked by `--require-data-files`, `model: ar1_lognormal`, `parameter_units: log_annual`, `log_mean`, `ar1_coefficient` ∈ (−1, 1), `innovation_sd` ≥ 0, `initial_rate` > −1; old keys now unknown). `Ar1LognormalParams`, `fit_ar1_lognormal`, `load_cpi_series`, `calibrate_inflation` in `src/sbretire/inflation.py`; `scripts/calibrate_inflation.py` prints the block (incl. relative `data_file`). Config Hash excludes `inflation.data_file`. Migrated example config, fixture, preview (constant median rate e^μ − 1, still annual step until F-006.4) and tests (config fields/loading, preview, mortality CLI). Personal `config/model.yaml` migrated locally (git-ignored) and validates. Tests: `tests/unit/test_inflation_calibration.py` (4), `tests/tooling/test_calibrate_inflation.py` (1), +14 config cases.
 
 ### F-006.3 AR(1) draws and StochasticPriceIndex
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-006.2
 
 `draw_annual_rates` and `StochasticPriceIndex` (§2 #2, #7, #9, #10) in `src/sbretire/inflation.py`. Tests in
 `tests/unit/test_inflation_process.py`.
 
 **Acceptance criteria**
-- [ ] Zero inflation (μ = 0, σ = 0, `initial_rate` 0) gives I_t = 1 for every month and path — `test_stochastic_price_index_zero_inflation_constant`
-- [ ] At each anniversary I_{12k} equals ∏_{j<k}(1 + π_j) per path; within year k, I_t = I_{12k}(1 + π_k)^((t−12k)/12); month 0 is 1 — `test_stochastic_price_index_monthly_compounding`
-- [ ] For any parameters (hypothesis), every drawn 1 + π > 0 and every I_t > 0 and finite — `test_draw_annual_rates_positive_growth`
-- [ ] Seed 42 (inflation stream) gives pinned first-year rates for 3 paths; a 10-year draw equals the first 10 years of a 60-year draw — `test_draw_annual_rates_seed_42_known_answer_and_prefix`
-- [ ] With σ = 0 the rates follow π_y = exp(μ + φ^{y+1}(x_{−1} − μ)) − 1 exactly — `test_draw_annual_rates_deterministic_path`
-- [ ] 100,000 paths × 60 years (seed 7): the sample mean of x, lag-1 regression φ and residual SD are within 0.001, 0.01 and 0.0005 of μ, φ, σ — `test_draw_annual_rates_statistics_match_parameters`
-- [ ] `level` rejects months outside 0…12·n_years and rate arrays with any π ≤ −1 — `test_stochastic_price_index_rejects_bad_input`
+- [x] Zero inflation (μ = 0, σ = 0, `initial_rate` 0) gives I_t = 1 for every month and path — `test_stochastic_price_index_zero_inflation_constant`
+- [x] At each anniversary I_{12k} equals ∏_{j<k}(1 + π_j) per path; within year k, I_t = I_{12k}(1 + π_k)^((t−12k)/12); month 0 is 1 — `test_stochastic_price_index_monthly_compounding`
+- [x] For any parameters (hypothesis), every drawn 1 + π > 0 and every I_t > 0 and finite — `test_draw_annual_rates_positive_growth`
+- [x] Seed 42 (inflation stream) gives pinned first-year rates for 3 paths; a 10-year draw equals the first 10 years of a 60-year draw — `test_draw_annual_rates_seed_42_known_answer_and_prefix`
+- [x] With σ = 0 the rates follow π_y = exp(μ + φ^{y+1}(x_{−1} − μ)) − 1 exactly — `test_draw_annual_rates_deterministic_path`
+- [x] 100,000 paths × 60 years (seed 7): the sample mean of x, lag-1 regression φ and residual SD are within 0.001, 0.01 and 0.0005 of μ, φ, σ — `test_draw_annual_rates_statistics_match_parameters`
+- [x] `level` rejects months outside 0…12·n_years and rate arrays with any π ≤ −1 — `test_stochastic_price_index_rejects_bad_input`
+
+**Notes**
+- 2026-10-09 Added `draw_annual_rates` (one `standard_normal((n_years, n_paths))` call, year recursion vectorised over paths, returns π = expm1(x)) and `StochasticPriceIndex` (validates 2-D/finite/> −1; stores log growth + cumulative log level; `level` interpolates within the year; `constant`, `n_years`) in `src/sbretire/inflation.py`. Tests `tests/unit/test_inflation_process.py` (7; seed-42 known answers computed independently from `SeedSequence(42, spawn_key=(1,))`; 100k × 60 statistics run in < 1 s, so not marked slow).
 
 ### F-006.4 Wiring, preview, metadata and docs
 - **Status**: To Do
