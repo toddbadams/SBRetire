@@ -137,3 +137,13 @@ def test_viewer_reads_budget_tolerance() -> None:
     script = _page_files()["viewer.js"]
     assert "budget_tolerance" in script
     assert "£1 a month" not in script and "£1 tolerance" not in script
+
+
+def test_viewer_escapes_run_data() -> None:
+    """Regression for the F-022.3 security review: data-derived strings found unescaped in the prototype."""
+    script = _page_files()["viewer.js"]
+    assert "esc(INFLATION_SOURCES[src] || src.replace(/_/g, ' '))" in script
+    assert "return isNaN(d) ? esc(iso) :" in script  # F.date fallback
+    assert "if (isNaN(d)) return esc(iso) || DASH;" in script  # F.dateTime fallback
+    assert "var sex = p.sex ? esc(" in script
+    assert "(INFLATION_SOURCES[src] || src.replace(/_/g, ' '))" not in script.replace("esc(INFLATION_SOURCES", "")

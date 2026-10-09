@@ -93,7 +93,7 @@ and a regenerated `docs/design/sample/`.
   - minor points then fixed in the hand-off: other nulls (incl. annual rows without a note) and negative required returns; brief §2 #4 figure corrected to 10,500
 
 ### F-022.2 Choose and record the common CSS theme
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-022.1
 
 After Claude Design proposes a theme: record it in `docs/decisions/viewer.md` §1 and commit `viewer/theme.css`.
@@ -105,9 +105,13 @@ Criteria may be refined when the design is back.
 
 **Notes**
 - 2026-10-09 `src/sbretire/web/theme.css` = Claude Design Direction A "Paper" unchanged (tokens only; light, system dark, forced dark, reduced motion; system font stacks). Decision `docs/decisions/viewer.md` §1. Design notes kept as `docs/design/theme-notes.md` and `docs/design/viewer-design-notes.md`. Tests `test_theme_css_defines_decided_tokens`, `test_theme_contrast_meets_aa` (oklch → OKLab → linear sRGB → WCAG luminance; every text pair ≥ 4.5:1, marks ≥ 3:1, both modes — passed with no token changes). The test's forced-dark lookup first matched the header comment; anchored to `@media screen {`.
+- 2026-10-09 /verify PASS:
+  - tests pass and fail under mutation (muted text lightened, a dark token removed, an @import added)
+  - independent oklch → sRGB contrast agrees within quantisation (e.g. light muted on sunken 6.10, dark on-accent on accent 9.35)
+  - theme.css byte-identical to Direction A; viewer.md §1 matches the file
 
 ### F-022.3 Build the results viewer page
-- **Status**: Verification
+- **Status**: To Do
 - **Depends on**: F-022.2
 
 Build the page from the Claude Design output against the sample; decide its placement (§2 #5). Criteria may be
@@ -117,10 +121,16 @@ refined when the design is back.
 - [x] The page's own CSS, markup and script use colours only through theme tokens (no hex, rgb, hsl, oklch or named colour literals outside `theme.css`), make no network requests (`fetch`, `XMLHttpRequest`, external URLs) and contain no design-review switch or second theme — `test_viewer_uses_only_theme_tokens`
 - [x] The budget tables' convergence note uses `budget_tolerance` from the data, not a hard-coded amount — `test_viewer_reads_budget_tolerance`
 - [x] A named run copies `index.html`, `theme.css`, `viewer.css` and `viewer.js` into `<output-dir>/` byte-equal to the package files; an unnamed run does not — `test_cli_named_run_copies_viewer`
+- [ ] viewer.js escapes the paths the security review found (inflation source, a person's sex, the invalid-date fallbacks of `F.date`/`F.dateTime`) — `test_viewer_escapes_run_data`
+- [ ] In the browser, a run whose text fields (inflation source, mortality source, person and income names, notes) contain HTML shows that text literally and runs no script — `check: built-in browser with a crafted run`
 - [x] Served with the sample runs, the page lists both runs, shows every section, compares two runs, switches light/dark, and logs no console errors or network requests to other hosts — `check: built-in browser on the viewer with docs/design/sample/runs`
 
 **Notes**
 - 2026-10-09 `src/sbretire/web/viewer/` = Claude Design prototype (index.html, viewer.css, viewer.js) with the design-review switch and direction-B code removed and the convergence note reading `budget_tolerance`. `results_json.copy_viewer` (importlib.resources) copies the page + theme into `<output-dir>/` after every named run. Browser check (built-in browser, packaged files + docs/design/sample/runs served locally): both runs listed, compare mode, all 9 sections rendered with charts, Auto/Light/Dark toggle, only theme.css/viewer.css/runs.js/viewer.js requested, no console messages, no horizontal scroll at 375 px (run names wrap mid-word in the compare table headers at phone width — cosmetic). README `### Viewing runs in a browser` + Outputs row; CHANGELOG. Tests: `test_viewer_uses_only_theme_tokens`, `test_viewer_reads_budget_tolerance`, `test_cli_named_run_copies_viewer`; run-folder test expects the four page files.
+- 2026-10-09 /verify FAIL:
+  - security: viewer.js inflationRows (line ~739) puts `inflation.source` (free config text) into innerHTML unescaped; a config with `<img src=x onerror=…>` validates, runs and would execute in the viewer
+  - defence in depth: F.date/F.dateTime return the raw string for an invalid date (used unescaped), `p.sex` unescaped in personCells
+  - everything else passed: diff scope vs the prototype, copy byte-equal, hash handling whitelisted, no eval, README/decision accurate
 
 ## 11. Open Questions
 
