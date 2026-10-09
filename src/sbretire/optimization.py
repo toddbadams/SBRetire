@@ -154,33 +154,72 @@ def maximum_sustainable_budgets(search: ThresholdSearch, targets: Sequence[float
 
 
 RETURN_LOWER: Final = -0.5
+"""Lowest fixed annual effective return tried (−50 % a year)."""
 RETURN_UPPER: Final = 0.5
+"""Highest fixed annual effective return tried (+50 % a year)."""
 RETURN_TOLERANCE: Final = 0.0001
+"""Bisection stops when every bracket is at most this wide (0.01 percentage points of annual return)."""
 
 
 @dataclass(frozen=True)
 class ReturnSearch:
+    """Per-path minimum annual returns for one Budget and one set of random inputs (optimization §2)."""
+
     thresholds: FloatArray
+    """(n_paths,) smallest annual return found Successful (feasible end of a bracket); +inf if none."""
     at_lower_bound: BoolArray
+    """(n_paths,) Successful even at :data:`RETURN_LOWER`."""
     iterations: int
+    """Engine runs: the two bound checks plus bisection rounds."""
     monthly_budget_today: float
     scenario: Scenario = field(repr=False)
     inputs: RandomInputs = field(repr=False)
 
 
+def _successful_at(scenario: Scenario, inputs: RandomInputs, budget: float, returns: FloatArray) -> BoolArray:
+    outcomes = run_monte_carlo(scenario, inputs, monthly_budget_today=budget, annual_return=returns).outcomes
+    result: BoolArray = classify_paths(outcomes) == PathClass.SUCCESSFUL
+    return result
+
+
 def path_return_thresholds(
     scenario: Scenario, inputs: RandomInputs, monthly_budget_today: float | None = None
 ) -> ReturnSearch:
-    raise NotImplementedError
+    """Bisect every path's minimum annual return at once, between fixed bounds −50 % and +50 % (§2).
+
+    Success is monotone non-decreasing in the return (balance never negative; return on the opening
+    balance), so each path that can succeed in range has a threshold; others get +inf.
+    """
+    budget = scenario.budget.monthly_amount_today if monthly_budget_today is None else monthly_budget_today
+    n_paths = inputs.n_paths
+    ok_low = _successful_at(scenario, inputs, budget, np.full(n_paths, RETURN_LOWER))
+    ok_high = _successful_at(scenario, inputs, budget, np.full(n_paths, RETURN_UPPER))
+    iterations = 2
+    active = ok_high & ~ok_low
+    low = np.full(n_paths, RETURN_LOWER)
+    high = np.full(n_paths, RETURN_UPPER)
+    while np.any(active & (high - low > RETURN_TOLERANCE)):
+        middle = np.where(active, (low + high) / 2.0, RETURN_UPPER)
+        ok = _successful_at(scenario, inputs, budget, middle)
+        iterations += 1
+        high = np.where(active & ok, middle, high)
+        low = np.where(active & ~ok, middle, low)
+    thresholds = np.where(ok_low, RETURN_LOWER, np.where(ok_high, high, np.inf))
+    return ReturnSearch(thresholds, ok_low, iterations, float(budget), scenario, inputs)
 
 
 @dataclass(frozen=True)
 class ReturnResult:
+    """One SPEC §13 row: the minimum fixed annual return reaching a target at a fixed Budget."""
+
     monthly_budget_today: float
     target_probability: float
     required_annual_return: float | None
+    """Annual effective return r*; None when no solution lies within the bounds."""
     estimated_success_probability: float | None
+    """Conservative Success Rate at r*, from a confirming run on the same random inputs."""
     standard_error: float | None
+    """Binomial SE of that rate; denominator: all paths."""
     unresolved_fraction: float
     return_tolerance: float
     converged: bool
@@ -189,4 +228,54 @@ class ReturnResult:
 
 
 def required_returns(search: ReturnSearch, targets: Sequence[float]) -> list[ReturnResult]:
-    raise NotImplementedError
+    """r* per target p*: the ⌈p*·N⌉-th smallest threshold, confirmed by one run at r* (optimization §2)."""
+    n_paths = len(search.thresholds)
+    ordered = np.sort(search.thresholds)
+    results = []
+    for target in targets:
+        needed = math.ceil(target * n_paths)
+        candidate = float(ordered[needed - 1])
+        if not np.isfinite(candidate):
+            reachable = int(np.isfinite(search.thresholds).sum())
+            at_upper = run_monte_carlo(
+                search.scenario, search.inputs, search.monthly_budget_today, annual_return=RETURN_UPPER
+            ).metrics
+            note = (
+                f"no solution within bounds: only {reachable:,} of {n_paths:,} paths succeed even at "
+                f"+{RETURN_UPPER:.0%} a year"
+            )
+            results.append(
+                ReturnResult(
+                    search.monthly_budget_today,
+                    target,
+                    None,
+                    None,
+                    None,
+                    at_upper.unresolved_share,
+                    RETURN_TOLERANCE,
+                    False,
+                    search.iterations,
+                    note,
+                )
+            )
+            continue
+        metrics = run_monte_carlo(
+            search.scenario, search.inputs, search.monthly_budget_today, annual_return=candidate
+        ).metrics
+        at_lower = candidate <= RETURN_LOWER
+        note = f"at or below {RETURN_LOWER:.0%} a year (the lower search bound)" if at_lower else ""
+        results.append(
+            ReturnResult(
+                monthly_budget_today=search.monthly_budget_today,
+                target_probability=target,
+                required_annual_return=candidate,
+                estimated_success_probability=metrics.conservative_success_rate,
+                standard_error=metrics.conservative_standard_error,
+                unresolved_fraction=metrics.unresolved_share,
+                return_tolerance=RETURN_TOLERANCE,
+                converged=not at_lower,
+                iterations=search.iterations,
+                note=note,
+            )
+        )
+    return results

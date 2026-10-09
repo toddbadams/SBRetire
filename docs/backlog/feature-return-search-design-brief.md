@@ -130,19 +130,22 @@ _(filled during implementation)_
 - 2026-10-09 Added `monthly_return_rates` (scalar → `monthly_return_rate`; (n_paths,) array validated finite, > −1, right shape) in `src/sbretire/portfolio.py`; `apply_month` takes a scalar or per-path rate; `simulate_paths` and `run_monte_carlo(annual_return=...)` accept a per-path return. Tests `tests/unit/test_simulation_per_path_return.py` (7).
 
 ### F-011.2 Return thresholds and the required return
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-011.1
 
 `ReturnSearch`, `path_return_thresholds`, `ReturnResult`, `required_returns` in `src/sbretire/optimization.py`
 (§2 #1–#5). Tests in `tests/integration/test_return_search.py`.
 
 **Acceptance criteria**
-- [ ] Monotonicity verified (SPEC §13): on the fixture (seed pinned, 300 paths), over returns −10 % … +15 % in 1 % steps, no path that is Successful at r is not Successful at any higher r, and the conservative rate is non-decreasing — `test_success_is_monotone_in_return`
-- [ ] Deterministic fixture (step mortality, zero inflation, no income, 1 path, budget 6,000): the required return is within 0.0001 of the independent brentq root of B₀ = Σ S_t (1 + m)^−(t+1) converted to annual — `test_return_search_deterministic_closed_form`
-- [ ] Agrees with a literal scalar bisection on the conservative rate within 0.0001 for three targets (seed pinned, 400 paths) — `test_return_search_matches_scalar_bisection`
-- [ ] Confirming run at r* gives rate ≥ p* and equals `estimated_success_probability`; at r* − 0.0002 the rate is < p* — `test_return_search_confirming_run`
-- [ ] Targets needing more paths than can succeed at +50 % report no solution (r* None, converged False, note "no solution"); a plan Successful at −50 % reports "≤ -50%" not converged — `test_return_search_reports_bounds`
-- [ ] r* is non-decreasing as the target rises; iterations and tolerance reported; `RandomInputs` unchanged (CRN) — `test_return_search_monotone_targets_and_crn`
+- [x] Monotonicity verified (SPEC §13): on the fixture (seed pinned, 300 paths), over returns −10 % … +15 % in 1 % steps, no path that is Successful at r is not Successful at any higher r, and the conservative rate is non-decreasing — `test_success_is_monotone_in_return`
+- [x] Deterministic fixture (step mortality, zero inflation, no income, 1 path, budget 6,000): the required return is within 0.0001 of the independent brentq root of B₀ = Σ S_t (1 + m)^−(t+1) converted to annual — `test_return_search_deterministic_closed_form`
+- [x] Agrees with a literal scalar bisection on the conservative rate within 0.0001 for three targets (seed pinned, 400 paths) — `test_return_search_matches_scalar_bisection`
+- [x] Confirming run at r* gives rate ≥ p* and equals `estimated_success_probability`; at r* − 0.0002 the rate is < p* — `test_return_search_confirming_run`
+- [x] Targets needing more paths than can succeed at +50 % report no solution (r* None, converged False, note "no solution"); a plan Successful at −50 % reports "≤ -50%" not converged — `test_return_search_reports_bounds`
+- [x] r* is non-decreasing as the target rises; iterations and tolerance reported; `RandomInputs` unchanged (CRN) — `test_return_search_monotone_targets_and_crn`
+
+**Notes**
+- 2026-10-09 Added to `src/sbretire/optimization.py`: `RETURN_LOWER`/`RETURN_UPPER` (±50 %), `RETURN_TOLERANCE` (0.0001), `ReturnSearch`, `path_return_thresholds` (bound checks at −50 % and +50 %, then vectorised per-path bisection for paths failing at −50 % and succeeding at +50 %; threshold = feasible upper end; −50 % if Successful there; +inf if not Successful at +50 %), `ReturnResult`, `required_returns` (⌈p·N⌉-th smallest threshold, confirming run; 'no solution within bounds' with the unresolved share at +50 %; '≤ −50 %' not converged). Tests `tests/integration/test_return_search.py` (6; closed form via independent scipy brentq; literal scalar bisection reference). `test_success_is_monotone_in_return` passed already in the red commit — it verifies an existing engine property, as SPEC §13 requires.
 
 ### F-011.3 `sbretire run` shows the required returns
 - **Status**: To Do
