@@ -9,7 +9,7 @@ milestones:
   - { id: F-017, title: Inputs Display and inputs.csv, status: done }
   - { id: F-018, title: Results Guide (columns, calculations, assumptions), status: done }
   - { id: F-019, title: End-of-Life Reserve Target, status: in-progress }
-  - { id: F-020, title: Spend-At-Least-Income Option, status: briefed }
+  - { id: F-020, title: Spend-At-Least-Income Option, status: in-progress }
 created: 2026-10-09
 updated:
   - 2026-10-09: created from the user's post-V1 requests and decisions

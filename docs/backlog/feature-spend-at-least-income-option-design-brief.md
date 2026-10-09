@@ -2,7 +2,7 @@
 id: F-020
 type: feature
 parent: v1-1-enhancements
-status: planned
+status: in-progress
 complexity: 3
 created: 2026-10-09
 updated: 2026-10-09
@@ -88,7 +88,7 @@ class ScenarioCashFlows:
 ## 10. Tasks
 
 ### F-020.1 Spend-at-least-income in the cash flows
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: —
 
 §2 #1–#4, #7: config field, the floor in `ScenarioCashFlows.spending`, Config Hash exclusion at default, input-row
