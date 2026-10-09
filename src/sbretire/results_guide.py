@@ -303,6 +303,18 @@ def _survivor_factor(scenario: Scenario, index: int) -> float:
     return scenario.budget.survivor_budget_factor if own is None else own
 
 
+def _spending_floor(scenario: Scenario) -> list[str]:
+    if not scenario.budget.spend_at_least_income:
+        return []
+    return [
+        "",
+        "With `budget.spend_at_least_income: true`, each month's Required Spending is max(B x I_t x F_t, "
+        "Y_t), "
+        "where Y_t is that month's household income: income above the budget is spent, not saved. The "
+        "portfolio still pays any amount by which the budget exceeds income.",
+    ]
+
+
 def _income_lines(scenario: Scenario) -> list[str]:
     if not scenario.income:
         return ["No income streams are configured."]
@@ -392,6 +404,7 @@ def _calculations(context: GuideContext) -> list[str]:
         f"- F = 0 once both have died. (Household default: {s.budget.survivor_budget_factor:g}; a person's "
         "own "
         "factor overrides it.)",
+        *_spending_floor(s),
         "",
         "### Income",
         "",

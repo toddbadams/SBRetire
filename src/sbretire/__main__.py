@@ -337,6 +337,14 @@ def format_run_summary(config: Path, scenario: Scenario, seed: ResolvedSeed, met
         f"seed {seed.value} ({seed.source}).",
         f"Budget {scenario.budget.monthly_amount_today:,.0f} GBP/month in today's money "
         "(rises with inflation).",
+        *(
+            [
+                "Spending is at least each month's income (budget.spend_at_least_income): "
+                "surplus income is spent."
+            ]
+            if scenario.budget.spend_at_least_income
+            else []
+        ),
         "",
         f"Paths: {metrics.n_paths:,} = successful {metrics.n_successful:,} + failed {metrics.n_failed:,} "
         f"+ unresolved {metrics.n_unresolved:,}",

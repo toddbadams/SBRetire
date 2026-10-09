@@ -19,6 +19,7 @@ budget:
   monthly_amount_today: 6667
   survivor_budget_factor: 0.70
   # end_reserve_months: 12        # optional: also find the budget that leaves 12 months of budget at the second death
+  # spend_at_least_income: true   # optional: each month spend at least that month's income (surplus is not saved)
 
 inflation:
   source: UK_CPI

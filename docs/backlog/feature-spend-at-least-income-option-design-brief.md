@@ -108,19 +108,23 @@ label. Tests in `tests/unit/test_spend_at_least_income.py`.
 - 2026-10-09 `BudgetAssumptions.spend_at_least_income` (Boolean, default false); `ScenarioCashFlows.spending` returns max(budget-based spending, the same month's income) when on; added to `metadata._OPTIONS_HASHED_ONLY_WHEN_SET`; input-row label. Tests `tests/unit/test_spend_at_least_income.py` (3).
 
 ### F-020.2 Searches, run output and docs with the option
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-020.1
 
 §2 #5–#6, #8: verify the searches, print the option line, guide text, README, THESAURUS, decision configuration §9,
 example config comment.
 
 **Acceptance criteria**
-- [ ] Closed form (§7 T2): B* within £1 below 2,033.33 with the option off and below 1,388.89 with it on — `test_spend_at_least_income_closed_form`
-- [ ] With the option on, on 400 seeded paths the successful set never grows as the budget rises and each path's threshold separates its successes from its failures — `test_spend_at_least_income_budget_monotone`
-- [ ] `run` with the option prints that spending is at least income, and its lifestyle and sustainability CSVs equal the library output on the same inputs — `test_cli_run_spend_at_least_income`
-- [ ] The results guide states the rule when on and not when off — `test_results_guide_spend_at_least_income`
-- [ ] README documents `spend_at_least_income` — `test_readme_covers_v1_sections`
-- [ ] THESAURUS (Required Spending) and configuration §9 record the rule — `check: grep -n "spend_at_least_income" docs/THESAURUS.md docs/decisions/configuration.md`
+- [x] Closed form (§7 T2): B* within £1 below 2,033.33 with the option off and below 1,388.89 with it on — `test_spend_at_least_income_closed_form`
+- [x] With the option on, on 400 seeded paths the successful set never grows as the budget rises and each path's threshold separates its successes from its failures — `test_spend_at_least_income_budget_monotone`
+- [x] `run` with the option prints that spending is at least income, and its lifestyle and sustainability CSVs equal the library output on the same inputs — `test_cli_run_spend_at_least_income`
+- [x] The results guide states the rule when on and not when off — `test_results_guide_spend_at_least_income`
+- [x] README documents `spend_at_least_income` — `test_readme_covers_v1_sections`
+- [x] THESAURUS (Required Spending) and configuration §9 record the rule — `check: grep -n "spend_at_least_income" docs/THESAURUS.md docs/decisions/configuration.md`
+
+**Notes**
+- 2026-10-09 No search code changed: the floor lives in `ScenarioCashFlows`, so both searches see it; closed form and seeded monotonicity tests confirm. `format_run_summary` prints the option line when on; results guide Spending section adds the max(B x I_t x F_t, Y_t) rule when on; README config row and budget bullet; example config comment; THESAURUS + configuration §9 committed with the brief. Tests: 2 in `test_spend_at_least_income.py`, `test_cli_run_spend_at_least_income`, `test_results_guide_spend_at_least_income`, README key guard. Full gate 398 passed.
+- 2026-10-09 One gate run during the red phase hit a transient MemoryError and a failed `--version` subprocess; both passed on three reruns with ample free memory (not reproducible).
 
 ## 11. Open Questions
 

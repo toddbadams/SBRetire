@@ -63,6 +63,7 @@ optional. Amounts are GBP, and "today" means prices at `model.as_of_date`.
 | `budget` | `monthly_amount_today` | Household spending per month in today's GBP while both are alive |
 | | `survivor_budget_factor` | Share of the budget the survivor needs after the first death, e.g. `0.70` |
 | | `end_reserve_months` | Optional, default `0` (off): months of budget that must remain at the second death for the extra reserve table, e.g. `12` |
+| | `spend_at_least_income` | Optional, default `false`: when `true`, each month's spending is at least that month's income, so surplus income is spent rather than saved |
 | `inflation` | `source`, `source_period` | Calibration source and years, e.g. `UK_CPI`, `"1989-2025"` |
 | | `data_file` | CPI file, relative to the config file, e.g. `../data/uk_cpi.csv` |
 | | `model`, `parameter_units` | `ar1_lognormal`, `log_annual` |
@@ -96,6 +97,10 @@ Budget (full rules in `docs/decisions/configuration.md` §6):
   `budget.survivor_budget_factor` applies.
 - `budget.end_reserve_months` (optional, default 0) asks for an extra answer: the most you can spend and still leave
   that many months of budget in savings when the second person dies (see below).
+- `budget.spend_at_least_income: true` (optional, default `false`) makes each month's spending the larger of the
+  budget-based spending and that month's household income. V1 saves any income above the budget; with this option
+  the household spends it instead, which lowers every success rate and budget figure
+  (`docs/decisions/configuration.md` §9). `annual_budget_nominal_median` then includes the top-up.
 
 Income streams (full rules in `docs/decisions/configuration.md` §4–§5):
 
