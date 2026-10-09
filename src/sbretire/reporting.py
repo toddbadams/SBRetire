@@ -7,7 +7,9 @@ shares of paths.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Final
 
 import numpy as np
@@ -21,6 +23,27 @@ from sbretire.simulation import PathOutcomes, simulate_paths
 from sbretire.timeline import month_start
 
 PERCENTILES: Final = (5, 25, 50, 75, 95)
+ANNUAL_COLUMNS: Final = (
+    "year",
+    "months",
+    "probability_both_alive",
+    "probability_person_1_alive",
+    "probability_person_2_alive",
+    "monthly_budget_today",
+    "monthly_budget_nominal_median",
+    "annual_budget_nominal_median",
+    "annual_income_median",
+    "annual_net_withdrawal_median",
+    "portfolio_p05",
+    "portfolio_p25",
+    "portfolio_median",
+    "portfolio_p75",
+    "portfolio_p95",
+    "probability_not_depleted_yet",
+    "estimated_lifetime_success_rate",
+    "completed_paths",
+    "unresolved_paths",
+)
 
 
 @dataclass(frozen=True)
@@ -187,3 +210,7 @@ def annual_results(scenario: Scenario, inputs: RandomInputs) -> list[AnnualRow]:
             )
         )
     return rows
+
+
+def write_annual_results_csv(rows: Sequence[AnnualRow], path: Path) -> Path:
+    raise NotImplementedError

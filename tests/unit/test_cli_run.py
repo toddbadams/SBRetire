@@ -27,6 +27,7 @@ from sbretire.optimization import (
     required_returns,
 )
 from sbretire.randomness import ResolvedSeed
+from sbretire.reporting import annual_results, write_annual_results_csv
 
 from scenario_helpers import set_at
 
@@ -250,3 +251,21 @@ def test_cli_run_return_display_rounds_up(
         assert printed >= result.required_annual_return - 1e-12
         rate = run_monte_carlo(scenario, inputs, annual_return=printed).metrics.conservative_success_rate
         assert rate >= result.target_probability
+
+
+def test_cli_run_writes_annual_results(
+    tmp_path: Path, valid_raw: dict[str, Any], capsys: pytest.CaptureFixture[str]
+) -> None:
+    config = _write(tmp_path / "annual", _absolute_data(valid_raw))
+    out_dir = tmp_path / "out"
+    assert main(["run", "--config", str(config), "--output-dir", str(out_dir)]) == 0
+    annual = out_dir / "annual_results.csv"
+    assert annual.is_file() and (out_dir / "run_metadata.json").is_file()
+    assert f"Wrote {annual}" in capsys.readouterr().out
+
+    scenario = load_scenario(config).scenario
+    inputs = draw_random_inputs(
+        scenario, load_mortality_table(scenario.mortality.data_file), ResolvedSeed(7, "config")
+    )
+    expected = write_annual_results_csv(annual_results(scenario, inputs), tmp_path / "expected.csv")
+    assert annual.read_bytes() == expected.read_bytes()

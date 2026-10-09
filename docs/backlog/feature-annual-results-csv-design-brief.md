@@ -111,7 +111,7 @@ def write_annual_results_csv(rows: Sequence[AnnualRow], path: Path) -> Path: ...
 - 2026-10-09 Added `src/sbretire/reporting.py`: `AnnualRow`, `_RecordingCashFlows`, `_AnnualCollector` (engine observer; per-path current-year sums only; closes each year at its last month; `finish` closes years after the engine's early stop from final balances), `annual_results`. Calls `simulate_paths` directly with the recording wrapper on the same inputs instead of adding an observer to `run_monte_carlo` (brief §4 listed that change; not needed). Tests `tests/unit/test_reporting_annual.py` (3: hand fixture incl. depletion and early stop; 300-path recomputation from full month × path history kept only in the test; row span).
 
 ### F-012.2 annual_results.csv and run integration
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-012.1
 
 `write_annual_results_csv`; `sbretire run` writes `output/annual_results.csv`; README output section (columns, units,
