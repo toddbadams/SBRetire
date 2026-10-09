@@ -139,7 +139,7 @@ refined when the design is back.
   - notes: numeric fields (horizon_years, annual year) are emitted unescaped — safe because sbretire writes them as integers; an assertion dropped in the fix commit was restored as an equivalent count check
 
 ### B-022.1 Show short income streams as one-time or total payments
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-022.3
 
 Reported by the user on 2026-10-09: a one-month stream (the NHS lump sum, modelled as `annual_amount_today` =
@@ -149,8 +149,11 @@ column becomes "Amount": a stream paying for one month shows the amount actually
 open-ended streams show "£X a year" as before.
 
 **Acceptance criteria**
-- [ ] viewer.js derives the months paid from `start_date`/`end_date` and labels one-month, short and yearly streams as above; the column is "Amount", not "Per year" — `test_viewer_labels_short_income_streams`
-- [ ] In the browser, a run with a one-month £180,000 stream (annual 2,160,000) shows "£180,000" as a one-time payment in Dec 2028, and the yearly streams still show "a year" — `check: built-in browser with a one-off income run`
+- [x] viewer.js derives the months paid from `start_date`/`end_date` and labels one-month, short and yearly streams as above; the column is "Amount", not "Per year" — `test_viewer_labels_short_income_streams`
+- [x] In the browser, a run with a one-month £180,000 stream (annual 2,160,000) shows "£180,000" as a one-time payment in Dec 2028, and the yearly streams still show "a year" — `check: built-in browser with a one-off income run`
+
+**Notes**
+- 2026-10-09 viewer.js: `monthsPaid` (start to end-exclusive, null when open-ended), `incomeAmount` (1 month → annual/12 "one-time payment"; 2–11 → total "in total over N months"; else "a year"); column header "Amount". Browser check on a fixture run with a one-month 2,160,000/yr stream and a 6-month 12,000/yr stream: "£180,000 / one-time payment", "£6,000 / in total over 6 months", yearly streams "a year", no console messages. Test `test_viewer_labels_short_income_streams`.
 
 ## 11. Open Questions
 

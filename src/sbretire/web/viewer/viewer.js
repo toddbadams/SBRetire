@@ -765,9 +765,25 @@
     });
     return ids.map(function (id) { return m[id]; });
   }
+  function monthsPaid(s) {
+    // months from start_date up to (not including) end_date; null when open-ended or unparseable
+    if (!s.start_date || !s.end_date) return null;
+    var a = s.start_date.split('-'), b = s.end_date.split('-');
+    var n = (+b[0] * 12 + +b[1]) - (+a[0] * 12 + +a[1]);
+    return isFinite(n) && n > 0 ? n : null;
+  }
+  function money(x) { return '£' + x.toLocaleString('en-GB', { maximumFractionDigits: 2 }); }
+  function incomeAmount(s) {
+    // annual_amount_today is a yearly rate paid 1/12 a month; short streams show what is actually paid
+    if (s.annual_amount_today === '' || !isFinite(+s.annual_amount_today)) return DASH;
+    var annual = +s.annual_amount_today, n = monthsPaid(s), monthly = Math.round(annual / 12 * 100) / 100;
+    if (n === 1) return money(monthly) + '<span class="sub">one-time payment</span>';
+    if (n !== null && n < 12) return money(Math.round(monthly * n * 100) / 100) + '<span class="sub">in total over ' + n + ' months</span>';
+    return money(annual) + '<span class="sub"> a year</span>';
+  }
   function incomeCells(r, s) {
     var who = s.recipient === 'household' || !s.recipient ? 'Household' : ((r.people || []).filter(function (p) { return p.id === s.recipient; })[0] || { name: s.recipient }).name;
-    var amt = s.annual_amount_today !== '' && isFinite(+s.annual_amount_today) ? '£' + (+s.annual_amount_today).toLocaleString('en-GB', { maximumFractionDigits: 2 }) : DASH;
+    var amt = incomeAmount(s);
     var sp = s.survivor_percentage !== '' && s.survivor_percentage != null && isFinite(+s.survivor_percentage) ? pctTrim(+s.survivor_percentage) : DASH;
     return '<td>' + esc(who) + '</td><td>' + (s.start_date ? F.month(s.start_date.slice(0, 7)) : DASH) + '</td><td>' + (s.end_date ? F.month(s.end_date.slice(0, 7)) : '<span class="muted">No end</span>') + '</td>' +
       '<td class="num">' + amt + '</td><td>' + (s.inflation_linked === 'true' ? 'Yes' : s.inflation_linked === 'false' ? 'No' : DASH) + '</td><td class="num">' + sp + '</td>';
@@ -788,7 +804,7 @@
     });
     if (!ids.length) body = '<tr><td class="muted">No household income in this run.</td></tr>';
     return '<div class="card"><div class="table-box"><table class="t"><caption>Household income</caption>' + (ids.length ? '<thead><tr><th scope="col">Income</th>' + (multi ? '<th scope="col">Run</th>' : '') +
-      '<th scope="col">Paid to</th><th scope="col">From</th><th scope="col">Until</th><th scope="col" class="num">Per year</th><th scope="col">Rises with inflation</th><th scope="col" class="num">After recipient’s death</th></tr></thead>' : '') +
+      '<th scope="col">Paid to</th><th scope="col">From</th><th scope="col">Until</th><th scope="col" class="num">Amount</th><th scope="col">Rises with inflation</th><th scope="col" class="num">After recipient’s death</th></tr></thead>' : '') +
       '<tbody>' + body + '</tbody></table></div>' +
       (ids.length ? '<p class="note" style="margin-top:var(--space-3)">Amounts in today’s money. “Until” is the first month no longer paid.</p>' : '') + '</div>';
   }
