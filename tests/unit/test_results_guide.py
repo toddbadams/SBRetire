@@ -51,9 +51,11 @@ def _context() -> GuideContext:
 
 
 def _section(text: str, heading: str) -> str:
+    """From ``heading`` to the next heading of the same or a higher level (subsections included)."""
     start = text.index(heading)
-    following = re.search(r"^#{2,3} ", text[start + 4 :], re.M)
-    return text[start : start + 4 + following.start()] if following else text[start:]
+    level = len(heading) - len(heading.lstrip("#"))
+    following = re.search(rf"^#{{1,{level}}} ", text[start + level :], re.M)
+    return text[start : start + level + following.start()] if following else text[start:]
 
 
 def test_column_guide_matches_csv_columns() -> None:

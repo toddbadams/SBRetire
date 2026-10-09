@@ -90,23 +90,31 @@ def round_return_up(annual_return: float) -> float: ...  # next 0.01 % up (B-011
 
 ## 9. Surprises
 
+- 2026-10-09 — F-018.1: the test's `_section` helper first stopped at any `###`, cutting `## Your results` at its own
+  first subsection; it now stops at a heading of the same or higher level (a helper fix, no assertion changed).
+- 2026-10-09 — F-018.1: the acceptance guard against tax logic matches the bare word in any `src/` text, so the
+  guide's limitation reads "Gross figures … (SPEC §16)" instead.
+
 ## 10. Tasks
 
 ### F-018.1 Results guide content
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-017.2
 
 `src/sbretire/results_guide.py` per §2 #1–#7 and §5; `round_return_up` moved to `reporting.py`. Tests in
 `tests/unit/test_results_guide.py`.
 
 **Acceptance criteria**
-- [ ] `COLUMN_GUIDE` has exactly the columns of `inputs.csv`, `annual_results.csv`, `sustainability_results.csv` and `lifestyle_results.csv`, in order, each with a non-empty unit and meaning — `test_column_guide_matches_csv_columns`
-- [ ] The guide states the run's paths, seed, outcome counts, both success rates with SEs, every budget row (floored to whole £) and every required return (ceiled to 0.01 %) exactly as the console shows them, including infeasible / no-solution notes — `test_results_guide_reports_run_figures`
-- [ ] The calculations section substitutes this scenario's values: the monthly return rate computed from `annual_return`, the Budget and survivor factors, the inflation μ, φ, σ and initial rate, and the success-rate counts and SEs — `test_results_guide_calculations_use_scenario_values`
-- [ ] Sections appear in the §2 #4 order; every column of every file appears in its file's table; every input row's item and value appears — `test_results_guide_sections_columns_and_inputs`
+- [x] `COLUMN_GUIDE` has exactly the columns of `inputs.csv`, `annual_results.csv`, `sustainability_results.csv` and `lifestyle_results.csv`, in order, each with a non-empty unit and meaning — `test_column_guide_matches_csv_columns`
+- [x] The guide states the run's paths, seed, outcome counts, both success rates with SEs, every budget row (floored to whole £) and every required return (ceiled to 0.01 %) exactly as the console shows them, including infeasible / no-solution notes — `test_results_guide_reports_run_figures`
+- [x] The calculations section substitutes this scenario's values: the monthly return rate computed from `annual_return`, the Budget and survivor factors, the inflation μ, φ, σ and initial rate, and the success-rate counts and SEs — `test_results_guide_calculations_use_scenario_values`
+- [x] Sections appear in the §2 #4 order; every column of every file appears in its file's table; every input row's item and value appears — `test_results_guide_sections_columns_and_inputs`
+
+**Notes**
+- 2026-10-09 Added `src/sbretire/results_guide.py`: `COLUMN_GUIDE` (4 files), `GuideContext`, `results_guide_markdown` (header; Your results with counts, rates, budget and return tables at display rounding and notes; calculations with this run's values; assumptions; limitations; column tables; inputs table), `write_results_guide` (UTF-8, LF). `round_return_up` moved unchanged to `reporting.py`. Tests `tests/unit/test_results_guide.py` (4).
 
 ### F-018.2 run writes results_guide.md
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-018.1
 
 `_run` writes `output/results_guide.md` after the CSVs and prints its path; README Outputs lists it.
