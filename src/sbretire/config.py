@@ -23,6 +23,9 @@ from sbretire._yaml import YamlLoadError, load_yaml
 
 _ISO_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
+HOUSEHOLD = "household"
+"""Reserved ``income[].recipient`` for a Household Stream (configuration §5); never a person id."""
+
 
 # ---------------------------------------------------------------- strict scalar types
 
@@ -245,6 +248,9 @@ def _consistency_issues(scenario: Scenario) -> list[ScenarioIssue]:
         for index, item_id in enumerate(ids):
             if item_id in ids[:index]:
                 flag(f"{section}[{index}].id", "duplicate id", item_id)
+    for index, person in enumerate(scenario.people):
+        if person.id == HOUSEHOLD:
+            flag(f"people[{index}].id", "is reserved for household-level income streams", person.id)
     if len(scenario.people) != 2:
         flag("people", "exactly two people are required", len(scenario.people))
     for index, person in enumerate(scenario.people):
@@ -252,8 +258,8 @@ def _consistency_issues(scenario: Scenario) -> list[ScenarioIssue]:
             flag(f"people[{index}].date_of_birth", f"must be before as_of_date {as_of}", person.date_of_birth)
     for index, stream in enumerate(scenario.income):
         where = f"income[{index}]"
-        if stream.recipient not in person_ids:
-            flag(f"{where}.recipient", f"must be one of the people ids {person_ids}", stream.recipient)
+        if stream.recipient != HOUSEHOLD and stream.recipient not in person_ids:
+            flag(f"{where}.recipient", f"must be one of {person_ids} or {HOUSEHOLD!r}", stream.recipient)
         end = stream.end_date
         if end is not None and end <= stream.start_date:
             flag(f"{where}.end_date", f"must be after start_date {stream.start_date}", end)

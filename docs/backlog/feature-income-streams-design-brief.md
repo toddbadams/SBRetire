@@ -136,18 +136,21 @@ Task format and statuses: `docs/project-sdlc.md` §2. Definition of done: `docs/
 - 2026-10-09: `src/sbretire/timeline.py` (`month_index`), `src/sbretire/inflation.py` (`PriceIndex` protocol; `FlatPriceIndex` returns one shared read-only array of ones). Tests: `tests/unit/test_timeline.py` (8 cases), `tests/unit/test_inflation.py`.
 
 ### F-003.2 Household recipient in config
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: —
 
 `src/sbretire/config.py`: `income[].recipient` may be `household`; a person whose `id` is `household` is rejected
 (brief §2 #6). Tests added to `tests/unit/test_config_consistency.py`.
 
 **Acceptance criteria**
-- [ ] A stream with `recipient: household` validates — `test_household_recipient_accepted`
-- [ ] A person with id `household` is rejected at `people[i].id` — `test_household_is_reserved_person_id`
+- [x] A stream with `recipient: household` validates — `test_household_recipient_accepted`
+- [x] A person with id `household` is rejected at `people[i].id` — `test_household_is_reserved_person_id`
+
+**Notes**
+- 2026-10-09: `src/sbretire/config.py` — `HOUSEHOLD = "household"` constant; consistency rules reject a person id `household` ("is reserved for household-level income streams") and accept `recipient: household`; recipient error now lists the ids and `'household'`. Tests added to `tests/unit/test_config_consistency.py`.
 
 ### F-003.3 ScenarioIncome
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-003.1, F-003.2
 
 `src/sbretire/income.py`: `ScenarioIncome(scenario, price_index).income(month, alive)` per brief §2 #1–#6, §5.
