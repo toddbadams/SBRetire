@@ -116,28 +116,37 @@ def refresh_runs_index(runs_dir: Path) -> tuple[Path, Path]: ...  # index.json, 
 
 ## 9. Surprises
 
+- 2026-10-09 — /verify of F-021.1 found `returns[]` reusing three sustainability CSV column names for different
+  figures (success at the required return); renamed `*_at_required_return` so equal names always mean equal things.
+- 2026-10-09 — The user moved the Claude Design hand-off document to F-022 (with a common CSS theme requirement);
+  F-021.3 keeps the sample and docs.
+
 - 2026-10-09 — F-021.1: `run.seed.value` is a decimal **string**, not a number: a generated seed is 128-bit and
   JavaScript cannot hold it exactly. The test was changed to expect `"21"` before the code went green.
 
 ## 10. Tasks
 
 ### F-021.1 results.json and its schema
-- **Status**: Verification
+- **Status**: To Do
 - **Depends on**: —
 
 `src/sbretire/results_json.py` (`build_results`, `write_results_json`, `SCHEMA_VERSION`), numeric rounding helpers
 in `reporting.py`, `schemas/results.schema.json`, `jsonschema` dev dependency; `run` writes `results.json`.
 
 **Acceptance criteria**
-- [x] On a seeded 300-path run (with and without a 12-month reserve) the built results validate against `schemas/results.schema.json`, and the schema rejects a document missing a section or with a wrong type — `test_results_json_validates_against_schema`
-- [x] Summary, budgets, reserve budgets, returns and annual values equal the run's result objects, with budgets floored to 0.01 and returns ceiled to 1e-6 exactly as the CSVs; `columns` equals `COLUMN_GUIDE`; `inputs` equals the input rows — `test_results_json_matches_run_objects`
-- [x] `sbretire run` (unnamed) writes `results.json` beside the CSVs; it is valid JSON with no NaN, and identical across two runs apart from `run.created_at` — `test_cli_run_writes_results_json`
+- [ ] On a seeded 300-path run (with and without a 12-month reserve) the built results validate against `schemas/results.schema.json`, and the schema rejects a document missing a section or with a wrong type — `test_results_json_validates_against_schema`
+- [ ] Summary, budgets, reserve budgets, returns and annual values equal the run's result objects, with budgets floored to 0.01 and returns ceiled to 1e-6 exactly as the CSVs; a `returns` key that shares a name with a `sustainability_results.csv` column has the same meaning (success at the required return is `*_at_required_return`); `columns` equals `COLUMN_GUIDE`; `inputs` equals the input rows — `test_results_json_matches_run_objects`
+- [ ] `sbretire run` (unnamed) writes `results.json` beside the CSVs; it validates against the schema, is strict JSON with no NaN, and is identical across two runs apart from `run.created_at` — `test_cli_run_writes_results_json`
 
 **Notes**
 - 2026-10-09 `src/sbretire/results_json.py` (`build_results` from GuideContext + annual rows, `write_results_json` strict JSON, UTF-8, LF); `reporting.money_down`/`return_up` numeric rounding shared with the CSV text helpers; `schemas/results.schema.json` (draft 2020-12, additionalProperties false everywhere, generated once then maintained by hand); `run` writes `results.json` using run_metadata's hash and timestamp. Tests `tests/unit/test_results_json.py` (2) and `test_cli_run_writes_results_json`; `results.json` added to OUTPUT_FILES.
+- 2026-10-09 /verify FAIL (snapshot 28fc3e6):
+  - results.json `returns[]` reuses the CSV names estimated_success_probability / standard_error / unresolved_fraction for the success at the solved required return, while sustainability_results.csv (and the JSON's own `columns` guide) use them for the configured-return figures: e.g. JSON 0.901 vs CSV 0.809 — contradicts §2 #1
+  - no test validates a CLI-written results.json against the schema
+  - otherwise: schema strict and valid, all lifestyle/annual/inputs values match the CSVs, ruff/mypy clean
 
 ### F-021.2 Named runs, index.json and runs.js
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-021.1
 
 `--name`, `--overwrite`, `check_run_name`, run folders, `refresh_runs_index` (§2 #3–#7).
@@ -150,18 +159,33 @@ in `reporting.py`, `schemas/results.schema.json`, `jsonschema` dev dependency; `
 
 **Notes**
 - 2026-10-09 `results_json`: `RUN_NAME_RULE`/`RUN_NAME_HELP`/`check_run_name`, `RUN_OUTPUT_FILES`, `refresh_runs_index` (rebuilds index.json + runs.js from disk; folder name is the run name; unreadable results skipped with a warning). `run`: `--name`, `--overwrite`; name and existence checked before loading data or printing anything (exit 2); `--overwrite` removes only known output files; named runs write to `<output-dir>/runs/<name>/` and refresh the index. Tests `tests/unit/test_named_runs.py` (4).
+- 2026-10-09 /verify PASS (snapshot 28fc3e6):
+  - 4 tests pass and can fail; full suite 405
+  - own runs: folder layout, index newest-first with the 10 fields, runs.js loads in Bun with both runs, refusal exits 2 in ~0.5 s with nothing on stdout, --overwrite removes only known files
+  - notes (fixed in B-021.1): Windows reserved names (CON, COM1 accepted; nul refused as "already exists"); --overwrite deletes old outputs before computing
 
-### F-021.3 Claude Design hand-off
+### F-021.3 Design sample and docs
 - **Status**: In Progress
 - **Depends on**: F-021.2
 
-`scripts/build_design_sample.py`, `docs/design/sample/` (two runs of the example config),
-`docs/design/claude-design-prompt.md`, README (named runs, results.json, viewer data), CHANGELOG.
+`scripts/build_design_sample.py`, `docs/design/sample/runs/` (two runs of the example config), README (named runs,
+results.json, viewer data), CHANGELOG. The Claude Design hand-off document moved to F-022.1 (user, 2026-10-09).
 
 **Acceptance criteria**
 - [ ] The committed sample has two runs whose `results.json` validate against the schema, `runs.js` matches them, and every input value comes from `config/model.example.yaml` (no other config) — `test_design_sample_is_valid_example_data`
-- [ ] The design prompt names every `results.json` section and the page's required parts (run picker, compare mode, headline, budget and reserve tables, required return, portfolio fan chart, survival curves, inputs, column notes, wording rules, offline/`file://`, light and dark) — `test_design_prompt_covers_schema_sections`
 - [ ] README documents `--name`, `--overwrite`, `results.json`, `index.json` and `runs.js` — `check: grep -n "\-\-overwrite" README.md`
+
+### B-021.1 Reserved Windows run names and overwrite timing
+- **Status**: To Do
+- **Depends on**: F-021.2
+
+From the F-021.2 verify notes: reject Windows reserved device names (CON, PRN, AUX, NUL, COM1–COM9, LPT1–LPT9, any
+case) in `check_run_name`; with `--overwrite`, remove the old run's files only after the computation succeeds, just
+before writing, so a failed rerun keeps the previous run.
+
+**Acceptance criteria**
+- [ ] `CON`, `nul`, `Com1`, `lpt9` are rejected with a message naming the reserved-name rule; `console`, `com10` are accepted — `test_run_name_rejects_windows_reserved_names`
+- [ ] If the computation fails during an `--overwrite` rerun, the previous run's files are all still there — `test_cli_overwrite_keeps_old_run_when_computation_fails`
 
 ## 11. Open Questions
 
@@ -177,5 +201,5 @@ in `reporting.py`, `schemas/results.schema.json`, `jsonschema` dev dependency; `
 6. Existing name — `test_cli_named_run_refuses_existing_unless_overwrite`
 7. Index and runs.js — `test_runs_index_and_runs_js`
 8. Sample — `test_design_sample_is_valid_example_data`
-9. Prompt — `test_design_prompt_covers_schema_sections`
+9. (moved to F-022.1) Design hand-off document
 10. README — `check: grep -n "\-\-overwrite" README.md`

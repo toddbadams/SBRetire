@@ -24,12 +24,21 @@ from sbretire.optimization import (
     path_return_thresholds,
     required_returns,
 )
-from sbretire.reporting import ANNUAL_COLUMNS, annual_results
+from sbretire.reporting import ANNUAL_COLUMNS, SUSTAINABILITY_COLUMNS, annual_results
 from sbretire.results_guide import COLUMN_GUIDE, GuideContext
 from sbretire.results_json import SCHEMA_VERSION, build_results
 
 from annual_fixtures import ROOT, seeded
 
+SAME_MEANING_AS_SUSTAINABILITY_CSV = {
+    "target_probability",
+    "monthly_budget_today",
+    "required_annual_return",
+    "return_tolerance",
+    "converged",
+    "iterations",
+    "note",
+}
 SCHEMA = json.loads((ROOT / "schemas" / "results.schema.json").read_text(encoding="utf-8"))
 
 
@@ -123,6 +132,12 @@ def test_results_json_matches_run_objects() -> None:
         assert found.required_annual_return is not None
         assert row["required_annual_return"] == _ceil_micro(found.required_annual_return)
         assert row["monthly_budget_today"] == found.monthly_budget_today
+        assert row["success_probability_at_required_return"] == found.estimated_success_probability
+        assert row["standard_error_at_required_return"] == found.standard_error
+        assert row["unresolved_fraction_at_required_return"] == found.unresolved_fraction
+        # a key named like a sustainability_results.csv column must mean the same thing as that column
+        shared = set(row) & set(SUSTAINABILITY_COLUMNS)
+        assert shared <= SAME_MEANING_AS_SUSTAINABILITY_CSV, shared - SAME_MEANING_AS_SUSTAINABILITY_CSV
     assert [list(row) for row in built["annual"]] == [list(ANNUAL_COLUMNS)] * len(annual)
     for row, expected in zip(built["annual"], annual, strict=True):
         assert row == {column: getattr(expected, column) for column in ANNUAL_COLUMNS}

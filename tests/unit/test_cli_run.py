@@ -11,6 +11,7 @@ import math
 from pathlib import Path
 from typing import Any
 
+import jsonschema
 import pytest
 import yaml
 
@@ -472,6 +473,8 @@ def test_cli_run_writes_results_json(tmp_path: Path, valid_raw: dict[str, Any]) 
         assert main(["run", "--config", str(config), "--output-dir", str(tmp_path / name)]) == 0
     first = _strict_json(tmp_path / "first" / "results.json")
     second = _strict_json(tmp_path / "second" / "results.json")
+    schema = json.loads((ROOT / "schemas" / "results.schema.json").read_text(encoding="utf-8"))
+    jsonschema.validate(first, schema)
     assert (tmp_path / "first" / "annual_results.csv").is_file()
     assert first["run"]["name"] is None and first["summary"]["n_paths"] == 1_000
     first["run"].pop("created_at")
