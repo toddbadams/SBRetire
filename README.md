@@ -74,6 +74,23 @@ illustration, not a sustainability estimate**: there is no randomness and no pro
   GBP, and the `price_index`. In the month money runs out, `spending` shows what was needed; the unpaid part is the
   shortfall in the summary.
 
+## Reproducibility and `run_metadata.json`
+
+Every Monte Carlo run draws from one root seed (`model.random_seed`). Mortality and inflation each get their own
+Random Stream from that seed, so the same seed, inputs and data files give identical results, and changing one
+component never shifts the other's draws. Rules in `docs/decisions/simulation-conventions.md` §4 and
+`docs/decisions/configuration.md` §7–§8.
+
+- `random_seed: null` generates a fresh 128-bit seed and records it in `run_metadata.json` with
+  `"seed_source": "generated"`. To repeat that run, paste the `seed` value into `model.random_seed`. It is a JSON
+  integer; read it with Python or a text editor, since JavaScript tools round numbers that large.
+- `config_sha256` is a hash of the validated scenario: comments, key order and formatting don't change it, any value
+  does. The mortality file's location is left out (it differs between machines); its content is hashed under
+  `data_files`.
+- `run_metadata.json` also records the software, Python, NumPy and platform versions, `simulation_count`,
+  `horizon_years`, the config path and `created_at` (UTC). `created_at` is the only field that should differ between
+  two runs of the same inputs and seed.
+
 ## Outputs (V1)
 
 | File | Contents |

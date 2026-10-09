@@ -2,17 +2,25 @@
 
 from __future__ import annotations
 
+import dataclasses
 import hashlib
 import json
+import platform
 from collections.abc import Sequence
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
+import numpy as np
+
+import sbretire
 from sbretire.config import LoadedScenario, Scenario
 from sbretire.randomness import ResolvedSeed, SeedSource
 
 _CHUNK = 1 << 20
+METADATA_SCHEMA = 1
+"""Version of the ``run_metadata.json`` layout; bump when fields change meaning or are removed."""
+RUN_METADATA_FILE = "run_metadata.json"
 
 
 def config_sha256(scenario: Scenario) -> str:
@@ -39,6 +47,8 @@ def file_sha256(path: Path) -> str:
 
 @dataclass(frozen=True)
 class DataFileRecord:
+    """One input data file as recorded in Run Metadata; ``version``/``retrieved`` come from F-006/F-007."""
+
     role: str
     path: str
     sha256: str
@@ -48,6 +58,11 @@ class DataFileRecord:
 
 @dataclass(frozen=True)
 class RunMetadata:
+    """Everything needed to reproduce and audit a run (SPEC §10.3); written as ``run_metadata.json``.
+
+    ``created_at`` is the only field expected to differ between two runs of the same inputs and seed.
+    """
+
     metadata_schema: int
     software_version: str
     created_at: str
@@ -70,8 +85,32 @@ def build_run_metadata(
     *,
     now: datetime | None = None,
 ) -> RunMetadata:
-    raise NotImplementedError
+    """Assemble Run Metadata for a loaded Scenario and its resolved seed; ``now`` (UTC) defaults to now."""
+    moment = datetime.now(UTC) if now is None else now
+    if moment.utcoffset() != timedelta(0):
+        raise ValueError(f"now must be a UTC datetime, got {moment!r}")
+    model = loaded.scenario.model
+    return RunMetadata(
+        metadata_schema=METADATA_SCHEMA,
+        software_version=sbretire.__version__,
+        created_at=moment.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        config_path=None if loaded.source_path is None else str(loaded.source_path),
+        config_sha256=config_sha256(loaded.scenario),
+        seed=seed.value,
+        seed_source=seed.source,
+        simulation_count=model.simulation_count,
+        horizon_years=model.horizon_years,
+        data_files=tuple(data_files),
+        python_version=platform.python_version(),
+        numpy_version=np.__version__,
+        platform=platform.platform(),
+    )
 
 
 def write_run_metadata(metadata: RunMetadata, output_dir: Path) -> Path:
-    raise NotImplementedError
+    """Write ``output_dir/run_metadata.json`` (UTF-8, sorted keys, 2-space indent); return its path."""
+    output_dir.mkdir(parents=True, exist_ok=True)
+    path = output_dir / RUN_METADATA_FILE
+    text = json.dumps(dataclasses.asdict(metadata), indent=2, sort_keys=True) + "\n"
+    path.write_text(text, encoding="utf-8", newline="\n")
+    return path

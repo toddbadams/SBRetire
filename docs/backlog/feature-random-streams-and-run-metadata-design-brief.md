@@ -199,18 +199,21 @@ Add `config_sha256` and `file_sha256` to `src/sbretire/metadata.py` per §2 #4 a
 - 2026-10-09 Added `config_sha256` (pydantic `model_dump(mode="json")` excluding `mortality.data_file`, sorted-key compact ASCII JSON) and streaming `file_sha256` to `src/sbretire/metadata.py`; tests in `tests/unit/test_metadata.py` (10: comments/sort/flow-style YAML, six value changes incl. seed → null, two directories, warn-mode extras, known-answer + empty-file + missing file).
 
 ### F-005.3 RunMetadata and run_metadata.json
-- **Status**: To Do
+- **Status**: Verification
 - **Depends on**: F-005.1, F-005.2
 
 Add `DataFileRecord`, `RunMetadata`, `build_run_metadata`, `write_run_metadata` per §5; README section on
 reproducibility and `run_metadata.json`.
 
 **Acceptance criteria**
-- [ ] Built metadata carries every SPEC §10.3 field (seed, software version = `sbretire.__version__`, config hash, data-file records) plus Python/NumPy/platform versions, `created_at` (UTC, from injected `now`), `simulation_count`, `horizon_years`, `metadata_schema` 1 — `test_build_run_metadata_has_required_fields`
-- [ ] `run_metadata.json` is written to the output dir, sorted keys, and round-trips (JSON → values equal to the dataclass, seed exact for a 128-bit value) — `test_write_run_metadata_round_trips`
-- [ ] Two builds from the same scenario and seed are equal except `created_at` — `test_build_run_metadata_reproducible_except_created_at`
-- [ ] A generated seed is recorded with `seed_source: "generated"`, a configured one with `"config"` — `test_build_run_metadata_records_seed_source`
-- [ ] README documents `run_metadata.json`, the Config Hash rule and how to reuse a generated seed — `check: grep -n "run_metadata.json" README.md`
+- [x] Built metadata carries every SPEC §10.3 field (seed, software version = `sbretire.__version__`, config hash, data-file records) plus Python/NumPy/platform versions, `created_at` (UTC, from injected `now`), `simulation_count`, `horizon_years`, `metadata_schema` 1 — `test_build_run_metadata_has_required_fields`
+- [x] `run_metadata.json` is written to the output dir, sorted keys, and round-trips (JSON → values equal to the dataclass, seed exact for a 128-bit value) — `test_write_run_metadata_round_trips`
+- [x] Two builds from the same scenario and seed are equal except `created_at` — `test_build_run_metadata_reproducible_except_created_at`
+- [x] A generated seed is recorded with `seed_source: "generated"`, a configured one with `"config"` — `test_build_run_metadata_records_seed_source`
+- [x] README documents `run_metadata.json`, the Config Hash rule and how to reuse a generated seed — `check: grep -n "run_metadata.json" README.md`
+
+**Notes**
+- 2026-10-09 Added `DataFileRecord`, `RunMetadata`, `build_run_metadata` (injectable UTC `now`, non-UTC rejected) and `write_run_metadata` (`run_metadata.json`, sorted keys, indent 2, LF) to `src/sbretire/metadata.py`; 5 tests in `tests/unit/test_metadata.py` (incl. `test_build_run_metadata_requires_utc_now`); README section "Reproducibility and run_metadata.json". Not yet called by `sbretire run` (F-013).
 
 ## 11. Open Questions
 
