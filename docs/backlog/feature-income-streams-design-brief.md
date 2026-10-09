@@ -115,14 +115,15 @@ none. Sum `amount × factor` over streams.
 
 ## 9. Surprises
 
-_(filled during implementation)_
+- 2026-10-09 — The per-file ruff hook and the full gate sorted `sbretire` imports differently in tests (first-party detection depends on the path ruff is given); fixed by pinning `known-first-party` / `known-local-folder` in pyproject (separate chore commit).
+- 2026-10-09 — /verify noted `ScenarioIncome` checks the price index's path count only in months where a stream pays (early return otherwise). Harmless — nothing is read from the index then — but F-004/F-006 should validate the index shape once at construction instead.
 
 ## 10. Tasks
 
 Task format and statuses: `docs/project-sdlc.md` §2. Definition of done: `docs/project-sdlc.md` §4.
 
 ### F-003.1 Timeline and price-index seam
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: —
 
 `src/sbretire/timeline.py` (`month_index`) and `src/sbretire/inflation.py` (`PriceIndex`, `FlatPriceIndex`) — brief
@@ -134,9 +135,13 @@ Task format and statuses: `docs/project-sdlc.md` §2. Definition of done: `docs/
 
 **Notes**
 - 2026-10-09: `src/sbretire/timeline.py` (`month_index`), `src/sbretire/inflation.py` (`PriceIndex` protocol; `FlatPriceIndex` returns one shared read-only array of ones). Tests: `tests/unit/test_timeline.py` (8 cases), `tests/unit/test_inflation.py`.
+- 2026-10-09 /verify PASS:
+  - test_timeline.py + test_inflation.py: 9 passed; year boundary, multi-year and negative months covered
+  - probe: month_index(2026-10-01, 2030-02-01) = 40; FlatPriceIndex array is read-only, later calls unaffected
+  - docstrings state I = 1 at the As-Of month; no randomness or network; ruff + mypy clean
 
 ### F-003.2 Household recipient in config
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: —
 
 `src/sbretire/config.py`: `income[].recipient` may be `household`; a person whose `id` is `household` is rejected
@@ -148,9 +153,13 @@ Task format and statuses: `docs/project-sdlc.md` §2. Definition of done: `docs/
 
 **Notes**
 - 2026-10-09: `src/sbretire/config.py` — `HOUSEHOLD = "household"` constant; consistency rules reject a person id `household` ("is reserved for household-level income streams") and accept `recipient: household`; recipient error now lists the ids and `'household'`. Tests added to `tests/unit/test_config_consistency.py`.
+- 2026-10-09 /verify PASS:
+  - test_config_consistency.py: 14 passed (no regression in earlier rules)
+  - probe: 'Household' (capitalised) and 'nobody' rejected at income[0].recipient; message lists 'household'
+  - matches configuration §5 and thesaurus Household Stream / Recipient; ruff + mypy clean
 
 ### F-003.3 ScenarioIncome
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-003.1, F-003.2
 
 `src/sbretire/income.py`: `ScenarioIncome(scenario, price_index).income(month, alive)` per brief §2 #1–#6, §5.
@@ -167,9 +176,14 @@ Tests in `tests/unit/test_income.py` with a scripted test `PriceIndex`.
 
 **Notes**
 - 2026-10-09: `src/sbretire/income.py` — `ScenarioIncome` precomputes per-stream rules (start/end month indices, monthly today's-GBP amount, linking, survivor %, recipient row or household); `income()` loops over the few paying streams, vectorised over paths, and validates that the price index covers the same paths. Tests: `tests/unit/test_income.py` (9, incl. no-streams and index-shape cases).
+- 2026-10-09 /verify PASS:
+  - test_income.py: 9 passed; every expected value recomputed from the fixture (pension month 3, annuity end month 162)
+  - code matches configuration §4–§5 and SPEC §8; loops only over streams, numpy over paths
+  - probe with index 1.5: month 3 all alive [2000, 2000]; sam dead [1500, 1500]; month 162 [1500, 1500]
+  - ruff + mypy clean; no network/tax
 
 ### F-003.4 End-to-end income check
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-003.3
 
 `tests/integration/test_income_end_to_end.py` (T2) and README configuration rules for income (brief §7).
@@ -180,7 +194,10 @@ Tests in `tests/unit/test_income.py` with a scripted test `PriceIndex`.
 
 **Notes**
 - 2026-10-09: `tests/integration/test_income_end_to_end.py` — 3 paths (alex dies first, sam dies first, both censored) with zero return/spending; final balances equal hand totals and household end months match. It exercises existing F-003.3 behaviour, so it passed on first run (no red phase). README gains an "Income streams" section (linking from as-of, survivor percentage incl. death before start, `recipient: household`).
-
+- 2026-10-09 /verify PASS:
+  - test_income_end_to_end.py: passed; totals 240000 / 447000 / 798000 re-derived independently
+  - README 'Income streams' section agrees with configuration §4–§5
+  - ruff + mypy clean
 
 ## 11. Open Questions
 
