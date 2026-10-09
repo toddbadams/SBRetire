@@ -2,7 +2,7 @@
 id: F-022
 type: feature
 parent: results-viewer
-status: in-progress
+status: done
 complexity: 5
 created: 2026-10-09
 updated: 2026-10-09
@@ -111,7 +111,7 @@ Criteria may be refined when the design is back.
   - theme.css byte-identical to Direction A; viewer.md §1 matches the file
 
 ### F-022.3 Build the results viewer page
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-022.2
 
 Build the page from the Claude Design output against the sample; decide its placement (§2 #5). Criteria may be
@@ -132,6 +132,11 @@ refined when the design is back.
   - defence in depth: F.date/F.dateTime return the raw string for an invalid date (used unescaped), `p.sex` unescaped in personCells
   - everything else passed: diff scope vs the prototype, copy byte-equal, hash handling whitelisted, no eval, README/decision accurate
 - 2026-10-09 Fix after /verify: viewer.js now escapes the inflation source, a person's sex and the invalid-date fallbacks of F.date/F.dateTime (`test_viewer_escapes_run_data`). Browser check with a crafted named run (HTML + onerror payload in inflation.source, a person's name and an income name): fixed page shows the payload as text (7 occurrences with sections expanded), creates no <img>/<b>, runs no script, no console messages; the same run with the prototype page injects an <img> element, so the check discriminates.
+- 2026-10-09 /verify PASS (re-verify after the security fix):
+  - full suite 417; the fix diff is exactly the four escaping lines
+  - full read of viewer.js: every string from runs.js reaches HTML through esc() or textContent
+  - bun harness with a DOM shim and a payload in every text field (names, notes, column meanings, inputs, dates, run metadata): fixed page 0 injections; pre-fix page 3; discriminates
+  - notes: numeric fields (horizon_years, annual year) are emitted unescaped — safe because sbretire writes them as integers; an assertion dropped in the fix commit was restored as an equivalent count check
 
 ## 11. Open Questions
 

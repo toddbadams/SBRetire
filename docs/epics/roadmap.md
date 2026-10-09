@@ -17,7 +17,7 @@ Features in build order. Status: `proposed` → `briefed` → `in-progress` → 
 | F-019 | End-of-Life Reserve Target | [v1-1-enhancements](v1-1-enhancements.md) | F-013 | done |
 | F-020 | Spend-At-Least-Income Option | [v1-1-enhancements](v1-1-enhancements.md) | F-013 | done |
 | F-021 | Named Runs and results.json | [results-viewer](results-viewer.md) | F-020 | done |
-| F-022 | HTML Results Viewer | [results-viewer](results-viewer.md) | F-021 | in-progress |
+| F-022 | HTML Results Viewer | [results-viewer](results-viewer.md) | F-021 | done |
 | F-005 | Random Streams and Run Metadata | [foundations](foundations.md) | F-001 | done |
 | F-006 | Stochastic Inflation Process and CPI Calibration | [stochastic-inputs](stochastic-inputs.md) | F-003, F-004, F-005 | done |
 | F-007 | ONS Mortality Data Ingest and Mapping | [stochastic-inputs](stochastic-inputs.md) | F-001 | done |
@@ -114,6 +114,7 @@ Unmapped requirements: **none**.
 
 ## Change Log
 
+- 2026-10-09 — F-022 done: results viewer from Claude Design (theme A "Paper" as the common `web/theme.css`, viewer §1-§2); named runs copy it beside `runs/`; XSS paths in the prototype escaped after review; epic results-viewer delivered; 417 tests.
 - 2026-10-09 — F-021 done: results.json (+ JSON Schema) on every run; `--name`/`--overwrite` run folders; index.json and runs.js; example-only design sample; B-021.1 (Windows reserved names, overwrite only after computing).
 - 2026-10-09 — F-022 briefed: tasks F-022.1 (Claude Design hand-off with a common CSS theme, to be determined), F-022.2 (choose the theme), F-022.3 (build the page).
 - 2026-10-09 — Added epic results-viewer (F-021 named runs + results.json + runs.js, F-022 HTML viewer after Claude Design); F-021 briefed: tasks F-021.1…F-021.3.
