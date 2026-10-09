@@ -5,11 +5,12 @@ status: proposed
 spec_sections: [§4.2, §6, §8]
 depends_on: [simulation-engine]
 milestones:
-  - { id: F-003, title: Income Streams, status: proposed }
+  - { id: F-003, title: Income Streams, status: briefed }
   - { id: F-004, title: Spending with Survivor Budget Factor, status: proposed }
 created: 2026-10-09
 updated:
   - 2026-10-09: created by /decompose-spec
+  - 2026-10-09: F-003 briefed
 ---
 
 # Household Cash Flows

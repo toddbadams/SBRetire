@@ -75,6 +75,12 @@ suffix, bare unqualified `Service`, `confidence interval` (for success probabili
 - **Synonyms to AVOID**: second death date, joint death, end of plan
 - **Related terms**: Death Month, Completed Path, Censored Path
 
+### Household Stream
+- **Definition**: An Income Stream with `recipient: household` — owned jointly, paid in full while both are alive and × its Survivor Percentage while exactly one is alive (configuration §5).
+- **NOT**: Household income (the total of all streams in a month).
+- **Synonyms to AVOID**: joint stream, shared income, household-level pension
+- **Related terms**: Income Stream, Recipient, Survivor Percentage
+
 ### Income Stream
 - **Definition**: One configured inflow (`income[]`) with a start date, annual amount in today's GBP, inflation-linking flag, recipient and survivor percentage. Monthly amount is annual / 12.
 - **Synonyms to AVOID**: pension (unless it is one), benefit, payout
@@ -109,8 +115,8 @@ suffix, bare unqualified `Service`, `confidence interval` (for success probabili
 - **Related terms**: Common Random Numbers
 
 ### Recipient
-- **Definition**: The person `id` an Income Stream belongs to; drives survivor treatment when that person dies.
-- **Related terms**: Income Stream, Survivor Percentage
+- **Definition**: Who an Income Stream belongs to: a person `id`, or `household` for a Household Stream; drives survivor treatment when that person (or the first of the two) dies (configuration §4–§5).
+- **Related terms**: Income Stream, Household Stream, Survivor Percentage
 
 ### Required Spending
 - **Definition**: Nominal spending due in a month, S_t = B_m × I_t × F_t.

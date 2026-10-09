@@ -1,6 +1,6 @@
 # SBRetire V1 Roadmap
 
-**Last updated**: 2026-10-09 — F-002 done.
+**Last updated**: 2026-10-09 — F-003 briefed.
 
 Features in build order. Status: `proposed` → `briefed` → `in-progress` → `done` (or `superseded`). Briefs live in `docs/backlog/`; tasks are inside each brief.
 
@@ -8,7 +8,7 @@ Features in build order. Status: `proposed` → `briefed` → `in-progress` → 
 |---|---|---|---|---|
 | F-001 | Scenario Config Loading and Validation | [foundations](foundations.md) | — | done |
 | F-002 | Deterministic Portfolio Engine (Walking Skeleton) | [simulation-engine](simulation-engine.md) | F-001 | done |
-| F-003 | Income Streams | [household-cash-flows](household-cash-flows.md) | F-002 | proposed |
+| F-003 | Income Streams | [household-cash-flows](household-cash-flows.md) | F-002 | briefed |
 | F-004 | Spending with Survivor Budget Factor | [household-cash-flows](household-cash-flows.md) | F-002 | proposed |
 | F-005 | Random Streams and Run Metadata | [foundations](foundations.md) | F-001 | proposed |
 | F-006 | Stochastic Inflation Process and CPI Calibration | [stochastic-inputs](stochastic-inputs.md) | F-003, F-004, F-005 | proposed |
@@ -106,6 +106,7 @@ Unmapped requirements: **none**.
 
 ## Change Log
 
+- 2026-10-09 — F-003 briefed: design brief + tasks F-003.1…F-003.4; decisions configuration §4–§5; thesaurus Household Stream.
 - 2026-10-09 — F-002 done: deterministic path-vectorised portfolio engine (`portfolio.py`, `simulation.py`); F-002.1–F-002.3 verified (157 tests).
 - 2026-10-09 — F-002 briefed: design brief + tasks F-002.1…F-002.3; decision simulation-conventions §2; thesaurus Death Month, Household End.
 - 2026-10-09 — F-001 done: scenario config loading/validation and `sbretire validate`; F-001.1–F-001.4 verified (124 tests).
