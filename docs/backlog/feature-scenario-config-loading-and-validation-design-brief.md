@@ -2,7 +2,7 @@
 id: F-001
 type: feature
 parent: foundations
-status: planned
+status: in-progress
 complexity: 3
 created: 2026-10-09
 updated: 2026-10-09
@@ -139,7 +139,7 @@ _(filled during implementation)_
 Task format and statuses: `docs/project-sdlc.md` §2. Definition of done: `docs/project-sdlc.md` §4.
 
 ### F-001.1 Scenario field models and issue aggregation
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: —
 
 Build the typed Scenario models and parse_scenario with collect-all error reporting.

@@ -1,0 +1,59 @@
+# Known-good scenario for tests. Synthetic values — not anyone's real circumstances.
+model:
+  currency: GBP
+  as_of_date: "2026-10-01"
+  simulation_count: 1000
+  confidence_levels: [0.90, 0.95]
+  frequency: monthly
+  horizon_years: 60
+  random_seed: 7
+
+portfolio:
+  starting_balance: 500000
+  annual_return: 0.04
+
+budget:
+  monthly_amount_today: 3000
+  survivor_budget_factor: 0.7
+
+inflation:
+  source: UK_CPI
+  source_period: "1989-2025"
+  annual_mean: 0.025
+  annual_standard_deviation: 0.015
+  model: placeholder
+  parameter_units: annual_rate
+
+mortality:
+  source: ONS_2024_BASED
+  geography: UK
+  projection: principal
+  data_file: ../../../data/ons_mortality.csv
+
+people:
+  - id: alex
+    name: Alex
+    date_of_birth: "1958-03-01"
+    sex: male
+  - id: sam
+    name: Sam
+    date_of_birth: "1962-07-15"
+    sex: female
+    survivor_budget_factor: 0.65
+
+income:
+  - id: pension_a
+    name: Pension A
+    start_date: "2027-01-01"
+    annual_amount_today: 12000
+    inflation_linked: true
+    survivor_percentage: 0.5
+    recipient: alex
+  - id: annuity_b
+    name: Annuity B
+    start_date: "2024-04-01"
+    end_date: "2040-04-01"
+    annual_amount_today: 6000
+    inflation_linked: false
+    survivor_percentage: 0.0
+    recipient: sam

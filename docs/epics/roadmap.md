@@ -6,7 +6,7 @@ Features in build order. Status: `proposed` → `briefed` → `in-progress` → 
 
 | # | Feature | Epic | depends_on | Status |
 |---|---|---|---|---|
-| F-001 | Scenario Config Loading and Validation | [foundations](foundations.md) | — | briefed |
+| F-001 | Scenario Config Loading and Validation | [foundations](foundations.md) | — | in-progress |
 | F-002 | Deterministic Portfolio Engine (Walking Skeleton) | [simulation-engine](simulation-engine.md) | F-001 | proposed |
 | F-003 | Income Streams | [household-cash-flows](household-cash-flows.md) | F-002 | proposed |
 | F-004 | Spending with Survivor Budget Factor | [household-cash-flows](household-cash-flows.md) | F-002 | proposed |
