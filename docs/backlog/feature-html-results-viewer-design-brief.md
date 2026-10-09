@@ -27,7 +27,9 @@ design doc the requirement for a common css theme to be determined."
 | 2 | Common theme | Every colour, font, size, space, radius, shadow and chart colour comes from CSS custom properties in **one** `theme.css`; the page's own CSS uses only `var(--…)`. Light and dark are two token sets in that file. The palette, typography and token names are **to be determined**: Claude Design proposes them, and the chosen theme is recorded as a decision before the page is built | User: common CSS theme, to be determined | user request |
 | 3 | Data | The page reads `window.SBRETIRE_RUNS` from `runs/runs.js` loaded with a `<script>` tag (F-021); no fetch, no server, no network | Works from `file://`, offline | F-021 §2 #6 |
 | 4 | Sample | `docs/design/sample/runs/` from the example config only: `example-base` and `example-stretch` (10,500/month, 4 % return, 12-month reserve, so failures and a reserve table appear) | Informative charts; no personal data | F-021 §2 #8 |
-| 5 | Placement of the built page | Open: decided in F-022.3 with the design (e.g. `viewer/` copied next to `output/runs/`) | Depends on the design's file set | — |
+| 5 | Placement of the built page | Source in the package: `src/sbretire/web/theme.css` (common theme, shared by future pages) and `src/sbretire/web/viewer/` (`index.html`, `viewer.css`, `viewer.js`). Every named run copies all four next to `runs/` in `<output-dir>`, so the household opens `<output-dir>/index.html` | Works with any `--output-dir`, from `file://`; the copy always matches the installed version | user decision 2026-10-09 |
+| 6 | Theme | Direction **A · Paper** from Claude Design: warm off-white, ink text, deep green accent, serif headings and figures, system sans body, oklch tokens, light + dark; recorded in `docs/decisions/viewer.md` §1. Direction B and the footer design-review switch are dropped | User chose A after reviewing both in the browser | user decision 2026-10-09 |
+| 7 | Hardening of the design prototype | Remove the design-review control and direction-B code; read the budget search tolerance from `budget_tolerance` instead of a hard-coded "£1"; keep the design's notes in `docs/design/` | Design README "Work remaining" | Claude Design hand-back |
 
 ## 3. Context
 
@@ -65,6 +67,9 @@ The page consumes `window.SBRETIRE_RUNS = {schema_version, index: [...], runs: {
 
 ## 9. Surprises
 
+- 2026-10-09 — Claude Design returned a working prototype (`index.html`, `viewer.css`, `viewer.js`) and two theme
+  directions with the same token names; the user picked A · Paper after viewing both in the built-in browser.
+
 ## 10. Tasks
 
 ### F-022.1 Claude Design hand-off document
@@ -95,7 +100,8 @@ After Claude Design proposes a theme: record it in `docs/decisions/viewer.md` §
 Criteria may be refined when the design is back.
 
 **Acceptance criteria**
-- [ ] `docs/decisions/viewer.md` §1 records the chosen theme and `viewer/theme.css` defines every token it names, for light and dark — `test_theme_css_defines_decided_tokens`
+- [ ] `docs/decisions/viewer.md` §1 records the chosen theme and `src/sbretire/web/theme.css` defines every token it names, with a dark value for every colour and chart token in both the `prefers-color-scheme` block and `[data-theme="dark"]` — `test_theme_css_defines_decided_tokens`
+- [ ] Text tokens meet WCAG AA in light and dark: body and muted text on background, surface and sunken surface ≥ 4.5:1; status colours, chart run colours and the accent on background ≥ 3:1 — `test_theme_contrast_meets_aa`
 
 ### F-022.3 Build the results viewer page
 - **Status**: To Do
@@ -105,13 +111,14 @@ Build the page from the Claude Design output against the sample; decide its plac
 refined when the design is back.
 
 **Acceptance criteria**
-- [ ] The page's own CSS and markup use colours, fonts and spacing only through theme tokens (no colour literals outside `theme.css`) — `test_viewer_uses_only_theme_tokens`
-- [ ] Opened from disk with the sample, the page lists both runs, shows every part, compares two runs, and logs no console errors or network requests — `check: built-in browser on the viewer with docs/design/sample/runs`
+- [ ] The page's own CSS, markup and script use colours only through theme tokens (no hex, rgb, hsl, oklch or named colour literals outside `theme.css`), make no network requests (`fetch`, `XMLHttpRequest`, external URLs) and contain no design-review switch or second theme — `test_viewer_uses_only_theme_tokens`
+- [ ] The budget tables' convergence note uses `budget_tolerance` from the data, not a hard-coded amount — `test_viewer_reads_budget_tolerance`
+- [ ] A named run copies `index.html`, `theme.css`, `viewer.css` and `viewer.js` into `<output-dir>/` byte-equal to the package files; an unnamed run does not — `test_cli_named_run_copies_viewer`
+- [ ] Served with the sample runs, the page lists both runs, shows every section, compares two runs, switches light/dark, and logs no console errors or network requests to other hosts — `check: built-in browser on the viewer with docs/design/sample/runs`
 
 ## 11. Open Questions
 
-- The common theme (palette, typography, token names) — to be determined with Claude Design (F-022.2).
-- Where the built page lives and how it reaches `output/runs/runs.js` (F-022.3).
+- None (theme and placement decided 2026-10-09, §2 #5–#6).
 
 ## 12. Acceptance Criteria
 
