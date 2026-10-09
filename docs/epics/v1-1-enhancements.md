@@ -7,8 +7,8 @@ depends_on: [reporting-release]
 milestones:
   - { id: F-016, title: VS Code Test Setup, status: done }
   - { id: F-017, title: Inputs Display and inputs.csv, status: done }
-  - { id: F-018, title: Results Guide (columns, calculations, assumptions), status: in-progress }
-  - { id: F-019, title: End-of-Life Reserve Target, status: proposed }
+  - { id: F-018, title: Results Guide (columns, calculations, assumptions), status: done }
+  - { id: F-019, title: End-of-Life Reserve Target, status: briefed }
   - { id: F-020, title: Spend-At-Least-Income Option, status: proposed }
 created: 2026-10-09
 updated:

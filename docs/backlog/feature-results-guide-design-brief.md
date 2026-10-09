@@ -2,7 +2,7 @@
 id: F-018
 type: feature
 parent: v1-1-enhancements
-status: in-progress
+status: done
 complexity: 4
 created: 2026-10-09
 updated: 2026-10-09
@@ -98,7 +98,7 @@ def round_return_up(annual_return: float) -> float: ...  # next 0.01 % up (B-011
 ## 10. Tasks
 
 ### F-018.1 Results guide content
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-017.2
 
 `src/sbretire/results_guide.py` per §2 #1–#7 and §5; `round_return_up` moved to `reporting.py`. Tests in
@@ -112,9 +112,14 @@ def round_return_up(annual_return: float) -> float: ...  # next 0.01 % up (B-011
 
 **Notes**
 - 2026-10-09 Added `src/sbretire/results_guide.py`: `COLUMN_GUIDE` (4 files), `GuideContext`, `results_guide_markdown` (header; Your results with counts, rates, budget and return tables at display rounding and notes; calculations with this run's values; assumptions; limitations; column tables; inputs table), `write_results_guide` (UTF-8, LF). `round_return_up` moved unchanged to `reporting.py`. Tests `tests/unit/test_results_guide.py` (4).
+- 2026-10-09 /verify PASS:
+  - 4 tests pass; COLUMN_GUIDE compared with the code's column tuples, order included
+  - fixture run: the guide's Your results figures match the console exactly (809/191/0, 80.90% +/- 1.243%, budgets 2,841 / 2,730, returns 4.66% / 5.05%, 20 / 16 engine runs); monthly rate 0.3274% checked by hand
+  - formulas checked against the code (order, Depletion, S = B x I x F, survivor precedence, income rules, AR(1), mortality, both searches); round_return_up moved unchanged; ruff + mypy clean
+  - minor wording to fix: the budget search's upper bound starts at max(2 x budget, 1,000) and doubling stops once every completed path fails (done in F-019.3)
 
 ### F-018.2 run writes results_guide.md
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-018.1
 
 `_run` writes `output/results_guide.md` after the CSVs and prints its path; README Outputs lists it.
@@ -125,6 +130,10 @@ def round_return_up(annual_return: float) -> float: ...  # next 0.01 % up (B-011
 
 **Notes**
 - 2026-10-09 `_run` writes `results_guide.md` last among the outputs (after run_metadata.json) from a `GuideContext` of the run's own results; README Outputs table lists it. Test `test_cli_run_writes_results_guide` (byte-equal to the library, identical across two runs); `results_guide.md` added to `OUTPUT_FILES`.
+- 2026-10-09 /verify PASS:
+  - CLI tests: 13 passed; the guide test compares bytes with an independently built GuideContext and across two runs
+  - example config run twice: results_guide.md byte-identical (17,769 bytes), LF only, UTF-8, no timestamp; all four CSVs identical; Wrote line printed
+  - README Outputs table lists it; full gate 380 passed
 
 ## 11. Open Questions
 

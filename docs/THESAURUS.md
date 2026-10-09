@@ -70,6 +70,12 @@ suffix, bare unqualified `Service`, `confidence interval` (for success probabili
 - **Synonyms to AVOID**: bankruptcy, ruin, negative balance, going broke
 - **Related terms**: Shortfall, Probability Not Depleted Yet
 
+### End-of-Life Reserve (Required End Balance)
+- **Definition**: An opt-in stricter success test (`budget.end_reserve_months`, R months). A Path meets it when it is Successful and its balance at *Household End* is at least the **Required End Balance** R × *Budget* × I_d — the Budget in today's GBP inflated to the Household End month d. A Path that ends below it counts as Failed for the reserve metrics (optimization §3).
+- **NOT**: R months of the survivor's reduced spending; a buffer held during life.
+- **Synonyms to AVOID**: legacy, bequest, safety margin
+- **Related terms**: Maximum Sustainable Budget, Household End, Budget
+
 ### Horizon
 - **Definition**: `model.horizon_years` — a computational cap on simulated months, not an assumed age of death.
 - **Related terms**: Censored Path
