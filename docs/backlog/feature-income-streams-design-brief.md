@@ -169,14 +169,18 @@ Tests in `tests/unit/test_income.py` with a scripted test `PriceIndex`.
 - 2026-10-09: `src/sbretire/income.py` — `ScenarioIncome` precomputes per-stream rules (start/end month indices, monthly today's-GBP amount, linking, survivor %, recipient row or household); `income()` loops over the few paying streams, vectorised over paths, and validates that the price index covers the same paths. Tests: `tests/unit/test_income.py` (9, incl. no-streams and index-shape cases).
 
 ### F-003.4 End-to-end income check
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-003.3
 
 `tests/integration/test_income_end_to_end.py` (T2) and README configuration rules for income (brief §7).
 
 **Acceptance criteria**
-- [ ] With zero return and zero spending, the engine's final balance equals the starting balance plus a hand-computed income total over fixed Death Months — `test_income_end_to_end_matches_hand_total`
-- [ ] README documents household streams and the survivor rule — `check: grep -n "recipient: household" README.md`
+- [x] With zero return and zero spending, the engine's final balance equals the starting balance plus a hand-computed income total over fixed Death Months — `test_income_end_to_end_matches_hand_total`
+- [x] README documents household streams and the survivor rule — `check: grep -n "recipient: household" README.md`
+
+**Notes**
+- 2026-10-09: `tests/integration/test_income_end_to_end.py` — 3 paths (alex dies first, sam dies first, both censored) with zero return/spending; final balances equal hand totals and household end months match. It exercises existing F-003.3 behaviour, so it passed on first run (no red phase). README gains an "Income streams" section (linking from as-of, survivor percentage incl. death before start, `recipient: household`).
+
 
 ## 11. Open Questions
 

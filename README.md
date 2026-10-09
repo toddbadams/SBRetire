@@ -39,6 +39,17 @@ Configuration rules worth knowing (full list in `docs/decisions/configuration.md
 - Unknown or duplicated keys are errors; set `model.unknown_keys: warn` to report unknown keys as warnings instead.
 - Numbers, booleans and dates are not coerced from strings: write `0.05`, `true`, `"2026-10-01"`.
 
+Income streams (full rules in `docs/decisions/configuration.md` §4–§5):
+
+- `annual_amount_today` is in today's GBP. An `inflation_linked: true` stream grows with inflation from the
+  as-of date, so a pension starting in 2029 begins at its inflated amount; a non-linked stream pays the same
+  nominal amount for its whole life.
+- `survivor_percentage` is what continues after the `recipient` dies while the other person is alive: `0` for
+  income that dies with its owner (e.g. UK State Pension), `0.5` for a typical spouse's pension. It also applies
+  from `start_date` if the recipient died before the stream started.
+- `recipient: household` marks income owned by the household (e.g. rent, a joint annuity): paid in full while both
+  are alive and × `survivor_percentage` once one has died. `household` cannot be used as a person `id`.
+
 ## Outputs (V1)
 
 | File | Contents |
