@@ -147,17 +147,20 @@ _(filled during implementation)_
 Task format and statuses: `docs/project-sdlc.md` §2. Definition of done: `docs/project-sdlc.md` §4.
 
 ### F-002.1 Monthly portfolio step
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: —
 
 `src/sbretire/portfolio.py`: `monthly_return_rate` and `apply_month` / `MonthResult` (brief §2 #1–#3, §5). Pure
 array functions, float64, no loops. Tests in `tests/unit/test_portfolio.py`.
 
 **Acceptance criteria**
-- [ ] Annual→monthly conversion matches (1+r_a)^(1/12)−1 and twelve monthly steps compound back to r_a (including negative and zero returns) — `test_monthly_return_rate_compounds_to_annual`
-- [ ] Return applies to the opening balance only, then income is added, then spending is paid (exact numbers on a hand-worked case) — `test_apply_month_orders_return_income_then_spending`
-- [ ] When balance after return + income < spending the path is depleted, shortfall = spending − available and the closing balance is 0; equality is funded — `test_apply_month_depletion_records_shortfall`
-- [ ] No closing balance is ever negative across mixed paths (property test) — `test_apply_month_never_negative`
+- [x] Annual→monthly conversion matches (1+r_a)^(1/12)−1 and twelve monthly steps compound back to r_a (including negative and zero returns) — `test_monthly_return_rate_compounds_to_annual`
+- [x] Return applies to the opening balance only, then income is added, then spending is paid (exact numbers on a hand-worked case) — `test_apply_month_orders_return_income_then_spending`
+- [x] When balance after return + income < spending the path is depleted, shortfall = spending − available and the closing balance is 0; equality is funded — `test_apply_month_depletion_records_shortfall`
+- [x] No closing balance is ever negative across mixed paths (property test) — `test_apply_month_never_negative`
+
+**Notes**
+- 2026-10-09: `src/sbretire/portfolio.py` — `monthly_return_rate` (rejects r_a ≤ −1), `apply_month` returning `MonthResult(balance, depleted, shortfall)`; three vectorised `np.where` lines, no loops. Tests: `tests/unit/test_portfolio.py` (11 incl. a hypothesis property test and a negative-return depletion case).
 
 ### F-002.2 Path loop with deaths, depletion, censoring and observer
 - **Status**: To Do
