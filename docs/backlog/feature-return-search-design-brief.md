@@ -2,7 +2,7 @@
 id: F-011
 type: feature
 parent: analysis-optimization
-status: planned
+status: in-progress
 complexity: 4
 created: 2026-10-09
 updated: 2026-10-09
@@ -115,7 +115,7 @@ _(filled during implementation)_
 ## 10. Tasks
 
 ### F-011.1 Per-path return in the engine
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: —
 
 `annual_return` as scalar or (n_paths,) through `simulate_paths` and `run_monte_carlo` (§2 #6). Tests in
