@@ -14,6 +14,7 @@ import json
 import re
 import sys
 from collections.abc import Sequence
+from importlib import resources
 from pathlib import Path
 from typing import Any, Final
 
@@ -188,3 +189,26 @@ def refresh_runs_index(runs_dir: Path) -> tuple[Path, Path]:
     js_path = runs_dir / "runs.js"
     js_path.write_bytes(script.encode("utf-8"))
     return index_path, js_path
+
+
+VIEWER_FILES: Final = {
+    "index.html": ("viewer", "index.html"),
+    "theme.css": ("theme.css",),
+    "viewer.css": ("viewer", "viewer.css"),
+    "viewer.js": ("viewer", "viewer.js"),
+}
+"""Page files copied next to ``runs/``, and where each lives under ``sbretire/web`` (viewer §2)."""
+
+
+def copy_viewer(output_dir: Path) -> list[Path]:
+    """Copy the viewer and the common theme into ``output_dir`` beside ``runs/``, replacing old copies.
+
+    Opening ``output_dir/index.html`` from disk then shows every named run in ``runs/runs.js`` (viewer §2).
+    """
+    web = resources.files("sbretire").joinpath("web")
+    written = []
+    for name, parts in VIEWER_FILES.items():
+        target = output_dir / name
+        target.write_bytes(web.joinpath(*parts).read_bytes())
+        written.append(target)
+    return written

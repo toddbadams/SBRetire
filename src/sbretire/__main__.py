@@ -51,6 +51,7 @@ from sbretire.results_json import (
     RUN_OUTPUT_FILES,
     build_results,
     check_run_name,
+    copy_viewer,
     refresh_runs_index,
     write_results_json,
 )
@@ -275,6 +276,7 @@ def _run(args: argparse.Namespace, loaded: LoadedScenario) -> int:
         ]
         if name is not None:
             written += refresh_runs_index(output_dir.parent)
+            written += copy_viewer(output_dir.parent.parent)
     except OSError as exc:
         print(f"error: cannot write to output directory {output_dir}: {exc.strerror or exc}", file=sys.stderr)
         return EXIT_FAILURE

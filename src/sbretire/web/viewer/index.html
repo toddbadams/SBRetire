@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SBRetire · Results</title>
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="viewer.css">
+<script>
+  try {
+    var t = localStorage.getItem('sbretire-theme');
+    if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+  } catch (e) {}
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to results</a>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="masthead__bar">
+      <p class="brand"><span class="brand__name">SBRetire</span><span class="brand__sub">Results</span></p>
+      <button id="theme-toggle" class="btn btn--quiet" type="button" aria-label="Colour theme: follows system">Theme: Auto</button>
+    </div>
+    <div class="pickers" id="pickers"></div>
+    <div id="run-meta" class="run-meta"></div>
+  </div>
+  <nav class="jump" aria-label="Sections">
+    <div class="wrap jump__list">
+      <a href="#headline">Success rate</a>
+      <a href="#budgets">Budget</a>
+      <a href="#returns">Return</a>
+      <a href="#portfolio">Portfolio</a>
+      <a href="#survival">Survival</a>
+      <a href="#years">Year by year</a>
+      <a href="#inputs">Inputs</a>
+      <a href="#glossary">Glossary</a>
+    </div>
+  </nav>
+</header>
+
+<main id="main" class="wrap">
+  <div id="message"></div>
+
+  <section id="compare" class="section" aria-labelledby="h-compare" hidden>
+    <h2 id="h-compare" class="section__title">What differs between the two runs</h2>
+    <div id="compare-body"></div>
+  </section>
+
+  <section id="headline" class="section" aria-labelledby="h-headline">
+    <h2 id="h-headline" class="section__title">Success rate at the current budget</h2>
+    <p class="section__intro">Share of all simulated futures in which the savings paid every month’s spending until both people had died.</p>
+    <div id="headline-body"></div>
+  </section>
+
+  <aside id="about" class="about" aria-labelledby="h-about">
+    <h2 id="h-about" class="about__title">About these numbers</h2>
+    <ul class="about__list">
+      <li><strong>Pre-tax.</strong> Amounts are before any tax.</li>
+      <li><strong>One fixed return.</strong> Savings grow at the same rate every year: no market crashes or volatility.</li>
+      <li><strong>What varies</strong> between the <span data-fill="paths">100,000</span> simulated futures is how long each person lives and how inflation unfolds.</li>
+      <li><strong>Today’s money</strong> for budgets; the portfolio chart and year table are in future (nominal) pounds.</li>
+      <li><strong>Unresolved</strong> futures (someone still alive at the end of the horizon) never count as successes.</li>
+      <li><strong>This is a model, not financial advice.</strong> It explains the consequences of the inputs; it does not recommend anything.</li>
+    </ul>
+  </aside>
+
+  <section id="budgets" class="section" aria-labelledby="h-budgets">
+    <h2 id="h-budgets" class="section__title">Maximum sustainable budget</h2>
+    <p class="section__intro">For each target, the most the household could spend each month, rising with inflation, and still have that share of simulated futures succeed. In today’s money, rounded down.</p>
+    <div id="budgets-body"></div>
+  </section>
+
+  <section id="returns" class="section" aria-labelledby="h-returns">
+    <h2 id="h-returns" class="section__title">Required return</h2>
+    <p class="section__intro">At the current budget, the lowest fixed annual return that still meets each target, set against the return the run assumed. The gap between them is the margin. Rounded up.</p>
+    <div id="returns-body"></div>
+  </section>
+
+  <section id="portfolio" class="section" aria-labelledby="h-portfolio">
+    <div class="section__head">
+      <h2 id="h-portfolio" class="section__title">Portfolio over time</h2>
+      <div class="seg" role="group" aria-label="Years shown in charts">
+        <button type="button" class="seg__btn" data-years="main" aria-pressed="true">Main span</button>
+        <button type="button" class="seg__btn" data-years="all" aria-pressed="false">All years</button>
+      </div>
+    </div>
+    <p class="section__intro">Savings at each year end across simulated futures, in future (nominal) pounds. The darker band holds the middle half of futures; the lighter band holds 90 %.</p>
+    <div id="portfolio-body"></div>
+  </section>
+
+  <section id="survival" class="section" aria-labelledby="h-survival">
+    <h2 id="h-survival" class="section__title">Survival and money lasting</h2>
+    <p class="section__intro">Share of all simulated futures in which each person is alive at year end, and in which the money has not yet run out.</p>
+    <div id="survival-body"></div>
+  </section>
+
+  <section id="years" class="section" aria-labelledby="h-years">
+    <h2 id="h-years" class="section__title">Year by year</h2>
+    <p class="section__intro">Every row of the simulation. The first and last years can be partial. Money is in future (nominal) pounds.</p>
+    <div id="years-body"></div>
+  </section>
+
+  <section id="inputs" class="section" aria-labelledby="h-inputs">
+    <h2 id="h-inputs" class="section__title">Inputs</h2>
+    <p class="section__intro">Every setting that produced these numbers, exactly as used.</p>
+    <div id="inputs-body"></div>
+  </section>
+
+  <section id="glossary" class="section" aria-labelledby="h-glossary">
+    <h2 id="h-glossary" class="section__title">What each figure means</h2>
+    <div id="glossary-body"></div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer__inner">
+    <p>SBRetire results viewer. Reads <code>runs/runs.js</code> on this computer; nothing is sent anywhere.</p>
+  </div>
+</footer>
+
+<div id="tip" class="tip" role="tooltip" hidden></div>
+<noscript><p class="wrap">This page needs JavaScript switched on to read the saved runs.</p></noscript>
+
+<script src="runs/runs.js"></script>
+<script src="viewer.js"></script>
+</body>
+</html>

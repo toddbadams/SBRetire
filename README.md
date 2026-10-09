@@ -257,6 +257,21 @@ uv run sbretire run --config config/model-3pct.yaml --name stress-3pct
   way. `docs/design/sample/runs/` holds a sample built only from `config/model.example.yaml`
   (`uv run python scripts/build_design_sample.py`).
 
+### Viewing runs in a browser
+
+Each named run also copies the results viewer (`index.html`, `theme.css`, `viewer.css`, `viewer.js`) into the
+output folder, next to `runs/`. Double-click **`output/index.html`** (no server, works offline) to:
+
+- pick a run, or a second run to compare side by side;
+- read the success rate, the maximum sustainable budget (and the end-of-life reserve, if set), and the required
+  return;
+- see the portfolio fan chart, the survival curves and the year-by-year table, every input, and what each
+  figure means.
+
+The page reads only `runs/runs.js` and sends nothing anywhere. Its look comes from the common SBRetire theme
+(`src/sbretire/web/theme.css`, `docs/decisions/viewer.md` §1); "Theme" at the top switches between auto, light and
+dark.
+
 ## Preview (deterministic illustration)
 
 `sbretire preview --config config/model.yaml --death-ages 88,92` runs **one** household future and prints a
@@ -300,6 +315,7 @@ component never shifts the other's draws. Rules in `docs/decisions/simulation-co
 | `lifestyle_reserve_results.csv` | Only with `budget.end_reserve_months` > 0: the same, leaving the end-of-life reserve |
 | `run_metadata.json` | Seed, version, config hash, data-file versions/hashes (SPEC §10.3) |
 | `results.json` | Every result of the run in one JSON file for web pages (`schemas/results.schema.json`) |
+| `index.html` + `theme.css`, `viewer.css`, `viewer.js` | Named runs only: the results viewer for every run in `runs/` |
 | `results_guide.md` | A plain-English guide to this run: your results, how each figure was calculated (with your numbers), the assumptions and limitations, every column of every file, and the inputs |
 
 All CSVs share the same format:
