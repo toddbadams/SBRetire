@@ -19,7 +19,7 @@ import numpy as np
 
 from sbretire.config import Scenario
 from sbretire.metrics import PathClass, classify_paths
-from sbretire.monte_carlo import RandomInputs, run_monte_carlo
+from sbretire.monte_carlo import RandomInputs, required_end_balance, run_monte_carlo
 from sbretire.portfolio import BoolArray, FloatArray
 
 BUDGET_TOLERANCE: Final = 1.0
@@ -43,27 +43,37 @@ class ThresholdSearch:
     """Final upper bound (GBP per month) at which every completed-by-death path failed, or the cap."""
     scenario: Scenario = field(repr=False)
     inputs: RandomInputs = field(repr=False)
+    end_reserve_months: int = 0
+    """End-of-Life Reserve applied to success (0 = the V1 test; optimization §3)."""
 
 
-def _successful(scenario: Scenario, inputs: RandomInputs, budgets: FloatArray) -> BoolArray:
+def _successful(
+    scenario: Scenario, inputs: RandomInputs, budgets: FloatArray, end_reserve_months: int = 0
+) -> BoolArray:
     outcomes = run_monte_carlo(scenario, inputs, monthly_budget_today=budgets).outcomes
-    result: BoolArray = classify_paths(outcomes) == PathClass.SUCCESSFUL
+    required = None
+    if end_reserve_months:
+        required = required_end_balance(inputs, outcomes, budgets, end_reserve_months)
+    result: BoolArray = classify_paths(outcomes, required) == PathClass.SUCCESSFUL
     return result
 
 
-def path_budget_thresholds(scenario: Scenario, inputs: RandomInputs) -> ThresholdSearch:
+def path_budget_thresholds(
+    scenario: Scenario, inputs: RandomInputs, end_reserve_months: int = 0
+) -> ThresholdSearch:
     """Bisect every path's success threshold at once (optimization §1).
 
     Lower bound £0 (always feasible for a path whose household ends in the Horizon); the upper bound starts
     at 2 × the configured Budget (or £1,000) and doubles until every such path fails, capped at
-    :data:`BUDGET_CAP`.
+    :data:`BUDGET_CAP`. ``end_reserve_months`` > 0 searches for success leaving the End-of-Life Reserve
+    (optimization §3); success stays monotone in the budget, so the same bisection applies.
     """
     n_paths = inputs.n_paths
     completed = inputs.death_months.max(axis=0) < scenario.model.horizon_years * 12
     upper = min(max(2.0 * scenario.budget.monthly_amount_today, _MINIMUM_START), BUDGET_CAP)
     iterations = 0
     while True:
-        ok_at_upper = _successful(scenario, inputs, np.full(n_paths, upper))
+        ok_at_upper = _successful(scenario, inputs, np.full(n_paths, upper), end_reserve_months)
         iterations += 1
         if not np.any(ok_at_upper & completed) or upper >= BUDGET_CAP:
             break
@@ -74,12 +84,12 @@ def path_budget_thresholds(scenario: Scenario, inputs: RandomInputs) -> Threshol
     high = np.full(n_paths, upper)
     while np.any(active & (high - low > BUDGET_TOLERANCE)):
         middle = np.where(active, (low + high) / 2.0, 0.0)
-        ok = _successful(scenario, inputs, middle)
+        ok = _successful(scenario, inputs, middle, end_reserve_months)
         iterations += 1
         low = np.where(active & ok, middle, low)
         high = np.where(active & ~ok, middle, high)
     thresholds = np.where(completed, np.where(capped, BUDGET_CAP, low), -np.inf)
-    return ThresholdSearch(thresholds, capped, iterations, upper, scenario, inputs)
+    return ThresholdSearch(thresholds, capped, iterations, upper, scenario, inputs, end_reserve_months)
 
 
 @dataclass(frozen=True)
@@ -133,7 +143,12 @@ def maximum_sustainable_budgets(search: ThresholdSearch, targets: Sequence[float
             )
             continue
         budget = float(ordered[needed - 1])
-        metrics = run_monte_carlo(search.scenario, search.inputs, monthly_budget_today=budget).metrics
+        metrics = run_monte_carlo(
+            search.scenario,
+            search.inputs,
+            monthly_budget_today=budget,
+            end_reserve_months=search.end_reserve_months,
+        ).metrics
         at_cap = budget >= BUDGET_CAP
         note = f"reached cap of {BUDGET_CAP:,.0f} GBP/month; the true maximum may be higher" if at_cap else ""
         results.append(

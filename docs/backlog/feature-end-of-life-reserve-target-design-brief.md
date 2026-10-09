@@ -136,18 +136,21 @@ default-valued options out; input-row label. Tests in `tests/unit/test_end_reser
 - 2026-10-09 `config.BudgetAssumptions.end_reserve_months` (Integer ≥ 0, default 0); `StochasticPriceIndex.level_at` (vectorised per-path month); `classify_paths` / `SuccessMetrics.from_outcomes` take an optional `required_end_balance` (short of it → Failed; censored untouched); `monte_carlo.required_end_balance` and `run_monte_carlo(..., end_reserve_months)`; `metadata._OPTIONS_HASHED_ONLY_WHEN_SET` keeps V1 hashes (fixture hash pinned); input-row label. Tests `tests/unit/test_end_reserve.py` (5).
 
 ### F-019.2 Maximum sustainable budget leaving a reserve
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-019.1
 
 §2 #4: `path_budget_thresholds(..., end_reserve_months)` and the confirming runs in `maximum_sustainable_budgets`.
 
 **Acceptance criteria**
-- [ ] Zero return, zero inflation, no income, both die in month d = 88, balance 100,000: B* lies in (999, 1000] for R = 12 (closed form S / (d + R) = 1,000) and in (1,135.36, 1,136.36] for R = 0; with 3 % inflation, B* matches the closed form S / (Σ_{t<d} I_t + R·I_d) within £1 — `test_reserve_budget_closed_form`
-- [ ] On 400 seeded paths, the set of paths meeting a 12-month reserve shrinks (never grows) as the budget rises over a grid, and each path's threshold separates its successes from its failures — `test_reserve_success_monotone_in_budget`
-- [ ] With R = 0 the thresholds and budget results equal F-010's exactly; with R = 12 every target's budget is at most the V1 budget — `test_reserve_zero_matches_v1_budgets`
+- [x] Zero return, zero inflation, no income, both die in month d = 88, balance 100,000: B* lies in (999, 1000] for R = 12 (closed form S / (d + R) = 1,000) and in (1,135.36, 1,136.36] for R = 0; with 3 % inflation, B* matches the closed form S / (Σ_{t<d} I_t + R·I_d) within £1 — `test_reserve_budget_closed_form`
+- [x] On 400 seeded paths, the set of paths meeting a 12-month reserve shrinks (never grows) as the budget rises over a grid, and each path's threshold separates its successes from its failures — `test_reserve_success_monotone_in_budget`
+- [x] With R = 0 the thresholds and budget results equal F-010's exactly; with R = 12 every target's budget is at most the V1 budget — `test_reserve_zero_matches_v1_budgets`
+
+**Notes**
+- 2026-10-09 `optimization.path_budget_thresholds(..., end_reserve_months)`: `_successful` applies the Required End Balance at each candidate budget; `ThresholdSearch.end_reserve_months` carries it into the confirming runs of `maximum_sustainable_budgets`. Tests in `tests/unit/test_end_reserve.py` (3 more: closed form at 0 % and 3 % inflation, monotone over 24 budgets on 400 seeded paths, R = 0 identity and reserve ≤ V1).
 
 ### F-019.3 Reserve outputs in run, guide and docs
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-019.2
 
 §2 #5, #9: summary line, second table and `lifestyle_reserve_results.csv` when R > 0; results guide reserve section and
