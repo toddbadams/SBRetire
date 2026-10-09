@@ -1,7 +1,7 @@
 ---
 epic: stochastic-inputs
 title: Stochastic Inputs
-status: proposed
+status: delivered
 spec_sections: [§4.1, §4.2, §4.3, §6, §7.1, §7.2, §19]
 depends_on: [foundations, household-cash-flows]
 milestones:

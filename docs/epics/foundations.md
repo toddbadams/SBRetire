@@ -1,7 +1,7 @@
 ---
 epic: foundations
 title: Foundations
-status: active
+status: delivered
 spec_sections: [§4, §4.2, §4.3, §5, §10.3]
 depends_on: []
 milestones:
