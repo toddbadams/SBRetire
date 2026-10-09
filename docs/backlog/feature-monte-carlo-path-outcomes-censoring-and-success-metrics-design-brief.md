@@ -130,7 +130,7 @@ config/data; exit 1 unreadable config.
 
 ## 9. Surprises
 
-_(filled during implementation)_
+- 2026-10-09 — F-009.2: the example config at its own budget succeeds on all 2,000 paths (100-year horizon, nothing unresolved), which made a weak regression snapshot; the snapshot now uses budget 11,000 and a 30-year horizon so successful, failed and unresolved paths all occur (725 / 203 / 1,072), plus the total final balance.
 
 ## 10. Tasks
 
@@ -150,18 +150,21 @@ _(filled during implementation)_
 - 2026-10-09 Added `src/sbretire/metrics.py`: `PathClass`, `classify_paths` (depletion ≥ 0 → FAILED, else censored → UNRESOLVED, else SUCCESSFUL), `SuccessMetrics.from_outcomes` (bincount; conservative and completed rates with binomial SEs on their own denominators; None when nothing completed). Tests `tests/unit/test_metrics.py` (3). The red commit carried an unused variable flagged by ruff; removed here.
 
 ### F-009.2 Random inputs and the Monte Carlo run
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-009.1
 
 `RandomInputs`, `draw_random_inputs`, `MonteCarloResult`, `run_monte_carlo` in `src/sbretire/monte_carlo.py`
 (§2 #4, #7). Tests in `tests/integration/test_monte_carlo.py` on the fixture scenario + real data files.
 
 **Acceptance criteria**
-- [ ] Same scenario and seed (pinned 7, 2,000 paths): two independent draw + run sequences give identical outcomes arrays and metrics (§17.1) — `test_monte_carlo_fixed_seed_reproduces_outputs`
-- [ ] One `RandomInputs` run with budgets 3,000 and 4,000: inputs are unchanged by the runs (death months and index levels identical before/after), and success never increases with the higher budget path by path (CRN, §17.1) — `test_monte_carlo_reuses_inputs_across_budgets`
-- [ ] Zero spending: no path fails; with a 10 M balance and zero spending every completed path is successful (§17.2) — `test_monte_carlo_zero_spending_never_fails`
-- [ ] Zero starting balance, no income, positive budget: every path fails in month 0 (§17.2) — `test_monte_carlo_no_capital_no_income_fails`
-- [ ] Example scenario, seed 42, 2,000 paths: metrics equal a pinned snapshot (regression) — `test_monte_carlo_example_snapshot`
+- [x] Same scenario and seed (pinned 7, 2,000 paths): two independent draw + run sequences give identical outcomes arrays and metrics (§17.1) — `test_monte_carlo_fixed_seed_reproduces_outputs`
+- [x] One `RandomInputs` run with budgets 3,000 and 4,000: inputs are unchanged by the runs (death months and index levels identical before/after), and success never increases with the higher budget path by path (CRN, §17.1) — `test_monte_carlo_reuses_inputs_across_budgets`
+- [x] Zero spending: no path fails; with a 10 M balance and zero spending every completed path is successful (§17.2) — `test_monte_carlo_zero_spending_never_fails`
+- [x] Zero starting balance, no income, positive budget: every path fails in month 0 (§17.2) — `test_monte_carlo_no_capital_no_income_fails`
+- [x] Example scenario, seed 42, 2,000 paths: metrics equal a pinned snapshot (regression) — `test_monte_carlo_example_snapshot`
+
+**Notes**
+- 2026-10-09 Added `src/sbretire/monte_carlo.py`: `RandomInputs` (seed, read-only death months, price index; `n_paths`), `draw_random_inputs` (`RandomStreams.from_seed` → `sample_death_months` + `build_price_index`, `simulation_count` paths), `MonteCarloResult`, `run_monte_carlo` (`ScenarioCashFlows` + `simulate_paths` + `SuccessMetrics`; never draws). Tests `tests/integration/test_monte_carlo.py` (5). Snapshot pinned after green from the code itself (regression, not an independent answer).
 
 ### F-009.3 `sbretire run`
 - **Status**: To Do

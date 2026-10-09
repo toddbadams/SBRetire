@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
+import pytest
 import yaml
 
 from sbretire.config import Scenario, load_scenario, parse_scenario
@@ -104,20 +105,24 @@ def test_monte_carlo_no_capital_no_income_fails() -> None:
 
 
 def test_monte_carlo_example_snapshot() -> None:
-    """Regression snapshot: example config, seed 42, 2,000 paths (values pinned after F-009.2 went green)."""
+    """Regression snapshot: example config at budget 11,000/month and a 30-year horizon (all three outcomes
+    occur), seed 42, 2,000 paths. Values pinned when F-009.2 went green; a change means the model changed.
+    """
     loaded = load_scenario(EXAMPLE).scenario
-    model = loaded.model.model_copy(update={"simulation_count": 2_000})
-    scenario = loaded.model_copy(update={"model": model})
-    metrics = run_monte_carlo(scenario, _inputs(scenario, ResolvedSeed(42, "config"))).metrics
-    assert metrics == SuccessMetrics(
+    model = loaded.model.model_copy(update={"simulation_count": 2_000, "horizon_years": 30})
+    budget = loaded.budget.model_copy(update={"monthly_amount_today": 11_000})
+    scenario = loaded.model_copy(update={"model": model, "budget": budget})
+    result = run_monte_carlo(scenario, _inputs(scenario, ResolvedSeed(42, "config")))
+    assert result.metrics == SuccessMetrics(
         n_paths=2_000,
-        n_successful=-1,
-        n_failed=-1,
-        n_unresolved=-1,
-        n_completed=-1,
-        conservative_success_rate=-1.0,
-        conservative_standard_error=-1.0,
-        completed_success_rate=-1.0,
-        completed_standard_error=-1.0,
-        unresolved_share=-1.0,
+        n_successful=725,
+        n_failed=203,
+        n_unresolved=1_072,
+        n_completed=928,
+        conservative_success_rate=0.3625,
+        conservative_standard_error=0.010749273231246845,
+        completed_success_rate=0.78125,
+        completed_standard_error=0.013570475269133813,
+        unresolved_share=0.536,
     )
+    assert float(result.outcomes.final_balance.sum()) == pytest.approx(2_598_116_369.580387, rel=1e-9)
