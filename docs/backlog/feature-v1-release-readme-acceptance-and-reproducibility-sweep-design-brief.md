@@ -61,16 +61,19 @@ _(filled during implementation)_
 ## 10. Tasks
 
 ### F-014.1 Constraint guards and acceptance map
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: —
 
 `tests/acceptance/test_v1_acceptance.py` (§2 #3) and `docs/acceptance.md` (§2 #2).
 
 **Acceptance criteria**
-- [ ] No tax logic, no network imports and no global `np.random` calls in `src/` — `test_src_has_no_tax_network_or_global_randomness`
-- [ ] Every SPEC §18 item is struck and points at a numbered decision entry that exists — `test_all_spec_18_decisions_recorded`
-- [ ] `data/README.md` records the SHA-256 of every committed data file, and they match — `test_data_provenance_hashes_match`
-- [ ] `docs/acceptance.md` covers every §17.1, §17.2 and §17.3 item, and every test it names exists — `test_acceptance_map_complete`
+- [x] No tax logic, no network imports and no global `np.random` calls in `src/` — `test_src_has_no_tax_network_or_global_randomness`
+- [x] Every SPEC §18 item is struck and points at a numbered decision entry that exists — `test_all_spec_18_decisions_recorded`
+- [x] `data/README.md` records the SHA-256 of every committed data file, and they match — `test_data_provenance_hashes_match`
+- [x] `docs/acceptance.md` covers every §17.1, §17.2 and §17.3 item, and every test it names exists — `test_acceptance_map_complete`
+
+**Notes**
+- 2026-10-09 Added `tests/acceptance/test_v1_acceptance.py` (constraint guards over `src/`; explicit map of the ten SPEC §18 items to numbered decision entries and no unstruck SPEC items; raw data SHA-256s in data/README.md and sidecars; acceptance-map completeness parsed from SPEC §17.1–§17.3 with every named test checked to exist) and `docs/acceptance.md` (16 + 9 + 9 items → evidence). The guards passed on first run against existing code; the map test needed SPEC section parsing to stop at the next heading of any level (no ### follows §17.3).
 
 ### F-014.2 README for V1
 - **Status**: To Do
