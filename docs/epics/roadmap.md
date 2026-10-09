@@ -1,12 +1,12 @@
 # SBRetire V1 Roadmap
 
-**Last updated**: 2026-10-09 — initial decomposition of `docs/SPEC.md` v1.0 by `/decompose-spec`.
+**Last updated**: 2026-10-09 — F-001 briefed.
 
 Features in build order. Status: `proposed` → `briefed` → `in progress` → `done`. Backlog milestone ids in brackets.
 
 | # | Feature | Epic | depends_on | Status |
 |---|---|---|---|---|
-| F-001 [m-0] | Scenario Config Loading and Validation | [foundations](foundations.md) | — | proposed |
+| F-001 [m-0] | Scenario Config Loading and Validation | [foundations](foundations.md) | — | briefed |
 | F-002 [m-1] | Deterministic Portfolio Engine (Walking Skeleton) | [simulation-engine](simulation-engine.md) | F-001 | proposed |
 | F-003 [m-2] | Income Streams | [household-cash-flows](household-cash-flows.md) | F-002 | proposed |
 | F-004 [m-3] | Spending with Survivor Budget Factor | [household-cash-flows](household-cash-flows.md) | F-002 | proposed |
@@ -106,4 +106,5 @@ Unmapped requirements: **none**.
 
 ## Change Log
 
+- 2026-10-09 — F-001 briefed: design brief + TASK-001…TASK-004; decisions doc-001 §1, doc-003 §1–3.
 - 2026-10-09 — Initial plan: 6 epics, 14 features (F-001…F-014, milestones m-0…m-13) from SPEC v1.0.
