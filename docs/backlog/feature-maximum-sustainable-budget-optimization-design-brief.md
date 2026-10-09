@@ -2,7 +2,7 @@
 id: F-010
 type: feature
 parent: analysis-optimization
-status: planned
+status: in-progress
 complexity: 5
 created: 2026-10-09
 updated: 2026-10-09
@@ -115,7 +115,7 @@ _(filled during implementation)_
 ## 10. Tasks
 
 ### F-010.1 Per-path budget in the cash flows
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: —
 
 Optional `monthly_budget_today` (scalar or (n_paths,)) through `ScenarioSpending`, `ScenarioCashFlows`,

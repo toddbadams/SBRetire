@@ -16,7 +16,7 @@ Features in build order. Status: `proposed` → `briefed` → `in-progress` → 
 | F-007 | ONS Mortality Data Ingest and Mapping | [stochastic-inputs](stochastic-inputs.md) | F-001 | done |
 | F-008 | Monthly Mortality Sampling | [stochastic-inputs](stochastic-inputs.md) | F-002, F-005, F-007 | done |
 | F-009 | Monte Carlo Path Outcomes, Censoring and Success Metrics | [simulation-engine](simulation-engine.md) | F-006, F-008 | done |
-| F-010 | Maximum Sustainable Budget Optimization | [analysis-optimization](analysis-optimization.md) | F-009 | briefed |
+| F-010 | Maximum Sustainable Budget Optimization | [analysis-optimization](analysis-optimization.md) | F-009 | in-progress |
 | F-011 | Return Search | [analysis-optimization](analysis-optimization.md) | F-010 | proposed |
 | F-012 | Annual Results CSV | [reporting-release](reporting-release.md) | F-009 | proposed |
 | F-013 | Sustainability and Lifestyle CSVs and End-to-End CLI | [reporting-release](reporting-release.md) | F-010, F-011, F-012 | proposed |
