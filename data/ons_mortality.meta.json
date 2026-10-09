@@ -1,0 +1,15 @@
+{
+  "age_max": 100,
+  "build": "scripts/build_ons_mortality.py",
+  "columns": "sex,birth_year,age,qx",
+  "dataset": "Mortality rates (qx), principal projection, UK — 2024-based",
+  "geography": "UK",
+  "projection": "principal",
+  "publication_date": "2026-05-15",
+  "raw_file": "raw/ukppp24qx.xlsx",
+  "raw_sha256": "fbc6991bbeeab2691e0e7ce6aabf697fbcbe341a84f8dba6d11f48b29f4e6dac",
+  "retrieved": "2026-10-09",
+  "source": "ONS_2024_BASED",
+  "source_url": "https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/lifeexpectancies/datasets/mortalityratesqxprincipalprojectionunitedkingdom",
+  "units": "probability"
+}

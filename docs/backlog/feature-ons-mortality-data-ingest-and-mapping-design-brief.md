@@ -2,7 +2,7 @@
 id: F-007
 type: feature
 parent: stochastic-inputs
-status: planned
+status: in-progress
 complexity: 5
 created: 2026-10-09
 updated: 2026-10-09
@@ -133,7 +133,7 @@ CSV columns: `sex,birth_year,age,qx`. Sidecar keys as §2 #7.
 ## 10. Tasks
 
 ### F-007.1 Build the mortality CSV and provenance
-- **Status**: To Do
+- **Status**: Verification
 - **Depends on**: —
 
 Add `openpyxl` to the dev group. Write `scripts/build_ons_mortality.py` (reads `data/raw/ukppp24qx.xlsx`, applies §2
@@ -141,11 +141,14 @@ Add `openpyxl` to the dev group. Write `scripts/build_ons_mortality.py` (reads `
 the `data/README.md` row and document the build command. Tests in `tests/tooling/test_build_ons_mortality.py`.
 
 **Acceptance criteria**
-- [ ] Running the build into a temp dir reproduces the committed CSV and sidecar byte-for-byte — `test_build_ons_mortality_reproduces_committed_files`
-- [ ] Known cells: male b. 1964 age 62 = 0.0092454 (period 2026); female b. 1969 age 57 = 0.0039146 (period 2026); a y > 2074 cell equals the cohort sheet value ÷ 100,000 — `test_ons_mortality_known_answers`
-- [ ] Gap cells (ages 95–100, years 2075–2080) are log-linear between their endpoints and lie strictly between them — `test_build_fills_gap_log_linear`
-- [ ] Every row has sex ∈ {male, female}, 0 < qx < 1, ages 0–100, and no duplicate (sex, birth_year, age) — `test_ons_mortality_csv_is_well_formed`
-- [ ] `data/README.md` records file, URL, publication date, retrieval date and the raw SHA-256 that `file_sha256` computes — `check: grep fbc6991bbeeab2691e0e7ce6aabf697fbcbe341a84f8dba6d11f48b29f4e6dac data/README.md data/ons_mortality.meta.json`
+- [x] Running the build into a temp dir reproduces the committed CSV and sidecar byte-for-byte — `test_build_ons_mortality_reproduces_committed_files`
+- [x] Known cells: male b. 1964 age 62 = 0.0092454 (period 2026); female b. 1969 age 57 = 0.0039146 (period 2026); a y > 2074 cell equals the cohort sheet value ÷ 100,000 — `test_ons_mortality_known_answers`
+- [x] Gap cells (ages 95–100, years 2075–2080) are log-linear between their endpoints and lie strictly between them — `test_build_fills_gap_log_linear`
+- [x] Every row has sex ∈ {male, female}, 0 < qx < 1, ages 0–100, and no duplicate (sex, birth_year, age) — `test_ons_mortality_csv_is_well_formed`
+- [x] `data/README.md` records file, URL, publication date, retrieval date and the raw SHA-256 that `file_sha256` computes — `check: grep fbc6991bbeeab2691e0e7ce6aabf697fbcbe341a84f8dba6d11f48b29f4e6dac data/README.md data/ons_mortality.meta.json`
+
+**Notes**
+- 2026-10-09 Added `scripts/build_ons_mortality.py` (openpyxl, layout checks per sheet, Decimal ÷ 100,000, cohort/period agreement asserted, log-linear gap); built and committed `data/ons_mortality.csv` (29,088 rows: 2 sexes × birth years 1881–2074) and `data/ons_mortality.meta.json`; `data/README.md` provenance + build section; `openpyxl`/`types-openpyxl` dev deps; ruff `known-local-folder` += build_ons_mortality. Tests `tests/tooling/test_build_ons_mortality.py` (5, incl. sidecar provenance).
 
 ### F-007.2 Mortality table loader and validation
 - **Status**: To Do
