@@ -7,8 +7,9 @@ The authoritative specification is [docs/SPEC.md](docs/SPEC.md). The model is fo
 research only — it is **not financial advice**, does not forecast investment returns, and does not
 guarantee future solvency.
 
-> Status: project scaffold. The simulation engine is being built feature-by-feature from the
-> spec; see [docs/epics/roadmap.md](docs/epics/roadmap.md) for the plan and progress.
+> Status: **V1 (1.0.0)**. Every SPEC §17 test and acceptance criterion is evidenced in
+> [docs/acceptance.md](docs/acceptance.md). The build history is in [docs/epics/roadmap.md](docs/epics/roadmap.md)
+> and [CHANGELOG.md](CHANGELOG.md).
 
 ## Install
 
@@ -16,6 +17,14 @@ Requires Python 3.12 and [uv](https://docs.astral.sh/uv/).
 
 ```bash
 uv sync
+```
+
+On Windows (PowerShell), from the project folder:
+
+```powershell
+uv sync
+Copy-Item config\model.example.yaml config\model.yaml   # first time only, then edit it
+uv run sbretire run --config config\model.yaml --output-dir output
 ```
 
 ## Run
@@ -33,6 +42,42 @@ uv run sbretire run --config config/model.yaml --output-dir output
 every problem with its YAML location (e.g. `income[2].survivor_percentage: must be less than or equal to 1`) and
 exits 2; an unreadable file exits 1. Add `--require-data-files` to also load `mortality.data_file` and check it
 covers both people (see Mortality below).
+
+## Configuration
+
+The scenario is one YAML file; start from `config/model.example.yaml`. Every key is required unless marked
+optional. Amounts are GBP, and "today" means prices at `model.as_of_date`.
+
+| Section | Key | Meaning |
+|---|---|---|
+| `model` | `currency` | `GBP` (V1) |
+| | `as_of_date` | Valuation date and first simulated month; the 1st of a month, e.g. `"2026-10-01"` |
+| | `simulation_count` | Number of simulated futures (paths), e.g. 100000 |
+| | `confidence_levels` | Target success probabilities, each strictly between 0 and 1, e.g. `[0.90, 0.95, 0.99]` |
+| | `frequency` | `monthly` (V1) |
+| | `horizon_years` | Computational cap on the simulation; someone alive at the end leaves the path unresolved |
+| | `random_seed` | Integer seed, or `null` to generate one and record it in `run_metadata.json` |
+| | `unknown_keys` | Optional: `error` (default) or `warn` |
+| `portfolio` | `starting_balance` | Investable savings today (GBP) |
+| | `annual_return` | Fixed nominal annual effective return after fees, e.g. `0.04`; must be > −1 |
+| `budget` | `monthly_amount_today` | Household spending per month in today's GBP while both are alive |
+| | `survivor_budget_factor` | Share of the budget the survivor needs after the first death, e.g. `0.70` |
+| `inflation` | `source`, `source_period` | Calibration source and years, e.g. `UK_CPI`, `"1989-2025"` |
+| | `data_file` | CPI file, relative to the config file, e.g. `../data/uk_cpi.csv` |
+| | `model`, `parameter_units` | `ar1_lognormal`, `log_annual` |
+| | `log_mean`, `ar1_coefficient`, `innovation_sd`, `initial_rate` | AR(1) parameters of log(1 + annual inflation), and last year's rate (see Inflation below) |
+| `mortality` | `source`, `geography`, `projection` | Must match the data file's sidecar, e.g. `ONS_2024_BASED`, `UK`, `principal` |
+| | `data_file` | Mortality table, relative to the config file, e.g. `../data/ons_mortality.csv` |
+| `people` (exactly two) | `id`, `name` | Unique id (not `household`) and display name |
+| | `date_of_birth` | ISO date; only the year and month matter |
+| | `sex` | `male` or `female` (the ONS table's categories) |
+| | `survivor_budget_factor` | Optional: this person's own factor when they are the survivor (overrides the household one) |
+| `income` (optional list) | `id`, `name` | Unique id and display name |
+| | `start_date`, `end_date` | 1st of a month; `end_date` is optional and exclusive |
+| | `annual_amount_today` | Annual amount in today's GBP |
+| | `inflation_linked` | `true`: grows with simulated CPI; `false`: fixed nominal |
+| | `survivor_percentage` | Share (0–1) that continues after the recipient dies while the other person lives |
+| | `recipient` | A person `id`, or `household` for jointly owned income |
 
 Configuration rules worth knowing (full list in `docs/decisions/configuration.md`):
 
@@ -285,7 +330,31 @@ domain glossary in [docs/THESAURUS.md](docs/THESAURUS.md).
 Mortality and inflation inputs are local files under `data/` with provenance recorded in
 [data/README.md](data/README.md). The model never downloads data during a run.
 
-## Assumptions and limitations
+## Assumptions
 
-See SPEC §2 (V1 boundaries). Notably excluded from V1: tax, stochastic returns, fees, housing,
-long-term-care costs, and more than two people.
+The model rests on these choices (details in `docs/decisions/`):
+
+- **Returns:** one fixed nominal annual return, after fees, earned every year. There is no market volatility or
+  sequence-of-returns risk.
+- **Inflation:** an AR(1) lognormal process calibrated to ONS CPI from 1989 to 2025, with high-inflation years
+  clustering. Spending and every inflation-linked income follow the same simulated UK CPI path.
+- **Mortality:** ONS 2024-based UK cohort rates (principal projection), spread evenly over the months of each year
+  of age. Above age 100 the age-100 rate is held. The two people's lifetimes are independent.
+- **Money flows each month in a fixed order:** the return on the opening balance, then income, then spending. The
+  money runs out the first time it can't cover a month's spending, and then stays at zero.
+- **Success** means the money paid every month's spending until both people had died. Paths that reach the horizon
+  with someone alive are unresolved, and the conservative rate never counts them as successes.
+
+## Limitations
+
+- **No tax.** Every figure is pre-tax (SPEC §16). Spending, income and returns should be entered on a basis you
+  have thought through.
+- **No market risk.** The fixed return hides crashes and sequence risk. Use the required-return table, and lower
+  `annual_return` values, to stress-test.
+- **Foreign income** (e.g. US Social Security) is converted at a fixed planning exchange rate and linked to UK CPI
+  rather than its own cost-of-living adjustment. There is no exchange-rate risk.
+- **Not covered:** housing, long-term care, fees beyond those in the return, one-off expenses, and more than two
+  people. A one-off lump sum can be approximated as a one-month income stream.
+- **Parameter uncertainty is not modelled.** Results are only as good as your inputs: State Pension forecasts,
+  pension survivor terms, budget, return and data. The `+/-` figures measure simulation noise only.
+- **It is not financial advice** and not a forecast or guarantee of future solvency.

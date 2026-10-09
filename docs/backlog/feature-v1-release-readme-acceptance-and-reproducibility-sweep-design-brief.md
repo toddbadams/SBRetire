@@ -76,13 +76,16 @@ _(filled during implementation)_
 - 2026-10-09 Added `tests/acceptance/test_v1_acceptance.py` (constraint guards over `src/`; explicit map of the ten SPEC §18 items to numbered decision entries and no unstruck SPEC items; raw data SHA-256s in data/README.md and sidecars; acceptance-map completeness parsed from SPEC §17.1–§17.3 with every named test checked to exist) and `docs/acceptance.md` (16 + 9 + 9 items → evidence). The guards passed on first run against existing code; the map test needed SPEC section parsing to stop at the next heading of any level (no ### follows §17.3).
 
 ### F-014.2 README for V1
-- **Status**: To Do
+- **Status**: Verification
 - **Depends on**: F-014.1
 
 Complete the README per §2 #4.
 
 **Acceptance criteria**
-- [ ] README has install, configuration, running, outputs/interpretation, assumptions and limitations sections, documents every config key, and no longer says "scaffold" — `test_readme_covers_v1_sections`
+- [x] README has install, configuration, running, outputs/interpretation, assumptions and limitations sections, documents every config key, and no longer says "scaffold" — `test_readme_covers_v1_sections`
+
+**Notes**
+- 2026-10-09 README: V1 status line (no longer 'scaffold'); Windows PowerShell quick start; '## Configuration' reference table covering every key with units/meaning; separate '## Assumptions' (returns, inflation, mortality, ordering, success definition) and '## Limitations' (no tax, no market risk, foreign income/FX, exclusions, parameter uncertainty, not advice) sections. `test_readme_covers_v1_sections` passes.
 
 ### F-014.3 Version 1.0.0, CHANGELOG and tag
 - **Status**: To Do
