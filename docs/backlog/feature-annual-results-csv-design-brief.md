@@ -2,7 +2,7 @@
 id: F-012
 type: feature
 parent: reporting-release
-status: in-progress
+status: done
 complexity: 5
 created: 2026-10-09
 updated: 2026-10-09
@@ -95,7 +95,7 @@ def write_annual_results_csv(rows: Sequence[AnnualRow], path: Path) -> Path: ...
 ## 10. Tasks
 
 ### F-012.1 Streaming annual aggregation
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: —
 
 `AnnualRow`, the collector (observer + recording cash flows), `annual_results` in `src/sbretire/reporting.py`
@@ -109,9 +109,14 @@ def write_annual_results_csv(rows: Sequence[AnnualRow], path: Path) -> Path: ...
 
 **Notes**
 - 2026-10-09 Added `src/sbretire/reporting.py`: `AnnualRow`, `_RecordingCashFlows`, `_AnnualCollector` (engine observer; per-path current-year sums only; closes each year at its last month; `finish` closes years after the engine's early stop from final balances), `annual_results`. Calls `simulate_paths` directly with the recording wrapper on the same inputs instead of adding an observer to `run_monte_carlo` (brief §4 listed that change; not needed). Tests `tests/unit/test_reporting_annual.py` (3: hand fixture incl. depletion and early stop; 300-path recomputation from full month × path history kept only in the test; row span).
+- 2026-10-09 /verify PASS:
+  - annual aggregation tests: 3 passed; 2027 and 2028 fixture rows re-derived by hand
+  - own full month × path recomputation (seed 33, 400 paths, budget 4,200; engine stopped at month 345 of 623 reported): all 19 columns of all 53 rows match at rel 1e-9; 25-year-horizon variant (253 censored) also exact
+  - semantics per §8 confirmed (in-scope percentiles with depleted at 0, ended-but-solvent counted not depleted, conditional lifetime success, completed + unresolved = N)
+  - only (n_paths,) current-year state; finish() correct after early stop; ruff + mypy clean
 
 ### F-012.2 annual_results.csv and run integration
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-012.1
 
 `write_annual_results_csv`; `sbretire run` writes `output/annual_results.csv`; README output section (columns, units,
@@ -124,6 +129,11 @@ definitions); decision §8 recorded with the brief.
 
 **Notes**
 - 2026-10-09 Added `ANNUAL_COLUMNS`, `_cell` and `write_annual_results_csv` (csv module, LF, probabilities 6 dp, money 2 dp, integers, None → empty) to `src/sbretire/reporting.py`; `sbretire run` writes `annual_results.csv` beside `run_metadata.json` and prints its path. Tests `tests/unit/test_annual_csv.py` (1, on a seeded run and the hand fixture) and `test_cli_run_writes_annual_results` (file byte-equal to the library output). README: shared CSV format + annual column table with units and definitions.
+- 2026-10-09 /verify PASS:
+  - CSV and CLI tests: 9 passed
+  - example run (100k paths, ~82 s): no BOM/CR, ASCII, header = SPEC §12 columns (+ year/months, probability_funded replaced); 67 rows 2026–2092, months sum 794; survival and not-depleted non-increasing; completed + unresolved = 100,000
+  - no symbols or separators; README documents all 19 columns with units, matching §8
+  - CLI file byte-identical to the library output at the full 100k paths; full gate 356 passed
 
 ## 11. Open Questions
 
