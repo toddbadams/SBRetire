@@ -133,6 +133,7 @@ Validate summary (stdout), e.g.: `OK config/model.yaml — 2 people, 3 income st
 ## 9. Surprises
 
 - 2026-10-09 — pydantic's built-in `strict=True` rejects YAML lists for tuple fields and ISO strings for dates, so strictness is implemented per scalar type with BeforeValidators instead of model-wide strict mode. `income` is optional (defaults to no streams); `random_seed` is required but may be null.
+- 2026-10-09 — Relational rules (ids, people count, DOB, recipient, end-date ordering) run only after every field is valid, so a scenario with field errors gets a second round of relational issues once those are fixed. Day-of-month rules are field-level and always reported in the first round.
 
 ## 10. Tasks
 
@@ -159,7 +160,7 @@ Build the typed Scenario models and parse_scenario with collect-all error report
 - 2026-10-09: `src/sbretire/config.py` — frozen pydantic models (`_Frozen`: frozen, extra=forbid) for every §4.2 section; strict scalars via BeforeValidator types (`Number`, `Integer`, `Boolean`, `Text`, `IsoDate`); `parse_scenario` maps pydantic errors to `ScenarioIssue` (natural-sorted, "must be …" wording, offending value echoed). Added `pydantic>=2.9` + mypy plugin. Tests: `tests/unit/test_config_fields.py` (79 cases), helpers `tests/unit/scenario_helpers.py`, fixture `tests/fixtures/scenarios/valid_minimal.yaml`.
 
 ### F-001.2 Cross-field and date consistency rules
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-001.1
 
 Add cross-field validators to the Scenario models, reporting into the same issue list.
@@ -170,10 +171,13 @@ Add cross-field validators to the Scenario models, reporting into the same issue
 - Tests in `tests/unit/test_config_consistency.py`.
 
 **Acceptance criteria**
-- [ ] Duplicate person ids and duplicate income ids are rejected — `test_duplicate_ids_rejected`
-- [ ] Date rules enforced: as-of not on the 1st, income dates not on the 1st, end_date <= start_date, end_date <= as_of_date, DOB >= as_of — `test_date_rules_rejected` (parametrised)
-- [ ] Income start_date before as_of_date is accepted — `test_income_start_before_as_of_accepted`
-- [ ] People count != 2 and a recipient that is not a person id are rejected — `test_people_count_and_recipient_reference`
+- [x] Duplicate person ids and duplicate income ids are rejected — `test_duplicate_ids_rejected`
+- [x] Date rules enforced: as-of not on the 1st, income dates not on the 1st, end_date <= start_date, end_date <= as_of_date, DOB >= as_of — `test_date_rules_rejected` (parametrised)
+- [x] Income start_date before as_of_date is accepted — `test_income_start_before_as_of_accepted`
+- [x] People count != 2 and a recipient that is not a person id are rejected — `test_people_count_and_recipient_reference`
+
+**Notes**
+- 2026-10-09: `src/sbretire/config.py` — `MonthStart` date type (1st-of-month, with a suggested correction) for `as_of_date`, `start_date`, `end_date`; `_consistency_issues` for duplicate ids, exactly two people, DOB < as-of, recipient ∈ people ids, `end_date` > start and > as-of. Tests: `tests/unit/test_config_consistency.py`.
 
 ### F-001.3 YAML file loading, unknown keys and path resolution
 - **Status**: To Do

@@ -60,6 +60,12 @@ def _iso_date(value: object) -> object:
     raise ValueError(f"must be an ISO date YYYY-MM-DD (got {value!r})")
 
 
+def _first_of_month(value: date) -> date:
+    if value.day != 1:
+        raise ValueError(f"must be the 1st of a month, e.g. {value:%Y-%m}-01 (got {value.isoformat()})")
+    return value
+
+
 def _unique(values: tuple[float, ...]) -> tuple[float, ...]:
     if len(set(values)) != len(values):
         raise ValueError(f"must not contain duplicates (got {list(values)!r})")
@@ -72,6 +78,7 @@ Boolean = Annotated[bool, BeforeValidator(_boolean)]
 Text = Annotated[str, BeforeValidator(_text)]
 Identifier = Annotated[str, BeforeValidator(_text), Field(min_length=1)]
 IsoDate = Annotated[date, BeforeValidator(_iso_date)]
+MonthStart = Annotated[date, BeforeValidator(_iso_date), AfterValidator(_first_of_month)]
 Probability = Annotated[float, BeforeValidator(_number), Field(gt=0, lt=1)]
 NonNegative = Annotated[float, BeforeValidator(_number), Field(ge=0)]
 
@@ -87,7 +94,7 @@ class ModelSettings(_Frozen):
     """Run-level settings (SPEC §4.2 Model)."""
 
     currency: Literal["GBP"]
-    as_of_date: IsoDate
+    as_of_date: MonthStart
     simulation_count: Annotated[Integer, Field(gt=0)]
     confidence_levels: Annotated[tuple[Probability, ...], Field(min_length=1), AfterValidator(_unique)]
     frequency: Literal["monthly"]
@@ -145,8 +152,8 @@ class IncomeStream(_Frozen):
 
     id: Identifier
     name: Text
-    start_date: IsoDate
-    end_date: IsoDate | None = None
+    start_date: MonthStart
+    end_date: MonthStart | None = None
     annual_amount_today: NonNegative
     inflation_linked: Boolean
     survivor_percentage: Annotated[Number, Field(ge=0, le=1)]
@@ -219,6 +226,40 @@ def _issue(error: Mapping[str, Any]) -> ScenarioIssue:
     return ScenarioIssue(_format_location(error["loc"]), message)
 
 
+# ---------------------------------------------------------------- cross-field rules
+
+
+def _consistency_issues(scenario: Scenario) -> list[ScenarioIssue]:
+    """Rules spanning several fields (configuration decisions §3). Run only once every field is valid."""
+    as_of = scenario.model.as_of_date
+    issues: list[ScenarioIssue] = []
+
+    def flag(location: str, problem: str, got: object) -> None:
+        shown = got.isoformat() if isinstance(got, date) else repr(got)
+        issues.append(ScenarioIssue(location, f"{problem} (got {shown})"))
+
+    person_ids = [p.id for p in scenario.people]
+    for section, ids in (("people", person_ids), ("income", [s.id for s in scenario.income])):
+        for index, item_id in enumerate(ids):
+            if item_id in ids[:index]:
+                flag(f"{section}[{index}].id", "duplicate id", item_id)
+    if len(scenario.people) != 2:
+        flag("people", "exactly two people are required", len(scenario.people))
+    for index, person in enumerate(scenario.people):
+        if person.date_of_birth >= as_of:
+            flag(f"people[{index}].date_of_birth", f"must be before as_of_date {as_of}", person.date_of_birth)
+    for index, stream in enumerate(scenario.income):
+        where = f"income[{index}]"
+        if stream.recipient not in person_ids:
+            flag(f"{where}.recipient", f"must be one of the people ids {person_ids}", stream.recipient)
+        end = stream.end_date
+        if end is not None and end <= stream.start_date:
+            flag(f"{where}.end_date", f"must be after start_date {stream.start_date}", end)
+        elif end is not None and end <= as_of:
+            flag(f"{where}.end_date", f"must be after as_of_date {as_of}; the stream would never pay", end)
+    return issues
+
+
 # ---------------------------------------------------------------- entry point
 
 
@@ -234,4 +275,6 @@ def parse_scenario(
         scenario = Scenario.model_validate(raw)
     except ValidationError as exc:
         raise ScenarioError([_issue(e) for e in exc.errors()]) from None
+    if issues := _consistency_issues(scenario):
+        raise ScenarioError(issues)
     return LoadedScenario(scenario=scenario, source_path=None, warnings=())
