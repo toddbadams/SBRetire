@@ -258,6 +258,7 @@ LIFESTYLE_COLUMNS: Final = (
     "iterations",
     "note",
 )
+LIFESTYLE_RESERVE_COLUMNS: Final = ("end_reserve_months", *LIFESTYLE_COLUMNS)
 SUSTAINABILITY_COLUMNS: Final = (
     "monthly_budget_today",
     "annual_return",
@@ -309,24 +310,33 @@ def _write_rows(path: Path, columns: Sequence[str], rows: Sequence[Sequence[str]
     return path
 
 
+def _lifestyle_row(result: BudgetResult) -> list[str]:
+    return [
+        _share(result.target_probability),
+        _money_down(result.maximum_monthly_budget_today),
+        _money_down(result.maximum_annual_budget_today),
+        _share(result.estimated_success_probability),
+        _share(result.standard_error),
+        _share(result.unresolved_fraction),
+        f"{result.budget_tolerance:.2f}",
+        _flag(result.converged),
+        str(result.iterations),
+        result.note,
+    ]
+
+
 def write_lifestyle_results_csv(results: Sequence[BudgetResult], path: Path) -> Path:
     """Write ``lifestyle_results.csv``: one row per target (SPEC §14, §15.3); budgets in today's GBP."""
-    rows = [
-        [
-            _share(result.target_probability),
-            _money_down(result.maximum_monthly_budget_today),
-            _money_down(result.maximum_annual_budget_today),
-            _share(result.estimated_success_probability),
-            _share(result.standard_error),
-            _share(result.unresolved_fraction),
-            f"{result.budget_tolerance:.2f}",
-            _flag(result.converged),
-            str(result.iterations),
-            result.note,
-        ]
-        for result in results
-    ]
-    return _write_rows(path, LIFESTYLE_COLUMNS, rows)
+    return _write_rows(path, LIFESTYLE_COLUMNS, [_lifestyle_row(result) for result in results])
+
+
+def write_lifestyle_reserve_results_csv(
+    results: Sequence[BudgetResult], end_reserve_months: int, path: Path
+) -> Path:
+    """Write ``lifestyle_reserve_results.csv``: the lifestyle rows for the End-of-Life Reserve target
+    (optimization §3), each prefixed with ``end_reserve_months``."""
+    rows = [[str(end_reserve_months), *_lifestyle_row(result)] for result in results]
+    return _write_rows(path, LIFESTYLE_RESERVE_COLUMNS, rows)
 
 
 def write_sustainability_results_csv(
@@ -356,12 +366,3 @@ def write_sustainability_results_csv(
         for result in returns
     ]
     return _write_rows(path, SUSTAINABILITY_COLUMNS, rows)
-
-
-LIFESTYLE_RESERVE_COLUMNS: Final = ("end_reserve_months", *LIFESTYLE_COLUMNS)
-
-
-def write_lifestyle_reserve_results_csv(
-    results: Sequence[BudgetResult], end_reserve_months: int, path: Path
-) -> Path:
-    raise NotImplementedError

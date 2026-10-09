@@ -159,18 +159,21 @@ default-valued options out; input-row label. Tests in `tests/unit/test_end_reser
   - monotonicity argument holds in code (budget enters only spending and the reserve requirement)
 
 ### F-019.3 Reserve outputs in run, guide and docs
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-019.2
 
 §2 #5, #9: summary line, second table and `lifestyle_reserve_results.csv` when R > 0; results guide reserve section and
 column guide; README (config key, output file, columns); THESAURUS; decision optimization §3; example config comment.
 
 **Acceptance criteria**
-- [ ] With `end_reserve_months: 12`, `run` prints the reserve success rate and a second budget table titled with the 12-month reserve and writes `lifestyle_reserve_results.csv` byte-equal to the library output; the V1 files are byte-identical to a run without the option — `test_cli_run_reserve_table_and_csv`
-- [ ] With the default, no reserve line, table or file appears — `test_cli_run_no_reserve_outputs_by_default`
-- [ ] The results guide has a reserve subsection (figures and formula with R, B and the reserve rule) when R > 0 and none when 0; `COLUMN_GUIDE` covers `lifestyle_reserve_results.csv` — `test_results_guide_reserve_section`
-- [ ] README documents `end_reserve_months` and every `lifestyle_reserve_results.csv` column — `test_readme_documents_every_output_column`
-- [ ] THESAURUS defines End-of-Life Reserve and optimization §3 records the rule — `check: grep -n "End-of-Life Reserve" docs/THESAURUS.md docs/decisions/optimization.md`
+- [x] With `end_reserve_months: 12`, `run` prints the reserve success rate and a second budget table titled with the 12-month reserve and writes `lifestyle_reserve_results.csv` byte-equal to the library output; the V1 files are byte-identical to a run without the option — `test_cli_run_reserve_table_and_csv`
+- [x] With the default, no reserve line, table or file appears — `test_cli_run_no_reserve_outputs_by_default`
+- [x] The results guide has a reserve subsection (figures and formula with R, B and the reserve rule) when R > 0 and none when 0; `COLUMN_GUIDE` covers `lifestyle_reserve_results.csv` — `test_results_guide_reserve_section`
+- [x] README documents `end_reserve_months` and every `lifestyle_reserve_results.csv` column — `test_readme_documents_every_output_column`
+- [x] THESAURUS defines End-of-Life Reserve and optimization §3 records the rule — `check: grep -n "End-of-Life Reserve" docs/THESAURUS.md docs/decisions/optimization.md`
+
+**Notes**
+- 2026-10-09 `__main__._run`: with R > 0, reserve metrics and a reserve threshold search on the same inputs, `format_reserve_line` after the summary, `format_budget_table(results, R)` after the V1 table, `lifestyle_reserve_results.csv`; GuideContext gains `reserve_metrics`/`reserve_budgets`. `reporting`: `LIFESTYLE_RESERVE_COLUMNS`, shared `_lifestyle_row`, `write_lifestyle_reserve_results_csv`. Guide: reserve results subsection, End-of-life reserve calculation, COLUMN_GUIDE entry; budget-search paragraph corrected (bound = max(2 x budget, 1,000), doubling until every completed path fails — the F-018.1 verify remark). README: config row, budget bullet, `### Leaving an end-of-life reserve`, outputs row and column table; example config comment. Tests: 2 CLI, 1 guide, README guards extended. Example (5,000 paths, R = 12): 90 % budget 10,753 → 10,524 with the reserve.
 
 ## 11. Open Questions
 

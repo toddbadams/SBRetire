@@ -62,6 +62,7 @@ optional. Amounts are GBP, and "today" means prices at `model.as_of_date`.
 | | `annual_return` | Fixed nominal annual effective return after fees, e.g. `0.04`; must be > −1 |
 | `budget` | `monthly_amount_today` | Household spending per month in today's GBP while both are alive |
 | | `survivor_budget_factor` | Share of the budget the survivor needs after the first death, e.g. `0.70` |
+| | `end_reserve_months` | Optional, default `0` (off): months of budget that must remain at the second death for the extra reserve table, e.g. `12` |
 | `inflation` | `source`, `source_period` | Calibration source and years, e.g. `UK_CPI`, `"1989-2025"` |
 | | `data_file` | CPI file, relative to the config file, e.g. `../data/uk_cpi.csv` |
 | | `model`, `parameter_units` | `ar1_lognormal`, `log_annual` |
@@ -93,6 +94,8 @@ Budget (full rules in `docs/decisions/configuration.md` §6):
 - After the first death spending becomes the budget × the survivor's own `people[].survivor_budget_factor` (the
   share of the joint budget that person needs living alone); if the survivor has none, the household
   `budget.survivor_budget_factor` applies.
+- `budget.end_reserve_months` (optional, default 0) asks for an extra answer: the most you can spend and still leave
+  that many months of budget in savings when the second person dies (see below).
 
 Income streams (full rules in `docs/decisions/configuration.md` §4–§5):
 
@@ -188,6 +191,19 @@ least that share of simulated paths succeeds, using the conservative rate.
   cap is marked as not converged.
 - Expect about 25 engine runs.
 
+### Leaving an end-of-life reserve
+
+Set `budget.end_reserve_months` (for example `12`) to also ask: how much can we spend and still leave R months of
+budget in savings when the second of us dies? A path then meets the target only if it is Successful **and** its
+balance in the month of the second death is at least R × the monthly budget, inflated to that month along that
+path's own inflation. The full budget is used, not the survivor's reduced one. A path that ends with less counts as
+failed; unresolved paths still never count (`docs/decisions/optimization.md` §3).
+
+`run` then adds a line with the success rate leaving the reserve at your budget, a second table **Maximum
+sustainable budget leaving an R-month reserve** after the first, and `lifestyle_reserve_results.csv`. The search is
+the same per-path bisection: a higher budget never leaves more money and needs a bigger reserve. With the default
+`0` nothing changes, and V1 configs keep their config hash.
+
 These figures are model estimates from your assumptions (fixed return, no tax, simulated inflation and lifetimes).
 They are not financial advice and not a guarantee.
 
@@ -249,6 +265,7 @@ component never shifts the other's draws. Rules in `docs/decisions/simulation-co
 | `annual_results.csv` | Year-by-year survival, spending, income and portfolio percentiles (SPEC §12) |
 | `sustainability_results.csv` | Success probabilities and required-return search per budget/target (SPEC §13) |
 | `lifestyle_results.csv` | Maximum sustainable budget per confidence level (SPEC §14) |
+| `lifestyle_reserve_results.csv` | Only with `budget.end_reserve_months` > 0: the same, leaving the end-of-life reserve |
 | `run_metadata.json` | Seed, version, config hash, data-file versions/hashes (SPEC §10.3) |
 | `results_guide.md` | A plain-English guide to this run: your results, how each figure was calculated (with your numbers), the assumptions and limitations, every column of every file, and the inputs |
 
@@ -307,6 +324,18 @@ One row per `model.confidence_levels` target, holding the maximum sustainable bu
 | `budget_tolerance` | GBP/month | Search precision (1.00) |
 | `converged`, `iterations` | true/false, count | Whether the search settled within its bounds, and how many engine runs it took |
 | `note` | text | Why a row is infeasible or capped, otherwise empty |
+
+### `lifestyle_reserve_results.csv`
+
+Written only when `budget.end_reserve_months` is above 0. Same rows and columns as `lifestyle_results.csv`, for the
+stricter test of leaving the end-of-life reserve, with one extra first column.
+
+| Column | Unit | Meaning |
+|---|---|---|
+| `end_reserve_months` | months | The reserve R: R × the budget, inflated, must remain at the second death |
+| `target_probability`, `maximum_monthly_budget_today`, `maximum_annual_budget_today` | as in `lifestyle_results.csv` | Target and the largest budget meeting it while leaving the reserve (rounded **down**) |
+| `estimated_success_probability`, `standard_error`, `unresolved_fraction` | share | Rate meeting the reserve target at that budget, its SE, and the unresolved share |
+| `budget_tolerance`, `converged`, `iterations`, `note` | as in `lifestyle_results.csv` | Search precision, convergence, engine runs, notes |
 
 ### `sustainability_results.csv`
 

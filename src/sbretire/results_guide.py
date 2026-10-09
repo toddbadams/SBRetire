@@ -137,6 +137,18 @@ COLUMN_GUIDE: Final[dict[str, dict[str, tuple[str, str]]]] = {
 }
 
 
+COLUMN_GUIDE["lifestyle_reserve_results.csv"] = {
+    "end_reserve_months": (
+        "months",
+        "The End-of-Life Reserve R: R x the budget, inflated, must remain at the second death",
+    ),
+    **{
+        column: (unit, meaning.replace("Conservative success rate", "Rate meeting the reserve target"))
+        for column, (unit, meaning) in COLUMN_GUIDE["lifestyle_results.csv"].items()
+    },
+}
+
+
 @dataclass(frozen=True)
 class GuideContext:
     """Everything the guide reports, all from one run on one set of random inputs."""
@@ -149,6 +161,10 @@ class GuideContext:
     """At the configured Budget and return."""
     budgets: Sequence[BudgetResult]
     returns: Sequence[ReturnResult]
+    reserve_metrics: SuccessMetrics | None = None
+    """At the configured Budget under the End-of-Life Reserve; None when ``end_reserve_months`` is 0."""
+    reserve_budgets: Sequence[BudgetResult] = ()
+    """Maximum Sustainable Budgets leaving the reserve; empty when ``end_reserve_months`` is 0."""
 
 
 def _money(amount: float) -> str:
@@ -210,23 +226,8 @@ def _results(context: GuideContext) -> list[str]:
         "target "
         "share of simulated futures succeeds. Rounded **down** to whole pounds.",
         "",
-        "| Target | Per month (GBP) | Per year (GBP) | Success at that budget | Unresolved |",
-        "|---|---|---|---|---|",
-    ]
-    for budget in context.budgets:
-        target = f"{budget.target_probability:.0%}"
-        if budget.maximum_monthly_budget_today is None or budget.maximum_annual_budget_today is None:
-            lines.append(f"| {target} | - | - | {_cell(budget.note)} | {budget.unresolved_fraction:.2%} |")
-            continue
-        success = f"{budget.estimated_success_probability:.2%} +/- {budget.standard_error:.3%}"
-        lines.append(
-            f"| {target} | {math.floor(budget.maximum_monthly_budget_today):,} | "
-            f"{math.floor(budget.maximum_annual_budget_today):,} | {success} | "
-            f"{budget.unresolved_fraction:.2%} |"
-        )
-    lines += [line for budget in context.budgets if budget.note and budget.maximum_monthly_budget_today
-              for line in ("", f"Note ({budget.target_probability:.0%}): {budget.note}")]  # fmt: skip
-    lines += [
+        *_budget_table(context.budgets),
+        *_reserve_results(context),
         "",
         "### Required return at your budget",
         "",
@@ -252,6 +253,49 @@ def _results(context: GuideContext) -> list[str]:
               for line in ("", f"Note ({found.target_probability:.0%}): {found.note}")]  # fmt: skip
     lines.append("")
     return lines
+
+
+def _budget_table(budgets: Sequence[BudgetResult]) -> list[str]:
+    lines = [
+        "| Target | Per month (GBP) | Per year (GBP) | Success at that budget | Unresolved |",
+        "|---|---|---|---|---|",
+    ]
+    for budget in budgets:
+        target = f"{budget.target_probability:.0%}"
+        if budget.maximum_monthly_budget_today is None or budget.maximum_annual_budget_today is None:
+            lines.append(f"| {target} | - | - | {_cell(budget.note)} | {budget.unresolved_fraction:.2%} |")
+            continue
+        success = f"{budget.estimated_success_probability:.2%} +/- {budget.standard_error:.3%}"
+        lines.append(
+            f"| {target} | {math.floor(budget.maximum_monthly_budget_today):,} | "
+            f"{math.floor(budget.maximum_annual_budget_today):,} | {success} | "
+            f"{budget.unresolved_fraction:.2%} |"
+        )
+    lines += [line for budget in budgets if budget.note and budget.maximum_monthly_budget_today
+              for line in ("", f"Note ({budget.target_probability:.0%}): {budget.note}")]  # fmt: skip
+    return lines
+
+
+def _reserve_results(context: GuideContext) -> list[str]:
+    months = context.scenario.budget.end_reserve_months
+    m = context.reserve_metrics
+    if months == 0 or m is None:
+        return []
+    return [
+        "",
+        f"### Maximum sustainable budget leaving a {months}-month reserve",
+        "",
+        f"The same question with a stricter test: when the second of you dies, at least {months} x the "
+        "monthly "
+        "budget (in that month's money) must still be in savings. A future that ends with less counts as "
+        "failed.",
+        "",
+        "At your budget, the conservative success rate leaving the reserve is "
+        f"{m.conservative_success_rate:.2%} "
+        f"+/- {m.conservative_standard_error:.3%} ({m.n_successful:,} of {m.n_paths:,} futures).",
+        "",
+        *_budget_table(context.reserve_budgets),
+    ]
 
 
 def _survivor_factor(scenario: Scenario, index: int) -> float:
@@ -380,13 +424,15 @@ def _calculations(context: GuideContext) -> list[str]:
         "path, "
         "the largest budget at which it still succeeds is found by bisection, all paths at once: from 0 up "
         "to a "
-        "bound that starts at 2 x your budget and doubles until every path fails (capped at 1,000,000 "
-        f"GBP/month), to within {BUDGET_TOLERANCE:,.0f} GBP/month. This run used {budget_runs} engine runs. "
-        "A "
-        "target p's budget is the ceil(p x N)-th largest path threshold"
-        + example
-        + ". One confirming run at that budget gives the success rate shown.",
+        "bound that starts at the larger of 2 x your budget and 1,000 GBP/month and doubles until every path "
+        "whose household ends within the horizon fails (capped at 1,000,000 GBP/month), to within "
+        f"{BUDGET_TOLERANCE:,.0f} GBP/month. This run used {budget_runs} engine runs. A target p's budget is "
+        "the "
+        f"ceil(p x N)-th largest path threshold{example}. One confirming run at that budget gives the "
+        "success "
+        "rate shown.",
         "",
+        *_reserve_calculation(s),
         "### Required return",
         "",
         "For each path, the lowest fixed annual return at which it succeeds at your budget is found by "
@@ -405,6 +451,27 @@ def _calculations(context: GuideContext) -> list[str]:
         "of each path's totals for the year, over paths still running in it. Portfolio percentiles cover "
         "paths "
         "where someone is alive at year end, with paths that ran out counted as 0.",
+        "",
+    ]
+
+
+def _reserve_calculation(scenario: Scenario) -> list[str]:
+    months = scenario.budget.end_reserve_months
+    if months == 0:
+        return []
+    budget = _money(scenario.budget.monthly_amount_today)
+    return [
+        "### End-of-life reserve",
+        "",
+        f"With `budget.end_reserve_months: {months}`, a path meets the reserve target only if it is "
+        "Successful "
+        f"and its balance in the month the second person dies (month d) is at least {months} x B x I_d: the "
+        f"budget B in today's money (at your budget, {months} x {budget} GBP) inflated to that month by the "
+        "path's own Inflation Index. The full budget is used, not the survivor's reduced spending. A path "
+        "that "
+        "ends below it is counted as Failed; unresolved paths stay unresolved. The reserve budget table uses "
+        "the same per-path search, because a higher budget never leaves more money and needs a larger "
+        "reserve.",
         "",
     ]
 

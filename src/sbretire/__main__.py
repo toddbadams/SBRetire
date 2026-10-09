@@ -41,6 +41,7 @@ from sbretire.reporting import (
     annual_results,
     round_return_up,
     write_annual_results_csv,
+    write_lifestyle_reserve_results_csv,
     write_lifestyle_results_csv,
     write_sustainability_results_csv,
 )
@@ -191,6 +192,12 @@ def _run(args: argparse.Namespace, loaded: LoadedScenario) -> int:
     result = run_monte_carlo(scenario, inputs)
     budgets = maximum_sustainable_budgets(path_budget_thresholds(scenario, inputs), targets)
     returns = required_returns(path_return_thresholds(scenario, inputs), targets)
+    reserve_months = scenario.budget.end_reserve_months
+    reserve_metrics, reserve_budgets = None, []
+    if reserve_months > 0:
+        reserve_metrics = run_monte_carlo(scenario, inputs, end_reserve_months=reserve_months).metrics
+        reserve_search = path_budget_thresholds(scenario, inputs, end_reserve_months=reserve_months)
+        reserve_budgets = maximum_sustainable_budgets(reserve_search, targets)
     annual = annual_results(scenario, inputs)
     records = [table.data_file_record(), inflation_data_file_record(scenario.inflation)]
     try:
@@ -204,19 +211,40 @@ def _run(args: argparse.Namespace, loaded: LoadedScenario) -> int:
                 output_dir / "sustainability_results.csv",
             ),
             write_lifestyle_results_csv(budgets, output_dir / "lifestyle_results.csv"),
+        ]
+        if reserve_months > 0:
+            written.append(
+                write_lifestyle_reserve_results_csv(
+                    reserve_budgets, reserve_months, output_dir / "lifestyle_reserve_results.csv"
+                )
+            )
+        context = GuideContext(
+            args.config,
+            scenario,
+            seed,
+            input_rows,
+            result.metrics,
+            budgets,
+            returns,
+            reserve_metrics=reserve_metrics,
+            reserve_budgets=reserve_budgets,
+        )
+        written += [
             write_run_metadata(build_run_metadata(loaded, seed, records), output_dir),
-            write_results_guide(
-                GuideContext(args.config, scenario, seed, input_rows, result.metrics, budgets, returns),
-                output_dir / "results_guide.md",
-            ),
+            write_results_guide(context, output_dir / "results_guide.md"),
         ]
     except OSError as exc:
         print(f"error: cannot write to output directory {output_dir}: {exc.strerror or exc}", file=sys.stderr)
         return EXIT_FAILURE
     print(format_run_summary(args.config, scenario, seed, result.metrics))
+    if reserve_metrics is not None:
+        print(format_reserve_line(reserve_metrics, reserve_months))
     print()
     print(format_budget_table(budgets))
     print()
+    if reserve_months > 0:
+        print(format_budget_table(reserve_budgets, reserve_months))
+        print()
     print(format_return_table(returns))
     print()
     for path in written:
@@ -251,11 +279,24 @@ def format_return_table(results: Sequence[ReturnResult]) -> str:
     return "\n".join(lines)
 
 
-def format_budget_table(results: Sequence[BudgetResult]) -> str:
-    """Plain-ASCII table of Maximum Sustainable Budgets, one row per confidence level (SPEC §14)."""
+def format_reserve_line(metrics: SuccessMetrics, end_reserve_months: int) -> str:
+    """Conservative Success Rate at the configured Budget under the End-of-Life Reserve (optimization §3)."""
+    return (
+        f"Conservative success rate leaving a {end_reserve_months}-month reserve "
+        f"{metrics.conservative_success_rate:.2%} +/- {metrics.conservative_standard_error:.3%} "
+        f"(also needs {end_reserve_months} x the budget, inflated, left at the second death)"
+    )
+
+
+def format_budget_table(results: Sequence[BudgetResult], end_reserve_months: int = 0) -> str:
+    """Plain-ASCII table of Maximum Sustainable Budgets, one row per confidence level (SPEC §14).
+
+    With ``end_reserve_months`` > 0 the table is the one leaving the End-of-Life Reserve (optimization §3).
+    """
     runs = results[0].iterations if results else 0
+    reserve = f" leaving a {end_reserve_months}-month reserve" if end_reserve_months else ""
     lines = [
-        f"Maximum sustainable budget (today's GBP; tolerance {BUDGET_TOLERANCE:,.0f} GBP/month; "
+        f"Maximum sustainable budget{reserve} (today's GBP; tolerance {BUDGET_TOLERANCE:,.0f} GBP/month; "
         f"{runs} engine runs, same random paths for every budget):",
         f"{'target':>6}  {'per month':>11}  {'per year':>12}  {'success +/- SE':>22}  "
         f"{'unresolved':>10}  converged",
@@ -277,7 +318,12 @@ def format_budget_table(results: Sequence[BudgetResult]) -> str:
             lines.append(f"{'':>6}  note: {result.note}")
     lines.append(
         "A target's budget is the most you can spend per month (rising with inflation) while that share of "
-        "simulated paths never runs out."
+        "simulated paths never runs out"
+        + (
+            f" and still holds {end_reserve_months} x that budget (inflated) when the second person dies."
+            if end_reserve_months
+            else "."
+        )
     )
     return "\n".join(lines)
 
