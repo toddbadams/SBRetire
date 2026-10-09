@@ -204,7 +204,7 @@ Add the file layer: load_scenario(path, *, require_data_files=False) -> LoadedSc
 - 2026-10-09: `src/sbretire/_yaml.py` — `load_yaml` composes the node tree, reports every duplicate key with its YAML path and both line numbers, then constructs with the safe loader; syntax errors become issues with line/column. `config.py` — `load_scenario` (OSError if unreadable; ScenarioError otherwise), warn mode drops unknown keys and returns sorted "unknown key (ignored)" warnings while real errors still raise, `mortality.data_file` resolved against the config directory, `require_data_files` check. `config/model.example.yaml` gains `unknown_keys: error` and `../data/ons_mortality.csv`. Tests: `tests/unit/test_config_loading.py` (11).
 
 ### F-001.4 CLI validate and run subcommands
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-001.3
 
 Expose validation to the user.
