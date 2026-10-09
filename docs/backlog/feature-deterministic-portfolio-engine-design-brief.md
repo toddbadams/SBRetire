@@ -163,7 +163,7 @@ array functions, float64, no loops. Tests in `tests/unit/test_portfolio.py`.
 - 2026-10-09: `src/sbretire/portfolio.py` — `monthly_return_rate` (rejects r_a ≤ −1), `apply_month` returning `MonthResult(balance, depleted, shortfall)`; three vectorised `np.where` lines, no loops. Tests: `tests/unit/test_portfolio.py` (11 incl. a hypothesis property test and a negative-return depletion case).
 
 ### F-002.2 Path loop with deaths, depletion, censoring and observer
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-002.1
 
 `src/sbretire/simulation.py`: `HouseholdCashFlows`, `MonthObserver`, `PathOutcomes`, `simulate_paths` (brief §2
