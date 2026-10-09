@@ -2,7 +2,7 @@
 id: F-005
 type: feature
 parent: foundations
-status: planned
+status: in-progress
 complexity: 3
 created: 2026-10-09
 updated: 2026-10-09
@@ -75,12 +75,15 @@ SeedSource = Literal["config", "generated"]
 MORTALITY_STREAM: Final = 0
 INFLATION_STREAM: Final = 1
 
+
 @dataclass(frozen=True)
 class ResolvedSeed:
-    value: int            # >= 0; up to 128 bits when generated
+    value: int  # >= 0; up to 128 bits when generated
     source: SeedSource
 
+
 def resolve_seed(configured: int | None) -> ResolvedSeed: ...
+
 
 @dataclass(frozen=True)
 class RandomStreams:
@@ -154,12 +157,12 @@ exactly; note in README that JavaScript would lose precision on a generated seed
 
 ## 9. Surprises
 
-_(filled during implementation)_
+- 2026-10-09 — F-005.1: `test_config_accepts_128_bit_random_seed` passed before any code change — F-001's strict `Integer` already accepts arbitrary-size ints; kept as a guard.
 
 ## 10. Tasks
 
 ### F-005.1 Random Streams and seed resolution
-- **Status**: To Do
+- **Status**: Verification
 - **Depends on**: —
 
 Build `src/sbretire/randomness.py` per §5: `resolve_seed` and `RandomStreams.from_seed` with mortality = child 0,
@@ -167,13 +170,16 @@ inflation = child 1 (§2 #1–#3). Tests in `tests/unit/test_randomness.py`; the
 `tests/unit/test_config_fields.py`.
 
 **Acceptance criteria**
-- [ ] The same seed gives identical draws from both streams on two separate `from_seed` calls — `test_random_streams_fixed_seed_reproduces_draws`
-- [ ] Consuming any number of inflation draws leaves the mortality draws unchanged (and vice versa) — `test_random_streams_consumption_is_independent`
-- [ ] The mortality and inflation streams of one seed produce different draws; different seeds differ — `test_random_streams_streams_and_seeds_differ`
-- [ ] `resolve_seed(None)` returns a generated seed in [0, 2^128) with source `generated`; `resolve_seed(7)` returns 7 with source `config`; feeding a generated seed back reproduces the draws — `test_resolve_seed_null_generates_reproducible_seed`
-- [ ] A scenario with a 128-bit `random_seed` validates and keeps the exact value — `test_config_accepts_128_bit_random_seed`
-- [ ] Seed 42's first draws from each stream equal pinned known answers — `test_random_streams_seed_42_known_answer`
-- [ ] No `np.random.<function>` global calls in `src/` — `check: grep -rnE "np\.random\.(rand|randn|random|seed|normal|uniform|choice|randint)\(" src/ returns nothing`
+- [x] The same seed gives identical draws from both streams on two separate `from_seed` calls — `test_random_streams_fixed_seed_reproduces_draws`
+- [x] Consuming any number of inflation draws leaves the mortality draws unchanged (and vice versa) — `test_random_streams_consumption_is_independent`
+- [x] The mortality and inflation streams of one seed produce different draws; different seeds differ — `test_random_streams_streams_and_seeds_differ`
+- [x] `resolve_seed(None)` returns a generated seed in [0, 2^128) with source `generated`; `resolve_seed(7)` returns 7 with source `config`; feeding a generated seed back reproduces the draws — `test_resolve_seed_null_generates_reproducible_seed`
+- [x] A scenario with a 128-bit `random_seed` validates and keeps the exact value — `test_config_accepts_128_bit_random_seed`
+- [x] Seed 42's first draws from each stream equal pinned known answers — `test_random_streams_seed_42_known_answer`
+- [x] No `np.random.<function>` global calls in `src/` — `check: grep -rnE "np\.random\.(rand|randn|random|seed|normal|uniform|choice|randint)\(" src/ returns nothing`
+
+**Notes**
+- 2026-10-09 Added `src/sbretire/randomness.py` (`resolve_seed`, `ResolvedSeed`, `RandomStreams.from_seed`; mortality child 0, inflation child 1 via `SeedSequence(seed, spawn_key=(k,))`, identical to `SeedSequence(seed).spawn(2)[k]`); tests `tests/unit/test_randomness.py` (8) and `test_config_accepts_128_bit_random_seed`. Known answers computed with NumPy 2.5.3.
 
 ### F-005.2 Config Hash and file hash
 - **Status**: To Do
