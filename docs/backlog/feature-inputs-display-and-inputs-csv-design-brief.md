@@ -2,7 +2,7 @@
 id: F-017
 type: feature
 parent: v1-1-enhancements
-status: in-progress
+status: done
 complexity: 3
 created: 2026-10-09
 updated: 2026-10-09
@@ -87,7 +87,7 @@ def format_inputs(config: Path, rows: Sequence[InputRow]) -> str: ...
 ## 10. Tasks
 
 ### F-017.1 Input rows, inputs.csv writer and console block
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: —
 
 `src/sbretire/inputs_report.py` per §2 #1–#7 and §5. Tests in `tests/unit/test_inputs_report.py`.
@@ -101,9 +101,13 @@ def format_inputs(config: Path, rows: Sequence[InputRow]) -> str: ...
 
 **Notes**
 - 2026-10-09 Added `src/sbretire/inputs_report.py`: `InputRow`, `INPUT_COLUMNS`, `scenario_input_rows` (one row per validated field via the pydantic models; a label table keyed section.field raises KeyError for an unlabelled new field), derived rows (seed used, ages, last month), `write_inputs_csv`, `display_value`, `format_inputs` (date/file/month units left off the console only). Tests `tests/unit/test_inputs_report.py` (5).
+- 2026-10-09 /verify PASS:
+  - 5 tests pass; the coverage test derives fields independently from the pydantic models
+  - own recursive walk: example config 59 leaves / 63 rows, fixture 51 / 55, items unique and set-equal; floats round-trip exactly; ages 66/57 and 68/64; last months 2126-09 and 2086-09; data files by name only
+  - inputs.csv LF only, header exact, csv round-trip; no network/tax/randomness/hard-coded values; ruff + mypy clean
 
 ### F-017.2 run prints the inputs and writes inputs.csv
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-017.1
 
 `_run` prints `format_inputs` before the summary and writes `inputs.csv`; README Outputs documents the file and its
@@ -114,7 +118,11 @@ columns; the README column guard includes it.
 - [x] README documents `inputs.csv` and every one of its columns — `test_readme_documents_every_output_column`
 
 **Notes**
-- 2026-10-09 `_run` builds the input rows right after resolving the seed, prints `format_inputs` before the (long) computation and writes `inputs.csv` first among the outputs. README: Running the model mentions the block; Outputs table + `### \` column table. Tests: `test_cli_run_prints_inputs_and_writes_csv`; `inputs.csv` added to `OUTPUT_FILES` (all-outputs and reproducibility tests) and to the README column guard.
+- 2026-10-09 `_run` builds the input rows right after resolving the seed, prints `format_inputs` before the (long) computation and writes `inputs.csv` first among the outputs. README: Running the model mentions the block; Outputs table + an `inputs.csv` column table. Tests: `test_cli_run_prints_inputs_and_writes_csv`; `inputs.csv` added to `OUTPUT_FILES` (all-outputs and reproducibility tests) and to the README column guard.
+- 2026-10-09 /verify PASS:
+  - CLI and acceptance tests: 20 passed
+  - fixture run twice: stdout starts with the Inputs block (line 1) before the summary (line 66); inputs.csv LF only, header exact, byte-identical across runs; Wrote line printed
+  - reporting/optimization/monte_carlo unchanged since 190012a; README Outputs row + inputs.csv column table; ruff + mypy clean
 
 ## 11. Open Questions
 

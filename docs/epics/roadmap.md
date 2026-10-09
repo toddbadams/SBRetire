@@ -12,8 +12,8 @@ Features in build order. Status: `proposed` → `briefed` → `in-progress` → 
 | F-004 | Spending with Survivor Budget Factor | [household-cash-flows](household-cash-flows.md) | F-002 | done |
 | F-015 | Deterministic Preview Run | [reporting-release](reporting-release.md) | F-003, F-004 | done |
 | F-016 | VS Code Test Setup | [v1-1-enhancements](v1-1-enhancements.md) | F-014 | done |
-| F-017 | Inputs Display and inputs.csv | [v1-1-enhancements](v1-1-enhancements.md) | F-013 | in-progress |
-| F-018 | Results Guide (columns, calculations, assumptions) | [v1-1-enhancements](v1-1-enhancements.md) | F-017 | proposed |
+| F-017 | Inputs Display and inputs.csv | [v1-1-enhancements](v1-1-enhancements.md) | F-013 | done |
+| F-018 | Results Guide (columns, calculations, assumptions) | [v1-1-enhancements](v1-1-enhancements.md) | F-017 | briefed |
 | F-019 | End-of-Life Reserve Target | [v1-1-enhancements](v1-1-enhancements.md) | F-013 | proposed |
 | F-020 | Spend-At-Least-Income Option | [v1-1-enhancements](v1-1-enhancements.md) | F-013 | proposed |
 | F-005 | Random Streams and Run Metadata | [foundations](foundations.md) | F-001 | done |
@@ -111,6 +111,9 @@ Features in build order. Status: `proposed` → `briefed` → `in-progress` → 
 Unmapped requirements: **none**.
 
 ## Change Log
+
+- 2026-10-09 — F-017 done: Inputs block printed first by `run` and `inputs.csv` (every validated Scenario field + derived seed, ages, last month); 376 tests.
+- 2026-10-09 — F-018 briefed: design brief + tasks F-018.1…F-018.2 (generated Markdown guide; column guide tied to the code).
 
 - 2026-10-09 — F-017 briefed: design brief + tasks F-017.1…F-017.2 (every Scenario field as a row; inputs.csv + console block).
 - 2026-10-09 — Added epic v1-1-enhancements: F-016 VS Code test setup (done, tooling-and-process §5); F-017 inputs display; F-018 results guide (Markdown); F-019 end-of-life reserve = 12 × monthly Budget; F-020 spend-at-least-income option (opt-in). Decisions from the user.
