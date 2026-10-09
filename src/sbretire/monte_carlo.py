@@ -69,3 +69,12 @@ def run_monte_carlo(
         cash_flows=cash_flows,
     )
     return MonteCarloResult(outcomes=outcomes, metrics=SuccessMetrics.from_outcomes(outcomes))
+
+
+def required_end_balance(
+    inputs: RandomInputs,
+    outcomes: PathOutcomes,
+    monthly_budget_today: float | FloatArray,
+    end_reserve_months: int,
+) -> FloatArray:
+    raise NotImplementedError

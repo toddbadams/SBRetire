@@ -2,7 +2,7 @@
 id: F-019
 type: feature
 parent: v1-1-enhancements
-status: planned
+status: in-progress
 complexity: 5
 created: 2026-10-09
 updated: 2026-10-09
@@ -114,7 +114,7 @@ def write_lifestyle_reserve_results_csv(results, end_reserve_months: int, path: 
 ## 10. Tasks
 
 ### F-019.1 Reserve config, per-path index and reserve-aware metrics
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: —
 
 §2 #1–#3, #6, #7: `budget.end_reserve_months`; `level_at`; `classify_paths` / `SuccessMetrics.from_outcomes` with
