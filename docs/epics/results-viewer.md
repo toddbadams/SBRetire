@@ -1,16 +1,18 @@
 ---
 epic: results-viewer
 title: Results Viewer
-status: delivered
+status: active
 spec_sections: [§11, §12, §13, §14, §15]
 depends_on: [v1-1-enhancements]
 milestones:
   - { id: F-021, title: Named Runs and results.json, status: done }
   - { id: F-022, title: HTML Results Viewer, status: done }
+  - { id: F-023, title: Print and PDF, status: briefed }
 created: 2026-10-09
 updated:
   - 2026-10-09: created from the user's request to display results on an HTML page designed with Claude Design
   - 2026-10-09: F-021 and F-022 done
+  - 2026-10-09: F-023 added (user asked for a black-and-white PDF button, no split cards or tables)
 ---
 
 # Results Viewer
