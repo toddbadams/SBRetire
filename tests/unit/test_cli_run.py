@@ -7,6 +7,7 @@ with the real ONS mortality and CPI files.
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
 from typing import Any
 
@@ -140,8 +141,8 @@ def test_cli_run_prints_maximum_budgets(
         row = next(
             line for line in out.splitlines() if line.lstrip().startswith(f"{result.target_probability:.0%}")
         )
-        assert f"{result.maximum_monthly_budget_today:,.0f}" in row
-        assert f"{result.maximum_annual_budget_today:,.0f}" in row
+        assert f"{math.floor(result.maximum_monthly_budget_today):,}" in row  # rounded down (B-011.1)
+        assert f"{math.floor(result.maximum_annual_budget_today):,}" in row
         assert f"{result.estimated_success_probability:.2%} +/- {result.standard_error:.3%}" in row
         assert f"{result.unresolved_fraction:.2%}" in row
         assert row.rstrip().endswith("yes")
@@ -181,7 +182,7 @@ def test_cli_run_prints_required_returns(
             for line in section.splitlines()
             if line.lstrip().startswith(f"{result.target_probability:.0%}")
         )
-        assert f"{result.required_annual_return:.2%}" in row
+        assert f"{_ceil_percent(result.required_annual_return):.2%}" in row  # rounded up (B-011.1)
         assert f"{result.estimated_success_probability:.2%} +/- {result.standard_error:.3%}" in row
         assert f"{result.unresolved_fraction:.2%}" in row
         assert row.rstrip().endswith("yes")
@@ -193,3 +194,59 @@ def test_cli_run_prints_required_returns(
     section = section[section.index("Required return") :]
     row = next(line for line in section.splitlines() if line.lstrip().startswith("50%"))
     assert "no solution" in row
+
+
+def _ceil_percent(annual_return: float) -> float:
+    """Round up to the next 0.01 % (tolerating float noise just above a grid point)."""
+    return math.ceil(round(annual_return * 10_000, 9)) / 10_000
+
+
+def _row(out: str, section: str, target: str) -> str:
+    text = out[out.index(section) :]
+    return next(line for line in text.splitlines() if line.lstrip().startswith(target))
+
+
+def test_cli_run_budget_display_rounds_down(
+    tmp_path: Path, valid_raw: dict[str, Any], capsys: pytest.CaptureFixture[str]
+) -> None:
+    raw = set_at(_absolute_data(valid_raw), "model.confidence_levels", [0.9])
+    config = _write(tmp_path / "budget", raw)
+    assert main(["run", "--config", str(config), "--output-dir", str(tmp_path / "out")]) == 0
+    row = _row(capsys.readouterr().out, "Maximum sustainable budget", "90%")
+
+    scenario = load_scenario(config).scenario
+    inputs = draw_random_inputs(
+        scenario, load_mortality_table(scenario.mortality.data_file), ResolvedSeed(7, "config")
+    )
+    (result,) = maximum_sustainable_budgets(path_budget_thresholds(scenario, inputs), [0.9])
+    assert result.maximum_monthly_budget_today is not None and result.maximum_annual_budget_today is not None
+    monthly, annual = row.split()[1:3]
+    assert monthly == f"{math.floor(result.maximum_monthly_budget_today):,}"
+    assert annual == f"{math.floor(result.maximum_annual_budget_today):,}"
+    printed = float(monthly.replace(",", ""))
+    assert printed <= result.maximum_monthly_budget_today
+    rate = run_monte_carlo(scenario, inputs, monthly_budget_today=printed).metrics.conservative_success_rate
+    assert rate >= 0.9
+
+
+def test_cli_run_return_display_rounds_up(
+    tmp_path: Path, valid_raw: dict[str, Any], capsys: pytest.CaptureFixture[str]
+) -> None:
+    raw = set_at(_absolute_data(valid_raw), "model.confidence_levels", [0.5, 0.9])
+    raw = set_at(raw, "budget.monthly_amount_today", 4_000)
+    config = _write(tmp_path / "return", raw)
+    assert main(["run", "--config", str(config), "--output-dir", str(tmp_path / "out")]) == 0
+    out = capsys.readouterr().out
+
+    scenario = load_scenario(config).scenario
+    inputs = draw_random_inputs(
+        scenario, load_mortality_table(scenario.mortality.data_file), ResolvedSeed(7, "config")
+    )
+    for result in required_returns(path_return_thresholds(scenario, inputs), [0.5, 0.9]):
+        assert result.required_annual_return is not None
+        printed_text = _row(out, "Required return", f"{result.target_probability:.0%}").split()[1]
+        assert printed_text == f"{_ceil_percent(result.required_annual_return):.2%}"
+        printed = float(printed_text.rstrip("%")) / 100
+        assert printed >= result.required_annual_return - 1e-12
+        rate = run_monte_carlo(scenario, inputs, annual_return=printed).metrics.conservative_success_rate
+        assert rate >= result.target_probability

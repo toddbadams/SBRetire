@@ -178,7 +178,7 @@ recorded with the brief.
   - budget 60,000: 'no solution within bounds' rows, exit 0; README accurate; full gate 349 passed
 
 ### B-011.1 Round displayed budgets down and returns up
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-011.3
 
 Found by /verify F-011.3: the CLI rounds to the nearest unit, so a printed required return (−5.51 %) can sit just below
