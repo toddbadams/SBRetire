@@ -17,6 +17,7 @@ import yaml
 from sbretire import __version__
 from sbretire.__main__ import main
 from sbretire.config import load_scenario
+from sbretire.inputs_report import scenario_input_rows, write_inputs_csv
 from sbretire.metadata import config_sha256, file_sha256
 from sbretire.monte_carlo import draw_random_inputs, run_monte_carlo
 from sbretire.mortality import load_mortality_table
@@ -277,6 +278,7 @@ def test_cli_run_writes_annual_results(
 
 
 OUTPUT_FILES = (
+    "inputs.csv",
     "annual_results.csv",
     "sustainability_results.csv",
     "lifestyle_results.csv",
@@ -318,12 +320,28 @@ def test_cli_run_writes_all_outputs(
     ).read_bytes()
 
 
+def test_cli_run_prints_inputs_and_writes_csv(
+    tmp_path: Path, valid_raw: dict[str, Any], capsys: pytest.CaptureFixture[str]
+) -> None:
+    config = _write(tmp_path / "inputs", set_at(_absolute_data(valid_raw), "model.confidence_levels", [0.9]))
+    out_dir = tmp_path / "out"
+    assert main(["run", "--config", str(config), "--output-dir", str(out_dir)]) == 0
+    out = capsys.readouterr().out
+    assert out.startswith(f"Inputs ({config}):")
+    assert out.index("Monthly budget: 3,000") < out.index("SBRetire Monte Carlo")
+    assert "Random seed used: 7 config" in out
+    rows = scenario_input_rows(load_scenario(config).scenario, ResolvedSeed(7, "config"))
+    expected = write_inputs_csv(rows, tmp_path / "expected_inputs.csv")
+    assert (out_dir / "inputs.csv").read_bytes() == expected.read_bytes()
+    assert f"Wrote {out_dir / 'inputs.csv'}" in out
+
+
 def test_cli_run_csvs_reproducible(tmp_path: Path, valid_raw: dict[str, Any]) -> None:
     raw = set_at(_absolute_data(valid_raw), "model.confidence_levels", [0.9])
     config = _write(tmp_path / "repro", raw)
     for name in ("first", "second"):
         assert main(["run", "--config", str(config), "--output-dir", str(tmp_path / name)]) == 0
-    for name in OUTPUT_FILES[:3]:
+    for name in (name for name in OUTPUT_FILES if name.endswith(".csv")):
         assert (tmp_path / "first" / name).read_bytes() == (tmp_path / "second" / name).read_bytes(), name
     first = json.loads((tmp_path / "first" / "run_metadata.json").read_text(encoding="utf-8"))
     second = json.loads((tmp_path / "second" / "run_metadata.json").read_text(encoding="utf-8"))

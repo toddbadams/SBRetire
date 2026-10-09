@@ -180,6 +180,7 @@ def _readme_table(readme: str, file_name: str) -> str:
 
 
 def test_readme_documents_every_output_column() -> None:
+    from sbretire.inputs_report import INPUT_COLUMNS
     from sbretire.reporting import ANNUAL_COLUMNS, LIFESTYLE_COLUMNS, SUSTAINABILITY_COLUMNS
 
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
@@ -187,6 +188,7 @@ def test_readme_documents_every_output_column() -> None:
         ("annual_results.csv", ANNUAL_COLUMNS),
         ("sustainability_results.csv", SUSTAINABILITY_COLUMNS),
         ("lifestyle_results.csv", LIFESTYLE_COLUMNS),
+        ("inputs.csv", INPUT_COLUMNS),
     ):
         table = _readme_table(readme, file_name)
         missing = [column for column in columns if f"`{column}`" not in table]
