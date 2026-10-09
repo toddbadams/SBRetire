@@ -4,9 +4,13 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections.abc import Sequence
+from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 
-from sbretire.config import Scenario
+from sbretire.config import LoadedScenario, Scenario
+from sbretire.randomness import ResolvedSeed, SeedSource
 
 _CHUNK = 1 << 20
 
@@ -31,3 +35,43 @@ def file_sha256(path: Path) -> str:
         while chunk := handle.read(_CHUNK):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+@dataclass(frozen=True)
+class DataFileRecord:
+    role: str
+    path: str
+    sha256: str
+    version: str | None = None
+    retrieved: str | None = None
+
+
+@dataclass(frozen=True)
+class RunMetadata:
+    metadata_schema: int
+    software_version: str
+    created_at: str
+    config_path: str | None
+    config_sha256: str
+    seed: int
+    seed_source: SeedSource
+    simulation_count: int
+    horizon_years: int
+    data_files: tuple[DataFileRecord, ...]
+    python_version: str
+    numpy_version: str
+    platform: str
+
+
+def build_run_metadata(
+    loaded: LoadedScenario,
+    seed: ResolvedSeed,
+    data_files: Sequence[DataFileRecord] = (),
+    *,
+    now: datetime | None = None,
+) -> RunMetadata:
+    raise NotImplementedError
+
+
+def write_run_metadata(metadata: RunMetadata, output_dir: Path) -> Path:
+    raise NotImplementedError
