@@ -1,6 +1,6 @@
 # SBRetire V1 Roadmap
 
-**Last updated**: 2026-10-09 — F-009 done.
+**Last updated**: 2026-10-09 — F-010 briefed.
 
 Features in build order. Status: `proposed` → `briefed` → `in-progress` → `done` (or `superseded`). Briefs live in `docs/backlog/`; tasks are inside each brief.
 
@@ -16,7 +16,7 @@ Features in build order. Status: `proposed` → `briefed` → `in-progress` → 
 | F-007 | ONS Mortality Data Ingest and Mapping | [stochastic-inputs](stochastic-inputs.md) | F-001 | done |
 | F-008 | Monthly Mortality Sampling | [stochastic-inputs](stochastic-inputs.md) | F-002, F-005, F-007 | done |
 | F-009 | Monte Carlo Path Outcomes, Censoring and Success Metrics | [simulation-engine](simulation-engine.md) | F-006, F-008 | done |
-| F-010 | Maximum Sustainable Budget Optimization | [analysis-optimization](analysis-optimization.md) | F-009 | proposed |
+| F-010 | Maximum Sustainable Budget Optimization | [analysis-optimization](analysis-optimization.md) | F-009 | briefed |
 | F-011 | Return Search | [analysis-optimization](analysis-optimization.md) | F-010 | proposed |
 | F-012 | Annual Results CSV | [reporting-release](reporting-release.md) | F-009 | proposed |
 | F-013 | Sustainability and Lifestyle CSVs and End-to-End CLI | [reporting-release](reporting-release.md) | F-010, F-011, F-012 | proposed |
@@ -107,6 +107,7 @@ Unmapped requirements: **none**.
 
 ## Change Log
 
+- 2026-10-09 — F-010 briefed: design brief + tasks F-010.1…F-010.3; decision optimization §1 (per-path threshold bisection, bounds, £1 tolerance).
 - 2026-10-09 — F-009 done: `sbretire run` — random inputs drawn once (CRN), full Monte Carlo, Successful/Failed/Unresolved classification, conservative and completed-path rates with SEs, run_metadata.json; F-009.1–F-009.3 verified (322 tests). Simulation Engine epic complete.
 - 2026-10-09 — F-009 briefed: design brief + tasks F-009.1…F-009.3; decision simulation-conventions §7 (path classification, conservative denominator).
 - 2026-10-09 — F-008 done: monthly death probabilities, survival curves and inverse-CDF Death Month sampling from the mortality stream; deterministic fixture through the engine; F-008.1–F-008.3 verified (311 tests). Stochastic Inputs epic complete.

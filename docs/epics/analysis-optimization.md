@@ -1,11 +1,11 @@
 ---
 epic: analysis-optimization
 title: Analysis and Optimization
-status: proposed
+status: active
 spec_sections: [§1.2, §10.3, §11, §13, §14]
 depends_on: [simulation-engine]
 milestones:
-  - { id: F-010, title: Maximum Sustainable Budget Optimization, status: proposed }
+  - { id: F-010, title: Maximum Sustainable Budget Optimization, status: briefed }
   - { id: F-011, title: Return Search, status: proposed }
 created: 2026-10-09
 updated:
