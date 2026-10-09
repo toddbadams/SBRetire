@@ -18,6 +18,7 @@ from sbretire import __version__
 from sbretire.__main__ import main
 from sbretire.config import load_scenario
 from sbretire.inputs_report import scenario_input_rows, write_inputs_csv
+from sbretire.results_guide import GuideContext, write_results_guide
 from sbretire.metadata import config_sha256, file_sha256
 from sbretire.monte_carlo import draw_random_inputs, run_monte_carlo
 from sbretire.mortality import load_mortality_table
@@ -283,6 +284,7 @@ OUTPUT_FILES = (
     "sustainability_results.csv",
     "lifestyle_results.csv",
     "run_metadata.json",
+    "results_guide.md",
 )
 
 
@@ -334,6 +336,32 @@ def test_cli_run_prints_inputs_and_writes_csv(
     expected = write_inputs_csv(rows, tmp_path / "expected_inputs.csv")
     assert (out_dir / "inputs.csv").read_bytes() == expected.read_bytes()
     assert f"Wrote {out_dir / 'inputs.csv'}" in out
+
+
+def test_cli_run_writes_results_guide(
+    tmp_path: Path, valid_raw: dict[str, Any], capsys: pytest.CaptureFixture[str]
+) -> None:
+    config = _write(tmp_path / "guide", set_at(_absolute_data(valid_raw), "model.confidence_levels", [0.9]))
+    for name in ("first", "second"):
+        assert main(["run", "--config", str(config), "--output-dir", str(tmp_path / name)]) == 0
+    guide = tmp_path / "first" / "results_guide.md"
+    assert f"Wrote {guide}" in capsys.readouterr().out
+    assert guide.read_bytes() == (tmp_path / "second" / "results_guide.md").read_bytes()
+
+    scenario = load_scenario(config).scenario
+    seed = ResolvedSeed(7, "config")
+    inputs = draw_random_inputs(scenario, load_mortality_table(scenario.mortality.data_file), seed)
+    context = GuideContext(
+        config=config,
+        scenario=scenario,
+        seed=seed,
+        input_rows=scenario_input_rows(scenario, seed),
+        metrics=run_monte_carlo(scenario, inputs).metrics,
+        budgets=maximum_sustainable_budgets(path_budget_thresholds(scenario, inputs), [0.9]),
+        returns=required_returns(path_return_thresholds(scenario, inputs), [0.9]),
+    )
+    expected = write_results_guide(context, tmp_path / "expected.md")
+    assert guide.read_bytes() == expected.read_bytes()
 
 
 def test_cli_run_csvs_reproducible(tmp_path: Path, valid_raw: dict[str, Any]) -> None:
