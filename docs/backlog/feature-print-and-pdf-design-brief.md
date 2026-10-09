@@ -126,7 +126,10 @@ day, in which the viewer was printed to PDF with headless Edge before and after 
 **Acceptance criteria**
 - [ ] With Edge or Chrome present, the sample renders to single and compare PDFs whose every page is A4 portrait — `test_viewer_pdf_pages_are_a4`
 - [ ] Reviewed PDFs (single and compare) are black and white, have no heading stranded at a page foot, no card or table row split, the year tables complete, and header/footer present — `check: scripts/render_viewer_pdf.py and visual review`
-- [ ] README documents Save as PDF; viewer §3 records the decisions — `check: grep -n "Save as PDF" README.md docs/decisions/viewer.md`
+- [x] README documents Save as PDF; viewer §3 records the decisions — `check: grep -n "Save as PDF" README.md docs/decisions/viewer.md`
+
+**Notes**
+- 2026-10-09 `scripts/render_viewer_pdf.py` (find Edge/Chrome or `SBRETIRE_BROWSER`; stage runs + viewer in a temp folder; print single and compare with a fresh profile per attempt, 3 attempts; actionable error when nothing prints), slow test `test_viewer_pdf_pages_are_a4` (A4 MediaBox on every page; skips when no browser is installed or it cannot print headlessly), README "Save as PDF" paragraph, CHANGELOG, decision viewer §3. Full gate 424 passed, 1 skipped (the PDF test: Edge printed nothing because the user's Edge is open with a staged update). Waiting: render the sample PDFs once Edge can print headlessly, then the visual review.
 
 ## 11. Open Questions
 

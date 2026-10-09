@@ -47,3 +47,21 @@ next to `runs/` (overwriting older copies), so `<output-dir>/index.html` opened 
 **Why**: the user chose this over opening a page in the repo that reads `../output`, because it works with any
 `--output-dir` and from `file://` without a server, and the copied page always matches the installed version that
 wrote the data.
+
+## 3. Save as PDF uses the browser's print dialog, always black and white, A4, with nothing split
+
+The viewer's **Save as PDF** button sets the page title to `SBRetire <run> [vs <run>] <created date>` (the browser's
+default PDF file name) and calls `window.print()`; the household chooses "Save as PDF" in the dialog. Printing is
+always black and white: `theme.css` has a print-only token set in which every colour and chart token is a neutral
+grey (chroma 0), so page CSS stays token-only and charts stay readable through their dash patterns, hatching and
+markers. Pages are A4 portrait with `@page` margin boxes: "SBRetire results" top left, the run names top right and
+"Page X of Y" bottom right. Cards, figures and table rows never break; before printing, each section's heading block
+and intro are wrapped with its first card so a heading is never stranded at a page foot, and every fold is opened;
+everything is restored after printing. The 19-column year table prints as two tables of ten columns (the year in
+both). `scripts/render_viewer_pdf.py` renders the example sample with headless Edge or Chrome for review. (F-023)
+
+**Why**: the user asked for a button that makes a black-and-white PDF in which cards and tables do not cross pages.
+The browser's own print engine gives searchable vector text, needs no dependency and works offline; JavaScript PDF
+libraries rasterise the page, and a page cannot choose the PDF destination itself. Grey tokens rather than a
+greyscale filter keep the text sharp. An investigation on 2026-10-09 showed `break-after: avoid` alone did not keep
+headings with their content in Edge, and that 19 columns do not fit even landscape A4.

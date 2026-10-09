@@ -24,6 +24,9 @@ hashes are unchanged unless you switch them on.
 - **Results viewer:** named runs copy an offline HTML page into the output folder. Open `output/index.html` to pick
   or compare runs and see every result, chart and input. It uses the common SBRetire theme ("Paper", designed with
   Claude Design; light and dark) (F-022).
+- **Save as PDF:** a button on the viewer opens the print dialog for a black-and-white A4 document in which no
+  card, chart or table row is split and each heading stays with its content; the PDF is named after the runs
+  (F-023).
 
 ## [1.0.0] - 2026-10-09
 

@@ -268,6 +268,13 @@ output folder, next to `runs/`. Double-click **`output/index.html`** (no server,
 - see the portfolio fan chart, the survival curves and the year-by-year table, every input, and what each
   figure means.
 
+**Save as PDF** (top right) opens the browser's print dialog. Choose "Save as PDF" (or "Microsoft Print to PDF")
+as the printer; the suggested file name is the run name and date. The PDF is black and white on A4: each section's
+heading stays with its first card, no card, chart or table row is split across pages, the year-by-year table prints
+as two tables that fit the page, and every page carries the run name and "Page X of Y". Printing from the browser
+menu gives the same result. To review the layout without clicking, `uv run python scripts/render_viewer_pdf.py`
+prints the example sample with headless Edge or Chrome into `output/pdf-check/`.
+
 The page reads only `runs/runs.js` and sends nothing anywhere. Its look comes from the common SBRetire theme
 (`src/sbretire/web/theme.css`, `docs/decisions/viewer.md` §1); "Theme" at the top switches between auto, light and
 dark.
