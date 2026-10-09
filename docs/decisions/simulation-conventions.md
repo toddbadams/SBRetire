@@ -37,3 +37,10 @@ One `numpy.random.SeedSequence(seed)` roots all randomness. Each stochastic comp
 Simulated year k covers months 12k to 12k + 12, starting in the As-Of month. One annual rate π_k is drawn per Path for year k and applied to each of its twelve monthly steps: I_0 = 1 and, for 12k ≤ t ≤ 12(k + 1), I_t = I_{12k} · (1 + π_k)^((t − 12k)/12), so at anniversaries I_{12k} = ∏_{j<k}(1 + π_j), SPEC §6's I_y. The deterministic preview uses the same index with every π equal to the median rate e^μ − 1. (F-006)
 
 **Why**: SPEC §6 says to apply the annual rate "to each of the twelve monthly steps in that year"; prices rising through the year avoids the provisional §3 step's zero inflation for the first eleven months (≈ half a year of inflation understated on average). Years anchored on the As-Of month keep "today's GBP" at I_0 = 1 with no partial first year; calendar-year reporting (F-012) reads I_t at any month. Calendar-year (January) rate boundaries were rejected as giving a short, partial first year.
+
+## 6. Death Months are sampled by inverse CDF from each person's monthly survival curve
+
+For each person, monthly death probabilities q_m = 1 − (1 − q)^(1/12) (q = the cohort rate for their age in completed years from the birth month, data-and-calibration §1) give a survival curve S_0 = 1, S_{t+1} = S_t (1 − q_m,t) over months 0 … H − 1, identical on every Path. One uniform u per person per Path (`rng.random((2, n_paths))` from the mortality Random Stream, person-major) gives the Death Month d = min(searchsorted(1 − S[1:], u, right) + 1, H): a death in month t gives d = t + 1 (§2), and d = H means alive through the horizon (censored). The two people are independent. (F-008)
+
+**Why**: statistically identical to SPEC §7.2's month-by-month conditional draws, but vectorised and needing 2 · n_paths draws instead of one per person, path and month (144M for 100k paths over 60 years). Because each death uses a single uniform, lengthening the horizon never changes deaths inside the shorter one, which keeps Common Random Numbers stable across runs and candidates. Per-month Bernoulli draws were rejected for cost and memory with no difference in distribution.
+

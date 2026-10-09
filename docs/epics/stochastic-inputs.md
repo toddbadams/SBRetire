@@ -7,7 +7,7 @@ depends_on: [foundations, household-cash-flows]
 milestones:
   - { id: F-006, title: Stochastic Inflation Process and CPI Calibration, status: done }
   - { id: F-007, title: ONS Mortality Data Ingest and Mapping, status: done }
-  - { id: F-008, title: Monthly Mortality Sampling, status: proposed }
+  - { id: F-008, title: Monthly Mortality Sampling, status: briefed }
 created: 2026-10-09
 updated:
   - 2026-10-09: created by /decompose-spec

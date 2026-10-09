@@ -1,6 +1,6 @@
 # SBRetire V1 Roadmap
 
-**Last updated**: 2026-10-09 — F-006 done.
+**Last updated**: 2026-10-09 — F-008 briefed.
 
 Features in build order. Status: `proposed` → `briefed` → `in-progress` → `done` (or `superseded`). Briefs live in `docs/backlog/`; tasks are inside each brief.
 
@@ -14,7 +14,7 @@ Features in build order. Status: `proposed` → `briefed` → `in-progress` → 
 | F-005 | Random Streams and Run Metadata | [foundations](foundations.md) | F-001 | done |
 | F-006 | Stochastic Inflation Process and CPI Calibration | [stochastic-inputs](stochastic-inputs.md) | F-003, F-004, F-005 | done |
 | F-007 | ONS Mortality Data Ingest and Mapping | [stochastic-inputs](stochastic-inputs.md) | F-001 | done |
-| F-008 | Monthly Mortality Sampling | [stochastic-inputs](stochastic-inputs.md) | F-002, F-005, F-007 | proposed |
+| F-008 | Monthly Mortality Sampling | [stochastic-inputs](stochastic-inputs.md) | F-002, F-005, F-007 | briefed |
 | F-009 | Monte Carlo Path Outcomes, Censoring and Success Metrics | [simulation-engine](simulation-engine.md) | F-006, F-008 | proposed |
 | F-010 | Maximum Sustainable Budget Optimization | [analysis-optimization](analysis-optimization.md) | F-009 | proposed |
 | F-011 | Return Search | [analysis-optimization](analysis-optimization.md) | F-010 | proposed |
@@ -107,6 +107,7 @@ Unmapped requirements: **none**.
 
 ## Change Log
 
+- 2026-10-09 — F-008 briefed: design brief + tasks F-008.1…F-008.3; decision simulation-conventions §6 (inverse-CDF death-month sampling).
 - 2026-10-09 — F-006 done: `data/uk_cpi.csv` from ONS D7G7 (checked against D7BT), AR(1) lognormal inflation calibrated 1989–2025 (μ 0.0277, φ 0.618, σ 0.0154), monthly-compounding `StochasticPriceIndex`, new `inflation:` config schema, preview at the median rate; F-006.1–F-006.4 verified (299 tests).
 - 2026-10-09 — F-006 briefed: design brief + tasks F-006.1…F-006.4; ONS CPI D7G7/D7BT downloaded to `data/raw/`; decisions data-and-calibration §2 (AR(1) lognormal, CPI calibration) and §3 (no non-CPI indexing), simulation-conventions §5 (monthly compounding; supersedes §3).
 - 2026-10-09 — F-007 done: `data/ons_mortality.csv` built from ONS `ukppp24qx.xlsx` (29,088 cohort rows), `mortality.py` loader/lookup with age-100 tail, coverage checks in `validate --require-data-files`; F-007.1–F-007.3 verified (264 tests).
