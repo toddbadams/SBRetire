@@ -182,18 +182,21 @@ inflation = child 1 (§2 #1–#3). Tests in `tests/unit/test_randomness.py`; the
 - 2026-10-09 Added `src/sbretire/randomness.py` (`resolve_seed`, `ResolvedSeed`, `RandomStreams.from_seed`; mortality child 0, inflation child 1 via `SeedSequence(seed, spawn_key=(k,))`, identical to `SeedSequence(seed).spawn(2)[k]`); tests `tests/unit/test_randomness.py` (8) and `test_config_accepts_128_bit_random_seed`. Known answers computed with NumPy 2.5.3.
 
 ### F-005.2 Config Hash and file hash
-- **Status**: To Do
+- **Status**: Verification
 - **Depends on**: —
 
 Add `config_sha256` and `file_sha256` to `src/sbretire/metadata.py` per §2 #4 and §5. Tests in
 `tests/unit/test_metadata.py`.
 
 **Acceptance criteria**
-- [ ] Reordered keys, added comments and reformatted YAML give the same Config Hash — `test_config_sha256_ignores_formatting`
-- [ ] Changing any one value (balance, a seed, an income amount, a person's date of birth) changes the hash — `test_config_sha256_changes_with_values`
-- [ ] The same config loaded from two directories (different absolute `data_file`) hashes identically — `test_config_sha256_ignores_data_file_location`
-- [ ] Unknown keys dropped in warn mode do not change the hash — `test_config_sha256_ignores_dropped_unknown_keys`
-- [ ] `file_sha256` equals `hashlib.sha256` of known bytes and is 64 lowercase hex chars; a missing file raises `FileNotFoundError` naming the path — `test_file_sha256_known_answer_and_missing_file`
+- [x] Reordered keys, added comments and reformatted YAML give the same Config Hash — `test_config_sha256_ignores_formatting`
+- [x] Changing any one value (balance, a seed, an income amount, a person's date of birth) changes the hash — `test_config_sha256_changes_with_values`
+- [x] The same config loaded from two directories (different absolute `data_file`) hashes identically — `test_config_sha256_ignores_data_file_location`
+- [x] Unknown keys dropped in warn mode do not change the hash — `test_config_sha256_ignores_dropped_unknown_keys`
+- [x] `file_sha256` equals `hashlib.sha256` of known bytes and is 64 lowercase hex chars; a missing file raises `FileNotFoundError` naming the path — `test_file_sha256_known_answer_and_missing_file`
+
+**Notes**
+- 2026-10-09 Added `config_sha256` (pydantic `model_dump(mode="json")` excluding `mortality.data_file`, sorted-key compact ASCII JSON) and streaming `file_sha256` to `src/sbretire/metadata.py`; tests in `tests/unit/test_metadata.py` (10: comments/sort/flow-style YAML, six value changes incl. seed → null, two directories, warn-mode extras, known-answer + empty-file + missing file).
 
 ### F-005.3 RunMetadata and run_metadata.json
 - **Status**: To Do
