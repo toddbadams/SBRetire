@@ -21,6 +21,7 @@ output/
 # Personal scenario — keep real inputs out of git; commit model.example.yaml instead
 config/model.yaml
 config/*.local.yaml
+config/model-*.yaml
 
 # Editors / OS
 .vscode/*
