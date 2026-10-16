@@ -12,8 +12,8 @@ model:
   unknown_keys: error             # error | warn — unknown keys are rejected or reported as warnings
 
 portfolio:
-  starting_balance: 1500000
-  annual_return: 0.05
+  starting_balance: 1000000
+  annual_return: 0.04
 
 budget:
   monthly_amount_today: 6667
@@ -42,7 +42,7 @@ mortality:
 people:
   - id: person_1
     name: Person 1
-    date_of_birth: "1960-09-14"
+    date_of_birth: "1960-01-14"
     sex: male
     survivor_budget_factor: 0.70
 
@@ -53,18 +53,18 @@ people:
     survivor_budget_factor: 0.70
 
 income:
-  - id: social_security
-    name: Social Security
+  - id: state_pension_1
+    name: UK State Pension
     start_date: "2027-09-01"
-    annual_amount_today: 20000
+    annual_amount_today: 10000
     inflation_linked: true
     survivor_percentage: 1.0
     recipient: person_1
 
-  - id: state_pension
+  - id: state_pension_2
     name: UK State Pension
     start_date: "2028-09-01"
-    annual_amount_today: 20000
+    annual_amount_today: 10000
     inflation_linked: true
     survivor_percentage: 1.0
     recipient: person_2
@@ -72,7 +72,7 @@ income:
   - id: nhs_pension
     name: NHS Pension
     start_date: "2029-01-01"
-    annual_amount_today: 31000
+    annual_amount_today: 30000
     inflation_linked: true
     survivor_percentage: 0.50
     recipient: person_2
