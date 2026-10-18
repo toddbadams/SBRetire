@@ -191,15 +191,18 @@ Coverage (full, short, gaps, missing, with value shares from the valuation), `re
 2026-10-18 ledger/returns.py (CoverageRow, ReturnsReport, build_returns: value shares of invested (non-cash) value, full/short/gaps/missing, USD rate from --usd-gbp or the FX file's latest month-end, a missing securities.yaml reports every holding missing; write_returns_csv, write_returns_metadata, format_returns), `sbretire portfolio returns` in __main__.py; tests/unit/test_returns_coverage.py (3). Real holdings with no price files yet: 36 holdings listed missing, exit 0.
 
 ### F-026.4 Docs and a local run
-- **Status**: To Do
+- **Status**: Verification
 - **Depends on**: F-026.3
 
 README section (getting Yahoo files, `securities.yaml`, the command), THESAURUS (Price Series, Monthly Return),
 `docs/decisions/portfolio-data.md` §11–§14; run on the real holdings.
 
 **Acceptance criteria**
-- [ ] README documents the price files, `securities.yaml` and `portfolio returns`; THESAURUS defines Price Series and Monthly Return in alphabetical order; decisions recorded — `check: grep -n "portfolio returns" README.md docs/decisions/portfolio-data.md`
-- [ ] On the real holdings the command runs and reports coverage (every holding missing until price files are supplied), exit 0 (run locally; never committed) — `check: uv run sbretire portfolio returns`
+- [x] README documents the price files, `securities.yaml` and `portfolio returns`; THESAURUS defines Price Series and Monthly Return in alphabetical order; decisions recorded — `check: grep -n "portfolio returns" README.md docs/decisions/portfolio-data.md`
+- [x] On the real holdings the command runs and reports coverage (every holding missing until price files are supplied), exit 0 (run locally; never committed) — `check: uv run sbretire portfolio returns`
+
+**Notes**
+2026-10-18 README 'Price history and monthly returns' (Yahoo downloads, GBP=X, securities.yaml, coverage), THESAURUS (Monthly Return, Price Series; 40 terms, sorted), docs/decisions/portfolio-data.md §11–§14. Real holdings run (`--usd-gbp 0.7503`, no price files yet): every holding listed missing with its share, exit 0.
 
 ## 11. Open Questions
 

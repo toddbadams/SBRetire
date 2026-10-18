@@ -141,10 +141,22 @@ suffix, bare unqualified `Service`, `confidence interval` (for success probabili
 - **Definition**: sqrt(p(1−p)/N) for a reported proportion, with its denominator stated (SPEC §11).
 - **Related terms**: Conservative Success Rate
 
+### Monthly Return
+- **Definition**: A Price Series' total return in GBP for one calendar month: `(P_t + D_t) × X_t / (P_{t-1} × X_{t-1}) − 1` from month-end prices `P` (pounds; GBX ÷ 100), dividends `D` paid in the month and the GBP rate `X` of the quote currency (portfolio-data §12). Unknown when either month has no price.
+- **NOT**: The model's fixed `portfolio.annual_return`, or a forecast.
+- **Synonyms to AVOID**: performance (too broad), yield
+- **Related terms**: Price Series, Holding
+
 ### Path
 - **Definition**: One simulated household future: a mortality outcome per person plus an inflation path, stepped monthly.
 - **Synonyms to AVOID**: scenario (a scenario is a *config*), trial, run (a run is one invocation over N paths)
 - **Related terms**: Completed Path, Censored Path
+
+### Price Series
+- **Definition**: One security's price history from a user-supplied file in `data/prices/`, listed in `data/prices/securities.yaml` with its quote currency and the Holdings it prices (portfolio-data §11). One series can price the same security held in several Accounts.
+- **NOT**: A Holding (a position at one date), or the model's Inflation Index.
+- **Synonyms to AVOID**: ticker (the series may have none), feed
+- **Related terms**: Monthly Return, Holding
 
 ### Probability Not Depleted Yet
 - **Definition**: Per reporting year, the share of all paths that have not experienced *Depletion* by that date (SPEC §12).

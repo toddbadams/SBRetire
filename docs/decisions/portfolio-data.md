@@ -120,3 +120,50 @@ valued, 1 unreadable, 2 invalid. (F-025)
 
 **Why**: `config/model.yaml` is the user's file (epic scope: no automatic edits); a pasted line keeps every change
 to the scenario deliberate and visible.
+
+## 11. Prices come from files the household downloads; one map ties them to holdings
+
+Price files live in `data/prices/` (git-ignored) and are only read. A Yahoo Finance "Historical data" download is
+used as it is (`Date,Open,High,Low,Close,Adj Close,Volume`, daily or monthly); any other file needs `Date,Close`
+with an optional `Dividend` column. Rows without a usable price (`null`, empty) are skipped.
+`data/prices/securities.yaml` (example `config/securities.example.yaml`) gives `fx: {USD: <file of GBP per USD>}`
+and one entry per series: `id`, `name`, `file`, `quote` (`GBP`, `GBX`, `USD`) and `holdings`
+(`<account>:<security key>`, one or more). Unknown keys, duplicate ids and a holding priced by two series are
+errors with their YAML location (exit 2). A missing map is treated as empty, so every holding is reported
+missing. (F-026)
+
+**Why**: runs stay offline (SPEC §2); Yahoo covers the US stocks and London ETFs for free, and the user chose its
+layout (2026-10-18); one series per security avoids pricing the same ETF twice when two accounts hold it.
+
+## 12. A month's return is the total return in GBP from month-end prices
+
+The last row in each calendar month is its value. A series' return for month t is
+`(P_t + D_t) × X_t / (P_{t-1} × X_{t-1}) − 1`: `P` the price in pounds (GBX ÷ 100) or dollars, `D` the dividends
+paid in month t, `X` GBP per unit of the quote currency at month-end (1 for GBP and GBX; the FX file for USD).
+The basis is `adjusted` when the file has `Adj Close` (dividends already reinvested; `D` = 0), `dividends` when
+it has a `Dividend` column, else `price`, which is reported because it may understate income units. A month
+without a price (or, for USD, a rate) has no value, and the returns into and out of it are unknown. (F-026)
+
+**Why**: income units must include their distributions (epic risk) and USD holdings' GBP returns include the
+currency move; one formula covers daily and monthly files from every source.
+
+## 13. The window is the last 60 complete months before the newest export folder
+
+`--months N` (default 60) monthly returns end with the month before the newest `<mon>-<yy>` folder's month:
+`oct-26` gives October 2021 to September 2026, using the September 2021 price for the first. (F-026)
+
+**Why**: "five years monthly" (epic); ending before the export month avoids a half-finished month.
+
+## 14. Coverage is reported, never enforced, with each gap's share of the invested value
+
+Each series is **full** (a return every month), **short** (history starts later; first month shown), **gaps**
+(months missing inside its history) or **missing** (no price file, no prices in the window, or USD with no FX
+file); each holding in no series is **missing** too. Each line shows its share of the newest holdings' invested
+(non-cash) GBP value, with USD at `--usd-gbp` or the FX file's latest month-end. Missing prices never stop
+`sbretire portfolio returns` (exit 0). `output/portfolio/returns.csv` (UTF-8, LF: `month`, `series`, `value_gbp`, `dividend_gbp`,
+`return_gbp`, `basis`) and `returns_metadata.json` (window, USD rate used, and each file's SHA-256, first and last
+date, rows and basis) are written. (F-026)
+
+**Why**: the household adds price files a few at a time (user, 2026-10-18); showing what share of the money each
+gap affects says which files matter most, and the hashes make later analyses reproducible (SPEC §10.3).
+

@@ -474,6 +474,41 @@ portfolio:
   currency, the rate used and the GBP value. Exit 0: valued; 1: a file cannot be read; 2: a missing export, a
   missing `--usd-gbp`, or totals that do not add up.
 
+### Price history and monthly returns
+
+Performance and the efficient frontier need each holding's price history, which you download yourself (runs never
+go online):
+
+1. For each security, download its history into `data/prices/` (git-ignored). Yahoo Finance → the security →
+   **Historical data** → frequency **Monthly** (or daily) → **Download** gives `Date,Open,High,Low,Close,Adj Close,
+   Volume`; its `Adj Close` already includes dividends. London listings end in `.L` (often priced in pence, GBX).
+   Download **GBP=X** as well: pounds per US dollar. For a fund Yahoo does not cover (Vanguard's own funds),
+   type a file with `Date,Close` and, for income units, a `Dividend` column (cash per unit paid on that date).
+2. Copy `config/securities.example.yaml` to `data/prices/securities.yaml` and list one series per security:
+   `id`, `name`, `file`, `quote` (`GBP`, `GBX` or `USD`) and `holdings` as `<account id>:<security key>`. The
+   keys are the `account` and `security_key` columns of `output/portfolio/holdings.csv`; one series can price
+   the same ETF in several accounts.
+3. Run:
+
+```bash
+uv run sbretire portfolio returns
+```
+
+It works out the last `--months` (default 60) monthly total returns in GBP, ending with the month before the
+newest export folder (`oct-26` → October 2021 to September 2026), and prints a coverage report:
+
+- **full**: a return for every month; **short**: history starts later (its first month is shown);
+  **gaps**: months missing inside the history; **missing**: no price file, or the holding is in no series.
+- **share**: each line's share of the invested (non-cash) value of the newest holdings, so you can see what the
+  gaps affect. USD converts at the GBP=X file's latest month-end, or `--usd-gbp`.
+- **basis**: `adjusted` (Adj Close), `dividends` (Close plus the Dividend column) or `price` (Close only: may
+  understate the return of income units).
+
+Missing files never stop it (exit 0); add them a few at a time. It writes `output/portfolio/returns.csv`
+(`month`, `series`, `value_gbp`, `dividend_gbp`, `return_gbp`, `basis`) and `returns_metadata.json` (the window
+and each price file's SHA-256 and dates). Exit 2: an invalid `securities.yaml` (with the YAML location) or a
+price file without a `Date` and `Close`/`Adj Close` column.
+
 ## Development
 
 **VS Code:** open the `C:\sb\SBRetire` folder and accept the recommended extensions (Python, Ruff, Mypy). The
