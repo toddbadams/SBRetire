@@ -1,0 +1,5 @@
+Valuation Date,Account Number,Product Wrapper,Investment Name,Asset Sector,Quantity,Original Cost (GBP),Current Price (GBP),Current Value (GBP),Gain/Loss (GBP),% of Total Portfolio
+2026-10-17,VG0000001,Personal Pension,GBP Cash,Cash,1000.03,1000.03,1.00,1000.03,0.00,3.83
+2026-10-17,VG0000001,Personal Pension,Example Target 2035 Fund - Accumulation,UK Equities,17.5454,4000.00,240.00,4210.90,210.90,16.13
+2026-10-17,VG0000001,Stocks & Shares ISA,GBP Cash,Cash,0.00,0.00,1.00,0.00,0.00,0.00
+2026-10-17,VG0000001,Stocks & Shares ISA,Example Strategy® 60% Fund - Accumulation,Unclassified,80.0000,20000.00,260.00,20800.00,800.00,79.67

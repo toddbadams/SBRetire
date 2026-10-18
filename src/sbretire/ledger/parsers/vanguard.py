@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Final
 
 from sbretire.ledger.accounts import AccountConfig
+from sbretire.ledger.holdings import Holding, HoldingsError, HoldingsExport
 from sbretire.ledger.model import Flow, LedgerRow, TransactionType, UnknownTransaction
 from sbretire.ledger.parsers._common import csv_rows, day, money, read_text
 
@@ -68,3 +69,7 @@ def parse(path: Path, account: AccountConfig) -> list[LedgerRow]:
             )
         )
     return rows
+
+
+def parse_holdings(path: Path, account: AccountConfig) -> HoldingsExport:
+    raise NotImplementedError

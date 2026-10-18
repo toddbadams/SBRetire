@@ -8,10 +8,12 @@ what a row is (§5 of the F-024 brief).
 from __future__ import annotations
 
 import re
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Final
 
 from sbretire.ledger.accounts import AccountConfig
+from sbretire.ledger.holdings import Holding, HoldingsError, HoldingsExport
 from sbretire.ledger.model import Flow, LedgerRow, TransactionType, UnknownTransaction
 from sbretire.ledger.parsers._common import csv_rows, day, money, read_text
 
@@ -72,3 +74,11 @@ def parse(path: Path, account: AccountConfig) -> list[LedgerRow]:
             )
         )
     return rows
+
+
+def parse_holdings(path: Path, account: AccountConfig) -> HoldingsExport:
+    raise NotImplementedError
+
+
+def cash_from_transactions(rows: Sequence[LedgerRow], account: AccountConfig, path: Path | None = None) -> Holding:
+    raise NotImplementedError

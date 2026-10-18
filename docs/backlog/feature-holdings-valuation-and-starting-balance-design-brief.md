@@ -175,7 +175,7 @@ value checks, footer rate). §2 #4–#8.
 2026-10-18 ledger/holdings.py (Holding, HOLDING_COLUMNS, HoldingsExport, HoldingsError), AccountConfig.holdings_filter, parsers/schwab.py::parse_holdings (title date, cash line, Positions Total check), parsers/hl.py::parse_holdings (created-at date, Total cash, pence, Stock value / Totals row / Total value checks, footer rate); tests/unit/test_holdings_schwab_hl.py (2). Real Schwab and HL exports parse and pass every check.
 
 ### F-025.2 Vanguard and ii holdings
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-025.1
 
 `parsers/vanguard.py::parse_holdings` (`holdings_filter` on `Product Wrapper`, GBP Cash rows),
