@@ -160,7 +160,7 @@ def coverage(...) -> Coverage: ...  # full / short / gaps / missing, with GBP va
 2026-10-18 ledger/prices.py (SeriesConfig, SecuritiesConfig, load_securities with duplicate-id and mapped-twice checks, PriceFile/MonthEnd, read_price_file: Adj Close / Close+Dividend / Close, last row per month, null rows skipped, SHA-256), config/securities.example.yaml, tests/fixtures/prices/ (3 files); tests/unit/test_prices_files.py (2).
 
 ### F-026.2 Monthly GBP total returns
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-026.1
 
 `ledger/returns.py`: `window`, `gbp_returns` (§2 #4–#6).
