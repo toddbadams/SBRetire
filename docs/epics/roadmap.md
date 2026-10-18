@@ -25,7 +25,7 @@ Features in build order. Status: `proposed` → `briefed` → `in-progress` → 
 | F-027 | Performance and Drawdown Report | [portfolio-analysis](portfolio-analysis.md) | F-025, F-026 | done |
 | F-028 | Sector and Region Look-Through | [portfolio-analysis](portfolio-analysis.md) | F-025 | done |
 | F-029 | Sharpe Efficient Frontier and Re-Weighting Analysis | [portfolio-analysis](portfolio-analysis.md) | F-026, F-027 | done |
-| F-030 | Portfolio Page in the Viewer | [portfolio-analysis](portfolio-analysis.md) | F-025, F-027, F-028, F-029 | proposed |
+| F-030 | Portfolio Page in the Viewer | [portfolio-analysis](portfolio-analysis.md) | F-025, F-027, F-028, F-029 | briefed |
 | F-031 | Account Returns from the Ledger | [portfolio-analysis](portfolio-analysis.md) | F-024, F-025, F-026 | proposed |
 | F-005 | Random Streams and Run Metadata | [foundations](foundations.md) | F-001 | done |
 | F-006 | Stochastic Inflation Process and CPI Calibration | [stochastic-inputs](stochastic-inputs.md) | F-003, F-004, F-005 | done |
@@ -122,6 +122,7 @@ Features in build order. Status: `proposed` → `briefed` → `in-progress` → 
 Unmapped requirements: **none**.
 
 ## Change Log
+- 2026-10-18 — F-030 briefed: tasks F-030.1…F-030.4 (extras: drawdown episodes, calendar, correlation, risk contribution, income and fees; `portfolio.json` 1.0 and `sbretire portfolio report`; the Portfolio page in the Paper theme; design sample, links, docs).
 - 2026-10-18 — F-029 done: `sbretire portfolio frontier` estimates the priced sleeve (Ledoit–Wolf), draws the capped long-only frontier, shows today, minimum-variance, max-Sharpe and same-risk target mixes, household (analysis only) and within-account trades with per-account costs, and the half-window turnover; `frontier.csv`, `frontier_weights.csv`, `trades.csv`; decisions portfolio-data §21–§24.
 - 2026-10-18 — F-029 briefed: tasks F-029.1…F-029.5 (Ledoit–Wolf estimates over the priced sleeve, capped long-only frontier, max-Sharpe and same-risk target, household and within-account trades with per-account costs, half-window sensitivity, `sbretire portfolio frontier`).
 - 2026-10-18 — F-028 done: `sbretire portfolio exposure` looks through funds (YAML factsheets in `data/factsheets/`) and stocks (`sector`/`region` in `securities.yaml`) to asset class, GICS sector, region, currency and the top 15 underlying holdings, with Cash and Unclassified lines; `exposure.csv`; decisions portfolio-data §18–§20.
