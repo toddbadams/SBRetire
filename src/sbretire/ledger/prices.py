@@ -55,6 +55,8 @@ class SeriesConfig(BaseModel):
     quote: Quote
     """Currency the file's prices are in: GBP, GBX (pence) or USD."""
     holdings: Annotated[tuple[HoldingRef, ...], Field(min_length=1)]
+    ledger_names: tuple[Text, ...] = ()
+    """Ledger ``security_key`` names this series prices where automatic matching fails (F-031)."""
     factsheet: Text | None = None
     """A fund's factsheet file in the factsheets folder (F-028)."""
     sector: Annotated[str, BeforeValidator(_named("sector"))] | None = None

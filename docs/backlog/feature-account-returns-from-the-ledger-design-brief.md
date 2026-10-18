@@ -142,13 +142,16 @@ class AccountReturn:
 ## 10. Tasks
 
 ### F-031.1 Matching ledger securities to price series
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: —
 
 `normalise_name`, `match_securities`, `SeriesConfig.ledger_names`. §2 #1.
 
 **Acceptance criteria**
-- [ ] A Schwab symbol matches by key; an HL name with a different share-class tail matches by normalised name; a Vanguard ledger name differing from a truncated holdings name matches through `ledger_names`; a sold-out security matches through `ledger_names` without a holding; an unknown one is listed as unmatched — `test_match_securities`
+- [x] A Schwab symbol matches by key; an HL name with a different share-class tail matches by normalised name; a Vanguard ledger name differing from a truncated holdings name matches through `ledger_names`; a sold-out security matches through `ledger_names` without a holding; an unknown one is listed as unmatched — `test_match_securities`
+
+**Notes**
+2026-10-18 SeriesConfig.ledger_names; ledger/account_returns.py normalise_name (trailing share-class words and single letters dropped), match_securities (ledger_names in the series' accounts → key → normalised name of holding name or key); tests/unit/test_account_returns_match.py.
 
 ### F-031.2 Month-end values rebuilt backwards
 - **Status**: To Do
