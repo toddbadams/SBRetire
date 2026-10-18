@@ -158,13 +158,16 @@ def look_through(
 2026-10-18 ledger/taxonomy.py (fixed names, aliases, canonical, region_currency) — the taxonomy sits in its own module so prices.py can validate stock fields without importing exposure.py; SeriesConfig gains factsheet, sector, region, asset_class, currency; ledger/exposure.py Factsheet and load_factsheet (fractions or percentages, rescaled, aliases merged, currencies derived from regions); tests/unit/test_exposure_factsheets.py (2).
 
 ### F-028.2 Look-through
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-028.1
 
 `look_through` (§2 #4–#9).
 
 **Acceptance criteria**
-- [ ] For a £60 fund (60% equity / 40% bond, with sectors, regions and top holdings), a £30 stock (Information Technology, North America), £10 GBP cash and a £20 holding in no series, every table adds to £120 with hand-checked lines, including Unclassified and Cash; currencies are derived from regions for the fund and flagged; a holding named in two funds' top holdings adds up under one name — `test_look_through_known_answers`
+- [x] For a £60 fund (60% equity / 40% bond, with sectors, regions and top holdings), a £30 stock (Information Technology, North America), £10 GBP cash and a £20 holding in no series, every table adds to £120 with hand-checked lines, including Unclassified and Cash; currencies are derived from regions for the fund and flagged; a holding named in two funds' top holdings adds up under one name — `test_look_through_known_answers`
+
+**Notes**
+2026-10-18 ledger/exposure.py Exposure, look_through (funds by factsheet weights, stocks by series fields, cash by currency, Unclassified for unknowns and missing dimensions, region-derived currencies counted, top holdings merged by name ignoring case and punctuation); tests/unit/test_exposure_look_through.py (typing tidied: no ignores).
 
 ### F-028.3 `sbretire portfolio exposure`
 - **Status**: To Do

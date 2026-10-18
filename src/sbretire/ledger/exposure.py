@@ -16,6 +16,7 @@ from pydantic import BaseModel, BeforeValidator, ConfigDict, Field, ValidationEr
 
 from sbretire._yaml import YamlLoadError, load_yaml
 from sbretire.config import ScenarioError, ScenarioIssue, _format_location, _issue, _text
+from sbretire.ledger.prices import SecuritiesConfig
 from sbretire.ledger.taxonomy import NAMES, Dimension, canonical, region_currency
 
 Weight = Annotated[float, Field(ge=0.0)]
@@ -123,5 +124,103 @@ def load_factsheet(path: Path) -> Factsheet:
     return Factsheet(path, parsed.as_of, parsed.source, weights, derived, top)
 
 
-def look_through(*args: object) -> object:
-    raise NotImplementedError
+UNCLASSIFIED: Final = "Unclassified"
+CASH: Final = "Cash"
+DIMENSIONS: Final[tuple[Dimension, ...]] = ("asset_class", "sector", "region", "currency")
+TOP_HOLDINGS: Final = 15
+
+
+@dataclass(frozen=True)
+class Exposure:
+    """GBP by label per dimension (every table adds to ``total_gbp``) and the largest underlying holdings."""
+
+    tables: dict[Dimension, dict[str, float]]
+    top_holdings: list[tuple[str, float]]
+    """(name, GBP), largest first; funds disclose only their largest holdings."""
+    total_gbp: float
+    approximated_currency_gbp: float
+    """Value whose currency came from its region rather than a stated currency (§19)."""
+    warnings: list[str] = field(default_factory=list)
+
+
+def _holding_key(name: str) -> str:
+    return " ".join("".join(c if c.isalnum() else " " for c in name.lower()).split())
+
+
+def look_through(
+    values: Mapping[str, float],
+    cash: Mapping[str, float],
+    securities: SecuritiesConfig,
+    factsheets: Mapping[str, Factsheet],
+) -> Exposure:
+    """Today's household value by asset class, sector, region and currency, looking through funds (§18–§20).
+
+    ``values`` maps ``<account>:<security key>`` to today's GBP value; ``cash`` maps a currency to cash in
+    GBP; ``factsheets`` maps a series id to its loaded factsheet. Anything unknown is counted as Unclassified.
+    """
+    tables: dict[Dimension, dict[str, float]] = {dimension: {} for dimension in DIMENSIONS}
+    names: dict[str, str] = {}  # holding key -> the first name seen
+    amounts: dict[str, float] = {}
+    approximated = 0.0
+    warnings: list[str] = []
+
+    def add(dimension: Dimension, label: str, amount: float) -> None:
+        tables[dimension][label] = tables[dimension].get(label, 0.0) + amount
+
+    def unclassified(amount: float, dimensions: tuple[Dimension, ...] = DIMENSIONS) -> None:
+        for dimension in dimensions:
+            add(dimension, UNCLASSIFIED, amount)
+
+    def holding(name: str, amount: float) -> None:
+        key = _holding_key(name)
+        names.setdefault(key, name)
+        amounts[key] = amounts.get(key, 0.0) + amount
+
+    mapped: set[str] = set()
+    for series in securities.securities:
+        mapped.update(series.holdings)
+        value = sum(values.get(ref, 0.0) for ref in series.holdings)
+        if value == 0.0:
+            continue
+        if series.factsheet is not None:
+            sheet = factsheets.get(series.id)
+            if sheet is None:
+                warnings.append(f"series {series.id}: factsheet {series.factsheet} not found")
+                unclassified(value)
+                continue
+            for dimension in DIMENSIONS:
+                if dimension in sheet.weights:
+                    for label, weight in sheet.weights[dimension].items():
+                        add(dimension, label, value * weight)
+                else:
+                    unclassified(value, (dimension,))
+            if sheet.currency_derived:
+                approximated += value
+            for name, weight in sheet.top_holdings.items():
+                holding(name, value * weight)
+        elif series.sector is not None or series.region is not None:
+            add("asset_class", series.asset_class or "equity", value)
+            add("sector", series.sector or UNCLASSIFIED, value)
+            add("region", series.region or UNCLASSIFIED, value)
+            if series.currency is not None:
+                add("currency", series.currency, value)
+            elif series.region is not None:
+                add("currency", region_currency(series.region), value)
+                approximated += value
+            else:
+                unclassified(value, ("currency",))
+            holding(series.name, value)
+        else:
+            unclassified(value)
+    for ref, value in values.items():
+        if ref not in mapped:
+            unclassified(value)
+    for currency, value in cash.items():
+        add("asset_class", "cash", value)
+        add("sector", CASH, value)
+        add("region", CASH, value)
+        add("currency", currency if currency in NAMES["currency"] else "Other", value)
+
+    top = sorted(((names[key], amount) for key, amount in amounts.items()), key=lambda item: -item[1])
+    total = sum(values.values()) + sum(cash.values())
+    return Exposure(tables, top[:TOP_HOLDINGS], total, approximated, warnings)

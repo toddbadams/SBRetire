@@ -9,6 +9,7 @@ import pytest
 
 from sbretire.ledger.exposure import Factsheet, look_through
 from sbretire.ledger.prices import SecuritiesConfig
+from sbretire.ledger.taxonomy import Dimension
 
 SECURITIES = SecuritiesConfig.model_validate(
     {
@@ -50,7 +51,7 @@ def test_look_through_known_answers() -> None:
     values = {"x:CORP": 30.0, "y:BAL": 40.0, "y:TECH": 20.0, "z:MYSTERY": 20.0}  # MYSTERY is in no series
     exposure = look_through(values, {"GBP": 10.0}, SECURITIES, FACTSHEETS)
     assert exposure.total_gbp == pytest.approx(120.0)
-    expected = {
+    expected: dict[Dimension, dict[str, float]] = {
         "asset_class": {"equity": 74.0, "bond": 16.0, "cash": 10.0, "Unclassified": 20.0},
         "sector": {"Information Technology": 62.0, "Health Care": 12.0, "Other": 16.0, "Cash": 10.0,
                    "Unclassified": 20.0},
@@ -58,9 +59,14 @@ def test_look_through_known_answers() -> None:
         "currency": {"USD": 70.0, "GBP": 30.0, "Unclassified": 20.0},
     }  # fmt: skip
     for dimension, table in expected.items():
-        assert exposure.tables[dimension] == pytest.approx(table), dimension  # type: ignore[index]
-        assert sum(exposure.tables[dimension].values()) == pytest.approx(120.0)  # type: ignore[index]
+        assert exposure.tables[dimension] == pytest.approx(table), dimension
+        assert sum(exposure.tables[dimension].values()) == pytest.approx(120.0)
     # the balanced fund's currencies came from its regions (£40) and the stock's from its region (£30)
     assert exposure.approximated_currency_gbp == pytest.approx(70.0)
-    assert exposure.top_holdings[0] == ("Example Corp", pytest.approx(30.0 + 40 * 0.05 + 20 * 0.10))
-    assert exposure.top_holdings[1] == ("Big Bank", pytest.approx(0.8))
+    (first, first_gbp), (second, second_gbp) = exposure.top_holdings[:2]
+    assert (first, second) == (
+        "Example Corp",
+        "Big Bank",
+    )  # "Example Corp." and "example corp" merge into one
+    assert first_gbp == pytest.approx(30.0 + 40 * 0.05 + 20 * 0.10)
+    assert second_gbp == pytest.approx(0.8)
