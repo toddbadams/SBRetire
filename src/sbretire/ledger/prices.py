@@ -44,6 +44,8 @@ class SecuritiesConfig(BaseModel):
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 
+    risk_free_rate: Annotated[float, Field(ge=0.0, lt=0.2)] | None = None
+    """Annual risk-free rate (UK Bank Rate) as a fraction, for Sharpe ratios (F-027)."""
     fx: dict[Literal["USD"], Text] = Field(default_factory=dict)
     """Quote currency → file of GBP per unit of it (e.g. Yahoo ``GBP=X`` for USD)."""
     securities: Annotated[tuple[SeriesConfig, ...], Field(min_length=1)]

@@ -84,7 +84,9 @@ class Metrics:
 
 def monthly_rate(annual: float) -> float: ...
 def metrics(months: Sequence[dt.date], returns: Sequence[float], risk_free: float) -> Metrics: ...
-def drawdowns(returns: Sequence[float]) -> tuple[NDArray[np.float64], NDArray[np.float64]]: ...  # wealth, drawdown
+def drawdowns(
+    returns: Sequence[float],
+) -> tuple[NDArray[np.float64], NDArray[np.float64]]: ...  # wealth, drawdown
 def rolling(returns: Sequence[float], window: int = 12) -> tuple[list[float | None], list[float | None]]: ...
 
 
@@ -95,9 +97,15 @@ class BacktestMonth:
     covered_share: float
 
 
-def backtest(weights: Mapping[str, float], cash: float, total: float,
-             returns: Sequence[MonthlyReturn], first: dt.date, last: dt.date,
-             risk_free: float) -> list[BacktestMonth]: ...
+def backtest(
+    weights: Mapping[str, float],
+    cash: float,
+    total: float,
+    returns: Sequence[MonthlyReturn],
+    first: dt.date,
+    last: dt.date,
+    risk_free: float,
+) -> list[BacktestMonth]: ...
 ```
 
 ## 6. Plan of Work
@@ -127,14 +135,17 @@ def backtest(weights: Mapping[str, float], cash: float, total: float,
 ## 10. Tasks
 
 ### F-027.1 Risk-free rate and performance metrics
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: —
 
 `risk_free_rate` in `SecuritiesConfig` (validated), `ledger/performance.py` metric functions. §2 #1, #4.
 
 **Acceptance criteria**
-- [ ] `risk_free_rate` loads from the map and rejects a negative or ≥ 0.2 value with its location; `monthly_rate(0.04)` is (1.04)^(1/12) − 1 — `test_risk_free_rate_config`
-- [ ] Known answers: constant 1% gives annual return 1.01^12 − 1, zero volatility and Sharpe `None`; alternating +2%/−1% gives the closed-form sample sd × √12 and Sharpe; a fall of 10% then recovery gives max drawdown 0.10 with the right peak, trough and recovery months; rolling 12-month values start at month 12 — `test_metrics_known_answers`
+- [x] `risk_free_rate` loads from the map and rejects a negative or ≥ 0.2 value with its location; `monthly_rate(0.04)` is (1.04)^(1/12) − 1 — `test_risk_free_rate_config`
+- [x] Known answers: constant 1% gives annual return 1.01^12 − 1, zero volatility and Sharpe `None`; alternating +2%/−1% gives the closed-form sample sd × √12 and Sharpe; a fall of 10% then recovery gives max drawdown 0.10 with the right peak, trough and recovery months; rolling 12-month values start at month 12 — `test_metrics_known_answers`
+
+**Notes**
+2026-10-18 SecuritiesConfig.risk_free_rate (0 ≤ r < 0.2), ledger/performance.py (monthly_rate, Metrics, drawdowns, metrics, rolling); tests/unit/test_performance_metrics.py (2).
 
 ### F-027.2 Back-test of today's weights
 - **Status**: To Do
