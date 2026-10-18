@@ -1,6 +1,6 @@
 # SBRetire V1 Roadmap
 
-**Last updated**: 2026-10-18 — F-026 Price History and Monthly Returns delivered.
+**Last updated**: 2026-10-18 — F-027 Performance and Drawdown Report delivered.
 
 Features in build order. Status: `proposed` → `briefed` → `in-progress` → `done` (or `superseded`). Briefs live in `docs/backlog/`; tasks are inside each brief.
 
@@ -22,7 +22,7 @@ Features in build order. Status: `proposed` → `briefed` → `in-progress` → 
 | F-024 | Account Import and Normalised Ledger | [portfolio-analysis](portfolio-analysis.md) | — | done |
 | F-025 | Holdings Valuation and Starting Balance | [portfolio-analysis](portfolio-analysis.md) | F-024 | done |
 | F-026 | Price History and Monthly Returns | [portfolio-analysis](portfolio-analysis.md) | F-024 | done |
-| F-027 | Performance and Drawdown Report | [portfolio-analysis](portfolio-analysis.md) | F-025, F-026 | in-progress |
+| F-027 | Performance and Drawdown Report | [portfolio-analysis](portfolio-analysis.md) | F-025, F-026 | done |
 | F-028 | Sector and Region Look-Through | [portfolio-analysis](portfolio-analysis.md) | F-025 | proposed |
 | F-029 | Sharpe Efficient Frontier and Re-Weighting Analysis | [portfolio-analysis](portfolio-analysis.md) | F-026, F-027 | proposed |
 | F-030 | Portfolio Page in the Viewer | [portfolio-analysis](portfolio-analysis.md) | F-025, F-027, F-028, F-029 | proposed |
@@ -122,6 +122,7 @@ Features in build order. Status: `proposed` → `briefed` → `in-progress` → 
 Unmapped requirements: **none**.
 
 ## Change Log
+- 2026-10-18 — F-027 done: `sbretire portfolio performance` back-tests today's mix over the monthly returns (re-weighting over gaps, cash at `risk_free_rate`): annual return, volatility, Sharpe, max drawdown with dates, rolling 12 months, per-series figures; `performance.csv`, `performance_series.csv`; decisions portfolio-data §15–§17.
 - 2026-10-18 — Added F-031 Account Returns from the Ledger (proposed): account TWR/MWR split from F-027 by the user.
 
 - 2026-10-18 — F-027 briefed: tasks F-027.1…F-027.4 (risk_free_rate, metrics, back-test of today's weights with re-weighting, `sbretire portfolio performance`); account TWR/MWR deferred to F-031.
