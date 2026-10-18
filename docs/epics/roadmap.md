@@ -19,7 +19,7 @@ Features in build order. Status: `proposed` → `briefed` → `in-progress` → 
 | F-021 | Named Runs and results.json | [results-viewer](results-viewer.md) | F-020 | done |
 | F-022 | HTML Results Viewer | [results-viewer](results-viewer.md) | F-021 | done |
 | F-023 | Print and PDF | [results-viewer](results-viewer.md) | F-022 | in-progress |
-| F-024 | Account Import and Normalised Ledger | [portfolio-analysis](portfolio-analysis.md) | — | proposed |
+| F-024 | Account Import and Normalised Ledger | [portfolio-analysis](portfolio-analysis.md) | — | briefed |
 | F-025 | Holdings Valuation and Starting Balance | [portfolio-analysis](portfolio-analysis.md) | F-024 | proposed |
 | F-026 | Price History and Monthly Returns | [portfolio-analysis](portfolio-analysis.md) | F-024 | proposed |
 | F-027 | Performance and Drawdown Report | [portfolio-analysis](portfolio-analysis.md) | F-025, F-026 | proposed |
@@ -122,6 +122,7 @@ Unmapped requirements: **none**.
 
 ## Change Log
 
+- 2026-10-18 — F-024 briefed: tasks F-024.1…F-024.5 (accounts.yaml, four provider parsers, merged de-duplicated ledger, cash reconciliation, `sbretire portfolio import`).
 - 2026-10-18 — Added epic portfolio-analysis (F-024…F-030): import five account exports, holdings value for `starting_balance`, performance and drawdown, sector look-through, Sharpe efficient frontier and re-weighting analysis, Portfolio page; Claude Design hand-off `docs/design/portfolio-design-handoff.md`.
 - 2026-10-09 — F-023 briefed: Save as PDF via the print dialog; black-and-white print tokens; A4 layout with keep-together sections and split year table; review script.
 - 2026-10-09 — F-022 done: results viewer from Claude Design (theme A "Paper" as the common `web/theme.css`, viewer §1-§2); named runs copy it beside `runs/`; XSS paths in the prototype escaped after review; epic results-viewer delivered; 417 tests.
