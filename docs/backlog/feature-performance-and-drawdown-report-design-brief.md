@@ -135,7 +135,7 @@ def backtest(
 ## 10. Tasks
 
 ### F-027.1 Risk-free rate and performance metrics
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: —
 
 `risk_free_rate` in `SecuritiesConfig` (validated), `ledger/performance.py` metric functions. §2 #1, #4.
@@ -146,9 +146,10 @@ def backtest(
 
 **Notes**
 2026-10-18 SecuritiesConfig.risk_free_rate (0 ≤ r < 0.2), ledger/performance.py (monthly_rate, Metrics, drawdowns, metrics, rolling); tests/unit/test_performance_metrics.py (2).
+2026-10-18 /verify PASS: test_performance_metrics.py 2 passed; closed-form expectations; definitions match (ddof=1, monthly rf, recovery); ruff/mypy clean; no np.random.
 
 ### F-027.2 Back-test of today's weights
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-027.1
 
 `backtest` (§2 #2–#3).
@@ -158,9 +159,10 @@ def backtest(
 
 **Notes**
 2026-10-18 ledger/performance.py BacktestMonth, backtest (series with a return that month plus cash rescaled to 100%, cash at the monthly risk-free rate, covered share of today's household value, nothing counted → risk-free); tests/unit/test_performance_backtest.py. The red commit failed on import (no backtest stub) rather than an assertion; noted.
+2026-10-18 /verify PASS: test_performance_backtest.py passed; closed-form weighted means and covered shares; unweighted series ignored; all-cash case; inputs not mutated; ruff/mypy clean.
 
 ### F-027.3 `sbretire portfolio performance`
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-027.2
 
 The command: weights from the valuation, the summary (with the "historical, not a forecast" note),
@@ -171,9 +173,10 @@ The command: weights from the valuation, the summary (with the "historical, not 
 
 **Notes**
 2026-10-18 ReturnsReport gains series_values, series_names, cash_gbp, total_gbp, risk_free_rate; ledger/performance.py build_performance, write_performance_csvs, format_performance; `sbretire portfolio performance` (shared _returns_report with portfolio returns); tests/unit/test_performance_cli.py. Real holdings: all cash at the risk-free rate (no price files yet), exit 0.
+2026-10-18 /verify PASS: CLI test asserts exit 2 without a rate, header, note, labels, LF, CSV headers and rows, n/a under 12 months; real run exit 0, all cash (covered share = today's cash share, as designed); ruff/mypy clean; clean tree.
 
 ### F-027.4 Docs, F-031 and a local run
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-027.3
 
 README section, THESAURUS (Back-test, Drawdown, Sharpe Ratio, sorted), `docs/decisions/portfolio-data.md` §15–§17,
@@ -186,6 +189,7 @@ README section, THESAURUS (Back-test, Drawdown, Sharpe Ratio, sorted), `docs/dec
 
 **Notes**
 2026-10-18 README 'Performance and drawdown of today's mix', config/securities.example.yaml risk_free_rate, THESAURUS (Back-test, Drawdown, Sharpe Ratio; 43 terms sorted), docs/decisions/portfolio-data.md §15–§17, roadmap and epic F-031 'Account Returns from the Ledger' (proposed). Real run: all cash at the risk-free rate with no price files, exit 0.
+2026-10-18 /verify PASS: README/decisions §15–§17; F-031 on roadmap and epic (proposed); 43 THESAURUS terms sorted; backlog_check OK; real run exit 0, all cash; clean tree.
 
 ## 11. Open Questions
 
