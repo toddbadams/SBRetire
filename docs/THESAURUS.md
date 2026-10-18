@@ -45,25 +45,25 @@ suffix, bare unqualified `Service`, `confidence interval` (for success probabili
 - **Definition**: A path whose lifetime outcome is known: Successful (never depleted, both died within the horizon) or Failed (depleted at any month) — simulation-conventions §7.
 - **Related terms**: Censored Path, Successful Path, Failed Path
 
+### Completed-Path Success Rate
+- **Definition**: N_success / N_completed — reported alongside, never optimized against in V1.
+- **Related terms**: Conservative Success Rate
+
 ### Confidence Level
 - **Definition**: A target simulated success proportion (e.g. 0.95), *not* a statistical confidence interval (SPEC §1.2).
 - **Synonyms to AVOID**: confidence interval, certainty, guarantee
 - **Related terms**: Target Probability, Conservative Success Rate
+
+### Config Hash
+- **Definition**: SHA-256 of the validated Scenario in canonical JSON, excluding the data-file path; unchanged by comments, key order or formatting, changed by any value (configuration §7).
+- **Synonyms to AVOID**: file hash, checksum of the YAML
+- **Related terms**: Run Metadata, Scenario
 
 ### Conservative Success Rate
 - **Definition**: N_success / N_all — successful completed paths over *all* paths, treating censored paths as non-successes. The V1 optimization target (SPEC §11).
 - **NOT**: *Completed-Path Success Rate* (N_success / N_completed).
 - **Synonyms to AVOID**: success rate (unqualified), probability of success (unqualified)
 - **Related terms**: Completed-Path Success Rate, Censored Path, Monte Carlo Standard Error
-
-### Completed-Path Success Rate
-- **Definition**: N_success / N_completed — reported alongside, never optimized against in V1.
-- **Related terms**: Conservative Success Rate
-
-### Config Hash
-- **Definition**: SHA-256 of the validated Scenario in canonical JSON, excluding the data-file path; unchanged by comments, key order or formatting, changed by any value (configuration §7).
-- **Synonyms to AVOID**: file hash, checksum of the YAML
-- **Related terms**: Run Metadata, Scenario
 
 ### Death Month
 - **Definition**: For one person on one Path, the first month index in which they are dead. They are alive — with full income and spending — through the month before; supplied up front as `death_month[person, path]`, a value ≥ the Horizon meaning alive at the Horizon (simulation-conventions §2). Sampled once per run from the mortality Random Stream by inverse CDF over the person's monthly survival curve (simulation-conventions §6).
@@ -82,6 +82,12 @@ suffix, bare unqualified `Service`, `confidence interval` (for success probabili
 - **Synonyms to AVOID**: legacy, bequest, safety margin
 - **Related terms**: Maximum Sustainable Budget, Household End, Budget
 
+### External Flow
+- **Definition**: Money entering or leaving the household's accounts: bank transfers, contributions, tax relief, transfers from or to another provider. Ledger rows with `flow: external`; returns leave them out (portfolio-data §4).
+- **NOT**: Dividends, interest or fees (`flow: none`), or an Internal Transfer.
+- **Synonyms to AVOID**: deposit (for every kind), cash flow (ambiguous)
+- **Related terms**: Internal Transfer, Ledger
+
 ### Holding
 - **Definition**: One security or cash line of an Account's holdings export at its Valuation Date: quantity, price and value in the account's currency (`output/portfolio/holdings.csv`, portfolio-data §7). Cash is a holding of kind `cash`.
 - **NOT**: A Ledger row (a transaction), or the model's `portfolio` (the whole household balance).
@@ -91,12 +97,6 @@ suffix, bare unqualified `Service`, `confidence interval` (for success probabili
 ### Horizon
 - **Definition**: `model.horizon_years` — a computational cap on simulated months, not an assumed age of death.
 - **Related terms**: Censored Path
-
-### External Flow
-- **Definition**: Money entering or leaving the household's accounts: bank transfers, contributions, tax relief, transfers from or to another provider. Ledger rows with `flow: external`; returns leave them out (portfolio-data §4).
-- **NOT**: Dividends, interest or fees (`flow: none`), or an Internal Transfer.
-- **Synonyms to AVOID**: deposit (for every kind), cash flow (ambiguous)
-- **Related terms**: Internal Transfer, Ledger
 
 ### Household End
 - **Definition**: The first month in which both people are dead; the Path stops before that month's cash flows (`PathOutcomes.household_end_month`).
@@ -197,16 +197,16 @@ suffix, bare unqualified `Service`, `confidence interval` (for success probabili
 - **Synonyms to AVOID**: real pounds (ambiguous), constant pounds
 - **Related terms**: Inflation Index, As-Of Date
 
-### Wrapper
-- **Definition**: The tax treatment an Account sits in: `taxable`, `isa`, `pension` or `sipp` (portfolio-data §1). Recorded as a label only; the model has no tax logic (SPEC §16).
-- **Synonyms to AVOID**: account type, tax wrapper (fine in prose, not as a field name)
-- **Related terms**: Account
-
 ### Valuation Date
 - **Definition**: The date an Account's holdings export values it at, read from the export (Schwab title, HL "Spreadsheet created at", Vanguard `Valuation Date`); for an export that states none (ii) the newest date the other exports in the folder state, marked assumed (portfolio-data §8).
 - **NOT**: The model's As-Of Date (the scenario's "today"), though the two are usually close.
 - **Synonyms to AVOID**: as-of date (taken), statement date
 - **Related terms**: Holding, As-Of Date
+
+### Wrapper
+- **Definition**: The tax treatment an Account sits in: `taxable`, `isa`, `pension` or `sipp` (portfolio-data §1). Recorded as a label only; the model has no tax logic (SPEC §16).
+- **Synonyms to AVOID**: account type, tax wrapper (fine in prose, not as a field name)
+- **Related terms**: Account
 
 ## Unresolved
 
