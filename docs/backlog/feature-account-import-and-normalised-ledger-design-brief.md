@@ -200,19 +200,22 @@ Provider type maps (each unknown value raises `UnknownTransaction`):
 ## 10. Tasks
 
 ### F-024.1 Accounts config and month folders
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: —
 
 `ledger/accounts.py` (strict pydantic, located errors like `config.py`), `config/accounts.example.yaml`,
 `merge.month_folders`. The `config/accounts.yaml` path is already git-ignored.
 
 **Acceptance criteria**
-- [ ] `load_accounts` accepts the example and rejects a duplicate id, an unknown provider or wrapper, a missing pattern list and an unknown key, each with the YAML location — `test_load_accounts_validates`
-- [ ] `month_folders` maps `oct-26` → 2026-10-01 and `jan-27` → 2027-01-01, sorts by date and ignores other names — `test_month_folders_parse_and_sort`
-- [ ] The example file holds no real names, numbers or amounts — `test_accounts_example_is_synthetic`
+- [x] `load_accounts` accepts the example and rejects a duplicate id, an unknown provider or wrapper, a missing pattern list and an unknown key, each with the YAML location — `test_load_accounts_validates`
+- [x] `month_folders` maps `oct-26` → 2026-10-01 and `jan-27` → 2027-01-01, sorts by date and ignores other names — `test_month_folders_parse_and_sort`
+- [x] The example file holds no real names, numbers or amounts — `test_accounts_example_is_synthetic`
+
+**Notes**
+- 2026-10-18 `ledger/accounts.py`: `AccountConfig` (strict pydantic: provider and wrapper literals, 3-letter currency, non-empty pattern lists, optional `filter`), `load_accounts` (duplicate-key YAML loader, located issues via the scenario helpers, duplicate ids). `ledger/merge.month_folders`. `config/accounts.example.yaml` (five placeholder accounts). Tests `tests/unit/test_ledger_accounts.py` (3).
 
 ### F-024.2 Ledger model and Schwab parser
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-024.1
 
 `ledger/model.py` (`LedgerRow`, `LEDGER_COLUMNS`, fingerprint) and `parsers/schwab.py` (§5 map; US dates; `$`, signs,
