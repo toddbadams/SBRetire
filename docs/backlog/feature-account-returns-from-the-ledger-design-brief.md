@@ -154,7 +154,7 @@ class AccountReturn:
 2026-10-18 SeriesConfig.ledger_names; ledger/account_returns.py normalise_name (trailing share-class words and single letters dropped), match_securities (ledger_names in the series' accounts → key → normalised name of holding name or key); tests/unit/test_account_returns_match.py.
 
 ### F-031.2 Month-end values rebuilt backwards
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-031.1
 
 `units_at`, `cash_at`, month-end valuation in the account's currency, and availability. §2 #2–#4.

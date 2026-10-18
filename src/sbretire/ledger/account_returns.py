@@ -73,3 +73,19 @@ def match_securities(
         else:
             matched[key] = found
     return matched, unmatched
+
+
+def units_at(*a: object) -> object:
+    raise NotImplementedError
+
+
+def cash_at(*a: object) -> object:
+    raise NotImplementedError
+
+
+def price_in(*a: object) -> object:
+    raise NotImplementedError
+
+
+def rebuild(*a: object) -> object:
+    raise NotImplementedError
