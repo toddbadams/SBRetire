@@ -6,8 +6,8 @@ Quantities and cash are signed from the account's point of view: ``quantity_chan
 
 from __future__ import annotations
 
-from dataclasses import dataclass, fields
 import datetime as dt
+from dataclasses import dataclass, fields
 from pathlib import Path
 from typing import Final, Literal
 
