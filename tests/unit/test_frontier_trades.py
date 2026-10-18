@@ -17,8 +17,8 @@ from sbretire.ledger.frontier import (
 
 def test_trades_costs_and_sensitivity() -> None:
     house = household_trades({"a": 60.0, "b": 40.0}, {"a": 0.3, "b": 0.7})
-    assert house == {"a": (60.0, pytest.approx(30.0), pytest.approx(-30.0)), "b": (40.0, pytest.approx(70.0),
-                                                                                  pytest.approx(30.0))}  # fmt: skip
+    assert house["a"] == pytest.approx((60.0, 30.0, -30.0))
+    assert house["b"] == pytest.approx((40.0, 70.0, 30.0))
     assert sum(trade for _, _, trade in house.values()) == pytest.approx(0.0)
 
     target = {"a": 0.3, "b": 0.5, "c": 0.2, "d": 0.0}

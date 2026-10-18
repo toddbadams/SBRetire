@@ -53,6 +53,7 @@ class Estimates:
     """Today's weights within the sleeve (sum 1)."""
     returns: NDArray[np.float64]
     """Monthly returns, months × series, for re-estimating on sub-windows."""
+    covariance: Covariance = "shrunk"
 
 
 def estimate(
@@ -90,7 +91,9 @@ def estimate(
         shrinkage = None
     weights = np.array([values[s] for s in sleeve], dtype=np.float64)
     today = weights / weights.sum() if weights.size else weights
-    return Estimates(sleeve, 12.0 * matrix.mean(axis=0), 12.0 * monthly_cov, shrinkage, today, matrix)
+    return Estimates(
+        sleeve, 12.0 * matrix.mean(axis=0), 12.0 * monthly_cov, shrinkage, today, matrix, covariance
+    )
 
 
 @dataclass(frozen=True)
@@ -229,21 +232,100 @@ def max_return_at(est: Estimates, cap: float, risk_free: float, volatility: floa
     return mix(est, w, risk_free)
 
 
-def household_trades(*args: object, **kwargs: object) -> object:
-    raise NotImplementedError
+def household_trades(
+    today: Mapping[str, float], target: Mapping[str, float]
+) -> dict[str, tuple[float, float, float]]:
+    """Series → (today's GBP, target GBP, trade GBP), the sleeve as one portfolio (§23; analysis only)."""
+    sleeve = sum(today.values())
+    return {
+        series: (value, target.get(series, 0.0) * sleeve, target.get(series, 0.0) * sleeve - value)
+        for series, value in today.items()
+    }
 
 
-def within_account_targets(*args: object, **kwargs: object) -> object:
-    raise NotImplementedError
+def within_account_targets(
+    holdings: Mapping[str, Mapping[str, float]], target: Mapping[str, float]
+) -> dict[str, dict[str, float]]:
+    """Account → series → target GBP: each account's sleeve re-split over the series it holds (§23).
+
+    Weights are the target's for those series, rescaled to the account; an account whose series all have
+    target 0 keeps today's split.
+    """
+    split: dict[str, dict[str, float]] = {}
+    for account, held in holdings.items():
+        total = sum(held.values())
+        weight = sum(target.get(series, 0.0) for series in held)
+        if weight <= 0.0:
+            split[account] = dict(held)
+        else:
+            split[account] = {series: total * target.get(series, 0.0) / weight for series in held}
+    return split
 
 
-def trade_cost(*args: object, **kwargs: object) -> object:
-    raise NotImplementedError
+def trade_cost(amount_gbp: float, fee_gbp: float, rate: float) -> float:
+    """A trade's estimated cost in GBP: the fixed fee plus ``rate × |amount|``; nothing for no trade (§24)."""
+    return 0.0 if amount_gbp == 0.0 else fee_gbp + rate * abs(amount_gbp)
 
 
-def plan_trades(*args: object, **kwargs: object) -> object:
-    raise NotImplementedError
+@dataclass(frozen=True)
+class Trade:
+    scope: Literal["household", "account"]
+    account: str
+    series: str
+    current_gbp: float
+    target_gbp: float
+    trade_gbp: float
+    cost_gbp: float
 
 
-def sensitivity(*args: object, **kwargs: object) -> object:
-    raise NotImplementedError
+def plan_trades(
+    holdings: Mapping[str, Mapping[str, float]],
+    targets: Mapping[str, Mapping[str, float]],
+    costs: Mapping[str, tuple[float, float]],
+    min_trade: float,
+) -> list[Trade]:
+    """Within-account trades of at least ``min_trade`` GBP; costs from ``costs[account] = (fee GBP, rate)``.
+
+    An account missing from ``costs`` trades at no cost.
+    """
+    trades = []
+    for account, held in holdings.items():
+        fee, rate = costs.get(account, (0.0, 0.0))
+        for series, value in held.items():
+            goal = targets[account].get(series, value)
+            amount = goal - value
+            if abs(amount) < min_trade:
+                continue
+            trades.append(
+                Trade("account", account, series, value, goal, amount, trade_cost(amount, fee, rate))
+            )
+    return trades
+
+
+TargetKind = Literal["same-risk", "max-sharpe", "min-variance"]
+
+
+def target_mix(est: Estimates, cap: float, risk_free: float, target: TargetKind) -> Mix:
+    """The mix the trades move towards (§22): same risk as today (default), max Sharpe or minimum variance."""
+    if target == "max-sharpe":
+        return max_sharpe(est, cap, risk_free)
+    if target == "min-variance":
+        return min_variance(est, cap, risk_free)
+    return max_return_at(est, cap, risk_free, mix(est, est.today, risk_free).volatility)
+
+
+def _sub_estimates(est: Estimates, rows: NDArray[np.float64]) -> Estimates:
+    if est.covariance == "shrunk":
+        monthly_cov, shrinkage = ledoit_wolf(rows)
+    else:
+        monthly_cov, shrinkage = np.cov(rows, rowvar=False, ddof=1), None
+    return Estimates(est.series, 12.0 * rows.mean(axis=0), 12.0 * monthly_cov, shrinkage, est.today, rows,
+                     est.covariance)  # fmt: skip
+
+
+def sensitivity(est: Estimates, cap: float, risk_free: float, target: TargetKind) -> tuple[Mix, Mix, float]:
+    """The target re-estimated on each half of the window, and its turnover ``Σ|w₁ − w₂| / 2`` (§24)."""
+    half = len(est.returns) // 2
+    first = target_mix(_sub_estimates(est, est.returns[:half]), cap, risk_free, target)
+    second = target_mix(_sub_estimates(est, est.returns[half:]), cap, risk_free, target)
+    return first, second, float(np.abs(first.weights - second.weights).sum() / 2.0)
