@@ -48,13 +48,15 @@ page says so, and every suggested change shows what it trades off.
   | Provider | Wrapper | Owner | File |
   |---|---|---|---|
   | Charles Schwab | taxable brokerage (USD) | person 1 | `schwab.csv` |
-  | Hargreaves Lansdown | provider account | person 1 | `hl.csv` |
+  | Hargreaves Lansdown | SIPP | person 1 | `hl.csv` |
   | Vanguard UK | ISA | person 2 | `vanguard_isa.csv` |
   | Vanguard UK | personal pension | person 2 | `vanguard_pension.csv` |
   | interactive investor | SIPP | person 2 | `ii.csv` |
 
   A git-ignored `config/accounts.yaml` maps each file to its account, owner, wrapper, currency, parser and fee
-  schedule.
+  schedule. Holdings exports (added 2026-10-18) are `schwab-Individual-Positions-<date>-<time>.csv`,
+  `hl-account-summary.csv`, `vanguard-holdings.csv.csv` (one file for both Vanguard wrappers) and
+  `ii_holdings.csv`; file names vary by provider, so the account file matches them by pattern.
 - **Holdings come from a holdings/valuation export per account each month**, saved next to the transactions. The
   transaction exports cover only 2026 and contain no opening positions. Transactions supply cash flows, dividends,
   interest, fees and trades for performance.
@@ -117,7 +119,41 @@ These are structure only; no amounts are recorded here.
   - UTF-8 with repeated byte-order marks, UK dates (DD/MM/YYYY).
   - `£` amounts with thousands separators in quoted fields, `n/a` for empty debit/credit, and a SEDOL column.
 
+## Holdings export formats (October 2026)
+
+These are structure only; no amounts are recorded here.
+
+- **Schwab positions:**
+  - Title line "Positions for account … as of <time> ET, <yyyy/mm/dd>", blank line, then a quoted table:
+    Symbol, Description, quantity, Price, Mkt Val, Cost Basis, gain columns and Asset Type.
+  - A "Cash & Cash Investments" row and a "Positions Total" row.
+  - USD with `$`, thousands separators and `--` for empty.
+- **HL account summary:**
+  - The SIPP: "HL SIPP" title, client name and number, "Spreadsheet created at <dd-mm-yyyy hh:mm>".
+  - Stock value, Total cash, Amount available to invest and Total value lines, then a table: Code, Stock,
+    Units held, Price (pence), Value (£), Cost (£), gain columns.
+  - Holds US single stocks valued in GBP.
+  - Windows-1252 encoding.
+- **Vanguard holdings:**
+  - One file for both wrappers: Valuation Date, Account Number, Product Wrapper (Personal Pension / Stocks & Shares
+    ISA), Investment Name, Asset Sector, Quantity, Original Cost, Current Price, Current Value, Gain/Loss and % of
+    Total Portfolio.
+  - A "GBP Cash" row per wrapper.
+  - The Asset Sector labels are coarse and sometimes misleading (a 60–100% equity fund labelled "Fixed Interest"
+    or "Unclassified"), so look-through uses factsheets, not this column.
+  - UTF-8 with a `®` in names; the file has a doubled `.csv.csv` extension.
+- **ii holdings:**
+  - Symbol, Name, Qty, Price, day change, Market Value (£), Market Value, Book Cost, gains, Average Price.
+  - Holdings only, with **no cash row and no valuation date** in the file. The cash comes from the transactions'
+    running balance, and the date from the folder or a setting.
+  - Holds one ETF bought before the transaction export period.
+
 ## Risks and open questions
+
+- **USD/GBP rate:** Schwab values are in USD and no export carries an exchange rate. The valuation needs a
+  USD/GBP rate for the valuation date, from the user's FX price file (F-026) or a setting.
+- **Valuation dates differ by account** (exports taken on different days). The total states each account's date;
+  F-025 decides whether to require one common month-end.
 
 - **Personal data:** `data/transactions/`, `data/prices/`, `data/factsheets/`, `config/accounts.yaml` and
   `output/` are git-ignored (committed 2026-10-18). The design hand-off uses synthetic data only.
