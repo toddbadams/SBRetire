@@ -172,7 +172,7 @@ Household deltas, `within_account_targets`, `trade_cost`, `--min-trade`, half-wi
 2026-10-18 ledger/frontier.py household_trades, within_account_targets, trade_cost, Trade, plan_trades (min trade, per-account (fee GBP, rate)), TargetKind, target_mix, sensitivity (halves re-estimated with the same covariance method; Estimates gains covariance); tests/unit/test_frontier_trades.py (long line fixed after the red commit).
 
 ### F-029.4 `sbretire portfolio frontier`
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-029.3
 
 The command, the summary with its caveats, and the three CSVs. §2 #9.
