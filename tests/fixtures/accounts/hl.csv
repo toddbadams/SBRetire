@@ -1,0 +1,14 @@
+Portfolio Summary
+Client Name:,Example Person
+Client Number:,1234
+Valuation as at,18-10-2026 07:24
+
+Trade date,Settle date,Reference,Description,Unit cost (p),Quantity,Value (£)
+"16/10/2026","20/10/2026","B111111111","Example Global Equity UCITS ETF USD Acc 1,250 @  1234.5678","1234.5678","1,250.000000","-15432.10"
+"15/10/2026","17/10/2026","S222222222","Example Corp, Inc. Com Stk USD0.01 40 @  25010.0","25010.0","40.000000","10004.00"
+"14/10/2026","14/10/2026","Transfer","Transfer from Income Account ","n/a","n/a","120.50"
+"01/10/2026","01/10/2026","INTEREST","Interest From 01/09/2026 TO 30/09/2026","n/a","n/a","3.21"
+"30/09/2026","30/09/2026","MANAGE FEE","HL SIPP To A/C 00X0000000000","n/a","n/a","-45.00"
+"20/09/2026","20/09/2026","ID TFC","Income Drawdown Tax Free Cash FP to Bank A/C:****0000","n/a","n/a","-5000.00"
+"10/09/2026","10/09/2026","TRANSFER","Product Transfer HL SIPP Income Drawdown","n/a","n/a","-2000.00"
+"02/09/2026","02/09/2026","BACS","Sipp Transfer (BACS) ","n/a","n/a","25000.00"

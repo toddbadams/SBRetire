@@ -154,6 +154,9 @@ Provider type maps (each unknown value raises `UnknownTransaction`):
 | HL | reference `INTEREST` ("Interest From … TO …") | interest |
 | HL | reference `Transfer` ("Transfer from Income Account") | internal_transfer, flow internal |
 | HL | reference `MANAGE FEE` ("HL SIPP To A/C …") | fee |
+| HL | reference `ID TFC` ("Income Drawdown Tax Free Cash … to Bank") | transfer_out, flow external |
+| HL | reference `BACS` ("Sipp Transfer (BACS)") | transfer_in, flow external |
+| HL | reference `TRANSFER` ("Product Transfer HL SIPP Income Drawdown") | internal_transfer, flow internal |
 | Vanguard | Buy; Sell (Fee) | buy; sell (units sold to pay a fee) |
 | Vanguard | Account Fee; Interest | fee; interest |
 | Vanguard | Deposit; Contribution; Tax Relief | contribution, contribution, tax_relief; flow external |
@@ -196,6 +199,10 @@ Provider type maps (each unknown value raises `UnknownTransaction`):
   - **Row order:** Schwab and ii list rows newest first; Vanguard oldest first. Running balances are checked in
     date order, with the opening balance inferred from the first stated balance (Vanguard's history starts
     mid-way).
+- 2026-10-18 — F-024.3: the HL export also has `ID TFC` (tax-free cash paid to the bank: external out), `BACS`
+  (pension transfer in: external in) and `TRANSFER` ("Product Transfer HL SIPP Income Drawdown": a move into the
+  SIPP's drawdown part, treated as internal). F-025's holdings check should confirm the drawdown money is in the
+  HL holdings export; if not, it is really an outflow from the tracked account.
 
 ## 10. Tasks
 
