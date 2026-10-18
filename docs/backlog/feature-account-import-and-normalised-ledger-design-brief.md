@@ -236,18 +236,21 @@ thousands separators; empty quantity and price).
 - 2026-10-18 `ledger/model.py`: `LedgerRow` (brief §2 #6 plus `sequence`, the chronological position in the source file, and `stated_balance`, the export's running cash balance where given), `fingerprint`, `LEDGER_COLUMNS`, `UnknownTransaction`. `parsers/_common.py`: UTF-8 with any leading BOMs else Windows-1252, money parsing (`$`, `£`, commas, signs, parentheses, n/a, --), dates. `parsers/schwab.py` with the §5 map. Fixture `tests/fixtures/accounts/schwab.csv` (invented rows, every action). Tests `tests/unit/test_ledger_schwab.py` (2).
 
 ### F-024.3 HL parser
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-024.2
 
 `parsers/hl.py`: Windows-1252, preamble skipped up to the header row, quoted commas, trades from "<name> <qty> @
 <price>" with pence converted to pounds, interest, internal transfers.
 
 **Acceptance criteria**
-- [ ] A synthetic HL export (preamble, `£` in the header, quoted descriptions with commas) parses to hand-checked rows; trade prices in pounds; quantity sign follows the value sign — `test_hl_parser_reads_trades_interest_and_transfers`
-- [ ] An unrecognised description raises `UnknownTransaction` with file and row — `test_hl_parser_rejects_unknown_description`
+- [x] A synthetic HL export (preamble, `£` in the header, quoted descriptions with commas) parses to hand-checked rows; trade prices in pounds; quantity sign follows the value sign — `test_hl_parser_reads_trades_interest_and_transfers`
+- [x] An unrecognised description raises `UnknownTransaction` with file and row — `test_hl_parser_rejects_unknown_description`
+
+**Notes**
+- 2026-10-18 `parsers/hl.py`: preamble skipped to the `Trade date` header; `Reference` drives the type (B/S trades, INTEREST, Transfer/TRANSFER internal, MANAGE FEE, ID TFC external out, BACS external in); trade names from "<name> <qty> @ <price>"; pence to pounds; units from `Quantity`, negated for sells. Fixture `tests/fixtures/accounts/hl.csv` (Windows-1252, quoted commas, invented rows). Tests `tests/unit/test_ledger_hl.py` (2); the test's expected line numbers were off by one (header on line 6) and were corrected before green.
 
 ### F-024.4 Vanguard and ii parsers with cash reconciliation
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-024.2
 
 `parsers/vanguard.py` (shared file filtered per account; two-leg records), `parsers/ii.py` (repeated BOMs, UK

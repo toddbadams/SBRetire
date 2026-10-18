@@ -87,7 +87,7 @@ def test_hl_parser_reads_trades_interest_and_transfers() -> None:
         for r in rows
     ]
     assert got == EXPECTED
-    assert {r.currency for r in rows} == {"GBP"} and rows[0].source_row == 8
+    assert {r.currency for r in rows} == {"GBP"} and rows[0].source_row == 7
     assert [r.sequence for r in rows] == list(range(8, 0, -1))  # newest first in the file
 
 
@@ -98,4 +98,4 @@ def test_hl_parser_rejects_unknown_description(tmp_path: Path) -> None:
     path.write_bytes(text.encode("cp1252"))
     with pytest.raises(UnknownTransaction) as caught:
         hl.parse(path, ACCOUNT)
-    assert "hl.csv" in str(caught.value) and "row 11" in str(caught.value) and "DIVIDEND" in str(caught.value)
+    assert "hl.csv" in str(caught.value) and "row 10" in str(caught.value) and "DIVIDEND" in str(caught.value)
