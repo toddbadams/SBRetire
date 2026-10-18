@@ -1,7 +1,7 @@
 # SBRetire portfolio page — Claude Design hand-off
 
 **For:** Claude Design · **Epic:** portfolio-analysis (`docs/epics/portfolio-analysis.md`), page feature F-030 ·
-**Status:** ready to design (data structure is a draft) · **Date:** 2026-10-18
+**Status:** the page was built in F-030 in the Paper theme (`src/sbretire/web/portfolio/`, viewer.md §4); a later design pass may restyle it. The data contract is now `schemas/portfolio.schema.json` 1.0 · **Date:** 2026-10-18
 
 ## 1. What we are designing
 

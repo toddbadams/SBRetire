@@ -1,2051 +1,1198 @@
 {
-  "schema_version": "0.1-draft",
+  "schema_version": "1.0",
+  "generated": "2026-10-18T00:00:00+00:00",
   "synthetic": true,
-  "as_of": "2026-09-30",
-  "created_at": "2026-10-18T09:00:00Z",
-  "currency": "GBP",
+  "folder": "oct-26",
   "settings": {
-    "lookback_months": 60,
+    "months": 24,
+    "first": "2024-10",
+    "last": "2026-09",
     "risk_free_rate": 0.04,
-    "max_weight": 0.25,
-    "return_frequency": "monthly"
+    "max_weight": 0.6,
+    "usd_gbp": 0.75,
+    "usd_gbp_source": "GBP=X.csv, 2026-09",
+    "covariance": "shrunk",
+    "target": "same-risk",
+    "min_trade_gbp": 1.0
   },
   "people": [
-    {
-      "id": "person_1",
-      "name": "Person 1"
-    },
-    {
-      "id": "person_2",
-      "name": "Person 2"
-    }
+    "person_1",
+    "person_2"
   ],
   "total": {
-    "value_gbp": 587900.0,
-    "by_person": {
-      "person_1": 186500.0,
-      "person_2": 401400.0
+    "value_gbp": 160265.61,
+    "cash_gbp": 2956.17,
+    "by_owner": {
+      "person_1": 33644.67,
+      "person_2": 126620.94
     },
-    "starting_balance_yaml": "starting_balance: 587900"
+    "starting_balance": 160266,
+    "starting_balance_yaml": "starting_balance: 160266  # sbretire portfolio report: oct-26, 2026-10-17 to 2026-10-18"
   },
   "accounts": [
     {
       "id": "brokerage",
-      "name": "US brokerage",
-      "provider": "Example Broker A",
+      "name": "Example brokerage",
+      "provider": "schwab",
       "wrapper": "taxable",
       "owner": "person_1",
       "currency": "USD",
-      "value_gbp": 59000.0,
-      "cash_gbp": 4000.0
+      "securities_gbp": 8718.75,
+      "cash_gbp": 925.92,
+      "value_gbp": 9644.67,
+      "valuation_date": "2026-10-18",
+      "date_assumed": false
     },
     {
-      "id": "platform",
-      "name": "Investment account",
-      "provider": "Example Platform B",
-      "wrapper": "taxable",
+      "id": "sipp_1",
+      "name": "Example SIPP 1",
+      "provider": "hl",
+      "wrapper": "sipp",
       "owner": "person_1",
       "currency": "GBP",
-      "value_gbp": 127500.0,
-      "cash_gbp": 2500.0
+      "securities_gbp": 23456.79,
+      "cash_gbp": 543.21,
+      "value_gbp": 24000.0,
+      "valuation_date": "2026-10-17",
+      "date_assumed": false
     },
     {
       "id": "isa",
-      "name": "Stocks & Shares ISA",
-      "provider": "Example Platform C",
+      "name": "Example ISA",
+      "provider": "vanguard",
       "wrapper": "isa",
       "owner": "person_2",
       "currency": "GBP",
-      "value_gbp": 100150.0,
-      "cash_gbp": 150.0
+      "securities_gbp": 20800.0,
+      "cash_gbp": 0.0,
+      "value_gbp": 20800.0,
+      "valuation_date": "2026-10-17",
+      "date_assumed": false
     },
     {
       "id": "pension",
-      "name": "Personal pension",
-      "provider": "Example Platform C",
+      "name": "Example pension",
+      "provider": "vanguard",
       "wrapper": "pension",
       "owner": "person_2",
       "currency": "GBP",
-      "value_gbp": 45050.0,
-      "cash_gbp": 50.0
+      "securities_gbp": 4210.9,
+      "cash_gbp": 1000.03,
+      "value_gbp": 5210.93,
+      "valuation_date": "2026-10-17",
+      "date_assumed": false
     },
     {
-      "id": "sipp",
-      "name": "SIPP",
-      "provider": "Example Platform D",
+      "id": "sipp_2",
+      "name": "Example SIPP 2",
+      "provider": "ii",
       "wrapper": "sipp",
       "owner": "person_2",
       "currency": "GBP",
-      "value_gbp": 256200.0,
-      "cash_gbp": 1200.0
+      "securities_gbp": 100123.0,
+      "cash_gbp": 487.01,
+      "value_gbp": 100610.01,
+      "valuation_date": "2026-10-18",
+      "date_assumed": true
     }
   ],
   "holdings": [
     {
-      "id": "glob_eq",
-      "name": "Global All-Cap Equity Index (Acc)",
-      "account": "sipp",
-      "asset_class": "Equity",
-      "currency": "GBP",
-      "value_gbp": 160000.0,
-      "weight": 0.2722,
-      "return_ann": 0.085,
-      "volatility_ann": 0.1517,
-      "sharpe": 0.297,
-      "history_months": 60
-    },
-    {
-      "id": "us_eq",
-      "name": "US Large Cap Equity ETF",
-      "account": "sipp",
-      "asset_class": "Equity",
-      "currency": "USD",
-      "value_gbp": 95000.0,
-      "weight": 0.1616,
-      "return_ann": 0.1,
-      "volatility_ann": 0.17,
-      "sharpe": 0.353,
-      "history_months": 60
-    },
-    {
-      "id": "uk_eq",
-      "name": "UK All-Share Index Fund (Acc)",
-      "account": "platform",
-      "asset_class": "Equity",
-      "currency": "GBP",
-      "value_gbp": 70000.0,
-      "weight": 0.1191,
-      "return_ann": 0.06,
-      "volatility_ann": 0.14,
-      "sharpe": 0.143,
-      "history_months": 60
-    },
-    {
-      "id": "em_eq",
-      "name": "Emerging Markets Equity ETF",
-      "account": "isa",
-      "asset_class": "Equity",
-      "currency": "USD",
-      "value_gbp": 40000.0,
-      "weight": 0.068,
-      "return_ann": 0.07,
-      "volatility_ann": 0.2,
-      "sharpe": 0.15,
-      "history_months": 38
-    },
-    {
-      "id": "multi40",
-      "name": "Multi-Asset 40% Equity Fund (Acc)",
-      "account": "isa",
-      "asset_class": "Multi-asset",
-      "currency": "GBP",
+      "ref": "sipp_2:EXA",
+      "account": "sipp_2",
+      "security_key": "EXA",
+      "name": "Example World Momentum ETF $ Acc",
+      "series": "momentum",
       "value_gbp": 60000.0,
-      "weight": 0.1021,
-      "return_ann": 0.045,
-      "volatility_ann": 0.08,
-      "sharpe": 0.062,
-      "history_months": 60
+      "weight": 0.37437850827760244,
+      "return_ann": -0.11322099709115818,
+      "volatility_ann": 0.1703965107145693,
+      "sharpe": -0.850641186001379,
+      "history_months": 24,
+      "status": "full"
     },
     {
-      "id": "target35",
-      "name": "Target Date 2035 Fund (Acc)",
+      "ref": "sipp_2:EXB",
+      "account": "sipp_2",
+      "security_key": "EXB",
+      "name": "Example All-World ETF USD Acc GBP",
+      "series": null,
+      "value_gbp": 40123.0,
+      "weight": 0.2503531481270374,
+      "return_ann": null,
+      "volatility_ann": null,
+      "sharpe": null,
+      "history_months": 0,
+      "status": "missing"
+    },
+    {
+      "ref": "isa:Example Strategy® 60% Fund - Accumulation",
+      "account": "isa",
+      "security_key": "Example Strategy® 60% Fund - Accumulation",
+      "name": "Example Strategy® 60% Fund - Accumulation",
+      "series": "strategy",
+      "value_gbp": 20800.0,
+      "weight": 0.12978454953623553,
+      "return_ann": 0.010925318705590659,
+      "volatility_ann": 0.06948989921738537,
+      "sharpe": -0.3759051545550483,
+      "history_months": 24,
+      "status": "full"
+    },
+    {
+      "ref": "sipp_1:EXA",
+      "account": "sipp_1",
+      "security_key": "EXA",
+      "name": "Example Corp, Inc. Com Stk USD0.01",
+      "series": "example_corp",
+      "value_gbp": 15000.0,
+      "weight": 0.09359462706940061,
+      "return_ann": 0.17045162223818555,
+      "volatility_ann": 0.11382352943030598,
+      "sharpe": 1.1008813124527026,
+      "history_months": 24,
+      "status": "full"
+    },
+    {
+      "ref": "sipp_1:EXG",
+      "account": "sipp_1",
+      "security_key": "EXG",
+      "name": "Example Global Equity UCITS ETF USD Acc",
+      "series": "global_equity",
+      "value_gbp": 8456.79,
+      "weight": 0.052767340416949096,
+      "return_ann": 0.18760978439889908,
+      "volatility_ann": 0.28805157650005064,
+      "sharpe": 0.6038955128836598,
+      "history_months": 24,
+      "status": "full"
+    },
+    {
+      "ref": "brokerage:EXC",
+      "account": "brokerage",
+      "security_key": "EXC",
+      "name": "EXAMPLE CORP C CLASS A",
+      "series": null,
+      "value_gbp": 4950.0,
+      "weight": 0.030886226932902203,
+      "return_ann": null,
+      "volatility_ann": null,
+      "sharpe": null,
+      "history_months": 0,
+      "status": "missing"
+    },
+    {
+      "ref": "pension:Example Target 2035 Fund - Accumulation",
       "account": "pension",
-      "asset_class": "Multi-asset",
-      "currency": "GBP",
-      "value_gbp": 45000.0,
-      "weight": 0.0765,
-      "return_ann": 0.055,
-      "volatility_ann": 0.1,
-      "sharpe": 0.15,
-      "history_months": 60
+      "security_key": "Example Target 2035 Fund - Accumulation",
+      "name": "Example Target 2035 Fund - Accumulation",
+      "series": null,
+      "value_gbp": 4210.9,
+      "weight": 0.0262745076751026,
+      "return_ann": null,
+      "volatility_ann": null,
+      "sharpe": null,
+      "history_months": 0,
+      "status": "missing"
     },
     {
-      "id": "gilts",
-      "name": "UK Gilts Index Fund",
-      "account": "platform",
-      "asset_class": "Bonds",
-      "currency": "GBP",
-      "value_gbp": 55000.0,
-      "weight": 0.0936,
-      "return_ann": 0.025,
-      "volatility_ann": 0.07,
-      "sharpe": -0.214,
-      "history_months": 60
-    },
-    {
-      "id": "tech_stock",
-      "name": "Example Tech Corp",
+      "ref": "brokerage:EXA",
       "account": "brokerage",
-      "asset_class": "Equity",
-      "currency": "USD",
-      "value_gbp": 30000.0,
-      "weight": 0.051,
-      "return_ann": 0.14,
-      "volatility_ann": 0.28,
-      "sharpe": 0.357,
-      "history_months": 60
-    },
-    {
-      "id": "staples_stock",
-      "name": "Example Consumer Staples Co",
-      "account": "brokerage",
-      "asset_class": "Equity",
-      "currency": "USD",
-      "value_gbp": 25000.0,
-      "weight": 0.0425,
-      "return_ann": 0.06,
-      "volatility_ann": 0.16,
-      "sharpe": 0.125,
-      "history_months": 60
+      "security_key": "EXA",
+      "name": "EXAMPLE CORP A",
+      "series": "example_corp",
+      "value_gbp": 3768.75,
+      "weight": 0.023515650051186904,
+      "return_ann": 0.17045162223818555,
+      "volatility_ann": 0.11382352943030598,
+      "sharpe": 1.1008813124527026,
+      "history_months": 24,
+      "status": "full"
     }
   ],
   "exposure": {
-    "sector": [
+    "available": true,
+    "tables": {
+      "asset_class": [
+        {
+          "label": "Unclassified",
+          "value_gbp": 109283.9,
+          "share": 0.6818923910126444
+        },
+        {
+          "label": "equity",
+          "value_gbp": 39705.54,
+          "share": 0.24774834725927788
+        },
+        {
+          "label": "bond",
+          "value_gbp": 8320.0,
+          "share": 0.051913819814494194
+        },
+        {
+          "label": "cash",
+          "value_gbp": 2956.17,
+          "share": 0.01844544191358333
+        }
+      ],
+      "sector": [
+        {
+          "label": "Unclassified",
+          "value_gbp": 130083.9,
+          "share": 0.81167694054888
+        },
+        {
+          "label": "Information Technology",
+          "value_gbp": 20882.95,
+          "share": 0.13030211222482477
+        },
+        {
+          "label": "Other",
+          "value_gbp": 3382.72,
+          "share": 0.021106936166779635
+        },
+        {
+          "label": "Cash",
+          "value_gbp": 2956.17,
+          "share": 0.01844544191358333
+        },
+        {
+          "label": "Financials",
+          "value_gbp": 1268.52,
+          "share": 0.007915101062542363
+        },
+        {
+          "label": "Health Care",
+          "value_gbp": 845.68,
+          "share": 0.005276734041694909
+        },
+        {
+          "label": "Industrials",
+          "value_gbp": 845.68,
+          "share": 0.005276734041694909
+        }
+      ],
+      "region": [
+        {
+          "label": "Unclassified",
+          "value_gbp": 109283.9,
+          "share": 0.6818923910126444
+        },
+        {
+          "label": "North America",
+          "value_gbp": 30082.82,
+          "share": 0.1877060462316276
+        },
+        {
+          "label": "UK",
+          "value_gbp": 8742.84,
+          "share": 0.05455218683534165
+        },
+        {
+          "label": "Other",
+          "value_gbp": 6240.0,
+          "share": 0.038935364860870646
+        },
+        {
+          "label": "Cash",
+          "value_gbp": 2956.17,
+          "share": 0.01844544191358333
+        },
+        {
+          "label": "Europe ex UK",
+          "value_gbp": 1268.52,
+          "share": 0.007915101062542363
+        },
+        {
+          "label": "Emerging Markets",
+          "value_gbp": 1268.52,
+          "share": 0.007915101062542363
+        },
+        {
+          "label": "Japan",
+          "value_gbp": 422.84,
+          "share": 0.0026383670208474544
+        }
+      ],
+      "currency": [
+        {
+          "label": "Unclassified",
+          "value_gbp": 109283.9,
+          "share": 0.6818923910126444
+        },
+        {
+          "label": "USD",
+          "value_gbp": 31008.74,
+          "share": 0.19348345537136755
+        },
+        {
+          "label": "GBP",
+          "value_gbp": 17013.09,
+          "share": 0.10615558447005566
+        },
+        {
+          "label": "EUR",
+          "value_gbp": 1268.52,
+          "share": 0.007915101062542363
+        },
+        {
+          "label": "Other",
+          "value_gbp": 1268.52,
+          "share": 0.007915101062542363
+        },
+        {
+          "label": "JPY",
+          "value_gbp": 422.84,
+          "share": 0.0026383670208474544
+        }
+      ]
+    },
+    "approximated_currency_share": 0.16987761753753658,
+    "top_holdings": [
       {
-        "name": "Technology",
-        "weight": 0.0707
+        "name": "Example Corp",
+        "value_gbp": 19107.02,
+        "share": 0.11922097073726545
       },
       {
-        "name": "Financials",
-        "weight": 0.1689
-      },
-      {
-        "name": "Health Care",
-        "weight": 0.0793
-      },
-      {
-        "name": "Industrials",
-        "weight": 0.0206
-      },
-      {
-        "name": "Consumer Staples",
-        "weight": 0.0718
-      },
-      {
-        "name": "Consumer Discretionary",
-        "weight": 0.2187
-      },
-      {
-        "name": "Energy",
-        "weight": 0.1334
-      },
-      {
-        "name": "Other",
-        "weight": 0.2365
-      }
-    ],
-    "region": [
-      {
-        "name": "North America",
-        "weight": 0.58
-      },
-      {
-        "name": "United Kingdom",
-        "weight": 0.16
-      },
-      {
-        "name": "Europe ex-UK",
-        "weight": 0.1
-      },
-      {
-        "name": "Japan",
-        "weight": 0.05
-      },
-      {
-        "name": "Asia Pacific ex-Japan",
-        "weight": 0.04
-      },
-      {
-        "name": "Emerging Markets",
-        "weight": 0.07
-      }
-    ],
-    "asset_class": [
-      {
-        "name": "Equity",
-        "weight": 0.69
-      },
-      {
-        "name": "Multi-asset",
-        "weight": 0.18
-      },
-      {
-        "name": "Bonds",
-        "weight": 0.1
-      },
-      {
-        "name": "Cash",
-        "weight": 0.03
-      }
-    ],
-    "currency": [
-      {
-        "name": "USD",
-        "weight": 0.52
-      },
-      {
-        "name": "GBP",
-        "weight": 0.31
-      },
-      {
-        "name": "EUR",
-        "weight": 0.07
-      },
-      {
-        "name": "Other",
-        "weight": 0.1
-      }
-    ],
-    "top_lookthrough": [
-      {
-        "name": "Example Company A",
-        "weight": 0.035,
-        "via": [
-          "glob_eq",
-          "us_eq",
-          "tech_stock"
-        ]
-      },
-      {
-        "name": "Example Company B",
-        "weight": 0.032,
-        "via": [
-          "glob_eq",
-          "us_eq"
-        ]
-      },
-      {
-        "name": "Example Company C",
-        "weight": 0.029,
-        "via": [
-          "glob_eq",
-          "us_eq"
-        ]
-      },
-      {
-        "name": "Example Company D",
-        "weight": 0.026,
-        "via": [
-          "glob_eq",
-          "us_eq"
-        ]
-      },
-      {
-        "name": "Example Company E",
-        "weight": 0.023,
-        "via": [
-          "glob_eq",
-          "us_eq"
-        ]
-      },
-      {
-        "name": "Example Company F",
-        "weight": 0.02,
-        "via": [
-          "glob_eq",
-          "us_eq"
-        ]
-      },
-      {
-        "name": "Example Company G",
-        "weight": 0.017,
-        "via": [
-          "glob_eq",
-          "us_eq"
-        ]
-      },
-      {
-        "name": "Example Company H",
-        "weight": 0.014,
-        "via": [
-          "glob_eq",
-          "us_eq"
-        ]
-      },
-      {
-        "name": "Example Company I",
-        "weight": 0.011,
-        "via": [
-          "glob_eq",
-          "us_eq"
-        ]
-      },
-      {
-        "name": "Example Company J",
-        "weight": 0.008,
-        "via": [
-          "glob_eq",
-          "us_eq"
-        ]
+        "name": "Big Bank",
+        "value_gbp": 126.85,
+        "share": 0.0007915101062542364
       }
     ]
   },
   "performance": {
-    "export_period": {
-      "start": "2026-01-01",
-      "end": "2026-09-30",
-      "twr": 0.0612,
-      "mwr": 0.0588
+    "available": true,
+    "metrics": {
+      "months": 24,
+      "annual_return": -0.013652158986675822,
+      "annual_volatility": 0.0939609047284655,
+      "sharpe": -0.5194871479413274,
+      "max_drawdown": 0.13591594217327319,
+      "peak": "2025-12",
+      "trough": "2026-09",
+      "recovery": null
     },
-    "backtest": {
-      "start": "2021-10",
-      "end": "2026-09",
-      "ann_return": 0.0787,
-      "ann_volatility": 0.1243,
-      "sharpe": 0.265,
-      "max_drawdown": -0.2015,
-      "series": [
-        {
-          "month": "2021-10",
-          "index": 1.0167,
-          "benchmark_index": 1.025,
-          "drawdown": 0.0
-        },
-        {
-          "month": "2021-11",
-          "index": 1.0634,
-          "benchmark_index": 1.0638,
-          "drawdown": 0.0
-        },
-        {
-          "month": "2021-12",
-          "index": 1.095,
-          "benchmark_index": 1.0979,
-          "drawdown": 0.0
-        },
-        {
-          "month": "2022-01",
-          "index": 1.1218,
-          "benchmark_index": 1.1403,
-          "drawdown": 0.0
-        },
-        {
-          "month": "2022-02",
-          "index": 1.1309,
-          "benchmark_index": 1.1271,
-          "drawdown": 0.0
-        },
-        {
-          "month": "2022-03",
-          "index": 1.1716,
-          "benchmark_index": 1.1797,
-          "drawdown": 0.0
-        },
-        {
-          "month": "2022-04",
-          "index": 1.2397,
-          "benchmark_index": 1.2572,
-          "drawdown": 0.0
-        },
-        {
-          "month": "2022-05",
-          "index": 1.2654,
-          "benchmark_index": 1.2972,
-          "drawdown": 0.0
-        },
-        {
-          "month": "2022-06",
-          "index": 1.252,
-          "benchmark_index": 1.2677,
-          "drawdown": -0.0106
-        },
-        {
-          "month": "2022-07",
-          "index": 1.1577,
-          "benchmark_index": 1.1452,
-          "drawdown": -0.0851
-        },
-        {
-          "month": "2022-08",
-          "index": 1.1957,
-          "benchmark_index": 1.1878,
-          "drawdown": -0.055
-        },
-        {
-          "month": "2022-09",
-          "index": 1.1795,
-          "benchmark_index": 1.1792,
-          "drawdown": -0.0679
-        },
-        {
-          "month": "2022-10",
-          "index": 1.1217,
-          "benchmark_index": 1.1083,
-          "drawdown": -0.1135
-        },
-        {
-          "month": "2022-11",
-          "index": 1.122,
-          "benchmark_index": 1.1102,
-          "drawdown": -0.1133
-        },
-        {
-          "month": "2022-12",
-          "index": 1.1228,
-          "benchmark_index": 1.1175,
-          "drawdown": -0.1127
-        },
-        {
-          "month": "2023-01",
-          "index": 1.1697,
-          "benchmark_index": 1.1869,
-          "drawdown": -0.0756
-        },
-        {
-          "month": "2023-02",
-          "index": 1.1763,
-          "benchmark_index": 1.1989,
-          "drawdown": -0.0704
-        },
-        {
-          "month": "2023-03",
-          "index": 1.2325,
-          "benchmark_index": 1.2683,
-          "drawdown": -0.026
-        },
-        {
-          "month": "2023-04",
-          "index": 1.2605,
-          "benchmark_index": 1.2998,
-          "drawdown": -0.0038
-        },
-        {
-          "month": "2023-05",
-          "index": 1.3169,
-          "benchmark_index": 1.3515,
-          "drawdown": 0.0
-        },
-        {
-          "month": "2023-06",
-          "index": 1.2606,
-          "benchmark_index": 1.2878,
-          "drawdown": -0.0428
-        },
-        {
-          "month": "2023-07",
-          "index": 1.2885,
-          "benchmark_index": 1.3203,
-          "drawdown": -0.0216
-        },
-        {
-          "month": "2023-08",
-          "index": 1.285,
-          "benchmark_index": 1.3298,
-          "drawdown": -0.0243
-        },
-        {
-          "month": "2023-09",
-          "index": 1.2597,
-          "benchmark_index": 1.2957,
-          "drawdown": -0.0435
-        },
-        {
-          "month": "2023-10",
-          "index": 1.2711,
-          "benchmark_index": 1.2984,
-          "drawdown": -0.0348
-        },
-        {
-          "month": "2023-11",
-          "index": 1.1685,
-          "benchmark_index": 1.166,
-          "drawdown": -0.1127
-        },
-        {
-          "month": "2023-12",
-          "index": 1.1502,
-          "benchmark_index": 1.1491,
-          "drawdown": -0.1266
-        },
-        {
-          "month": "2024-01",
-          "index": 1.1395,
-          "benchmark_index": 1.1492,
-          "drawdown": -0.1348
-        },
-        {
-          "month": "2024-02",
-          "index": 1.1296,
-          "benchmark_index": 1.1373,
-          "drawdown": -0.1423
-        },
-        {
-          "month": "2024-03",
-          "index": 1.149,
-          "benchmark_index": 1.1579,
-          "drawdown": -0.1275
-        },
-        {
-          "month": "2024-04",
-          "index": 1.1,
-          "benchmark_index": 1.1065,
-          "drawdown": -0.1647
-        },
-        {
-          "month": "2024-05",
-          "index": 1.0766,
-          "benchmark_index": 1.0777,
-          "drawdown": -0.1825
-        },
-        {
-          "month": "2024-06",
-          "index": 1.0754,
-          "benchmark_index": 1.0636,
-          "drawdown": -0.1834
-        },
-        {
-          "month": "2024-07",
-          "index": 1.0516,
-          "benchmark_index": 1.051,
-          "drawdown": -0.2015
-        },
-        {
-          "month": "2024-08",
-          "index": 1.1016,
-          "benchmark_index": 1.1145,
-          "drawdown": -0.1635
-        },
-        {
-          "month": "2024-09",
-          "index": 1.1078,
-          "benchmark_index": 1.1336,
-          "drawdown": -0.1588
-        },
-        {
-          "month": "2024-10",
-          "index": 1.1148,
-          "benchmark_index": 1.1215,
-          "drawdown": -0.1535
-        },
-        {
-          "month": "2024-11",
-          "index": 1.1207,
-          "benchmark_index": 1.1199,
-          "drawdown": -0.149
-        },
-        {
-          "month": "2024-12",
-          "index": 1.0594,
-          "benchmark_index": 1.0382,
-          "drawdown": -0.1955
-        },
-        {
-          "month": "2025-01",
-          "index": 1.1632,
-          "benchmark_index": 1.1578,
-          "drawdown": -0.1168
-        },
-        {
-          "month": "2025-02",
-          "index": 1.0767,
-          "benchmark_index": 1.0639,
-          "drawdown": -0.1824
-        },
-        {
-          "month": "2025-03",
-          "index": 1.0817,
-          "benchmark_index": 1.0756,
-          "drawdown": -0.1786
-        },
-        {
-          "month": "2025-04",
-          "index": 1.1209,
-          "benchmark_index": 1.1236,
-          "drawdown": -0.1489
-        },
-        {
-          "month": "2025-05",
-          "index": 1.0728,
-          "benchmark_index": 1.055,
-          "drawdown": -0.1854
-        },
-        {
-          "month": "2025-06",
-          "index": 1.0661,
-          "benchmark_index": 1.0387,
-          "drawdown": -0.1905
-        },
-        {
-          "month": "2025-07",
-          "index": 1.0897,
-          "benchmark_index": 1.0762,
-          "drawdown": -0.1726
-        },
-        {
-          "month": "2025-08",
-          "index": 1.0831,
-          "benchmark_index": 1.0696,
-          "drawdown": -0.1776
-        },
-        {
-          "month": "2025-09",
-          "index": 1.1369,
-          "benchmark_index": 1.139,
-          "drawdown": -0.1367
-        },
-        {
-          "month": "2025-10",
-          "index": 1.205,
-          "benchmark_index": 1.2274,
-          "drawdown": -0.085
-        },
-        {
-          "month": "2025-11",
-          "index": 1.1784,
-          "benchmark_index": 1.1977,
-          "drawdown": -0.1052
-        },
-        {
-          "month": "2025-12",
-          "index": 1.2224,
-          "benchmark_index": 1.268,
-          "drawdown": -0.0718
-        },
-        {
-          "month": "2026-01",
-          "index": 1.2409,
-          "benchmark_index": 1.2865,
-          "drawdown": -0.0578
-        },
-        {
-          "month": "2026-02",
-          "index": 1.1983,
-          "benchmark_index": 1.2487,
-          "drawdown": -0.0901
-        },
-        {
-          "month": "2026-03",
-          "index": 1.243,
-          "benchmark_index": 1.3095,
-          "drawdown": -0.0562
-        },
-        {
-          "month": "2026-04",
-          "index": 1.2888,
-          "benchmark_index": 1.3763,
-          "drawdown": -0.0214
-        },
-        {
-          "month": "2026-05",
-          "index": 1.3022,
-          "benchmark_index": 1.3897,
-          "drawdown": -0.0112
-        },
-        {
-          "month": "2026-06",
-          "index": 1.349,
-          "benchmark_index": 1.4517,
-          "drawdown": 0.0
-        },
-        {
-          "month": "2026-07",
-          "index": 1.3933,
-          "benchmark_index": 1.512,
-          "drawdown": 0.0
-        },
-        {
-          "month": "2026-08",
-          "index": 1.3935,
-          "benchmark_index": 1.4979,
-          "drawdown": 0.0
-        },
-        {
-          "month": "2026-09",
-          "index": 1.4603,
-          "benchmark_index": 1.5846,
-          "drawdown": 0.0
-        }
-      ]
-    },
-    "calendar": [
-      {
-        "month": "2021-10",
-        "return": 0.0167
-      },
-      {
-        "month": "2021-11",
-        "return": 0.0459
-      },
-      {
-        "month": "2021-12",
-        "return": 0.0297
-      },
-      {
-        "month": "2022-01",
-        "return": 0.0245
-      },
-      {
-        "month": "2022-02",
-        "return": 0.0081
-      },
-      {
-        "month": "2022-03",
-        "return": 0.036
-      },
-      {
-        "month": "2022-04",
-        "return": 0.0581
-      },
-      {
-        "month": "2022-05",
-        "return": 0.0208
-      },
-      {
-        "month": "2022-06",
-        "return": -0.0106
-      },
-      {
-        "month": "2022-07",
-        "return": -0.0753
-      },
-      {
-        "month": "2022-08",
-        "return": 0.0328
-      },
-      {
-        "month": "2022-09",
-        "return": -0.0135
-      },
-      {
-        "month": "2022-10",
-        "return": -0.049
-      },
-      {
-        "month": "2022-11",
-        "return": 0.0003
-      },
-      {
-        "month": "2022-12",
-        "return": 0.0006
-      },
-      {
-        "month": "2023-01",
-        "return": 0.0418
-      },
-      {
-        "month": "2023-02",
-        "return": 0.0056
-      },
-      {
-        "month": "2023-03",
-        "return": 0.0478
-      },
-      {
-        "month": "2023-04",
-        "return": 0.0227
-      },
-      {
-        "month": "2023-05",
-        "return": 0.0447
-      },
-      {
-        "month": "2023-06",
-        "return": -0.0428
-      },
-      {
-        "month": "2023-07",
-        "return": 0.0221
-      },
-      {
-        "month": "2023-08",
-        "return": -0.0028
-      },
-      {
-        "month": "2023-09",
-        "return": -0.0197
-      },
-      {
-        "month": "2023-10",
-        "return": 0.0091
-      },
-      {
-        "month": "2023-11",
-        "return": -0.0807
-      },
-      {
-        "month": "2023-12",
-        "return": -0.0157
-      },
-      {
-        "month": "2024-01",
-        "return": -0.0094
-      },
-      {
-        "month": "2024-02",
-        "return": -0.0087
-      },
-      {
-        "month": "2024-03",
-        "return": 0.0172
-      },
-      {
-        "month": "2024-04",
-        "return": -0.0427
-      },
-      {
-        "month": "2024-05",
-        "return": -0.0213
-      },
-      {
-        "month": "2024-06",
-        "return": -0.0011
-      },
-      {
-        "month": "2024-07",
-        "return": -0.0221
-      },
-      {
-        "month": "2024-08",
-        "return": 0.0475
-      },
-      {
-        "month": "2024-09",
-        "return": 0.0056
-      },
+    "months": [
       {
         "month": "2024-10",
-        "return": 0.0064
+        "return": -0.03904528277702752,
+        "wealth": 0.9609547172229724,
+        "drawdown": 0.03904528277702757,
+        "covered": 0.6924861172649579,
+        "rolling_12m_return": null,
+        "rolling_12m_volatility": null
       },
       {
         "month": "2024-11",
-        "return": 0.0053
+        "return": 0.017993353940060665,
+        "wealth": 0.9782455155703363,
+        "drawdown": 0.021754484429663656,
+        "covered": 0.6924861172649579,
+        "rolling_12m_return": null,
+        "rolling_12m_volatility": null
       },
       {
         "month": "2024-12",
-        "return": -0.0547
+        "return": 0.004836753952845461,
+        "wealth": 0.9829770484346246,
+        "drawdown": 0.017022951565375366,
+        "covered": 0.6924861172649579,
+        "rolling_12m_return": null,
+        "rolling_12m_volatility": null
       },
       {
         "month": "2025-01",
-        "return": 0.0979
+        "return": 0.013750913002937813,
+        "wealth": 0.9964938803115337,
+        "drawdown": 0.003506119688466258,
+        "covered": 0.6924861172649579,
+        "rolling_12m_return": null,
+        "rolling_12m_volatility": null
       },
       {
         "month": "2025-02",
-        "return": -0.0744
+        "return": -0.0073877991074975105,
+        "wealth": 0.9891319837119414,
+        "drawdown": 0.010868016288058557,
+        "covered": 0.6924861172649579,
+        "rolling_12m_return": null,
+        "rolling_12m_volatility": null
       },
       {
         "month": "2025-03",
-        "return": 0.0047
+        "return": 0.016125373134198973,
+        "wealth": 1.005082106028267,
+        "drawdown": 0.0,
+        "covered": 0.6924861172649579,
+        "rolling_12m_return": null,
+        "rolling_12m_volatility": null
       },
       {
         "month": "2025-04",
-        "return": 0.0362
+        "return": -0.01744716036114925,
+        "wealth": 0.9875462773482703,
+        "drawdown": 0.01744716036114924,
+        "covered": 0.6924861172649579,
+        "rolling_12m_return": null,
+        "rolling_12m_volatility": null
       },
       {
         "month": "2025-05",
-        "return": -0.0429
+        "return": 0.0009108600404399399,
+        "wealth": 0.988445793790392,
+        "drawdown": 0.01655219224190152,
+        "covered": 0.6924861172649579,
+        "rolling_12m_return": null,
+        "rolling_12m_volatility": null
       },
       {
         "month": "2025-06",
-        "return": -0.0063
+        "return": 0.04272130398407055,
+        "wealth": 1.0306734870186873,
+        "drawdown": 0.0,
+        "covered": 0.6924861172649579,
+        "rolling_12m_return": null,
+        "rolling_12m_volatility": null
       },
       {
         "month": "2025-07",
-        "return": 0.0221
+        "return": -0.020854116016048144,
+        "wealth": 1.0091797025457347,
+        "drawdown": 0.02085411601604814,
+        "covered": 0.6924861172649579,
+        "rolling_12m_return": null,
+        "rolling_12m_volatility": null
       },
       {
         "month": "2025-08",
-        "return": -0.0061
+        "return": 0.05241619940031052,
+        "wealth": 1.062077067065118,
+        "drawdown": 0.0,
+        "covered": 0.6924861172649579,
+        "rolling_12m_return": null,
+        "rolling_12m_volatility": null
       },
       {
         "month": "2025-09",
-        "return": 0.0497
+        "return": 0.04430875057568372,
+        "wealth": 1.10913637492186,
+        "drawdown": 0.0,
+        "covered": 0.6924861172649579,
+        "rolling_12m_return": 0.1091363749218599,
+        "rolling_12m_volatility": 0.09727231079813146
       },
       {
         "month": "2025-10",
-        "return": 0.0599
+        "return": -0.026186824775727896,
+        "wealth": 1.080091615019395,
+        "drawdown": 0.026186824775727868,
+        "covered": 0.6924861172649579,
+        "rolling_12m_return": 0.12397763980046017,
+        "rolling_12m_volatility": 0.09098665414476087
       },
       {
         "month": "2025-11",
-        "return": -0.0221
+        "return": 0.04126024107220515,
+        "wealth": 1.1246564554351628,
+        "drawdown": 0.0,
+        "covered": 0.6924861172649579,
+        "rolling_12m_return": 0.14966686535686913,
+        "rolling_12m_volatility": 0.09602432420273323
       },
       {
         "month": "2025-12",
-        "return": 0.0373
+        "return": 0.0011158184290309676,
+        "wealth": 1.125911367834466,
+        "drawdown": 0.0,
+        "covered": 0.6924861172649579,
+        "rolling_12m_return": 0.14540962032375226,
+        "rolling_12m_volatility": 0.09640009238501931
       },
       {
         "month": "2026-01",
-        "return": 0.0151
+        "return": -0.016396607566531895,
+        "wealth": 1.1074502409813871,
+        "drawdown": 0.01639660756653194,
+        "covered": 0.6924861172649579,
+        "rolling_12m_return": 0.11134675572233821,
+        "rolling_12m_volatility": 0.10034329812354975
       },
       {
         "month": "2026-02",
-        "return": -0.0343
+        "return": -0.043971462214767,
+        "wealth": 1.0587540345553395,
+        "drawdown": 0.059647086971236885,
+        "covered": 0.6924861172649579,
+        "rolling_12m_return": 0.0703870181026045,
+        "rolling_12m_volatility": 0.11283793349724486
       },
       {
         "month": "2026-03",
-        "return": 0.0372
+        "return": -0.015001832927978478,
+        "wealth": 1.0428707834171171,
+        "drawdown": 0.07375410426583218,
+        "covered": 0.6924861172649579,
+        "rolling_12m_return": 0.03759760238710985,
+        "rolling_12m_volatility": 0.11412703887370262
       },
       {
         "month": "2026-04",
-        "return": 0.0369
+        "return": 0.00316241993246601,
+        "wealth": 1.046168778769582,
+        "drawdown": 0.07082492578279764,
+        "covered": 0.6924861172649579,
+        "rolling_12m_return": 0.05936177652223362,
+        "rolling_12m_volatility": 0.11182369551394862
       },
       {
         "month": "2026-05",
-        "return": 0.0104
+        "return": -0.002821276037788863,
+        "wealth": 1.0432172478625565,
+        "drawdown": 0.07344638515459723,
+        "covered": 0.6924861172649579,
+        "rolling_12m_return": 0.05541169219015263,
+        "rolling_12m_volatility": 0.11204521224753874
       },
       {
         "month": "2026-06",
-        "return": 0.0359
+        "return": -0.021589745066250596,
+        "wealth": 1.0206944534324884,
+        "drawdown": 0.09345044148932236,
+        "covered": 0.6924861172649579,
+        "rolling_12m_return": -0.009682051310997086,
+        "rolling_12m_volatility": 0.10674400486880119
       },
       {
         "month": "2026-07",
-        "return": 0.0329
+        "return": -0.0028156432484296554,
+        "wealth": 1.0178205419859716,
+        "drawdown": 0.09600296163310984,
+        "covered": 0.6924861172649579,
+        "rolling_12m_return": 0.008562240618237071,
+        "rolling_12m_volatility": 0.10446947381600341
       },
       {
         "month": "2026-08",
-        "return": 0.0001
+        "return": 0.00031995504812754977,
+        "wealth": 1.018146198806468,
+        "drawdown": 0.09571372321719196,
+        "covered": 0.6924861172649579,
+        "rolling_12m_return": -0.04136316433236453,
+        "rolling_12m_volatility": 0.08830464493090805
       },
       {
         "month": "2026-09",
-        "return": 0.048
+        "return": -0.0444574024711612,
+        "wealth": 0.9728820634716459,
+        "drawdown": 0.13591594217327319,
+        "covered": 0.6924861172649579,
+        "rolling_12m_return": -0.12284721205705074,
+        "rolling_12m_volatility": 0.08045218929954831
       }
     ],
-    "rolling_12m": [
+    "calendar": [
       {
-        "month": "2022-09",
-        "return": 0.1795,
-        "volatility": 0.1217,
-        "sharpe": 1.147
+        "year": 2024,
+        "months": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          -0.03904528277702752,
+          0.017993353940060665,
+          0.004836753952845461
+        ],
+        "total": -0.017022951565375366
       },
       {
-        "month": "2022-10",
-        "return": 0.1033,
-        "volatility": 0.1371,
-        "sharpe": 0.461
+        "year": 2025,
+        "months": [
+          0.013750913002937813,
+          -0.0073877991074975105,
+          0.016125373134198973,
+          -0.01744716036114925,
+          0.0009108600404399399,
+          0.04272130398407055,
+          -0.020854116016048144,
+          0.05241619940031052,
+          0.04430875057568372,
+          -0.026186824775727896,
+          0.04126024107220515,
+          0.0011158184290309676
+        ],
+        "total": 0.14540962032375226
       },
       {
-        "month": "2022-11",
-        "return": 0.0552,
-        "volatility": 0.1312,
-        "sharpe": 0.116
-      },
-      {
-        "month": "2022-12",
-        "return": 0.0253,
-        "volatility": 0.1284,
-        "sharpe": -0.114
-      },
-      {
-        "month": "2023-01",
-        "return": 0.0427,
-        "volatility": 0.1327,
-        "sharpe": 0.021
-      },
-      {
-        "month": "2023-02",
-        "return": 0.0402,
-        "volatility": 0.1327,
-        "sharpe": 0.001
-      },
-      {
-        "month": "2023-03",
-        "return": 0.052,
-        "volatility": 0.1363,
-        "sharpe": 0.088
-      },
-      {
-        "month": "2023-04",
-        "return": 0.0168,
-        "volatility": 0.1254,
-        "sharpe": -0.185
-      },
-      {
-        "month": "2023-05",
-        "return": 0.0407,
-        "volatility": 0.1314,
-        "sharpe": 0.006
-      },
-      {
-        "month": "2023-06",
-        "return": 0.0069,
-        "volatility": 0.139,
-        "sharpe": -0.238
-      },
-      {
-        "month": "2023-07",
-        "return": 0.113,
-        "volatility": 0.112,
-        "sharpe": 0.652
-      },
-      {
-        "month": "2023-08",
-        "return": 0.0746,
-        "volatility": 0.1095,
-        "sharpe": 0.316
-      },
-      {
-        "month": "2023-09",
-        "return": 0.0679,
-        "volatility": 0.1109,
-        "sharpe": 0.252
-      },
-      {
-        "month": "2023-10",
-        "return": 0.1332,
-        "volatility": 0.0933,
-        "sharpe": 0.999
-      },
-      {
-        "month": "2023-11",
-        "return": 0.0414,
-        "volatility": 0.1308,
-        "sharpe": 0.011
-      },
-      {
-        "month": "2023-12",
-        "return": 0.0245,
-        "volatility": 0.1323,
-        "sharpe": -0.117
-      },
-      {
-        "month": "2024-01",
-        "return": -0.0259,
-        "volatility": 0.1255,
-        "sharpe": -0.525
-      },
-      {
-        "month": "2024-02",
-        "return": -0.0398,
-        "volatility": 0.1254,
-        "sharpe": -0.636
-      },
-      {
-        "month": "2024-03",
-        "return": -0.0677,
-        "volatility": 0.1153,
-        "sharpe": -0.934
-      },
-      {
-        "month": "2024-04",
-        "return": -0.1273,
-        "volatility": 0.1165,
-        "sharpe": -1.436
-      },
-      {
-        "month": "2024-05",
-        "return": -0.1825,
-        "volatility": 0.0997,
-        "sharpe": -2.232
-      },
-      {
-        "month": "2024-06",
-        "return": -0.147,
-        "volatility": 0.0963,
-        "sharpe": -1.942
-      },
-      {
-        "month": "2024-07",
-        "return": -0.1839,
-        "volatility": 0.0886,
-        "sharpe": -2.526
-      },
-      {
-        "month": "2024-08",
-        "return": -0.1427,
-        "volatility": 0.109,
-        "sharpe": -1.675
-      },
-      {
-        "month": "2024-09",
-        "return": -0.1206,
-        "volatility": 0.1101,
-        "sharpe": -1.459
-      },
-      {
-        "month": "2024-10",
-        "return": -0.1229,
-        "volatility": 0.1096,
-        "sharpe": -1.486
-      },
-      {
-        "month": "2024-11",
-        "return": -0.0409,
-        "volatility": 0.0789,
-        "sharpe": -1.026
-      },
-      {
-        "month": "2024-12",
-        "return": -0.079,
-        "volatility": 0.0938,
-        "sharpe": -1.268
-      },
-      {
-        "month": "2025-01",
-        "return": 0.0208,
-        "volatility": 0.1402,
-        "sharpe": -0.137
-      },
-      {
-        "month": "2025-02",
-        "return": -0.0468,
-        "volatility": 0.1599,
-        "sharpe": -0.543
-      },
-      {
-        "month": "2025-03",
-        "return": -0.0586,
-        "volatility": 0.1586,
-        "sharpe": -0.622
-      },
-      {
-        "month": "2025-04",
-        "return": 0.0189,
-        "volatility": 0.1573,
-        "sharpe": -0.134
-      },
-      {
-        "month": "2025-05",
-        "return": -0.0035,
-        "volatility": 0.1622,
-        "sharpe": -0.268
-      },
-      {
-        "month": "2025-06",
-        "return": -0.0086,
-        "volatility": 0.1624,
-        "sharpe": -0.3
-      },
-      {
-        "month": "2025-07",
-        "return": 0.0362,
-        "volatility": 0.1617,
-        "sharpe": -0.024
-      },
-      {
-        "month": "2025-08",
-        "return": -0.0168,
-        "volatility": 0.1547,
-        "sharpe": -0.367
-      },
-      {
-        "month": "2025-09",
-        "return": 0.0263,
-        "volatility": 0.1627,
-        "sharpe": -0.084
-      },
-      {
-        "month": "2025-10",
-        "return": 0.0809,
-        "volatility": 0.1724,
-        "sharpe": 0.237
-      },
-      {
-        "month": "2025-11",
-        "return": 0.0515,
-        "volatility": 0.1749,
-        "sharpe": 0.066
-      },
-      {
-        "month": "2025-12",
-        "return": 0.1538,
-        "volatility": 0.1643,
-        "sharpe": 0.693
-      },
-      {
-        "month": "2026-01",
-        "return": 0.0668,
-        "volatility": 0.1361,
-        "sharpe": 0.197
-      },
-      {
-        "month": "2026-02",
-        "return": 0.113,
-        "volatility": 0.1144,
-        "sharpe": 0.638
-      },
-      {
-        "month": "2026-03",
-        "return": 0.149,
-        "volatility": 0.1175,
-        "sharpe": 0.928
-      },
-      {
-        "month": "2026-04",
-        "return": 0.1498,
-        "volatility": 0.1177,
-        "sharpe": 0.933
-      },
-      {
-        "month": "2026-05",
-        "return": 0.2138,
-        "volatility": 0.1014,
-        "sharpe": 1.714
-      },
-      {
-        "month": "2026-06",
-        "return": 0.2654,
-        "volatility": 0.0998,
-        "sharpe": 2.259
-      },
-      {
-        "month": "2026-07",
-        "return": 0.2787,
-        "volatility": 0.1006,
-        "sharpe": 2.373
-      },
-      {
-        "month": "2026-08",
-        "return": 0.2866,
-        "volatility": 0.0989,
-        "sharpe": 2.493
-      },
-      {
-        "month": "2026-09",
-        "return": 0.2845,
-        "volatility": 0.0984,
-        "sharpe": 2.484
+        "year": 2026,
+        "months": [
+          -0.016396607566531895,
+          -0.043971462214767,
+          -0.015001832927978478,
+          0.00316241993246601,
+          -0.002821276037788863,
+          -0.021589745066250596,
+          -0.0028156432484296554,
+          0.00031995504812754977,
+          -0.0444574024711612,
+          null,
+          null,
+          null
+        ],
+        "total": -0.13591594217327319
       }
     ],
     "drawdowns": [
       {
-        "start": "2023-05",
-        "trough": "2024-07",
-        "recovery": "2026-06",
-        "depth": -0.2015,
-        "months_to_trough": 14,
-        "months_to_recover": 23
+        "peak": "2025-12",
+        "trough": "2026-09",
+        "recovery": null,
+        "depth": 0.13591594217327319,
+        "months_to_trough": 9,
+        "months_to_recover": null
       },
       {
-        "start": "2022-05",
-        "trough": "2022-10",
-        "recovery": "2023-05",
-        "depth": -0.1135,
-        "months_to_trough": 5,
-        "months_to_recover": 7
+        "peak": null,
+        "trough": "2024-10",
+        "recovery": "2025-03",
+        "depth": 0.03904528277702757,
+        "months_to_trough": 1,
+        "months_to_recover": 5
+      },
+      {
+        "peak": "2025-09",
+        "trough": "2025-10",
+        "recovery": "2025-11",
+        "depth": 0.026186824775727868,
+        "months_to_trough": 1,
+        "months_to_recover": 1
+      },
+      {
+        "peak": "2025-06",
+        "trough": "2025-07",
+        "recovery": "2025-08",
+        "depth": 0.02085411601604814,
+        "months_to_trough": 1,
+        "months_to_recover": 1
+      },
+      {
+        "peak": "2025-03",
+        "trough": "2025-04",
+        "recovery": "2025-06",
+        "depth": 0.01744716036114924,
+        "months_to_trough": 1,
+        "months_to_recover": 2
+      }
+    ],
+    "series": [
+      {
+        "series": "example_corp",
+        "name": "Example Corp",
+        "weight": 0.11711027712058751,
+        "months": 24,
+        "annual_return": 0.17045162223818555,
+        "annual_volatility": 0.11382352943030598,
+        "sharpe": 1.1008813124527026,
+        "max_drawdown": 0.07167310606088872
+      },
+      {
+        "series": "global_equity",
+        "name": "Example Global Equity",
+        "weight": 0.052767340416949096,
+        "months": 24,
+        "annual_return": 0.18760978439889908,
+        "annual_volatility": 0.28805157650005064,
+        "sharpe": 0.6038955128836598,
+        "max_drawdown": 0.18040838910209345
+      },
+      {
+        "series": "strategy",
+        "name": "Example Strategy",
+        "weight": 0.12978454953623553,
+        "months": 24,
+        "annual_return": 0.010925318705590659,
+        "annual_volatility": 0.06948989921738537,
+        "sharpe": -0.3759051545550483,
+        "max_drawdown": 0.07739681513862084
+      },
+      {
+        "series": "momentum",
+        "name": "Example Momentum",
+        "weight": 0.37437850827760244,
+        "months": 24,
+        "annual_return": -0.11322099709115818,
+        "annual_volatility": 0.1703965107145693,
+        "sharpe": -0.850641186001379,
+        "max_drawdown": 0.2819274930099115
       }
     ]
   },
-  "income": [
-    {
-      "month": "2025-10",
-      "dividends": 682.41,
-      "interest": 29.86,
-      "fees": 57.66
-    },
-    {
-      "month": "2025-11",
-      "dividends": 354.74,
-      "interest": 17.49,
-      "fees": 55.02
-    },
-    {
-      "month": "2025-12",
-      "dividends": 93.12,
-      "interest": 10.74,
-      "fees": 12.63
-    },
-    {
-      "month": "2026-01",
-      "dividends": 705.08,
-      "interest": 37.93,
-      "fees": 14.5
-    },
-    {
-      "month": "2026-02",
-      "dividends": 205.12,
-      "interest": 35.66,
-      "fees": 58.16
-    },
-    {
-      "month": "2026-03",
-      "dividends": 398.7,
-      "interest": 5.24,
-      "fees": 22.7
-    },
-    {
-      "month": "2026-04",
-      "dividends": 361.99,
-      "interest": 10.51,
-      "fees": 7.52
-    },
-    {
-      "month": "2026-05",
-      "dividends": 482.11,
-      "interest": 14.93,
-      "fees": 53.7
-    },
-    {
-      "month": "2026-06",
-      "dividends": 229.22,
-      "interest": 22.7,
-      "fees": 50.6
-    },
-    {
-      "month": "2026-07",
-      "dividends": 284.03,
-      "interest": 23.31,
-      "fees": 16.83
-    },
-    {
-      "month": "2026-08",
-      "dividends": 286.54,
-      "interest": 22.4,
-      "fees": 29.91
-    },
-    {
-      "month": "2026-09",
-      "dividends": 281.41,
-      "interest": 25.07,
-      "fees": 14.46
-    }
-  ],
-  "correlation": {
-    "ids": [
-      "glob_eq",
-      "us_eq",
-      "uk_eq",
-      "em_eq",
-      "multi40",
-      "target35",
-      "gilts",
-      "tech_stock",
-      "staples_stock"
-    ],
-    "matrix": [
-      [
-        1.0,
-        0.914,
-        0.913,
-        0.778,
-        0.851,
-        0.895,
-        0.045,
-        0.732,
-        0.532
-      ],
-      [
-        0.914,
-        1.0,
-        0.854,
-        0.707,
-        0.76,
-        0.829,
-        0.055,
-        0.667,
-        0.469
-      ],
-      [
-        0.913,
-        0.854,
-        1.0,
-        0.756,
-        0.83,
-        0.813,
-        0.052,
-        0.665,
-        0.505
-      ],
-      [
-        0.778,
-        0.707,
-        0.756,
-        1.0,
-        0.751,
-        0.755,
-        0.016,
-        0.591,
-        0.451
-      ],
-      [
-        0.851,
-        0.76,
-        0.83,
-        0.751,
-        1.0,
-        0.747,
-        -0.078,
-        0.606,
-        0.432
-      ],
-      [
-        0.895,
-        0.829,
-        0.813,
-        0.755,
-        0.747,
-        1.0,
-        0.071,
-        0.707,
-        0.478
-      ],
-      [
-        0.045,
-        0.055,
-        0.052,
-        0.016,
-        -0.078,
-        0.071,
-        1.0,
-        0.048,
-        -0.012
-      ],
-      [
-        0.732,
-        0.667,
-        0.665,
-        0.591,
-        0.606,
-        0.707,
-        0.048,
-        1.0,
-        0.313
-      ],
-      [
-        0.532,
-        0.469,
-        0.505,
-        0.451,
-        0.432,
-        0.478,
-        -0.012,
-        0.313,
-        1.0
-      ]
-    ]
-  },
-  "risk_contribution": [
-    {
-      "holding": "glob_eq",
-      "weight": 0.2759,
-      "contribution": 0.3297
-    },
-    {
-      "holding": "us_eq",
-      "weight": 0.1638,
-      "contribution": 0.2111
-    },
-    {
-      "holding": "uk_eq",
-      "weight": 0.1207,
-      "contribution": 0.1248
-    },
-    {
-      "holding": "em_eq",
-      "weight": 0.069,
-      "contribution": 0.0939
-    },
-    {
-      "holding": "multi40",
-      "weight": 0.1034,
-      "contribution": 0.0565
-    },
-    {
-      "holding": "target35",
-      "weight": 0.0776,
-      "contribution": 0.056
-    },
-    {
-      "holding": "gilts",
-      "weight": 0.0948,
-      "contribution": 0.0084
-    },
-    {
-      "holding": "tech_stock",
-      "weight": 0.0517,
-      "contribution": 0.0867
-    },
-    {
-      "holding": "staples_stock",
-      "weight": 0.0431,
-      "contribution": 0.0328
-    }
-  ],
   "frontier": {
+    "available": true,
+    "series": [
+      "example_corp",
+      "global_equity",
+      "strategy",
+      "momentum"
+    ],
+    "names": {
+      "example_corp": "Example Corp",
+      "global_equity": "Example Global Equity",
+      "strategy": "Example Strategy",
+      "momentum": "Example Momentum"
+    },
+    "sleeve_share": 0.6740406753513746,
+    "max_weight": 0.6,
+    "covariance": "shrunk",
+    "shrinkage": 0.16610701320671123,
+    "target_kind": "same-risk",
+    "risk_free": 0.039284877386386974,
     "points": [
       {
-        "return": 0.04625,
-        "volatility": 0.07444,
-        "sharpe": 0.084,
-        "weights": {
-          "uk_eq": 0.1222,
-          "multi40": 0.25,
-          "target35": 0.25,
-          "gilts": 0.25,
-          "staples_stock": 0.1278
-        }
+        "return": 0.057071667835926085,
+        "volatility": 0.06480045529612011,
+        "sharpe": 0.27448557835370774
       },
       {
-        "return": 0.05004,
-        "volatility": 0.07692,
-        "sharpe": 0.1305,
-        "weights": {
-          "glob_eq": 0.0206,
-          "us_eq": 0.0761,
-          "multi40": 0.25,
-          "target35": 0.25,
-          "gilts": 0.25,
-          "tech_stock": 0.0029,
-          "staples_stock": 0.1504
-        }
+        "return": 0.06390704387828922,
+        "volatility": 0.06493462844685932,
+        "sharpe": 0.37918391281860236
       },
       {
-        "return": 0.05383,
-        "volatility": 0.08064,
-        "sharpe": 0.1715,
-        "weights": {
-          "us_eq": 0.1096,
-          "multi40": 0.25,
-          "target35": 0.25,
-          "gilts": 0.25,
-          "tech_stock": 0.0399,
-          "staples_stock": 0.1004
-        }
+        "return": 0.07074241992098024,
+        "volatility": 0.06533549657869712,
+        "sharpe": 0.4814770558405782
       },
       {
-        "return": 0.05762,
-        "volatility": 0.08581,
-        "sharpe": 0.2053,
-        "weights": {
-          "us_eq": 0.1455,
-          "multi40": 0.25,
-          "target35": 0.2278,
-          "gilts": 0.25,
-          "tech_stock": 0.068,
-          "staples_stock": 0.0588
-        }
+        "return": 0.0775777959648122,
+        "volatility": 0.06599820021455721,
+        "sharpe": 0.5802115581021399
       },
       {
-        "return": 0.06141,
-        "volatility": 0.09151,
-        "sharpe": 0.2339,
-        "weights": {
-          "us_eq": 0.2037,
-          "multi40": 0.25,
-          "target35": 0.1562,
-          "gilts": 0.25,
-          "tech_stock": 0.0817,
-          "staples_stock": 0.0583
-        }
+        "return": 0.08441317200750326,
+        "volatility": 0.06691496040968803,
+        "sharpe": 0.6744126327628007
       },
       {
-        "return": 0.0652,
-        "volatility": 0.09758,
-        "sharpe": 0.2582,
-        "weights": {
-          "us_eq": 0.2445,
-          "multi40": 0.2301,
-          "target35": 0.1305,
-          "gilts": 0.25,
-          "tech_stock": 0.1034,
-          "staples_stock": 0.0414
-        }
+        "return": 0.09124854804905347,
+        "volatility": 0.06807551394132497,
+        "sharpe": 0.7633239567967794
       },
       {
-        "return": 0.06899,
-        "volatility": 0.10403,
-        "sharpe": 0.2786,
-        "weights": {
-          "us_eq": 0.25,
-          "multi40": 0.1988,
-          "target35": 0.0986,
-          "gilts": 0.25,
-          "tech_stock": 0.1402,
-          "staples_stock": 0.0625
-        }
+        "return": 0.09808392409174456,
+        "volatility": 0.06946764316463681,
+        "sharpe": 0.8464235149881955
       },
       {
-        "return": 0.07278,
-        "volatility": 0.11092,
-        "sharpe": 0.2955,
-        "weights": {
-          "glob_eq": 0.0419,
-          "us_eq": 0.25,
-          "multi40": 0.153,
-          "target35": 0.0709,
-          "gilts": 0.25,
-          "tech_stock": 0.1641,
-          "staples_stock": 0.0701
-        }
+        "return": 0.10491930013443561,
+        "volatility": 0.07107774245168601,
+        "sharpe": 0.9234173805205281
       },
       {
-        "return": 0.07657,
-        "volatility": 0.11799,
-        "sharpe": 0.3099,
-        "weights": {
-          "glob_eq": 0.0987,
-          "us_eq": 0.25,
-          "multi40": 0.0961,
-          "target35": 0.0735,
-          "gilts": 0.25,
-          "tech_stock": 0.1832,
-          "staples_stock": 0.0485
-        }
+        "return": 0.11175467617745469,
+        "volatility": 0.07289136899473425,
+        "sharpe": 0.9942164592395433
       },
       {
-        "return": 0.08036,
-        "volatility": 0.12512,
-        "sharpe": 0.3226,
-        "weights": {
-          "glob_eq": 0.1469,
-          "us_eq": 0.25,
-          "multi40": 0.0509,
-          "target35": 0.0225,
-          "gilts": 0.25,
-          "tech_stock": 0.2039,
-          "staples_stock": 0.0758
-        }
+        "return": 0.11859005222014572,
+        "volatility": 0.07489373840660006,
+        "sharpe": 1.0589026068268736
       },
       {
-        "return": 0.08415,
-        "volatility": 0.13236,
-        "sharpe": 0.3335,
-        "weights": {
-          "glob_eq": 0.2023,
-          "us_eq": 0.25,
-          "multi40": 0.0047,
-          "gilts": 0.25,
-          "tech_stock": 0.2239,
-          "staples_stock": 0.0691
-        }
+        "return": 0.12542542826283715,
+        "volatility": 0.07707014083166254,
+        "sharpe": 1.1176903265896363
       },
       {
-        "return": 0.08794,
-        "volatility": 0.13999,
-        "sharpe": 0.3424,
-        "weights": {
-          "glob_eq": 0.2385,
-          "us_eq": 0.25,
-          "gilts": 0.2293,
-          "tech_stock": 0.25,
-          "staples_stock": 0.0322
-        }
+        "return": 0.1322608043055279,
+        "volatility": 0.07940838479027032,
+        "sharpe": 1.1708578025444611
       },
       {
-        "return": 0.09172,
-        "volatility": 0.14848,
-        "sharpe": 0.3484,
-        "weights": {
-          "glob_eq": 0.25,
-          "us_eq": 0.25,
-          "target35": 0.0433,
-          "gilts": 0.1231,
-          "tech_stock": 0.25,
-          "staples_stock": 0.0836
-        }
+        "return": 0.1390961803481529,
+        "volatility": 0.08199652031497459,
+        "sharpe": 1.2172626664931527
       },
       {
-        "return": 0.09551,
-        "volatility": 0.15801,
-        "sharpe": 0.3513,
-        "weights": {
-          "glob_eq": 0.25,
-          "us_eq": 0.25,
-          "target35": 0.1003,
-          "gilts": 0.0067,
-          "tech_stock": 0.25,
-          "staples_stock": 0.143
-        }
+        "return": 0.14593155639091004,
+        "volatility": 0.08492564894637882,
+        "sharpe": 1.2557652526371472
       },
       {
-        "return": 0.09875,
-        "volatility": 0.17736,
-        "sharpe": 0.3312,
-        "weights": {
-          "glob_eq": 0.25,
-          "us_eq": 0.25,
-          "em_eq": 0.25,
-          "tech_stock": 0.25
-        }
+        "return": 0.1527669324336011,
+        "volatility": 0.08865267010553392,
+        "sharpe": 1.2800748687222032
       },
       {
-        "return": 0.09875,
-        "volatility": 0.17736,
-        "sharpe": 0.3312,
-        "weights": {
-          "glob_eq": 0.25,
-          "us_eq": 0.25,
-          "em_eq": 0.25,
-          "tech_stock": 0.25
-        }
+        "return": 0.15960230847629214,
+        "volatility": 0.09318922827103222,
+        "sharpe": 1.2911087828731995
       },
       {
-        "return": 0.09875,
-        "volatility": 0.17736,
-        "sharpe": 0.3312,
-        "weights": {
-          "glob_eq": 0.25,
-          "us_eq": 0.25,
-          "em_eq": 0.25,
-          "tech_stock": 0.25
-        }
+        "return": 0.16643768451898322,
+        "volatility": 0.09842344687976212,
+        "sharpe": 1.29189548998351
       },
       {
-        "return": 0.09875,
-        "volatility": 0.17736,
-        "sharpe": 0.3312,
-        "weights": {
-          "glob_eq": 0.25,
-          "us_eq": 0.25,
-          "em_eq": 0.25,
-          "tech_stock": 0.25
-        }
+        "return": 0.17327306056167427,
+        "volatility": 0.10425029403636721,
+        "sharpe": 1.2852547267497028
       },
       {
-        "return": 0.09875,
-        "volatility": 0.17736,
-        "sharpe": 0.3312,
-        "weights": {
-          "glob_eq": 0.25,
-          "us_eq": 0.25,
-          "em_eq": 0.25,
-          "tech_stock": 0.25
-        }
+        "return": 0.18010843660436537,
+        "volatility": 0.11057612309480547,
+        "sharpe": 1.2735440100141644
       },
       {
-        "return": 0.09875,
-        "volatility": 0.17736,
-        "sharpe": 0.3312,
-        "weights": {
-          "glob_eq": 0.25,
-          "us_eq": 0.25,
-          "em_eq": 0.25,
-          "tech_stock": 0.25
-        }
+        "return": 0.18694381264705645,
+        "volatility": 0.12472467474175158,
+        "sharpe": 1.183879096629471
       },
       {
-        "return": 0.09875,
-        "volatility": 0.17736,
-        "sharpe": 0.3312,
-        "weights": {
-          "glob_eq": 0.25,
-          "us_eq": 0.25,
-          "em_eq": 0.25,
-          "tech_stock": 0.25
-        }
-      },
-      {
-        "return": 0.09875,
-        "volatility": 0.17736,
-        "sharpe": 0.3312,
-        "weights": {
-          "glob_eq": 0.25,
-          "us_eq": 0.25,
-          "em_eq": 0.25,
-          "tech_stock": 0.25
-        }
-      },
-      {
-        "return": 0.09875,
-        "volatility": 0.17736,
-        "sharpe": 0.3312,
-        "weights": {
-          "glob_eq": 0.25,
-          "us_eq": 0.25,
-          "em_eq": 0.25,
-          "tech_stock": 0.25
-        }
-      },
-      {
-        "return": 0.09875,
-        "volatility": 0.17736,
-        "sharpe": 0.3312,
-        "weights": {
-          "glob_eq": 0.25,
-          "us_eq": 0.25,
-          "em_eq": 0.25,
-          "tech_stock": 0.25
-        }
-      },
-      {
-        "return": 0.09875,
-        "volatility": 0.17736,
-        "sharpe": 0.3312,
-        "weights": {
-          "glob_eq": 0.25,
-          "us_eq": 0.25,
-          "em_eq": 0.25,
-          "tech_stock": 0.25
-        }
+        "return": 0.1937791886897475,
+        "volatility": 0.15582847390613178,
+        "sharpe": 0.9914382617673909
       }
     ],
-    "current": {
-      "return": 0.07302,
-      "volatility": 0.1245,
-      "sharpe": 0.2652,
-      "weights": {
-        "glob_eq": 0.2759,
-        "us_eq": 0.1638,
-        "uk_eq": 0.1207,
-        "em_eq": 0.069,
-        "multi40": 0.1034,
-        "target35": 0.0776,
-        "gilts": 0.0948,
-        "tech_stock": 0.0517,
-        "staples_stock": 0.0431
+    "mixes": {
+      "today": {
+        "return": -0.010862354333940507,
+        "volatility": 0.09705352893285212,
+        "sharpe": -0.5166966340298925,
+        "weights": {
+          "example_corp": 0.17374363507000287,
+          "global_equity": 0.0782850981351262,
+          "strategy": 0.19254705877887765,
+          "momentum": 0.5554242080159932
+        }
+      },
+      "min_variance": {
+        "return": 0.057071667835926085,
+        "volatility": 0.06480045529612011,
+        "sharpe": 0.27448557835370774,
+        "weights": {
+          "example_corp": 0.2875281291238499,
+          "global_equity": 0.09943933289230408,
+          "strategy": 0.44870098640157036,
+          "momentum": 0.16433155158227558
+        }
+      },
+      "max_sharpe": {
+        "return": 0.1635481065135341,
+        "volatility": 0.09613257892496917,
+        "sharpe": 1.2926234843250564,
+        "weights": {
+          "example_corp": 0.5999999999999999,
+          "global_equity": 0.297529702329693,
+          "strategy": 0.10247029767030708,
+          "momentum": 0.0
+        }
+      },
+      "target": {
+        "return": 0.16472646772736008,
+        "volatility": 0.09705352934435847,
+        "sharpe": 1.2924990073868423,
+        "weights": {
+          "example_corp": 0.5999999999999998,
+          "global_equity": 0.30341930963665154,
+          "strategy": 0.0965806903633488,
+          "momentum": 5.487445160488143e-24
+        }
+      },
+      "within_accounts": {
+        "return": -0.01112294662473288,
+        "volatility": 0.09729652998560308,
+        "sharpe": -0.5180844991962065,
+        "weights": {
+          "example_corp": 0.1791004515466154,
+          "global_equity": 0.07292828165851364,
+          "strategy": 0.19254705877887765,
+          "momentum": 0.5554242080159932
+        }
       }
     },
-    "min_variance": {
-      "return": 0.04625,
-      "volatility": 0.07428,
-      "sharpe": 0.0841,
-      "weights": {
-        "uk_eq": 0.0933,
-        "multi40": 0.25,
-        "target35": 0.25,
-        "gilts": 0.25,
-        "staples_stock": 0.1567
-      }
-    },
-    "max_sharpe": {
-      "return": 0.09572,
-      "volatility": 0.15854,
-      "sharpe": 0.3515,
-      "weights": {
-        "glob_eq": 0.25,
-        "us_eq": 0.25,
-        "target35": 0.106,
-        "tech_stock": 0.25,
-        "staples_stock": 0.144
-      }
-    },
-    "risk_free_rate": 0.04,
     "holdings_points": [
       {
-        "id": "glob_eq",
-        "return": 0.085,
-        "volatility": 0.1517
+        "series": "example_corp",
+        "return": 0.16459107385362104,
+        "volatility": 0.12457490725036685
       },
       {
-        "id": "us_eq",
-        "return": 0.1,
-        "volatility": 0.17
+        "series": "global_equity",
+        "return": 0.21323793191383184,
+        "volatility": 0.26734536715300145
       },
       {
-        "id": "uk_eq",
-        "return": 0.06,
-        "volatility": 0.14
+        "series": "strategy",
+        "return": 0.013163266081060998,
+        "volatility": 0.09499619137420419
       },
       {
-        "id": "em_eq",
-        "return": 0.07,
-        "volatility": 0.2
+        "series": "momentum",
+        "return": -0.10566141257835093,
+        "volatility": 0.16842962671588477
+      }
+    ],
+    "turnover": 0.40298289822988675
+  },
+  "risk": {
+    "available": true,
+    "series": [
+      "example_corp",
+      "global_equity",
+      "strategy",
+      "momentum"
+    ],
+    "correlation": [
+      [
+        0.9999999999999999,
+        -0.24589928877818348,
+        0.01881629795916136,
+        0.130923800983659
+      ],
+      [
+        -0.24589928877818348,
+        1.0,
+        0.0835431689310277,
+        -0.20345315111998888
+      ],
+      [
+        0.01881629795916136,
+        0.0835431689310277,
+        1.0,
+        -0.047582773519591226
+      ],
+      [
+        0.130923800983659,
+        -0.20345315111998888,
+        -0.047582773519591226,
+        0.9999999999999999
+      ]
+    ],
+    "contribution": [
+      {
+        "series": "example_corp",
+        "weight": 0.17374363507000287,
+        "risk_share": 0.06684304851469514
       },
       {
-        "id": "multi40",
-        "return": 0.045,
-        "volatility": 0.08
+        "series": "global_equity",
+        "weight": 0.0782850981351262,
+        "risk_share": -0.004217260126008988
       },
       {
-        "id": "target35",
-        "return": 0.055,
-        "volatility": 0.1
+        "series": "strategy",
+        "weight": 0.19254705877887765,
+        "risk_share": 0.031061441359296792
       },
       {
-        "id": "gilts",
-        "return": 0.025,
-        "volatility": 0.07
-      },
-      {
-        "id": "tech_stock",
-        "return": 0.14,
-        "volatility": 0.28
-      },
-      {
-        "id": "staples_stock",
-        "return": 0.06,
-        "volatility": 0.16
+        "series": "momentum",
+        "weight": 0.5554242080159932,
+        "risk_share": 0.906312770252017
       }
     ]
   },
   "rebalance": {
-    "target": "max_sharpe",
-    "trades": [
+    "available": true,
+    "target_kind": "same-risk",
+    "household": [
       {
-        "holding": "glob_eq",
-        "name": "Global All-Cap Equity Index (Acc)",
-        "account": "sipp",
-        "action": "sell",
-        "value_gbp": 15000.0,
-        "est_cost_gbp": 20.0,
-        "cross_account": true
+        "series": "example_corp",
+        "current_gbp": 18768.75,
+        "target_gbp": 64815.32,
+        "trade_gbp": 46046.57
       },
       {
-        "holding": "us_eq",
-        "name": "US Large Cap Equity ETF",
-        "account": "sipp",
-        "action": "buy",
-        "value_gbp": 50000.0,
-        "est_cost_gbp": 55.0,
-        "cross_account": true
+        "series": "global_equity",
+        "current_gbp": 8456.79,
+        "target_gbp": 32777.03,
+        "trade_gbp": 24320.24
       },
       {
-        "holding": "uk_eq",
-        "name": "UK All-Share Index Fund (Acc)",
-        "account": "platform",
-        "action": "sell",
-        "value_gbp": 70000.0,
-        "est_cost_gbp": 75.0,
-        "cross_account": true
+        "series": "strategy",
+        "current_gbp": 20800.0,
+        "target_gbp": 10433.18,
+        "trade_gbp": -10366.82
       },
       {
-        "holding": "em_eq",
-        "name": "Emerging Markets Equity ETF",
-        "account": "isa",
-        "action": "sell",
-        "value_gbp": 40000.0,
-        "est_cost_gbp": 45.0,
-        "cross_account": true
-      },
-      {
-        "holding": "multi40",
-        "name": "Multi-Asset 40% Equity Fund (Acc)",
-        "account": "isa",
-        "action": "sell",
-        "value_gbp": 60000.0,
-        "est_cost_gbp": 65.0,
-        "cross_account": true
-      },
-      {
-        "holding": "target35",
-        "name": "Target Date 2035 Fund (Acc)",
-        "account": "pension",
-        "action": "buy",
-        "value_gbp": 16475.27,
-        "est_cost_gbp": 21.48,
-        "cross_account": true
-      },
-      {
-        "holding": "gilts",
-        "name": "UK Gilts Index Fund",
-        "account": "platform",
-        "action": "sell",
-        "value_gbp": 55000.0,
-        "est_cost_gbp": 60.0,
-        "cross_account": true
-      },
-      {
-        "holding": "tech_stock",
-        "name": "Example Tech Corp",
-        "account": "brokerage",
-        "action": "buy",
-        "value_gbp": 115000.0,
-        "est_cost_gbp": 177.5,
-        "cross_account": true
-      },
-      {
-        "holding": "staples_stock",
-        "name": "Example Consumer Staples Co",
-        "account": "brokerage",
-        "action": "buy",
-        "value_gbp": 58524.73,
-        "est_cost_gbp": 92.79,
-        "cross_account": true
+        "series": "momentum",
+        "current_gbp": 60000.0,
+        "target_gbp": 0.0,
+        "trade_gbp": -60000.0
       }
     ],
-    "total_cost_gbp": 611.77,
-    "sharpe_change": 0.086,
-    "volatility_change": 0.034
+    "within": [
+      {
+        "account": "sipp_1",
+        "series": "example_corp",
+        "current_gbp": 15000.0,
+        "target_gbp": 15578.67,
+        "trade_gbp": 578.67,
+        "cost_gbp": 0.0
+      },
+      {
+        "account": "sipp_1",
+        "series": "global_equity",
+        "current_gbp": 8456.79,
+        "target_gbp": 7878.12,
+        "trade_gbp": -578.67,
+        "cost_gbp": 0.0
+      }
+    ],
+    "total_cost_gbp": 0.0,
+    "min_trade_gbp": 1.0
+  },
+  "income": {
+    "available": true,
+    "first": "2025-10",
+    "last": "2026-09",
+    "months": [
+      {
+        "month": "2025-10",
+        "dividends_gbp": 0.0,
+        "interest_gbp": 0.0,
+        "fees_gbp": 0.0,
+        "tax_withheld_gbp": 0.0
+      },
+      {
+        "month": "2025-11",
+        "dividends_gbp": 0.0,
+        "interest_gbp": 0.0,
+        "fees_gbp": 0.0,
+        "tax_withheld_gbp": 0.0
+      },
+      {
+        "month": "2025-12",
+        "dividends_gbp": 0.0,
+        "interest_gbp": 0.0,
+        "fees_gbp": 0.0,
+        "tax_withheld_gbp": 0.0
+      },
+      {
+        "month": "2026-01",
+        "dividends_gbp": 0.0,
+        "interest_gbp": 0.0,
+        "fees_gbp": 0.0,
+        "tax_withheld_gbp": 0.0
+      },
+      {
+        "month": "2026-02",
+        "dividends_gbp": 0.0,
+        "interest_gbp": 0.0,
+        "fees_gbp": 0.0,
+        "tax_withheld_gbp": 0.0
+      },
+      {
+        "month": "2026-03",
+        "dividends_gbp": 0.0,
+        "interest_gbp": 0.0,
+        "fees_gbp": 0.0,
+        "tax_withheld_gbp": 0.0
+      },
+      {
+        "month": "2026-04",
+        "dividends_gbp": 0.0,
+        "interest_gbp": 0.0,
+        "fees_gbp": 0.0,
+        "tax_withheld_gbp": 0.0
+      },
+      {
+        "month": "2026-05",
+        "dividends_gbp": 0.0,
+        "interest_gbp": 0.0,
+        "fees_gbp": 0.0,
+        "tax_withheld_gbp": 0.0
+      },
+      {
+        "month": "2026-06",
+        "dividends_gbp": 0.0,
+        "interest_gbp": 0.0,
+        "fees_gbp": 0.0,
+        "tax_withheld_gbp": 0.0
+      },
+      {
+        "month": "2026-07",
+        "dividends_gbp": 0.0,
+        "interest_gbp": 0.0,
+        "fees_gbp": 0.0,
+        "tax_withheld_gbp": 0.0
+      },
+      {
+        "month": "2026-08",
+        "dividends_gbp": 0.0,
+        "interest_gbp": 0.0,
+        "fees_gbp": 0.0,
+        "tax_withheld_gbp": 0.0
+      },
+      {
+        "month": "2026-09",
+        "dividends_gbp": 0.0,
+        "interest_gbp": 0.0,
+        "fees_gbp": 0.0,
+        "tax_withheld_gbp": 0.0
+      }
+    ],
+    "totals": {
+      "dividends_gbp": 0.0,
+      "interest_gbp": 0.0,
+      "fees_gbp": 0.0,
+      "tax_withheld_gbp": 0.0
+    }
   },
   "warnings": [
-    "Emerging Markets Equity ETF has 38 months of prices; its statistics use that shorter period.",
-    "Re-weighting moves money between accounts; pension and SIPP money cannot move elsewhere."
+    "strategy.yaml is dated 2025-06-30, more than 12 months before the 2026-10-18 valuation; update it from the fund's latest factsheet",
+    "account sipp_1 has no trading costs in accounts.yaml; its trades cost 0"
   ],
   "data_files": [
     {
-      "name": "prices/glob_eq.csv",
-      "rows": 60,
-      "from": "2021-10",
-      "to": "2026-09",
-      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      "series": "fx:USD",
+      "file": "GBP=X.csv",
+      "sha256": "14e99266b0d9c1e06943c15648e4f2dc3bc7b750c37065b7688fbf8e1f81ce4f",
+      "first": "2024-09-28",
+      "last": "2026-09-28",
+      "rows": 25,
+      "basis": "adjusted"
+    },
+    {
+      "series": "example_corp",
+      "file": "EXA.csv",
+      "sha256": "47cd59c020b08697646c6e39fff4600d235100774fbc5fd8421572a1a7a96c59",
+      "first": "2024-09-28",
+      "last": "2026-09-28",
+      "rows": 25,
+      "basis": "adjusted"
+    },
+    {
+      "series": "global_equity",
+      "file": "EXG.L.csv",
+      "sha256": "4829f6e7fabcd8339a8d16f00cb081635e4b1afcd776e0f4f2127db3a1775c8f",
+      "first": "2024-09-28",
+      "last": "2026-09-28",
+      "rows": 25,
+      "basis": "adjusted"
+    },
+    {
+      "series": "strategy",
+      "file": "strategy.csv",
+      "sha256": "218575cecf5ba6cbc5d2daa802777f503179b49418d01f90bdc1f45a818f6e79",
+      "first": "2024-09-28",
+      "last": "2026-09-28",
+      "rows": 25,
+      "basis": "adjusted"
+    },
+    {
+      "series": "momentum",
+      "file": "EXA.L.csv",
+      "sha256": "270066262466f8daa9207c26f30ba770c7125fba344304f9688b30b92ba62db6",
+      "first": "2024-09-28",
+      "last": "2026-09-28",
+      "rows": 25,
+      "basis": "adjusted"
     }
   ]
 }

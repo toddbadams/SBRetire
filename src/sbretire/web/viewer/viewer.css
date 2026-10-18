@@ -35,6 +35,7 @@ h2, h3, p { margin: 0; }
 .btn { font: inherit; font-size: var(--text-small); color: var(--color-text); background: var(--color-surface-raised); border: var(--border-width) solid var(--color-border); border-radius: var(--radius-pill); padding: var(--space-1) var(--space-3); cursor: pointer; min-height: 2rem; white-space: nowrap; }
 .btn:hover { background: var(--color-surface-sunken); }
 .btn--quiet { background: transparent; }
+a.btn { text-decoration: none; display: inline-flex; align-items: center; }
 
 .pickers { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-3); }
 @media (min-width: 760px) { .pickers { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); } }

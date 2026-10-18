@@ -1,6 +1,6 @@
 /* SBRetire portfolio page (F-030): additions to viewer.css. Uses only theme tokens (var(--…)). */
 
-.pages__link { text-decoration: none; display: inline-flex; align-items: center; }
+.pages__link { text-decoration: none; }
 .masthead__bar { flex-wrap: wrap; }
 .masthead__actions { min-width: 0; }
 

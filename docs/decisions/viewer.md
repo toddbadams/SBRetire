@@ -65,3 +65,25 @@ The browser's own print engine gives searchable vector text, needs no dependency
 libraries rasterise the page, and a page cannot choose the PDF destination itself. Grey tokens rather than a
 greyscale filter keep the text sharp. An investigation on 2026-10-09 showed `break-after: avoid` alone did not keep
 headings with their content in Edge, and that the 18-column table does not fit even landscape A4.
+
+## 4. The Portfolio page is built in the Paper theme and reads one portfolio.json
+
+The Portfolio page (`src/sbretire/web/portfolio/`: `portfolio.html`, `portfolio-view.css`, `portfolio-view.js`)
+reuses `viewer.css` for the masthead, sections, cards, tables and chart classes, and adds only layout in
+`portfolio-view.css`. It uses no new theme tokens: charts use `--chart-run-a/b` and the grid and axis tokens, and
+each mix has its own marker shape (square, triangle, diamond and circle), so the page reads in greyscale print.
+Heatmaps print every value and tint cells with `color-mix()` of chart tokens. `sbretire portfolio report` copies
+the page, `viewer.css` and `theme.css` into the output folder and writes `portfolio/portfolio.js`
+(`window.SBRETIRE_PORTFOLIO`), so `output/portfolio.html` works from disk. The results viewer links to it
+("Portfolio") and it links back ("Results"). The page follows `docs/design/portfolio-design-handoff.md` for:
+- section order and chart choices;
+- wording: "analysis, not advice", no "you should";
+- print: Save as PDF, A4, black and white, nothing split, its own "SBRetire portfolio" page header;
+- privacy: no network.
+
+A section whose analysis did not run shows its plain reason. (F-030)
+
+**Why**: the user chose to have the page built here rather than wait for a Claude Design pass (2026-10-18).
+Keeping to the theme's tokens and the results viewer's classes lets a later design pass restyle it without
+changing `portfolio.json`.
+

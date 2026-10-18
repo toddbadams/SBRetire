@@ -602,6 +602,42 @@ otherwise). It writes:
 
 These are calculations from past prices under the stated assumptions, not a recommendation to trade.
 
+### The Portfolio page: `sbretire portfolio report`
+
+```bash
+uv run sbretire portfolio report
+```
+
+This runs every portfolio analysis above that has its inputs: valuation, returns, performance, look-through and
+the frontier. It also adds:
+
+- the correlation of the priced holdings and each one's share of the ups and downs;
+- dividends, interest, fees and tax withheld for the last twelve months, from the transaction exports;
+- a calendar of monthly returns and the five worst falls of the back-test.
+
+It writes `output/portfolio/portfolio.json` (schema `schemas/portfolio.schema.json`) and
+`output/portfolio/portfolio.js`, and copies the Portfolio page next to the results viewer: `output/portfolio.html`,
+with `portfolio-view.css`, `portfolio-view.js`, `viewer.css` and `theme.css`.
+
+Double-click **`output/portfolio.html`**. It works offline and sends nothing anywhere. It shows:
+
+- what the savings are worth, with the `starting_balance` line and a Copy button;
+- the allocation;
+- the efficient frontier;
+- the re-weighting;
+- the back-test;
+- risk;
+- income and fees;
+- every holding;
+- the data and caveats behind it all.
+
+A part whose inputs are missing (no price files, no risk-free rate, no factsheets) says what it needs instead of
+showing figures. It takes the options of `exposure` and `frontier`, such as `--usd-gbp`, `--risk-free` and
+`--months`. The page has the results viewer's Theme and **Save as PDF** buttons (black and white, A4), and the
+two pages link to each other.
+
+The sample in `docs/design/sample/portfolio/` is synthetic (`uv run python scripts/build_portfolio_design_sample.py`).
+
 ## Development
 
 **VS Code:** open the `C:\sb\SBRetire` folder and accept the recommended extensions (Python, Ruff, Mypy). The

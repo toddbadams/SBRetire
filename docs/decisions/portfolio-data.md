@@ -290,3 +290,23 @@ the window and the turnover `Σ|w₁ − w₂| / 2` between the two is reported.
 **Why**: per-account fee schedules (user, 2026-10-18); estimation error is the frontier's main weakness (epic
 risk), and a turnover figure says plainly how much to trust the target.
 
+## 25. portfolio.json gathers every analysis; missing inputs make a section unavailable, not an error
+
+`sbretire portfolio report` writes `output/portfolio/portfolio.json`, schema 1.0, defined in
+`schemas/portfolio.schema.json`. Its sections are:
+- `settings`, `people`, `total` (with the `starting_balance` line), `accounts` and `holdings`;
+- `exposure`, `performance` (with a returns `calendar` and the five worst non-overlapping `drawdowns`), `frontier`,
+  `risk` (sleeve correlation, and each series' share of the volatility `wᵢ(Σw)ᵢ / wᵀΣw`), `rebalance` and `income`
+  (dividends, interest, fees and tax withheld per month for the twelve months before the export folder, USD at
+  the valuation rate);
+- `warnings` and `data_files`.
+
+Each analysis section has `available`; when its inputs are missing it is `{"available": false, "reason": "…"}`.
+For example: performance needs prices and a risk-free rate; the frontier needs ≥ 2 fully priced series; the
+look-through needs `securities.yaml`. Invalid configuration (a bad map or factsheet) still exits 2.
+`portfolio/portfolio.js` holds the same document for the page. Time- and money-weighted account returns (F-031)
+and a benchmark are not in 1.0. (F-030)
+
+**Why**: one versioned contract for the page and any later tool; the page must appear from the very first export,
+saying plainly what each part still needs.
+
