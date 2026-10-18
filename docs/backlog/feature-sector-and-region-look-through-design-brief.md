@@ -170,14 +170,17 @@ def look_through(
 2026-10-18 ledger/exposure.py Exposure, look_through (funds by factsheet weights, stocks by series fields, cash by currency, Unclassified for unknowns and missing dimensions, region-derived currencies counted, top holdings merged by name ignoring case and punctuation); tests/unit/test_exposure_look_through.py (typing tidied: no ignores).
 
 ### F-028.3 `sbretire portfolio exposure`
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-028.2
 
 The command, the shared today's-values helper, `exposure.csv` and the summary, and the stale-factsheet warning.
 §2 #9–#10.
 
 **Acceptance criteria**
-- [ ] On the F-026 synthetic holdings with synthetic factsheets, the command prints the asset class, sector, region and currency tables and the top holdings, each with GBP and share, writes `exposure.csv` (UTF-8, LF, columns, every dimension adding to the household total), warns on a factsheet over 12 months old, and exits 2 with the location on a bad factsheet — `test_cli_portfolio_exposure`
+- [x] On the F-026 synthetic holdings with synthetic factsheets, the command prints the asset class, sector, region and currency tables and the top holdings, each with GBP and share, writes `exposure.csv` (UTF-8, LF, columns, every dimension adding to the household total), warns on a factsheet over 12 months old, and exits 2 with the location on a bad factsheet — `test_cli_portfolio_exposure`
+
+**Notes**
+2026-10-18 returns.today_values / TodayValues (securities map and today's GBP values and cash by currency; build_returns now uses it); exposure.py ExposureReport, build_exposure (factsheet errors prefixed with the file name, 12-month staleness warning), write_exposure_csv, format_exposure; `sbretire portfolio exposure`; tests/unit/test_exposure_cli.py. Real holdings: only cash classified until factsheets exist, exit 0.
 
 ### F-028.4 Docs and a local run
 - **Status**: To Do

@@ -6,8 +6,9 @@ weights as shares of the fund's whole value; a single stock's series carries its
 
 from __future__ import annotations
 
+import csv
 import datetime as dt
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Annotated, Final
@@ -16,7 +17,9 @@ from pydantic import BaseModel, BeforeValidator, ConfigDict, Field, ValidationEr
 
 from sbretire._yaml import YamlLoadError, load_yaml
 from sbretire.config import ScenarioError, ScenarioIssue, _format_location, _issue, _text
+from sbretire.ledger.accounts import AccountConfig
 from sbretire.ledger.prices import SecuritiesConfig
+from sbretire.ledger.returns import TodayValues, today_values
 from sbretire.ledger.taxonomy import NAMES, Dimension, canonical, region_currency
 
 Weight = Annotated[float, Field(ge=0.0)]
@@ -224,3 +227,105 @@ def look_through(
     top = sorted(((names[key], amount) for key, amount in amounts.items()), key=lambda item: -item[1])
     total = sum(values.values()) + sum(cash.values())
     return Exposure(tables, top[:TOP_HOLDINGS], total, approximated, warnings)
+
+
+STALE_DAYS: Final = 365
+LABELS: Final[dict[Dimension, str]] = {
+    "asset_class": "Asset class",
+    "sector": "Sector",
+    "region": "Region",
+    "currency": "Currency",
+}
+
+
+@dataclass(frozen=True)
+class ExposureReport:
+    """Everything ``sbretire portfolio exposure`` prints and writes."""
+
+    today: TodayValues
+    exposure: Exposure
+    warnings: list[str]
+
+
+def build_exposure(
+    root: Path,
+    accounts: Sequence[AccountConfig],
+    prices_dir: Path,
+    factsheets_dir: Path,
+    usd_gbp: float | None = None,
+) -> ExposureReport:
+    """Look through today's holdings with each fund's factsheet (portfolio-data §18–§20).
+
+    Raises ``ScenarioError`` naming the factsheet file in each location when one is invalid. A factsheet more
+    than 12 months older than the newest valuation date gets a warning; a missing one leaves its fund
+    Unclassified, with a warning.
+    """
+    today = today_values(root, accounts, prices_dir, usd_gbp)
+    dates = [on for on, _ in today.valuation.dates().values()]
+    newest = max(dates) if dates else None
+    factsheets: dict[str, Factsheet] = {}
+    warnings = list(today.notes) + list(today.valuation.warnings)
+    for series in today.config.securities:
+        if series.factsheet is None:
+            continue
+        path = factsheets_dir / series.factsheet
+        if not path.exists():
+            continue  # look_through warns and counts the fund as Unclassified
+        try:
+            sheet = load_factsheet(path)
+        except ScenarioError as exc:
+            raise ScenarioError(
+                [ScenarioIssue(f"{path.name}: {issue.location}", issue.message) for issue in exc.issues]
+            ) from None
+        factsheets[series.id] = sheet
+        if newest is not None and (newest - sheet.as_of).days > STALE_DAYS:
+            warnings.append(
+                f"{path.name} is dated {sheet.as_of.isoformat()}, more than 12 months before the "
+                f"{newest.isoformat()} valuation; update it from the fund's latest factsheet"
+            )
+    exposure = look_through(today.values, today.cash, today.config, factsheets)
+    return ExposureReport(today, exposure, warnings + exposure.warnings)
+
+
+def write_exposure_csv(report: ExposureReport, path: Path) -> None:
+    """UTF-8, LF: ``dimension``, ``label``, ``value_gbp``, ``share``; top holdings last (``top_holding``)."""
+    exposure = report.exposure
+    total = exposure.total_gbp or 1.0
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.writer(handle, lineterminator="\n")
+        writer.writerow(("dimension", "label", "value_gbp", "share"))
+        for dimension in DIMENSIONS:
+            for label, value in _ordered(exposure.tables[dimension]):
+                writer.writerow((dimension, label, round(value, 2), value / total))
+        for name, value in exposure.top_holdings:
+            writer.writerow(("top_holding", name, round(value, 2), value / total))
+
+
+def _ordered(table: Mapping[str, float]) -> list[tuple[str, float]]:
+    """Largest first, with Cash and Unclassified last."""
+    last = (CASH, UNCLASSIFIED)
+    body = sorted(((k, v) for k, v in table.items() if k not in last), key=lambda item: -item[1])
+    return body + [(k, table[k]) for k in last if k in table]
+
+
+def format_exposure(report: ExposureReport) -> str:
+    """One table per dimension (GBP and share), the top look-through holdings, and warnings."""
+    exposure, today = report.exposure, report.today
+    total = exposure.total_gbp or 1.0
+    rate = "" if today.usd_gbp is None else f"; USD at {today.usd_gbp:.4f} GBP per USD ({today.rate_source})"
+    lines = [f"Look-through of the {today.folder} holdings: {exposure.total_gbp:,.2f} GBP{rate}"]
+    for dimension in DIMENSIONS:
+        heading = LABELS[dimension]
+        if dimension == "currency" and exposure.approximated_currency_gbp:
+            heading += f" ({exposure.approximated_currency_gbp / total:.1%} taken from regions)"
+        lines.append(heading)
+        for label, value in _ordered(exposure.tables[dimension]):
+            lines.append(f"  {label:<26} {value:>14,.2f} {value / total:>7.1%}")
+    lines.append("Top look-through holdings (funds publish only their largest holdings)")
+    if not exposure.top_holdings:
+        lines.append("  none yet: add sector/region to stocks and top_holdings to factsheets")
+    for name, value in exposure.top_holdings:
+        lines.append(f"  {name[:26]:<26} {value:>14,.2f} {value / total:>7.1%}")
+    lines += [f"warning: {warning}" for warning in report.warnings]
+    return "\n".join(lines)

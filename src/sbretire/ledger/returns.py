@@ -18,7 +18,7 @@ from typing import Final, Literal, get_args
 
 from sbretire.ledger.accounts import AccountConfig
 from sbretire.ledger.prices import PriceFile, SecuritiesConfig, SeriesConfig, load_securities, read_price_file
-from sbretire.ledger.valuation import read_holdings, value_holdings
+from sbretire.ledger.valuation import Valuation, read_holdings, value_holdings
 
 _MONTHS: Final = ("jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec")
 
@@ -149,6 +149,55 @@ def _classify(series: SeriesConfig, rows: Sequence[MonthlyReturn], basis: str, s
     return CoverageRow(series.id, series.holdings, status, len(present), start, basis, share, detail)
 
 
+@dataclass(frozen=True)
+class TodayValues:
+    """The securities map and the newest folder's holdings valued in GBP, shared by the portfolio commands."""
+
+    config: SecuritiesConfig
+    folder: str
+    valuation: Valuation
+    values: dict[str, float]
+    """``<account>:<security key>`` → today's GBP value of the securities (cash excluded)."""
+    cash: dict[str, float]
+    """Account currency → today's cash in GBP."""
+    fx: PriceFile | None
+    usd_gbp: float | None
+    rate_source: str
+    notes: list[str]
+
+
+def today_values(
+    root: Path, accounts: Sequence[AccountConfig], prices_dir: Path, usd_gbp: float | None
+) -> TodayValues:
+    """Load ``securities.yaml`` (empty if absent, noted) and value the newest holdings (portfolio-data §14).
+
+    USD converts at ``usd_gbp`` or else the FX price file's latest month-end.
+    """
+    map_path = prices_dir / "securities.yaml"
+    notes = []
+    if map_path.exists():
+        config = load_securities(map_path)
+    else:  # nothing priced yet
+        config = SecuritiesConfig.model_construct(fx={}, securities=(), risk_free_rate=None)
+        notes.append(f"no {map_path}; copy config/securities.example.yaml there and list the price files")
+    folder, exports = read_holdings(root, accounts)
+    fx_name = config.fx.get("USD")
+    fx = read_price_file(prices_dir / fx_name) if fx_name and (prices_dir / fx_name).exists() else None
+    rate, source = usd_gbp, "--usd-gbp"
+    if rate is None and fx is not None:
+        latest = fx.months[-1]
+        rate, source = latest.close, f"{fx.path.name}, {latest.month:%Y-%m}"
+    valuation = value_holdings(folder, exports, rate)
+    values: dict[str, float] = defaultdict(float)
+    cash: dict[str, float] = defaultdict(float)
+    for holding in valuation.holdings:
+        if holding.kind == "security":
+            values[f"{holding.account}:{holding.security_key}"] += valuation.value_gbp(holding)
+        else:
+            cash[holding.currency] += valuation.value_gbp(holding)
+    return TodayValues(config, folder, valuation, dict(values), dict(cash), fx, rate, source, notes)
+
+
 def build_returns(
     root: Path,
     accounts: Sequence[AccountConfig],
@@ -163,29 +212,20 @@ def build_returns(
     an error. Raises ``ScenarioError`` (invalid map), ``PriceFileError``, ``HoldingsError`` or
     ``ValuationError``.
     """
-    map_path = prices_dir / "securities.yaml"
-    notes = []
-    if map_path.exists():
-        config = load_securities(map_path)
-    else:  # nothing priced yet: report every holding as missing
-        config = SecuritiesConfig.model_construct(fx={}, securities=(), risk_free_rate=None)
-        notes.append(f"no {map_path}; copy config/securities.example.yaml there and list the price files")
-    folder, exports = read_holdings(root, accounts)
+    today = today_values(root, accounts, prices_dir, usd_gbp)
+    config, folder, valuation, values, fx = (
+        today.config,
+        today.folder,
+        today.valuation,
+        today.values,
+        today.fx,
+    )
+    rate, source, notes = today.usd_gbp, today.rate_source, today.notes
+    fx_name = config.fx.get("USD")
     first, last = window(folder, months)
     files: list[tuple[str, PriceFile]] = []
-    fx_name = config.fx.get("USD")
-    fx = read_price_file(prices_dir / fx_name) if fx_name and (prices_dir / fx_name).exists() else None
     if fx is not None:
         files.append(("fx:USD", fx))
-    rate, source = usd_gbp, "--usd-gbp"
-    if rate is None and fx is not None:
-        latest = fx.months[-1]
-        rate, source = latest.close, f"{fx.path.name}, {latest.month:%Y-%m}"
-    valuation = value_holdings(folder, exports, rate)
-    values: dict[str, float] = defaultdict(float)
-    for holding in valuation.holdings:
-        if holding.kind == "security":
-            values[f"{holding.account}:{holding.security_key}"] += valuation.value_gbp(holding)
     invested = sum(values.values())
     shares = {ref: value / invested if invested else 0.0 for ref, value in values.items()}
 

@@ -13,6 +13,8 @@ Subcommands:
               monthly GBP total returns from data/prices and their coverage of the holdings (F-026)
     portfolio performance
               back-test of today's mix: return, volatility, Sharpe, drawdown, rolling 12 months (F-027)
+    portfolio exposure
+              look-through by asset class, sector, region, currency and top holdings (F-028)
 """
 
 from __future__ import annotations
@@ -28,6 +30,7 @@ from sbretire.config import LoadedScenario, Scenario, ScenarioError, ScenarioIss
 from sbretire.inflation import inflation_coverage_issues, inflation_data_file_record
 from sbretire.inputs_report import format_inputs, scenario_input_rows, write_inputs_csv
 from sbretire.ledger.accounts import AccountConfig, load_accounts
+from sbretire.ledger.exposure import build_exposure, format_exposure, write_exposure_csv
 from sbretire.ledger.holdings import HoldingsError
 from sbretire.ledger.merge import merge_exports, read_exports
 from sbretire.ledger.model import UnknownTransaction
@@ -144,11 +147,15 @@ def build_parser() -> argparse.ArgumentParser:
         "performance",
         help="back-test today's mix over the monthly returns: return, volatility, Sharpe, drawdown",
     )
+    exposure = portfolio_commands.add_parser(
+        "exposure", help="look through funds: asset class, sector, region, currency and top holdings"
+    )
     written_by = (
         (imports, "ledger.csv"),
         (value, "holdings.csv"),
         (returns, "returns.csv"),
         (performance, "performance.csv"),
+        (exposure, "exposure.csv"),
     )
     for sub, written in written_by:
         sub.add_argument(
@@ -166,7 +173,7 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="RATE",
         help="GBP per USD for USD accounts (e.g. 0.7450); required when any account is in USD",
     )
-    for sub in (returns, performance):
+    for sub in (returns, performance, exposure):
         sub.add_argument(
             "--prices",
             type=Path,
@@ -185,6 +192,12 @@ def build_parser() -> argparse.ArgumentParser:
             metavar="RATE",
             help="GBP per USD for today's values (default: the FX price file's latest month-end)",
         )
+    exposure.add_argument(
+        "--factsheets",
+        type=Path,
+        default=Path("data/factsheets"),
+        help="folder with the funds' factsheet YAML files",
+    )
     performance.add_argument(
         "--risk-free",
         type=_risk_free_rate,
@@ -345,6 +358,33 @@ def _portfolio_performance(args: argparse.Namespace) -> int:
     return EXIT_OK
 
 
+def _portfolio_exposure(args: argparse.Namespace) -> int:
+    """``sbretire portfolio exposure``: exit 0 written, 1 unreadable, 2 an invalid map or factsheet."""
+    accounts = _load_accounts(args.accounts)
+    if isinstance(accounts, int):
+        return accounts
+    try:
+        report = build_exposure(args.root, accounts, args.prices, args.factsheets, args.usd_gbp)
+    except OSError as exc:
+        print(f"error: cannot read {exc.filename or args.prices}: {exc.strerror or exc}", file=sys.stderr)
+        return EXIT_FAILURE
+    except ScenarioError as exc:
+        return _report(
+            args.factsheets
+            if any(".yaml: " in issue.location for issue in exc.issues)
+            else args.prices / "securities.yaml",
+            exc.issues,
+        )
+    except (HoldingsError, PriceFileError, UnknownTransaction, ValueError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return EXIT_INVALID
+    print(format_exposure(report))
+    path = args.output_dir / "portfolio" / "exposure.csv"
+    write_exposure_csv(report, path)
+    print(f"exposure: {path}")
+    return EXIT_OK
+
+
 def _portfolio_returns(args: argparse.Namespace) -> int:
     """``sbretire portfolio returns``: exit 0 written (gaps reported), 1 unreadable, 2 invalid."""
     report = _returns_report(args)
@@ -405,6 +445,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             "value": _portfolio_value,
             "returns": _portfolio_returns,
             "performance": _portfolio_performance,
+            "exposure": _portfolio_exposure,
         }
         return handlers[args.portfolio_command](args)
     require_data_files = args.command == "run" or getattr(args, "require_data_files", False)
