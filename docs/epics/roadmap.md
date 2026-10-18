@@ -1,6 +1,6 @@
 # SBRetire V1 Roadmap
 
-**Last updated**: 2026-10-18 — F-030 Portfolio Page in the Viewer delivered.
+**Last updated**: 2026-10-18 — F-031 Account Returns from the Ledger delivered; portfolio-analysis epic features complete.
 
 Features in build order. Status: `proposed` → `briefed` → `in-progress` → `done` (or `superseded`). Briefs live in `docs/backlog/`; tasks are inside each brief.
 
@@ -26,7 +26,7 @@ Features in build order. Status: `proposed` → `briefed` → `in-progress` → 
 | F-028 | Sector and Region Look-Through | [portfolio-analysis](portfolio-analysis.md) | F-025 | done |
 | F-029 | Sharpe Efficient Frontier and Re-Weighting Analysis | [portfolio-analysis](portfolio-analysis.md) | F-026, F-027 | done |
 | F-030 | Portfolio Page in the Viewer | [portfolio-analysis](portfolio-analysis.md) | F-025, F-027, F-028, F-029 | done |
-| F-031 | Account Returns from the Ledger | [portfolio-analysis](portfolio-analysis.md) | F-024, F-025, F-026 | in-progress |
+| F-031 | Account Returns from the Ledger | [portfolio-analysis](portfolio-analysis.md) | F-024, F-025, F-026 | done |
 | F-005 | Random Streams and Run Metadata | [foundations](foundations.md) | F-001 | done |
 | F-006 | Stochastic Inflation Process and CPI Calibration | [stochastic-inputs](stochastic-inputs.md) | F-003, F-004, F-005 | done |
 | F-007 | ONS Mortality Data Ingest and Mapping | [stochastic-inputs](stochastic-inputs.md) | F-001 | done |
@@ -122,6 +122,7 @@ Features in build order. Status: `proposed` → `briefed` → `in-progress` → 
 Unmapped requirements: **none**.
 
 ## Change Log
+- 2026-10-18 — F-031 done: `sbretire portfolio account-returns` rebuilds month-end account values from today back through the ledger, gives time-weighted (chained Modified Dietz) and money-weighted (IRR) returns per account and household, `account_returns.csv`, portfolio.json 1.1 and the "Actual returns" page section; decisions portfolio-data §26–§28.
 - 2026-10-18 — F-031 briefed: tasks F-031.1…F-031.4 (ledger-to-series matching with `ledger_names`, month-end values rebuilt backwards, Modified Dietz TWR and XIRR MWR per account and household, `sbretire portfolio account-returns`, portfolio.json 1.1 and page section).
 - 2026-10-18 — F-030 done: `sbretire portfolio report` writes `portfolio.json` 1.0 (every analysis, unavailable parts with reasons; extras: risk contribution and correlation, 12-month income and fees, returns calendar, worst drawdowns) and the Portfolio page `output/portfolio.html` in the Paper theme, linked with the results viewer; synthetic design sample regenerated; decisions viewer §4, portfolio-data §25.
 - 2026-10-18 — F-030 briefed: tasks F-030.1…F-030.4 (extras: drawdown episodes, calendar, correlation, risk contribution, income and fees; `portfolio.json` 1.0 and `sbretire portfolio report`; the Portfolio page in the Paper theme; design sample, links, docs).
