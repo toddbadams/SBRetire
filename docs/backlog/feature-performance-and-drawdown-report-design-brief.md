@@ -160,7 +160,7 @@ def backtest(
 2026-10-18 ledger/performance.py BacktestMonth, backtest (series with a return that month plus cash rescaled to 100%, cash at the monthly risk-free rate, covered share of today's household value, nothing counted → risk-free); tests/unit/test_performance_backtest.py. The red commit failed on import (no backtest stub) rather than an assertion; noted.
 
 ### F-027.3 `sbretire portfolio performance`
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-027.2
 
 The command: weights from the valuation, the summary (with the "historical, not a forecast" note),
