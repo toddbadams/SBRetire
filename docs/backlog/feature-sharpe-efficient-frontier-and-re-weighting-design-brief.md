@@ -2,7 +2,7 @@
 id: F-029
 type: feature
 parent: portfolio-analysis
-status: planned
+status: in-progress
 complexity: 7
 created: 2026-10-18
 updated: 2026-10-18
@@ -130,7 +130,7 @@ def trade_cost(amount_gbp: float, fee_gbp: float, rate: float) -> float: ...
 ## 10. Tasks
 
 ### F-029.1 Settings, estimates and the priced sleeve
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: —
 
 What to build:

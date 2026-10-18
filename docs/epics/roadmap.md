@@ -24,7 +24,7 @@ Features in build order. Status: `proposed` → `briefed` → `in-progress` → 
 | F-026 | Price History and Monthly Returns | [portfolio-analysis](portfolio-analysis.md) | F-024 | done |
 | F-027 | Performance and Drawdown Report | [portfolio-analysis](portfolio-analysis.md) | F-025, F-026 | done |
 | F-028 | Sector and Region Look-Through | [portfolio-analysis](portfolio-analysis.md) | F-025 | done |
-| F-029 | Sharpe Efficient Frontier and Re-Weighting Analysis | [portfolio-analysis](portfolio-analysis.md) | F-026, F-027 | briefed |
+| F-029 | Sharpe Efficient Frontier and Re-Weighting Analysis | [portfolio-analysis](portfolio-analysis.md) | F-026, F-027 | in-progress |
 | F-030 | Portfolio Page in the Viewer | [portfolio-analysis](portfolio-analysis.md) | F-025, F-027, F-028, F-029 | proposed |
 | F-031 | Account Returns from the Ledger | [portfolio-analysis](portfolio-analysis.md) | F-024, F-025, F-026 | proposed |
 | F-005 | Random Streams and Run Metadata | [foundations](foundations.md) | F-001 | done |
