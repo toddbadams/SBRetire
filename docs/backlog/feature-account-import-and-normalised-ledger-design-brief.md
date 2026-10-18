@@ -218,7 +218,7 @@ Provider type maps (each unknown value raises `UnknownTransaction`):
 ## 10. Tasks
 
 ### F-024.1 Accounts config and month folders
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: —
 
 `ledger/accounts.py` (strict pydantic, located errors like `config.py`), `config/accounts.example.yaml`,
@@ -231,9 +231,10 @@ Provider type maps (each unknown value raises `UnknownTransaction`):
 
 **Notes**
 - 2026-10-18 `ledger/accounts.py`: `AccountConfig` (strict pydantic: provider and wrapper literals, 3-letter currency, non-empty pattern lists, optional `filter`), `load_accounts` (duplicate-key YAML loader, located issues via the scenario helpers, duplicate ids). `ledger/merge.month_folders`. `config/accounts.example.yaml` (five placeholder accounts). Tests `tests/unit/test_ledger_accounts.py` (3).
+2026-10-18 /verify PASS: test_ledger_accounts.py 3 passed (exact issue locations per rejection; month mapping, sort, decoys ignored; example synthetic); accounts.yaml git-ignored; ruff/mypy clean; no network imports.
 
 ### F-024.2 Ledger model and Schwab parser
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-024.1
 
 `ledger/model.py` (`LedgerRow`, `LEDGER_COLUMNS`, fingerprint) and `parsers/schwab.py` (§5 map; US dates; `$`, signs,
@@ -245,9 +246,10 @@ thousands separators; empty quantity and price).
 
 **Notes**
 - 2026-10-18 `ledger/model.py`: `LedgerRow` (brief §2 #6 plus `sequence`, the chronological position in the source file, and `stated_balance`, the export's running cash balance where given), `fingerprint`, `LEDGER_COLUMNS`, `UnknownTransaction`. `parsers/_common.py`: UTF-8 with any leading BOMs else Windows-1252, money parsing (`$`, `£`, commas, signs, parentheses, n/a, --), dates. `parsers/schwab.py` with the §5 map. Fixture `tests/fixtures/accounts/schwab.csv` (invented rows, every action). Tests `tests/unit/test_ledger_schwab.py` (2).
+2026-10-18 /verify PASS: test_ledger_schwab.py 2 passed; fixture covers every §5 action incl. both MoneyLink signs; hand-written expectations; unknown action names file, row 11, action; ruff/mypy clean.
 
 ### F-024.3 HL parser
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-024.2
 
 `parsers/hl.py`: Windows-1252, preamble skipped up to the header row, quoted commas, trades from "<name> <qty> @
@@ -259,9 +261,10 @@ thousands separators; empty quantity and price).
 
 **Notes**
 - 2026-10-18 `parsers/hl.py`: preamble skipped to the `Trade date` header; `Reference` drives the type (B/S trades, INTEREST, Transfer/TRANSFER internal, MANAGE FEE, ID TFC external out, BACS external in); trade names from "<name> <qty> @ <price>"; pence to pounds; units from `Quantity`, negated for sells. Fixture `tests/fixtures/accounts/hl.csv` (Windows-1252, quoted commas, invented rows). Tests `tests/unit/test_ledger_hl.py` (2); the test's expected line numbers were off by one (header on line 6) and were corrected before green.
+2026-10-18 /verify PASS: test_ledger_hl.py 2 passed; fixture cp1252 with preamble and quoted commas; pence/100 prices, signed quantities, all reference types; unknown names file and row 10; ruff/mypy clean.
 
 ### F-024.4 Vanguard and ii parsers with cash reconciliation
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-024.2
 
 `parsers/vanguard.py` (shared file filtered per account; two-leg records), `parsers/ii.py` (repeated BOMs, UK
@@ -274,9 +277,10 @@ dates, quoted `£` amounts, `n/a`, debit/credit columns), `reconcile.py`.
 
 **Notes**
 2026-10-18 parsers/vanguard.py (Account filter, Investment legs carry units, Cash legs cash + stated balance), parsers/ii.py (Description-driven types, Credit - Debit, n/a empty), reconcile.py; tests/unit/test_ledger_vanguard_ii.py (5). Real October Vanguard ISA/pension and ii exports reconcile with no breaks.
+2026-10-18 /verify PASS: test_ledger_vanguard_ii.py 5 passed; fixtures cp1252 / 6 BOMs, n/a, quoted £; balances hand-checked; exact first-break message; ruff/mypy clean.
 
 ### F-024.5 Merge, import command and docs
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-024.3, F-024.4
 
 `merge.build_ledger` (all folders, de-duplication, newest folder wins), `sbretire portfolio import`, `ledger.csv`,
@@ -290,6 +294,7 @@ README section, THESAURUS terms, decision record `docs/decisions/portfolio-data.
 
 **Notes**
 2026-10-18 merge.py read_exports/merge_exports/build_ledger (multiset newest-folder-wins de-dup, source_file <folder>/<file>), ledger/report.py (ledger.csv, per-account summary), `sbretire portfolio import` in __main__.py; tests/unit/test_ledger_import.py (3); README section, THESAURUS (Account, External Flow, Internal Transfer, Ledger, Wrapper), docs/decisions/portfolio-data.md §1–§6. Real October exports: 186 rows over 5 accounts, Vanguard ISA/pension and ii reconcile, exit 0 (personal config/accounts.yaml, git-ignored).
+2026-10-18 /verify PASS: test_ledger_import.py 3 passed (overlap + within-file repeat; LF, header, summary, exit 2); docs grep hits and five THESAURUS headings; real import to a temp dir exit 0, Vanguard and ii reconcile; ruff/mypy clean; nothing personal tracked.
 
 ## 11. Open Questions
 
