@@ -215,18 +215,21 @@ Provider type maps (each unknown value raises `UnknownTransaction`):
 - 2026-10-18 `ledger/accounts.py`: `AccountConfig` (strict pydantic: provider and wrapper literals, 3-letter currency, non-empty pattern lists, optional `filter`), `load_accounts` (duplicate-key YAML loader, located issues via the scenario helpers, duplicate ids). `ledger/merge.month_folders`. `config/accounts.example.yaml` (five placeholder accounts). Tests `tests/unit/test_ledger_accounts.py` (3).
 
 ### F-024.2 Ledger model and Schwab parser
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-024.1
 
 `ledger/model.py` (`LedgerRow`, `LEDGER_COLUMNS`, fingerprint) and `parsers/schwab.py` (§5 map; US dates; `$`, signs,
 thousands separators; empty quantity and price).
 
 **Acceptance criteria**
-- [ ] A synthetic Schwab export covering every action in §5 parses to hand-checked rows (type, flow, quantity, price, cash, fees, currency USD) — `test_schwab_parser_maps_every_action`
-- [ ] An unknown action raises `UnknownTransaction` naming the file, row number and action — `test_schwab_parser_rejects_unknown_action`
+- [x] A synthetic Schwab export covering every action in §5 parses to hand-checked rows (type, flow, quantity, price, cash, fees, currency USD) — `test_schwab_parser_maps_every_action`
+- [x] An unknown action raises `UnknownTransaction` naming the file, row number and action — `test_schwab_parser_rejects_unknown_action`
+
+**Notes**
+- 2026-10-18 `ledger/model.py`: `LedgerRow` (brief §2 #6 plus `sequence`, the chronological position in the source file, and `stated_balance`, the export's running cash balance where given), `fingerprint`, `LEDGER_COLUMNS`, `UnknownTransaction`. `parsers/_common.py`: UTF-8 with any leading BOMs else Windows-1252, money parsing (`$`, `£`, commas, signs, parentheses, n/a, --), dates. `parsers/schwab.py` with the §5 map. Fixture `tests/fixtures/accounts/schwab.csv` (invented rows, every action). Tests `tests/unit/test_ledger_schwab.py` (2).
 
 ### F-024.3 HL parser
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-024.2
 
 `parsers/hl.py`: Windows-1252, preamble skipped up to the header row, quoted commas, trades from "<name> <qty> @
