@@ -51,8 +51,8 @@ friendly empty state ("No named runs yet. Run `sbretire run --config … --name 
 
 | Run | Budget | Return | Reserve | Conservative success |
 |---|---|---|---|---|
-| `example-base` | 6,667/month | 5 % | off | 100 % |
-| `example-stretch` | 10,500/month | 4 % | 12 months | 81.6 % |
+| `example-base` | 6,667/month | 4 % | off | 97.6 % |
+| `example-stretch` | 10,500/month | 4 % | 12 months | 5.0 % |
 
 The full contract is `schemas/results.schema.json` (JSON Schema 2020-12).
 
@@ -135,9 +135,9 @@ column in the same order.
   `annual` the portfolio percentiles, medians and `estimated_lifetime_success_rate` in years when no future is
   still in scope): show a dash. Annual rows have no `note`; a tooltip such as "no simulated future still running
   this year" is enough.
-- **Negative required returns** are normal for comfortable plans (the sample's `example-base` needs about −6.5 %
-  a year at 90 %): it means the plan would still work even if the savings lost value every year. Show the sign
-  clearly.
+- **Negative required returns** are normal for comfortable plans: it means the plan would still work even if the
+  savings lost value every year. (The current sample's runs need +3.0 % to +4.5 %, so test the sign with your own
+  values.) Show the sign clearly.
 - `converged: false` (search reached its cap or lower bound): mark the row.
 - Reserve off: hide part 5 and the reserve headline entirely.
 - 100 % success with ± 0.000 %: still meaningful; avoid a broken-looking chart.

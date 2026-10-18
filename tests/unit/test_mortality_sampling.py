@@ -96,7 +96,7 @@ def test_survival_curve_shape_and_monotone() -> None:
     np.testing.assert_array_equal(survival_curve(np.array([0.0, 1.0, 0.5])), [1.0, 1.0, 0.0, 0.0])
 
 
-EXAMPLE = ROOT / "config" / "model.example.yaml"
+EXAMPLE = ROOT / "tests" / "fixtures" / "scenarios" / "example_v1.yaml"  # frozen V1 example: pinned values
 
 
 def _example(horizon_years: int | None = None) -> Scenario:

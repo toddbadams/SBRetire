@@ -1,0 +1,78 @@
+# Frozen copy of config/model.example.yaml as of V1 (before 2026-10-16), for regression tests whose values were
+# pinned against it. Keep unchanged; edit config/model.example.yaml freely instead.
+
+model:
+  currency: GBP
+  as_of_date: "2026-10-01"        # valuation date; first simulated month (SPEC §5)
+  simulation_count: 100000
+  confidence_levels: [0.90, 0.95, 0.99]
+  frequency: monthly
+  horizon_years: 100
+  random_seed: 42
+  unknown_keys: error             # error | warn — unknown keys are rejected or reported as warnings
+
+portfolio:
+  starting_balance: 1500000
+  annual_return: 0.05
+
+budget:
+  monthly_amount_today: 6667
+  survivor_budget_factor: 0.70
+  # end_reserve_months: 12        # optional: also find the budget that leaves 12 months of budget at the second death
+  # spend_at_least_income: true   # optional: each month spend at least that month's income (surplus is not saved)
+
+inflation:
+  source: UK_CPI
+  source_period: "1989-2025"
+  data_file: ../../../data/uk_cpi.csv          # ONS D7G7 annual CPI rates; relative to this file's directory
+  model: ar1_lognormal                   # log(1+π_y) = μ + φ·(log(1+π_{y-1}) − μ) + σ·ε  (data-and-calibration §2)
+  parameter_units: log_annual            # all parameters are for log(1 + annual rate), not arithmetic moments
+  log_mean: 0.0277                       # μ; median annual rate e^μ − 1 ≈ 2.81%
+  ar1_coefficient: 0.6179                # φ; persistence of last year's deviation from μ
+  innovation_sd: 0.0154                  # σ; long-run SD of log(1+π) = σ/√(1−φ²) ≈ 0.0195
+  initial_rate: 0.034                    # π for the year before the As-Of date (latest observed: 2025)
+  # regenerate: uv run python scripts/calibrate_inflation.py --config config/model.example.yaml
+
+mortality:
+  source: ONS_2024_BASED
+  geography: UK
+  projection: principal
+  data_file: ../../../data/ons_mortality.csv   # relative to this file's directory
+
+people:
+  - id: person_1
+    name: Person 1
+    date_of_birth: "1960-09-14"
+    sex: male
+    survivor_budget_factor: 0.70
+
+  - id: person_2
+    name: Person 2
+    date_of_birth: "1969-05-01"
+    sex: female
+    survivor_budget_factor: 0.70
+
+income:
+  - id: social_security
+    name: Social Security
+    start_date: "2027-09-01"
+    annual_amount_today: 20000
+    inflation_linked: true
+    survivor_percentage: 1.0
+    recipient: person_1
+
+  - id: state_pension
+    name: UK State Pension
+    start_date: "2028-09-01"
+    annual_amount_today: 20000
+    inflation_linked: true
+    survivor_percentage: 1.0
+    recipient: person_2
+
+  - id: nhs_pension
+    name: NHS Pension
+    start_date: "2029-01-01"
+    annual_amount_today: 31000
+    inflation_linked: true
+    survivor_percentage: 0.50
+    recipient: person_2

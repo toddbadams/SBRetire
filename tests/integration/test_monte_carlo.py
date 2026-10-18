@@ -22,7 +22,7 @@ from sbretire.randomness import ResolvedSeed
 
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURE = ROOT / "tests" / "fixtures" / "scenarios" / "valid_minimal.yaml"
-EXAMPLE = ROOT / "config" / "model.example.yaml"
+EXAMPLE = ROOT / "tests" / "fixtures" / "scenarios" / "example_v1.yaml"  # frozen V1 example: pinned values
 SEED = ResolvedSeed(7, "config")
 
 

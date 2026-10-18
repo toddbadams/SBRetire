@@ -32,9 +32,9 @@ def test_load_example_config_returns_typed_scenario() -> None:
     assert scenario.model.as_of_date == date(2026, 10, 1)
     assert scenario.model.unknown_keys == "error"
     assert scenario.model.confidence_levels == (0.90, 0.95, 0.99)
-    assert scenario.portfolio.annual_return == 0.05
+    assert scenario.portfolio.annual_return == 0.04
     assert [p.id for p in scenario.people] == ["person_1", "person_2"]
-    assert [s.id for s in scenario.income] == ["social_security", "state_pension", "nhs_pension"]
+    assert [s.id for s in scenario.income] == ["state_pension_1", "state_pension_2", "nhs_pension"]
     assert scenario.income[2].survivor_percentage == 0.5
     assert scenario.mortality.data_file == (REPO / "data" / "ons_mortality.csv").resolve()
 
