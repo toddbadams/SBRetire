@@ -2,7 +2,7 @@
 id: F-027
 type: feature
 parent: portfolio-analysis
-status: planned
+status: in-progress
 complexity: 5
 created: 2026-10-18
 updated: 2026-10-18
@@ -127,7 +127,7 @@ def backtest(weights: Mapping[str, float], cash: float, total: float,
 ## 10. Tasks
 
 ### F-027.1 Risk-free rate and performance metrics
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: —
 
 `risk_free_rate` in `SecuritiesConfig` (validated), `ledger/performance.py` metric functions. §2 #1, #4.
