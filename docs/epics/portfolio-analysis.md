@@ -9,7 +9,7 @@ milestones:
   - { id: F-025, title: Holdings Valuation and Starting Balance, status: done }
   - { id: F-026, title: Price History and Monthly Returns, status: done }
   - { id: F-027, title: Performance and Drawdown Report, status: done }
-  - { id: F-028, title: Sector and Region Look-Through, status: in-progress }
+  - { id: F-028, title: Sector and Region Look-Through, status: done }
   - { id: F-029, title: Sharpe Efficient Frontier and Re-Weighting Analysis, status: proposed }
   - { id: F-030, title: Portfolio Page in the Viewer, status: proposed }
   - { id: F-031, title: Account Returns from the Ledger, status: proposed }
