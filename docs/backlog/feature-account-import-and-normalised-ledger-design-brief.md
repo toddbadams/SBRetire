@@ -271,7 +271,7 @@ dates, quoted `£` amounts, `n/a`, debit/credit columns), `reconcile.py`.
 2026-10-18 parsers/vanguard.py (Account filter, Investment legs carry units, Cash legs cash + stated balance), parsers/ii.py (Description-driven types, Credit - Debit, n/a empty), reconcile.py; tests/unit/test_ledger_vanguard_ii.py (5). Real October Vanguard ISA/pension and ii exports reconcile with no breaks.
 
 ### F-024.5 Merge, import command and docs
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-024.3, F-024.4
 
 `merge.build_ledger` (all folders, de-duplication, newest folder wins), `sbretire portfolio import`, `ledger.csv`,

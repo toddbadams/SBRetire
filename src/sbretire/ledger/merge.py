@@ -19,3 +19,7 @@ def month_folders(root: Path) -> list[tuple[date, Path]]:
         if path.is_dir() and match and match["month"] in _MONTHS:
             found.append((date(2000 + int(match["year"]), _MONTHS.index(match["month"]) + 1, 1), path))
     return sorted(found)
+
+
+def build_ledger(root: Path, accounts: object) -> list[object]:
+    return []
