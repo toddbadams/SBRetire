@@ -21,7 +21,7 @@ Features in build order. Status: `proposed` → `briefed` → `in-progress` → 
 | F-023 | Print and PDF | [results-viewer](results-viewer.md) | F-022 | in-progress |
 | F-024 | Account Import and Normalised Ledger | [portfolio-analysis](portfolio-analysis.md) | — | done |
 | F-025 | Holdings Valuation and Starting Balance | [portfolio-analysis](portfolio-analysis.md) | F-024 | done |
-| F-026 | Price History and Monthly Returns | [portfolio-analysis](portfolio-analysis.md) | F-024 | briefed |
+| F-026 | Price History and Monthly Returns | [portfolio-analysis](portfolio-analysis.md) | F-024 | in-progress |
 | F-027 | Performance and Drawdown Report | [portfolio-analysis](portfolio-analysis.md) | F-025, F-026 | proposed |
 | F-028 | Sector and Region Look-Through | [portfolio-analysis](portfolio-analysis.md) | F-025 | proposed |
 | F-029 | Sharpe Efficient Frontier and Re-Weighting Analysis | [portfolio-analysis](portfolio-analysis.md) | F-026, F-027 | proposed |

@@ -1,0 +1,26 @@
+# Example price map for `sbretire portfolio returns` - values are ILLUSTRATIVE ONLY.
+# Copy to data/prices/securities.yaml (git-ignored) and edit; price files sit next to it in data/prices/.
+# Price files: Yahoo Finance "Historical data" downloads as they are (Date,Open,High,Low,Close,Adj Close,Volume),
+# or any file with Date,Close and an optional Dividend column (cash per unit paid on that date).
+
+fx:
+  USD: GBP=X.csv                     # GBP per US dollar (Yahoo ticker GBP=X)
+
+securities:
+  - id: global_equity                # one price series, however many accounts hold it
+    name: Example Global Equity ETF
+    file: EXG.L.csv
+    quote: GBX                       # GBP | GBX (pence) | USD
+    holdings: ["sipp_1:EXG", "sipp_2:EXG"]   # <account id>:<security key from holdings.csv>
+
+  - id: example_corp
+    name: Example Corp
+    file: EXA.csv
+    quote: USD
+    holdings: ["brokerage:EXA", "sipp_1:EXA"]
+
+  - id: target_2035
+    name: Example Target 2035 Fund
+    file: target-2035.csv            # typed from the fund manager's price history: Date,Close
+    quote: GBP
+    holdings: ["pension:Example Target 2035 Fund - Accumulation"]

@@ -2,7 +2,7 @@
 id: F-026
 type: feature
 parent: portfolio-analysis
-status: planned
+status: in-progress
 complexity: 5
 created: 2026-10-18
 updated: 2026-10-18
@@ -143,7 +143,7 @@ def coverage(...) -> Coverage: ...  # full / short / gaps / missing, with GBP va
 ## 10. Tasks
 
 ### F-026.1 Securities map and price files
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: —
 
 `ledger/prices.py`: `load_securities`, `read_price_file` (Yahoo daily/monthly, minimal with optional `Dividend`,
