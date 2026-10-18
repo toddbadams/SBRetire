@@ -188,6 +188,11 @@ Provider type maps (each unknown value raises `UnknownTransaction`):
 - 2026-10-18 — F-024.4: `reconcile_cash(rows)` takes the rows alone; each `LedgerRow` carries its export's
   `stated_balance`, so the separate `StatedBalance` sequence in §5 is dropped. Checks run per account and source
   file, to half a penny, and report the first break only.
+- 2026-10-18 — F-024.5: `build_ledger` is `merge_exports(read_exports(...))`; the command calls the two halves so
+  each file is reconciled before merging removes repeated rows. De-duplication counts copies (newest folder first,
+  an older folder adds only copies beyond those already taken). `source_file` is `<folder>/<file>`, and
+  `UnknownTransaction` names the folder too. A reconciliation break still writes `ledger.csv` but exits 1.
+  Decision record `docs/decisions/portfolio-data.md` §1–§6 (§5 unknown types, §6 reconciliation added).
 
 ## 9. Surprises
 
@@ -271,17 +276,20 @@ dates, quoted `£` amounts, `n/a`, debit/credit columns), `reconcile.py`.
 2026-10-18 parsers/vanguard.py (Account filter, Investment legs carry units, Cash legs cash + stated balance), parsers/ii.py (Description-driven types, Credit - Debit, n/a empty), reconcile.py; tests/unit/test_ledger_vanguard_ii.py (5). Real October Vanguard ISA/pension and ii exports reconcile with no breaks.
 
 ### F-024.5 Merge, import command and docs
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-024.3, F-024.4
 
 `merge.build_ledger` (all folders, de-duplication, newest folder wins), `sbretire portfolio import`, `ledger.csv`,
 README section, THESAURUS terms, decision record `docs/decisions/portfolio-data.md` (§1–§4 from §2 #1–#5).
 
 **Acceptance criteria**
-- [ ] Two synthetic month folders with overlapping year-to-date exports merge to the union with no duplicate fingerprints; a repeated row within one file is kept — `test_build_ledger_merges_months_without_duplicates`
-- [ ] `sbretire portfolio import` on the synthetic folders writes `ledger.csv` (UTF-8, LF, `LEDGER_COLUMNS`) and prints per-account rows, date range, counts by type, external in and out, and reconciliation; an unknown type exits 2 with the error — `test_cli_portfolio_import`
-- [ ] README documents the folder layout, `accounts.yaml` and the command; THESAURUS defines Account, Wrapper, Ledger, External Flow and Internal Transfer; decisions recorded — `check: grep -n "portfolio import" README.md docs/decisions/portfolio-data.md`
-- [ ] The real October 2026 exports import without error and Vanguard and ii reconcile (run by the user or locally; never committed) — `check: uv run sbretire portfolio import`
+- [x] Two synthetic month folders with overlapping year-to-date exports merge to the union with no duplicate fingerprints; a repeated row within one file is kept — `test_build_ledger_merges_months_without_duplicates`
+- [x] `sbretire portfolio import` on the synthetic folders writes `ledger.csv` (UTF-8, LF, `LEDGER_COLUMNS`) and prints per-account rows, date range, counts by type, external in and out, and reconciliation; an unknown type exits 2 with the error — `test_cli_portfolio_import`
+- [x] README documents the folder layout, `accounts.yaml` and the command; THESAURUS defines Account, Wrapper, Ledger, External Flow and Internal Transfer; decisions recorded — `check: grep -n "portfolio import" README.md docs/decisions/portfolio-data.md`
+- [x] The real October 2026 exports import without error and Vanguard and ii reconcile (run by the user or locally; never committed) — `check: uv run sbretire portfolio import`
+
+**Notes**
+2026-10-18 merge.py read_exports/merge_exports/build_ledger (multiset newest-folder-wins de-dup, source_file <folder>/<file>), ledger/report.py (ledger.csv, per-account summary), `sbretire portfolio import` in __main__.py; tests/unit/test_ledger_import.py (3); README section, THESAURUS (Account, External Flow, Internal Transfer, Ledger, Wrapper), docs/decisions/portfolio-data.md §1–§6. Real October exports: 186 rows over 5 accounts, Vanguard ISA/pension and ii reconcile, exit 0 (personal config/accounts.yaml, git-ignored).
 
 ## 11. Open Questions
 

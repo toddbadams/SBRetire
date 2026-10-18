@@ -75,7 +75,8 @@ LEDGER_COLUMNS: Final[tuple[str, ...]] = tuple(field.name for field in fields(Le
 
 
 class UnknownTransaction(ValueError):
-    """A row the importer cannot classify; the message names the file, row and what was found."""
+    """A row the importer cannot classify; the message names the folder, file, row and what was found."""
 
     def __init__(self, path: Path, row: int, found: str) -> None:
-        super().__init__(f"{path.name} row {row}: unknown transaction {found!r}; add it to the parser's map")
+        where = f"{path.parent.name}/{path.name}"
+        super().__init__(f"{where} row {row}: unknown transaction {found!r}; add it to the parser's map")

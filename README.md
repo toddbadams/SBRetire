@@ -414,6 +414,35 @@ Running `run` twice on the same config and seed gives byte-identical CSVs. Only 
 There is no `probability_funded` column, because SPEC §12 calls that name ambiguous. Use
 `probability_not_depleted_yet` or `estimated_lifetime_success_rate`.
 
+## Portfolio import (account exports → ledger)
+
+`sbretire portfolio import` reads the household's account transaction exports into one **Ledger**,
+`output/portfolio/ledger.csv`. It is separate from the retirement model and reads nothing from the scenario.
+
+1. Copy `config/accounts.example.yaml` to `config/accounts.yaml` (git-ignored) and list each account: `id`,
+   `name`, `provider` (`schwab`, `hl`, `vanguard` or `ii`), `owner` (a person id from your model config),
+   `wrapper` (`taxable`, `isa`, `pension` or `sipp`), `currency`, and file-name patterns for its `transactions`
+   and `holdings` exports. For one export holding several accounts, `filter` keeps the rows whose `Account`
+   column equals it.
+2. Each month, save every provider's year-to-date export into a folder named `<mon>-<yy>` under
+   `data/transactions/` (git-ignored), e.g. `data/transactions/oct-26/`. Keep earlier folders; overlapping rows
+   are merged once (the newest folder's copy wins).
+3. Run:
+
+```bash
+uv run sbretire portfolio import
+```
+
+Options: `--root` (default `data/transactions`), `--accounts` (default `config/accounts.yaml`), `--output-dir`
+(default `output`). For each account it prints the rows, date range, counts by type, External Flows in and out
+(native currency), and whether the cash agrees with the export's running balance (Vanguard and ii state one).
+
+- Exit 0: imported and reconciled. Exit 1: an unreadable file, or a cash break (the ledger is still written so you
+  can look). Exit 2: an invalid accounts file, or a transaction the importer does not know, named by folder, file
+  and row; nothing is guessed. Add it to that provider's map in
+  `src/sbretire/ledger/parsers/`.
+- Rows keep their own currency (Schwab in USD). Columns, signs and flows: `docs/decisions/portfolio-data.md` §4.
+
 ## Development
 
 **VS Code:** open the `C:\sb\SBRetire` folder and accept the recommended extensions (Python, Ruff, Mypy). The

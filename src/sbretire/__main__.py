@@ -5,6 +5,8 @@ Subcommands:
               or an unreadable-file error (exit 1)
     preview   deterministic year-by-year illustration with chosen death ages (F-015)
     run       Monte Carlo: success metrics for the configured Budget + run_metadata.json (F-009)
+    portfolio import
+              read the monthly account exports into one ledger, output/portfolio/ledger.csv (F-024)
 """
 
 from __future__ import annotations
@@ -19,6 +21,10 @@ from sbretire import __version__
 from sbretire.config import LoadedScenario, Scenario, ScenarioError, ScenarioIssue, load_scenario
 from sbretire.inflation import inflation_coverage_issues, inflation_data_file_record
 from sbretire.inputs_report import format_inputs, scenario_input_rows, write_inputs_csv
+from sbretire.ledger.accounts import load_accounts
+from sbretire.ledger.merge import merge_exports, read_exports
+from sbretire.ledger.model import UnknownTransaction
+from sbretire.ledger.report import format_account_summary, reconciliation_problems, write_ledger_csv
 from sbretire.metadata import build_run_metadata, write_run_metadata
 from sbretire.metrics import SuccessMetrics
 from sbretire.monte_carlo import draw_random_inputs, run_monte_carlo
@@ -99,6 +105,21 @@ def build_parser() -> argparse.ArgumentParser:
         f"({RUN_NAME_HELP})",
     )
     run.add_argument("--overwrite", action="store_true", help="replace an existing run of the same --name")
+
+    portfolio = commands.add_parser("portfolio", help="account exports and portfolio analysis")
+    portfolio_commands = portfolio.add_subparsers(dest="portfolio_command", required=True, metavar="COMMAND")
+    imports = portfolio_commands.add_parser(
+        "import", help="read every month folder's transaction exports into output/portfolio/ledger.csv"
+    )
+    imports.add_argument(
+        "--root", type=Path, default=Path("data/transactions"), help="folder holding the <mon>-<yy> folders"
+    )
+    imports.add_argument(
+        "--accounts", type=Path, default=Path("config/accounts.yaml"), help="accounts YAML file"
+    )
+    imports.add_argument(
+        "--output-dir", type=Path, default=Path("output"), help="ledger goes to <dir>/portfolio/"
+    )
     return parser
 
 
@@ -141,6 +162,33 @@ def _load(config: Path, *, require_data_files: bool) -> LoadedScenario | int:
     return loaded
 
 
+def _portfolio_import(args: argparse.Namespace) -> int:
+    """``sbretire portfolio import``: exit 0 clean, 1 unreadable or not reconciled, 2 invalid."""
+    try:
+        accounts = load_accounts(args.accounts)
+    except OSError as exc:
+        print(f"error: cannot read {args.accounts}: {exc.strerror or exc}", file=sys.stderr)
+        return EXIT_FAILURE
+    except ScenarioError as exc:
+        return _report(args.accounts, exc.issues)
+    try:
+        exports = read_exports(args.root, accounts)
+    except OSError as exc:
+        print(f"error: cannot read {args.root}: {exc.strerror or exc}", file=sys.stderr)
+        return EXIT_FAILURE
+    except UnknownTransaction as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return EXIT_INVALID
+    rows = merge_exports(exports)
+    for account in accounts:
+        own = [row for row in rows if row.account == account.id]
+        print(format_account_summary(account, own, [e for e in exports if e.account.id == account.id]))
+    ledger = args.output_dir / "portfolio" / "ledger.csv"
+    write_ledger_csv(rows, ledger)
+    print(f"ledger: {ledger} ({len(rows)} rows)")
+    return EXIT_FAILURE if reconciliation_problems(exports) else EXIT_OK
+
+
 def _report(config: Path, issues: Sequence[ScenarioIssue]) -> int:
     print(f"{config}: {len(issues)} problem(s)", file=sys.stderr)
     for issue in issues:
@@ -172,6 +220,8 @@ def _summary(config: Path, loaded: LoadedScenario) -> str:
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
+    if args.command == "portfolio":
+        return _portfolio_import(args)
     require_data_files = args.command == "run" or getattr(args, "require_data_files", False)
     loaded = _load(args.config, require_data_files=require_data_files)
     if isinstance(loaded, int):

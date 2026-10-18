@@ -14,6 +14,12 @@ suffix, bare unqualified `Service`, `confidence interval` (for success probabili
 
 ## Terms
 
+### Account
+- **Definition**: One holding of investments and cash at one provider, owned by one person in one Wrapper, listed in `config/accounts.yaml` with the file patterns of its exports (portfolio-data §1).
+- **NOT**: The provider (one provider can hold several accounts) or the Wrapper.
+- **Synonyms to AVOID**: pot, plan, portfolio (the model's `portfolio` is the whole investable balance)
+- **Related terms**: Wrapper, Ledger
+
 ### As-Of Date
 - **Definition**: The model valuation date; "today" in every *today's GBP* amount, and the first simulated month is derived from it deterministically (SPEC §5).
 - **Synonyms to AVOID**: start date (collides with Income Stream `start_date`), run date
@@ -80,6 +86,12 @@ suffix, bare unqualified `Service`, `confidence interval` (for success probabili
 - **Definition**: `model.horizon_years` — a computational cap on simulated months, not an assumed age of death.
 - **Related terms**: Censored Path
 
+### External Flow
+- **Definition**: Money entering or leaving the household's accounts: bank transfers, contributions, tax relief, transfers from or to another provider. Ledger rows with `flow: external`; returns leave them out (portfolio-data §4).
+- **NOT**: Dividends, interest or fees (`flow: none`), or an Internal Transfer.
+- **Synonyms to AVOID**: deposit (for every kind), cash flow (ambiguous)
+- **Related terms**: Internal Transfer, Ledger
+
 ### Household End
 - **Definition**: The first month in which both people are dead; the Path stops before that month's cash flows (`PathOutcomes.household_end_month`).
 - **NOT**: The first death (that triggers the Survivor Budget Factor, not the end).
@@ -101,6 +113,18 @@ suffix, bare unqualified `Service`, `confidence interval` (for success probabili
 - **Definition**: Cumulative price level, I = 1 in the As-Of month; one annual rate π_k per path per simulated year (AR(1) lognormal), compounding monthly within the year so I_{12k} = ∏_{j<k}(1+π_j) at anniversaries (SPEC §6; simulation-conventions §5).
 - **Synonyms to AVOID**: CPI (CPI is the calibration *source*, not the simulated index), deflator
 - **Related terms**: Today's GBP, Random Stream
+
+### Internal Transfer
+- **Definition**: A move of money between parts of one Account (e.g. an HL SIPP's income account to its capital account); `type: internal_transfer`, `flow: internal`. Nets away within the account (portfolio-data §4).
+- **NOT**: An External Flow, or a transfer between two of the household's accounts at different providers (that is an External Flow out of one and into the other).
+- **Synonyms to AVOID**: sweep, journal
+- **Related terms**: External Flow, Account
+
+### Ledger
+- **Definition**: The normalised list of every Account's transaction legs, merged from all monthly export folders without duplicates and written to `output/portfolio/ledger.csv` by `sbretire portfolio import` (portfolio-data §3–§4). Quantities and cash are signed from the account's side.
+- **NOT**: A holdings valuation (positions at a date) or a provider's raw export.
+- **Synonyms to AVOID**: transaction history, statement
+- **Related terms**: Account, External Flow, Internal Transfer
 
 ### Maximum Sustainable Budget
 - **Definition**: The largest *Budget* B* with Conservative Success Rate ≥ target, found by bisection with CRN to a stated currency tolerance (SPEC §14).
@@ -166,6 +190,11 @@ suffix, bare unqualified `Service`, `confidence interval` (for success probabili
 - **Definition**: Purchasing-power terms at the As-Of Date; fields suffixed `_today` are in this unit. Internally the engine computes nominal GBP.
 - **Synonyms to AVOID**: real pounds (ambiguous), constant pounds
 - **Related terms**: Inflation Index, As-Of Date
+
+### Wrapper
+- **Definition**: The tax treatment an Account sits in: `taxable`, `isa`, `pension` or `sipp` (portfolio-data §1). Recorded as a label only; the model has no tax logic (SPEC §16).
+- **Synonyms to AVOID**: account type, tax wrapper (fine in prose, not as a field name)
+- **Related terms**: Account
 
 ## Unresolved
 
