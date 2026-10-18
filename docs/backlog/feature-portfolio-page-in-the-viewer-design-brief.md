@@ -134,13 +134,16 @@ def write_portfolio_files(
 ## 10. Tasks
 
 ### F-030.1 Extras for the page
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: —
 
 `drawdown_episodes`, `calendar`, `correlation`, `risk_contribution`, `income_by_month`. §2 #4.
 
 **Acceptance criteria**
-- [ ] Known answers: two separate falls give two episodes ordered by depth with peak, trough, recovery (or none) and month counts; the calendar puts returns in the right year and month with each year's compounded total; correlation of a hand-built covariance; risk shares sum to 1 and equal weights for uncorrelated equal-variance series; income groups dividends, interest, fees and tax withheld by month in GBP with USD converted — `test_portfolio_extras_known_answers`
+- [x] Known answers: two separate falls give two episodes ordered by depth with peak, trough, recovery (or none) and month counts; the calendar puts returns in the right year and month with each year's compounded total; correlation of a hand-built covariance; risk shares sum to 1 and equal weights for uncorrelated equal-variance series; income groups dividends, interest, fees and tax withheld by month in GBP with USD converted — `test_portfolio_extras_known_answers`
+
+**Notes**
+2026-10-18 ledger/extras.py (not report.py, which holds the ledger summary): drawdown_episodes, calendar, correlation, risk_contribution, income_by_month; tests/unit/test_portfolio_extras.py.
 
 ### F-030.2 portfolio.json and `sbretire portfolio report`
 - **Status**: To Do
