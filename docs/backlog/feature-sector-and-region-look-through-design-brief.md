@@ -2,7 +2,7 @@
 id: F-028
 type: feature
 parent: portfolio-analysis
-status: planned
+status: in-progress
 complexity: 5
 created: 2026-10-18
 updated: 2026-10-18
@@ -144,7 +144,7 @@ def look_through(
 ## 10. Tasks
 
 ### F-028.1 Taxonomy, series fields and factsheets
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: —
 
 `ledger/exposure.py` (lists, aliases, `canonical`, `load_factsheet`); `SeriesConfig` gains `factsheet`, `sector`,
