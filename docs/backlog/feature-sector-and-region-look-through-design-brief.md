@@ -144,15 +144,18 @@ def look_through(
 ## 10. Tasks
 
 ### F-028.1 Taxonomy, series fields and factsheets
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: —
 
 `ledger/exposure.py` (lists, aliases, `canonical`, `load_factsheet`); `SeriesConfig` gains `factsheet`, `sector`,
 `region`, `asset_class`, `currency`, with stock fields validated against the lists. §2 #1–#3.
 
 **Acceptance criteria**
-- [ ] Aliases and case map to the fixed names and unknown names give `None`; a series with an unknown `sector` or `region` is rejected with its location — `test_taxonomy_and_series_fields`
-- [ ] A factsheet in percentages and one in fractions load to the same rescaled weights; an unknown label, a sector map summing to 0.9 and a missing `as_of` are each rejected with their location; omitting `currencies` derives them from the regions and says so — `test_load_factsheet`
+- [x] Aliases and case map to the fixed names and unknown names give `None`; a series with an unknown `sector` or `region` is rejected with its location — `test_taxonomy_and_series_fields`
+- [x] A factsheet in percentages and one in fractions load to the same rescaled weights; an unknown label, a sector map summing to 0.9 and a missing `as_of` are each rejected with their location; omitting `currencies` derives them from the regions and says so — `test_load_factsheet`
+
+**Notes**
+2026-10-18 ledger/taxonomy.py (fixed names, aliases, canonical, region_currency) — the taxonomy sits in its own module so prices.py can validate stock fields without importing exposure.py; SeriesConfig gains factsheet, sector, region, asset_class, currency; ledger/exposure.py Factsheet and load_factsheet (fractions or percentages, rescaled, aliases merged, currencies derived from regions); tests/unit/test_exposure_factsheets.py (2).
 
 ### F-028.2 Look-through
 - **Status**: To Do

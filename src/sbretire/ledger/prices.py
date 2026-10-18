@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import datetime as dt
 import hashlib
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Annotated, Any, Literal
@@ -18,11 +18,28 @@ from pydantic import BaseModel, BeforeValidator, ConfigDict, Field, ValidationEr
 from sbretire._yaml import YamlLoadError, load_yaml
 from sbretire.config import ScenarioError, ScenarioIssue, _format_location, _issue, _text
 from sbretire.ledger.parsers._common import csv_rows, read_text
+from sbretire.ledger.taxonomy import NAMES, Dimension, canonical
 
 Quote = Literal["GBP", "GBX", "USD"]
 Basis = Literal["adjusted", "dividends", "price"]
 Text = Annotated[str, BeforeValidator(_text), Field(min_length=1)]
 HoldingRef = Annotated[str, BeforeValidator(_text), Field(pattern=r"^[^:]+:.+$")]
+
+
+def _named(dimension: Dimension) -> Callable[[object], object]:
+    """A before-validator mapping a label to its fixed name, or failing with the allowed names."""
+
+    def check(value: object) -> object:
+        if value is None:
+            return None
+        found = canonical(dimension, str(value))
+        if found is None:
+            raise ValueError(
+                f"unknown {dimension.replace('_', ' ')} {value!r}; use one of {', '.join(NAMES[dimension])}"
+            )
+        return found
+
+    return check
 
 
 class SeriesConfig(BaseModel):
@@ -37,6 +54,15 @@ class SeriesConfig(BaseModel):
     quote: Quote
     """Currency the file's prices are in: GBP, GBX (pence) or USD."""
     holdings: Annotated[tuple[HoldingRef, ...], Field(min_length=1)]
+    factsheet: Text | None = None
+    """A fund's factsheet file in the factsheets folder (F-028)."""
+    sector: Annotated[str, BeforeValidator(_named("sector"))] | None = None
+    """A single stock's sector (one of the fixed names, or an alias)."""
+    region: Annotated[str, BeforeValidator(_named("region"))] | None = None
+    asset_class: Annotated[str, BeforeValidator(_named("asset_class"))] | None = None
+    """A single stock's asset class; ``None`` means equity."""
+    currency: Annotated[str, BeforeValidator(_named("currency"))] | None = None
+    """A single stock's currency exposure; ``None`` means the region's currency."""
 
 
 class SecuritiesConfig(BaseModel):
