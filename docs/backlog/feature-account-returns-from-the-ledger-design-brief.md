@@ -139,6 +139,10 @@ class AccountReturn:
 
 ## 9. Surprises
 
+- 2026-10-18 — F-031.2: an unmatched ledger security makes its account unavailable even if it was bought and
+  sold inside the period. Its units today are unknown (no holding is matched), so "held at a month-end" cannot
+  be decided. The fix for the user is a `ledger_names` entry.
+
 ## 10. Tasks
 
 ### F-031.1 Matching ledger securities to price series
@@ -154,13 +158,16 @@ class AccountReturn:
 2026-10-18 SeriesConfig.ledger_names; ledger/account_returns.py normalise_name (trailing share-class words and single letters dropped), match_securities (ledger_names in the series' accounts → key → normalised name of holding name or key); tests/unit/test_account_returns_match.py.
 
 ### F-031.2 Month-end values rebuilt backwards
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-031.1
 
 `units_at`, `cash_at`, month-end valuation in the account's currency, and availability. §2 #2–#4.
 
 **Acceptance criteria**
-- [ ] Today 100 units and £50 cash, with a buy of 40 (−£400), a fee (−£5) and a deposit (+£1,000) after a month-end, rebuild to 60 units and £50 + 400 + 5 − 1,000 cash there; GBX, USD-in-GBP and USD-in-USD conversions price as stated; a held security without a price, or unmatched, makes the account unavailable naming it and the months — `test_rebuild_month_end_values`
+- [x] Today 100 units and £50 cash, with a buy of 40 (−£400), a fee (−£5) and a deposit (+£1,000) after a month-end, rebuild to 60 units and £50 + 400 + 5 − 1,000 cash there; GBX, USD-in-GBP and USD-in-USD conversions price as stated; a held security without a price, or unmatched, makes the account unavailable naming it and the months — `test_rebuild_month_end_values`
+
+**Notes**
+2026-10-18 account_returns.py month_end, units_at, cash_at, price_in (GBX ÷ 100, USD↔GBP at the month's rate), rebuild (values in the account currency; unmatched ledger securities and unpriced held series listed). Any unmatched ledger security in the account is listed (today's units of an unmatched security are unknown), not only those held at a month-end — recorded in §9. Test assertion split for typing only.
 
 ### F-031.3 Time- and money-weighted returns
 - **Status**: To Do

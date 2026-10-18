@@ -7,13 +7,15 @@ of return.
 
 from __future__ import annotations
 
+import datetime as dt
 import re
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from typing import Final
 
 from sbretire.ledger.holdings import Holding
 from sbretire.ledger.model import LedgerRow
 from sbretire.ledger.prices import SecuritiesConfig
+from sbretire.ledger.returns import add_months
 
 _TAIL: Final = {
     "acc", "accumulation", "accumulating", "inc", "income", "dist", "distributing", "shares", "share",
@@ -75,17 +77,85 @@ def match_securities(
     return matched, unmatched
 
 
-def units_at(*a: object) -> object:
-    raise NotImplementedError
+def month_end(month: dt.date) -> dt.date:
+    """The last day of ``month`` (given as its first day)."""
+    return add_months(month, 1) - dt.timedelta(days=1)
 
 
-def cash_at(*a: object) -> object:
-    raise NotImplementedError
+def units_at(
+    rows: Sequence[LedgerRow],
+    matched: Mapping[tuple[str, str], str],
+    today: Mapping[str, float],
+    month: dt.date,
+) -> dict[str, float]:
+    """Series → units at the end of ``month``: today's units less every later ``quantity_change`` (§27)."""
+    end = month_end(month)
+    units = dict(today)
+    for row in rows:
+        series = matched.get((row.account, row.security_key))
+        if series is not None and row.date > end and row.quantity_change:
+            units[series] = units.get(series, 0.0) - row.quantity_change
+    return units
 
 
-def price_in(*a: object) -> object:
-    raise NotImplementedError
+def cash_at(rows: Sequence[LedgerRow], today: float, month: dt.date) -> float:
+    """Cash at the end of ``month``: today's cash less every later ``cash_change`` (§27)."""
+    end = month_end(month)
+    return today - sum(row.cash_change for row in rows if row.date > end)
 
 
-def rebuild(*a: object) -> object:
-    raise NotImplementedError
+def price_in(account_currency: str, quote: str, close: float, usd_gbp: float) -> float:
+    """A month-end price in the account's currency: GBX ÷ 100; USD × GBP-per-USD into GBP, and back (§27)."""
+    pounds = close / 100.0 if quote == "GBX" else close
+    major = "GBP" if quote == "GBX" else quote
+    if major == account_currency:
+        return pounds
+    if major == "USD" and account_currency == "GBP":
+        return pounds * usd_gbp
+    if major == "GBP" and account_currency == "USD":
+        return pounds / usd_gbp
+    raise ValueError(f"no conversion from {quote} to {account_currency}")
+
+
+def rebuild(
+    rows: Sequence[LedgerRow],
+    matched: Mapping[tuple[str, str], str],
+    today_units: Mapping[str, float],
+    today_cash: float,
+    months: Sequence[dt.date],
+    closes: Mapping[str, Mapping[dt.date, float]],
+    quotes: Mapping[str, str],
+    currency: str,
+    usd_gbp: Mapping[dt.date, float],
+) -> tuple[list[tuple[dt.date, float | None]], list[str]]:
+    """Month-end values of one account in its own currency, and what stops any month being valued (§27).
+
+    A ledger security with no matched series, or a held series without a price (or a needed USD rate) at a
+    month-end, is listed; that month's value is ``None``.
+    """
+    missing: list[str] = []
+    for row in rows:
+        if row.security_key and (row.account, row.security_key) not in matched:
+            label = f"{row.security_key} (no price series matched)"
+            if label not in missing:
+                missing.append(label)
+    values: list[tuple[dt.date, float | None]] = []
+    for month in months:
+        total: float | None = cash_at(rows, today_cash, month)
+        for series, units in units_at(rows, matched, today_units, month).items():
+            if abs(units) < 1e-9:
+                continue
+            close = closes.get(series, {}).get(month)
+            quote = quotes.get(series, currency)
+            needs_rate = ("GBP" if quote == "GBX" else quote) != currency
+            rate = usd_gbp.get(month)
+            if close is None:
+                missing.append(f"{series} ({month:%Y-%m})")
+                total = None
+            elif needs_rate and rate is None:
+                missing.append(f"{series} ({month:%Y-%m}: no USD rate)")
+                total = None
+            elif total is not None:
+                total += units * price_in(currency, quote, close, rate or 1.0)
+        values.append((month, total))
+    return values, missing

@@ -46,10 +46,10 @@ def test_rebuild_month_end_values() -> None:
     closes = {"s": {JAN: 9.0, FEB: 11.0}}
     values, missing = rebuild(ROWS, MATCHED, {"s": 100.0}, 50.0, [JAN, FEB], closes, {"s": "GBP"}, "GBP", {})
     assert missing == []
-    assert values == [
-        (JAN, pytest.approx(60 * 9.0 + (50.0 + 405.0 - 1000.0))),
-        (FEB, pytest.approx(100 * 11.0 + 50.0)),
-    ]
+    assert [month for month, _ in values] == [JAN, FEB]
+    assert [value for _, value in values] == pytest.approx(
+        [60 * 9.0 + (50.0 + 405.0 - 1000.0), 100 * 11.0 + 50.0]
+    )
 
     _, missing = rebuild(ROWS, MATCHED, {"s": 100.0}, 50.0, [JAN, FEB, MAR], closes, {"s": "GBP"}, "GBP", {})
     assert missing == ["s (2026-03)"]  # held in March but no March price
