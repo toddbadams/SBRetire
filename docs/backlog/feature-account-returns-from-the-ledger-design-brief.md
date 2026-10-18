@@ -182,7 +182,7 @@ class AccountReturn:
 2026-10-18 account_returns.py modified_dietz, xirr (brentq on −99%…+1,000%, years = days/365), PeriodReturn and returns_for (flows after the first point; MWR annualised only for ≥ 1 year), to_gbp (USD at the month's rate); tests/unit/test_account_returns_twr_mwr.py (assertions split for typing only).
 
 ### F-031.4 Command, portfolio.json 1.1, page, docs and a real run
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-031.3
 
 What to build:
