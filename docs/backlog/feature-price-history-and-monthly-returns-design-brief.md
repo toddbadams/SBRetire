@@ -160,13 +160,16 @@ def coverage(...) -> Coverage: ...  # full / short / gaps / missing, with GBP va
 2026-10-18 ledger/prices.py (SeriesConfig, SecuritiesConfig, load_securities with duplicate-id and mapped-twice checks, PriceFile/MonthEnd, read_price_file: Adj Close / Close+Dividend / Close, last row per month, null rows skipped, SHA-256), config/securities.example.yaml, tests/fixtures/prices/ (3 files); tests/unit/test_prices_files.py (2).
 
 ### F-026.2 Monthly GBP total returns
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-026.1
 
 `ledger/returns.py`: `window`, `gbp_returns` (§2 #4–#6).
 
 **Acceptance criteria**
-- [ ] Known answers: 1% monthly growth gives 0.01 each month; a dividend adds D/P_{t-1}; a GBX series equals its GBP twin; a USD series with the rate moving gives (1+r)(X_t/X_{t-1})−1; a missing month gives two missing returns; `window("oct-26", 60)` is October 2021 to September 2026 — `test_gbp_returns_known_answers`
+- [x] Known answers: 1% monthly growth gives 0.01 each month; a dividend adds D/P_{t-1}; a GBX series equals its GBP twin; a USD series with the rate moving gives (1+r)(X_t/X_{t-1})−1; a missing month gives two missing returns; `window("oct-26", 60)` is October 2021 to September 2026 — `test_gbp_returns_known_answers`
+
+**Notes**
+2026-10-18 ledger/returns.py (MonthlyReturn, add_months, window, gbp_returns: GBX ÷ 100, USD via the FX series, dividends, missing months give no value and no return into or out of them); tests/unit/test_returns_gbp.py (closed-form cases).
 
 ### F-026.3 Coverage and `sbretire portfolio returns`
 - **Status**: To Do
