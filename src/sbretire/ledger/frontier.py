@@ -227,3 +227,23 @@ def max_return_at(est: Estimates, cap: float, risk_free: float, volatility: floa
         extra=[{"type": "ineq", "fun": lambda w: level - float(w @ est.cov @ w)}],
     )  # fmt: skip
     return mix(est, w, risk_free)
+
+
+def household_trades(*args: object, **kwargs: object) -> object:
+    raise NotImplementedError
+
+
+def within_account_targets(*args: object, **kwargs: object) -> object:
+    raise NotImplementedError
+
+
+def trade_cost(*args: object, **kwargs: object) -> object:
+    raise NotImplementedError
+
+
+def plan_trades(*args: object, **kwargs: object) -> object:
+    raise NotImplementedError
+
+
+def sensitivity(*args: object, **kwargs: object) -> object:
+    raise NotImplementedError

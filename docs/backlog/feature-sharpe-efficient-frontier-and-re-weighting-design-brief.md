@@ -160,7 +160,7 @@ What to build:
 2026-10-18 ledger/frontier.py Mix, mix (Sharpe uses 12 × monthly risk-free, consistent with F-027), _check_cap (≥ 2 series, cap × n ≥ 1), SLSQP _solve from several deterministic starts, min_variance, greedy max-return under the cap, frontier, max_sharpe (never below a frontier point), max_return_at; tests/unit/test_frontier_optimiser.py (pairwise lint fixed after the red commit).
 
 ### F-029.3 Trades, costs and sensitivity
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-029.2
 
 Household deltas, `within_account_targets`, `trade_cost`, `--min-trade`, half-window turnover. §2 #5–#8.
