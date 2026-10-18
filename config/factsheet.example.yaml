@@ -1,0 +1,38 @@
+# Example fund factsheet for `sbretire portfolio exposure` - values are ILLUSTRATIVE ONLY.
+# Save one per fund as data/factsheets/<file>.yaml (git-ignored) and name it in the fund's series in
+# data/prices/securities.yaml (`factsheet: <file>.yaml`). Copy the weights from the fund's published factsheet:
+# percentages (adding to about 100) or fractions (about 1), each a share of the WHOLE fund. Leave out a map the
+# factsheet does not give; that part of the fund is then shown as Unclassified.
+# Names: sectors are the 11 GICS sectors or Other; regions are UK, North America, Europe ex UK, Japan,
+# Asia Pacific ex Japan, Emerging Markets or Other; asset classes are equity, bond, cash, property or other.
+# Common wording is accepted (Technology, Healthcare, United States, Europe ex-UK, Fixed Income, ...).
+
+as_of: 2026-09-30                   # the factsheet's date (a warning appears once it is over a year old)
+source: Example Fund factsheet, September 2026
+
+asset_classes: {Equity: 60, Fixed Income: 40}
+sectors:                            # of the whole fund: the bond part counts as Other
+  Technology: 15
+  Financials: 9
+  Health Care: 7
+  Industrials: 7
+  Consumer Discretionary: 6
+  Communication Services: 5
+  Consumer Staples: 4
+  Energy: 3
+  Materials: 2
+  Utilities: 1
+  Real Estate: 1
+  Other: 40
+regions:
+  United States: 36
+  United Kingdom: 12
+  Europe ex-UK: 6
+  Japan: 3
+  Asia Pacific ex Japan: 2
+  Emerging Markets: 3
+  Other: 38
+# currencies: {GBP: 45, USD: 40, EUR: 10, Other: 5}   # optional; otherwise taken from the regions
+top_holdings:                       # optional: the largest underlying holdings, % of the fund
+  Example Corp: 2.5
+  Example Treasury 4% 2030: 1.5

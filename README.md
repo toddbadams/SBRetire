@@ -539,6 +539,34 @@ much of today's value each month covered. It prints:
 `rolling_12m_return`, `rolling_12m_volatility`) and `performance_series.csv` (`series`, `name`, `weight`, `months`,
 `annual_return`, `annual_volatility`, `sharpe`, `max_drawdown`). Until price files exist the back-test is all cash.
 
+### Look-through: sectors, regions and currencies
+
+`sbretire portfolio exposure` shows what today's money is invested in, looking through funds to what they hold:
+asset class, sector, region and currency, each in GBP and as a share of the household total, plus the largest
+underlying holdings across all funds and stocks.
+
+- **Funds:** for each fund or ETF, copy `config/factsheet.example.yaml` to `data/factsheets/<file>.yaml`
+  (git-ignored), fill in the weights from the fund's latest published factsheet (percentages or fractions of the
+  whole fund) and add `factsheet: <file>.yaml` to its series in `data/prices/securities.yaml`. Leave out what the
+  factsheet does not give; `top_holdings` are optional.
+- **Single stocks:** add `sector:` and `region:` to the stock's series (optionally `asset_class:`, default equity,
+  and `currency:`, default from the region).
+- **Names** come from fixed lists, so different factsheets line up: the 11 GICS sectors or Other; regions UK,
+  North America, Europe ex UK, Japan, Asia Pacific ex Japan, Emerging Markets, Other; asset classes equity, bond,
+  cash, property, other; currencies GBP, USD, EUR, JPY, Other. Common wording such as "Technology",
+  "Healthcare", "United States" or "Fixed Income" is accepted; any other name stops the command (exit 2) with
+  the file and the line.
+
+```bash
+uv run sbretire portfolio exposure
+```
+
+Cash is shown as its own line. Anything without data is **Unclassified**, so every table adds to 100%. A fund's
+currencies come from its factsheet, or else from its regions (UK → GBP, North America → USD, Europe ex UK → EUR,
+Japan → JPY), and the share taken from regions is shown. A factsheet more than a year older than the valuation
+gets a warning. It writes `output/portfolio/exposure.csv` (`dimension`, `label`, `value_gbp`, `share`; the top
+holdings come last as `top_holding`).
+
 ## Development
 
 **VS Code:** open the `C:\sb\SBRetire` folder and accept the recommended extensions (Python, Ruff, Mypy). The

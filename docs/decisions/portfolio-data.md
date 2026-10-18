@@ -199,3 +199,43 @@ it for one run; with neither, the command exits 2 naming `risk_free_rate`. (F-02
 **Why**: a single UK Bank Rate figure (epic), kept next to the price files it is used with (user, 2026-10-18).
 Account-level time- and money-weighted returns since the first export are deferred to F-031 (user, 2026-10-18).
 
+## 18. Look-through data: a YAML factsheet per fund, sector and region on each stock, fixed names
+
+A fund's series names `factsheet: <file>.yaml` in `data/factsheets/` (git-ignored; example
+`config/factsheet.example.yaml`): `as_of`, `source`, and weight maps `asset_classes`, `sectors`, `regions`,
+optional `currencies` and optional `top_holdings`, each a share of the **whole** fund. A map is fractions summing
+to 0.98–1.02 or percentages summing to 98–102 and is rescaled to 1; outside that range it is an error with its
+location; a missing map leaves that part of the fund Unclassified. A single stock's series sets `sector`,
+`region` and optionally `asset_class` (default equity) and `currency` (default from the region). Names are fixed:
+the 11 GICS sectors and Other; UK, North America, Europe ex UK, Japan, Asia Pacific ex Japan, Emerging Markets,
+Other; equity, bond, cash, property, other; GBP, USD, EUR, JPY, Other. Matching ignores case and punctuation, an
+alias list accepts common factsheet wording (`src/sbretire/ledger/taxonomy.py`), and any other name is an error
+with its location (exit 2). (F-028)
+
+**Why**: the user chose a file per fund plus stock fields, and fixed lists so that typos or different managers'
+wording never split a sector (2026-10-18); Vanguard's own Asset Sector column is unreliable (epic).
+
+## 19. Look-through arithmetic, cash, currencies and Unclassified
+
+Each holding's GBP value (F-025 valuation; USD at `--usd-gbp` or the FX file's latest month-end) is spread over
+its fund's weights, or put whole on a stock's labels. Cash is asset class `cash`, sector and region `Cash`, and
+the account's currency. Currencies come from a factsheet's `currencies`, else from its regions (UK → GBP, North
+America → USD, Europe ex UK → EUR, Japan → JPY, else Other), and the share derived this way is reported. Holdings
+in no series, series with neither a factsheet nor stock fields, missing factsheets and dimensions a factsheet
+leaves out are **Unclassified**, so every table adds to the household total. A factsheet more than 12 months
+older than the newest valuation date gets a warning. (F-028)
+
+**Why**: currency exposure is not the quote currency (a GBX-quoted ETF of US stocks is USD exposure); keeping
+Unclassified visible shows how much is not yet looked through.
+
+## 20. Top look-through holdings and the output
+
+Each stock counts as one holding under its series name; each fund's `top_holdings` add `value × weight` under the
+holding's name, matched ignoring case and punctuation. The 15 largest are shown, noting that funds publish only
+their largest holdings. `sbretire portfolio exposure` prints one table per dimension (GBP and share) and the top
+holdings, and writes `output/portfolio/exposure.csv` (UTF-8, LF: `dimension`, `label`, `value_gbp`, `share`, the
+top holdings last as `top_holding`). Exit 0 ok, 1 unreadable, 2 an invalid map or factsheet. (F-028)
+
+**Why**: concentration hidden inside funds (the same large company in several ETFs) is one of the epic's
+questions; one CSV feeds the Portfolio page (F-030).
+

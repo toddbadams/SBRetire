@@ -14,12 +14,15 @@ securities:
     file: EXG.L.csv
     quote: GBX                       # GBP | GBX (pence) | USD
     holdings: ["sipp_1:EXG", "sipp_2:EXG"]   # <account id>:<security key from holdings.csv>
+    factsheet: global-equity.yaml    # a fund: its look-through weights in data/factsheets/ (F-028)
 
   - id: example_corp
     name: Example Corp
     file: EXA.csv
     quote: USD
     holdings: ["brokerage:EXA", "sipp_1:EXA"]
+    sector: Information Technology   # a single stock: its GICS sector and region (F-028)
+    region: North America
 
   - id: target_2035
     name: Example Target 2035 Fund

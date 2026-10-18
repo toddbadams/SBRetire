@@ -100,6 +100,12 @@ suffix, bare unqualified `Service`, `confidence interval` (for success probabili
 - **Synonyms to AVOID**: deposit (for every kind), cash flow (ambiguous)
 - **Related terms**: Internal Transfer, Ledger
 
+### Factsheet
+- **Definition**: A fund's published breakdown, copied into `data/factsheets/<file>.yaml`: its asset-class, sector, region and (optionally) currency weights as shares of the whole fund, its date and its largest holdings (portfolio-data §18).
+- **NOT**: A price file, or the fund's own marketing document (the YAML holds only the weights).
+- **Synonyms to AVOID**: fund profile, KIID
+- **Related terms**: Look-Through, Price Series
+
 ### Holding
 - **Definition**: One security or cash line of an Account's holdings export at its Valuation Date: quantity, price and value in the account's currency (`output/portfolio/holdings.csv`, portfolio-data §7). Cash is a holding of kind `cash`.
 - **NOT**: A Ledger row (a transaction), or the model's `portfolio` (the whole household balance).
@@ -143,6 +149,12 @@ suffix, bare unqualified `Service`, `confidence interval` (for success probabili
 - **NOT**: A holdings valuation (positions at a date) or a provider's raw export.
 - **Synonyms to AVOID**: transaction history, statement
 - **Related terms**: Account, External Flow, Internal Transfer
+
+### Look-Through
+- **Definition**: Today's household value broken down by asset class, sector, region and currency by applying each fund's Factsheet weights to its GBP value and each stock's own sector and region, with cash and Unclassified lines so every table adds to the household total (portfolio-data §19).
+- **NOT**: The Vanguard holdings export's "Asset Sector" column (coarse and sometimes misleading), or a forecast of returns.
+- **Synonyms to AVOID**: allocation (ambiguous with target weights), x-ray
+- **Related terms**: Factsheet, Holding
 
 ### Maximum Sustainable Budget
 - **Definition**: The largest *Budget* B* with Conservative Success Rate ≥ target, found by bisection with CRN to a stated currency tolerance (SPEC §14).

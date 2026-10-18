@@ -183,15 +183,18 @@ The command, the shared today's-values helper, `exposure.csv` and the summary, a
 2026-10-18 returns.today_values / TodayValues (securities map and today's GBP values and cash by currency; build_returns now uses it); exposure.py ExposureReport, build_exposure (factsheet errors prefixed with the file name, 12-month staleness warning), write_exposure_csv, format_exposure; `sbretire portfolio exposure`; tests/unit/test_exposure_cli.py. Real holdings: only cash classified until factsheets exist, exit 0.
 
 ### F-028.4 Docs and a local run
-- **Status**: To Do
+- **Status**: Verification
 - **Depends on**: F-028.3
 
 README section, `config/factsheet.example.yaml`, `config/securities.example.yaml` stock fields, THESAURUS
 (Look-Through, Factsheet, sorted), `docs/decisions/portfolio-data.md` §18–§20; run on the real holdings.
 
 **Acceptance criteria**
-- [ ] README documents factsheets, the stock fields, the fixed names and `portfolio exposure`; THESAURUS defines Factsheet and Look-Through in order; decisions recorded — `check: grep -n "portfolio exposure" README.md docs/decisions/portfolio-data.md`
-- [ ] On the real holdings the command runs (all unclassified until factsheets exist), exit 0 (run locally; never committed) — `check: uv run sbretire portfolio exposure --usd-gbp 0.7503`
+- [x] README documents factsheets, the stock fields, the fixed names and `portfolio exposure`; THESAURUS defines Factsheet and Look-Through in order; decisions recorded — `check: grep -n "portfolio exposure" README.md docs/decisions/portfolio-data.md`
+- [x] On the real holdings the command runs (all unclassified until factsheets exist), exit 0 (run locally; never committed) — `check: uv run sbretire portfolio exposure --usd-gbp 0.7503`
+
+**Notes**
+2026-10-18 README 'Look-through: sectors, regions and currencies', config/factsheet.example.yaml (loads), config/securities.example.yaml factsheet and stock fields (loads), THESAURUS (Factsheet, Look-Through; 45 terms sorted), docs/decisions/portfolio-data.md §18–§20. Real run: only cash classified until factsheets exist, exit 0.
 
 ## 11. Open Questions
 
