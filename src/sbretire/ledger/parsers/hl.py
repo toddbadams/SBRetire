@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Final
 
 from sbretire.ledger.accounts import AccountConfig
+from sbretire.ledger.holdings import Holding, HoldingsError, HoldingsExport
 from sbretire.ledger.model import Flow, LedgerRow, TransactionType, UnknownTransaction
 from sbretire.ledger.parsers._common import csv_rows, day, money, read_text
 
@@ -78,5 +79,92 @@ def parse(path: Path, account: AccountConfig) -> list[LedgerRow]:
     return rows
 
 
-def parse_holdings(path: Path, account: AccountConfig) -> object:
-    raise NotImplementedError
+_CREATED: Final = "Spreadsheet created at"
+_FOOTNOTES: Final = re.compile(r"(\s+\*\w+)+$")
+_FX: Final = re.compile(
+    r"(?P<usd>[\d.]+)\s*USD to 100 pence\. Exchange rate correct at (?P<date>\d{2}/\d{2}/\d{4})"
+)
+
+
+def parse_holdings(path: Path, account: AccountConfig) -> HoldingsExport:
+    """An HL account summary: securities (pence to pounds), the "Total cash" line and the footer's USD rate.
+
+    Raises ``HoldingsError`` when the securities differ from "Stock value" or the table's Totals row, or
+    securities + cash from "Total value", by more than a penny (portfolio-data §7).
+    """
+    lines = read_text(path).splitlines()
+    summary: dict[str, tuple[int, str]] = {}
+    for number, record in enumerate(csv_rows("\n".join(lines)), start=1):
+        label = record[0].strip() if record else ""
+        if label.endswith(":") or label == _CREATED:
+            summary[label.rstrip(":")] = (number, record[1].strip() if len(record) > 1 else "")
+    if _CREATED not in summary:
+        raise HoldingsError(path, f"no '{_CREATED}' line")
+    valuation_date = day(summary[_CREATED][1].split()[0], "%d-%m-%Y")
+    start = next((i for i, line in enumerate(lines) if line.startswith("Code,")), None)
+    if start is None:
+        raise HoldingsError(path, "no Code header row")
+    table = csv_rows("\n".join(lines[start:]))
+    col = {name: index for index, name in enumerate(table[0])}
+    holdings, totals = [], None
+    for offset, record in enumerate(table[1:]):
+        if not any(cell.strip() for cell in record):
+            break  # the table ends at a blank line; footnotes follow
+        if not record[col["Code"]].strip() and record[col["Stock"]].strip() == "Totals":
+            totals = money(record[col["Value (£)"]])
+            continue
+        pence = money(record[col["Price (pence)"]])
+        holdings.append(
+            Holding(
+                account=account.id,
+                owner=account.owner,
+                wrapper=account.wrapper,
+                valuation_date=valuation_date,
+                date_stated=True,
+                kind="security",
+                security_key=record[col["Code"]].strip(),
+                security_name=_FOOTNOTES.sub("", record[col["Stock"]].strip()),
+                quantity=money(record[col["Units held"]]) or 0.0,
+                price=None if pence is None else round(pence / 100, 10),
+                value=money(record[col["Value (£)"]]) or 0.0,
+                currency=account.currency,
+                source_file=path.name,
+                source_row=start + 2 + offset,
+            )
+        )
+    securities = round(sum(holding.value for holding in holdings), 2)
+    cash_row, cash_text = summary.get("Total cash", (0, ""))
+    cash = money(cash_text) or 0.0
+    holdings.append(
+        Holding(
+            account=account.id,
+            owner=account.owner,
+            wrapper=account.wrapper,
+            valuation_date=valuation_date,
+            date_stated=True,
+            kind="cash",
+            security_key="",
+            security_name="Total cash",
+            quantity=0.0,
+            price=None,
+            value=cash,
+            currency=account.currency,
+            source_file=path.name,
+            source_row=cash_row,
+        )
+    )
+    checks = [
+        ("Stock value", money(summary.get("Stock value", (0, ""))[1]), securities),
+        ("Totals row", totals, securities),
+        ("Total value", money(summary.get("Total value", (0, ""))[1]), round(securities + cash, 2)),
+    ]
+    for label, stated, expected in checks:
+        if stated is None or abs(stated - expected) > 0.005:
+            shown = "missing" if stated is None else f"{stated:.2f}"
+            raise HoldingsError(path, f"{label} is {shown} but the holdings add up to {expected:.2f}")
+    stated_fx = None
+    for line in lines:
+        rate = _FX.search(line)
+        if rate:
+            stated_fx = (1 / float(rate["usd"]), day(rate["date"], "%d/%m/%Y"))
+    return HoldingsExport(account.id, holdings, stated_fx)

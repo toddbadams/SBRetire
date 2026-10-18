@@ -153,11 +153,14 @@ def format_valuation(valuation: Valuation, accounts: Sequence[AccountConfig]) ->
 - 2026-10-18 — While briefing: ii's holdings `Price` and `Market Value` are in the listing currency (a ratio of
   about 1.33 to `Market Value (£)` for USD lines), so only `Market Value (£)` is used. HL's footer states its own
   USD rate and date, which gives a free cross-check on `--usd-gbp`.
+- 2026-10-18 — F-025.1: the real HL table ends with a `"","Totals",…` row (empty code) that was first read as a
+  holding, doubling the securities; the Stock value check caught it. That row is now a third self-check
+  (securities = Totals), and the fixture gained it.
 
 ## 10. Tasks
 
 ### F-025.1 Holding model, Schwab and HL holdings
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: —
 
 `ledger/holdings.py`, `AccountConfig.holdings_filter`, `parsers/schwab.py::parse_holdings` (title date, cash row,
@@ -165,8 +168,11 @@ Positions Total check), `parsers/hl.py::parse_holdings` (created-at date, Total 
 value checks, footer rate). §2 #4–#8.
 
 **Acceptance criteria**
-- [ ] A synthetic Schwab positions export parses to hand-checked security and cash rows dated from the title, and a total that does not add up raises `HoldingsError` naming the file and both figures — `test_schwab_holdings_parse_and_check_total`
-- [ ] A synthetic HL account summary (cp1252, preamble, footnotes) parses to hand-checked rows with prices in pounds, a cash row from "Total cash", the created-at date and the footer's USD rate; a wrong "Stock value" raises — `test_hl_holdings_parse_and_check_totals`
+- [x] A synthetic Schwab positions export parses to hand-checked security and cash rows dated from the title, and a total that does not add up raises `HoldingsError` naming the file and both figures — `test_schwab_holdings_parse_and_check_total`
+- [x] A synthetic HL account summary (cp1252, preamble, footnotes) parses to hand-checked rows with prices in pounds, a cash row from "Total cash", the created-at date and the footer's USD rate; a wrong "Stock value" raises — `test_hl_holdings_parse_and_check_totals`
+
+**Notes**
+2026-10-18 ledger/holdings.py (Holding, HOLDING_COLUMNS, HoldingsExport, HoldingsError), AccountConfig.holdings_filter, parsers/schwab.py::parse_holdings (title date, cash line, Positions Total check), parsers/hl.py::parse_holdings (created-at date, Total cash, pence, Stock value / Totals row / Total value checks, footer rate); tests/unit/test_holdings_schwab_hl.py (2). Real Schwab and HL exports parse and pass every check.
 
 ### F-025.2 Vanguard and ii holdings
 - **Status**: To Do

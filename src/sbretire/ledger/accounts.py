@@ -37,6 +37,8 @@ class AccountConfig(BaseModel):
     holdings: Patterns
     filter: Text | None = None
     """Keep only transaction rows whose Account column equals this (for shared provider files)."""
+    holdings_filter: Text | None = None
+    """Keep only holdings rows whose Product Wrapper column equals this (Vanguard's shared holdings file)."""
 
 
 class _AccountsFile(BaseModel):

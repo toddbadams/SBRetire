@@ -11,6 +11,7 @@ Total value:,"24,000.00", , ,
 Code,Stock,Units held,Price (pence),Value (£),Cost (£),Gain/loss (£),Gain/loss (%),
 "EXA","Example Corp, Inc. Com Stk USD0.01 *1 *R","100","15,000.00","15,000.00","12,000.00","3,000.00","25.00"
 "EXG","Example Global Equity UCITS ETF USD Acc *1","1,250","676.5432","8,456.79","8,000.00","456.79","5.71"
+"","Totals","","","23,456.79","20,000.00","3,456.79","17.28"
 
 "Shares are valued at the bid-price, delayed by 15 minutes. Funds are valued at the most recent bid-price."
 "*1 The price shown is at the close of the last business day."
