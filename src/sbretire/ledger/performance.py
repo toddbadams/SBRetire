@@ -9,12 +9,15 @@ from __future__ import annotations
 
 import datetime as dt
 import math
-from collections.abc import Sequence
+from collections import defaultdict
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Final
 
 import numpy as np
 from numpy.typing import NDArray
+
+from sbretire.ledger.returns import MonthlyReturn, add_months
 
 _FLAT: Final = 1e-12
 """A standard deviation at or below this is treated as zero (Sharpe undefined)."""
@@ -92,3 +95,47 @@ def rolling(returns: Sequence[float], window: int = 12) -> tuple[list[float | No
         compounded.append(float(np.prod(1.0 + run) - 1.0))
         volatility.append(float(np.std(run, ddof=1) * math.sqrt(12.0)))
     return compounded, volatility
+
+
+@dataclass(frozen=True)
+class BacktestMonth:
+    """One month of the back-test: the portfolio's return and the share of today's value it covered."""
+
+    month: dt.date
+    portfolio_return: float
+    covered_share: float
+
+
+def backtest(
+    weights: Mapping[str, float],
+    cash: float,
+    total: float,
+    returns: Sequence[MonthlyReturn],
+    first: dt.date,
+    last: dt.date,
+    risk_free: float,
+) -> list[BacktestMonth]:
+    """Today's mix month by month (portfolio-data §16): series weights by today's GBP value, plus cash.
+
+    Each month only the series with a return that month count; they and the cash are rescaled to 100%, and
+    cash earns the monthly risk-free rate. ``covered_share`` is the counted value over ``total`` (today's
+    household value, unpriced holdings included). A month with nothing counted earns the risk-free rate.
+    """
+    by_month: dict[dt.date, dict[str, float]] = defaultdict(dict)
+    for row in returns:
+        if row.return_gbp is not None and row.series in weights:
+            by_month[row.month][row.series] = row.return_gbp
+    rf = monthly_rate(risk_free)
+    months = []
+    month = first
+    while month <= last:
+        available = by_month.get(month, {})
+        counted = sum(weights[series] for series in available) + cash
+        if counted > 0:
+            gain = sum(weights[series] * r for series, r in available.items()) + cash * rf
+            portfolio = gain / counted
+        else:
+            portfolio = rf
+        months.append(BacktestMonth(month, portfolio, counted / total if total > 0 else 0.0))
+        month = add_months(month, 1)
+    return months

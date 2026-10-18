@@ -148,13 +148,16 @@ def backtest(
 2026-10-18 SecuritiesConfig.risk_free_rate (0 ≤ r < 0.2), ledger/performance.py (monthly_rate, Metrics, drawdowns, metrics, rolling); tests/unit/test_performance_metrics.py (2).
 
 ### F-027.2 Back-test of today's weights
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-027.1
 
 `backtest` (§2 #2–#3).
 
 **Acceptance criteria**
-- [ ] With two series weighted 60/40 and cash, each month's return is the weighted mean, with cash at the monthly risk-free rate; in a month where one series has no return the other and cash are rescaled to 100%, and the covered share falls by that series' weight — `test_backtest_reweights_and_covers`
+- [x] With two series weighted 60/40 and cash, each month's return is the weighted mean, with cash at the monthly risk-free rate; in a month where one series has no return the other and cash are rescaled to 100%, and the covered share falls by that series' weight — `test_backtest_reweights_and_covers`
+
+**Notes**
+2026-10-18 ledger/performance.py BacktestMonth, backtest (series with a return that month plus cash rescaled to 100%, cash at the monthly risk-free rate, covered share of today's household value, nothing counted → risk-free); tests/unit/test_performance_backtest.py. The red commit failed on import (no backtest stub) rather than an assertion; noted.
 
 ### F-027.3 `sbretire portfolio performance`
 - **Status**: To Do

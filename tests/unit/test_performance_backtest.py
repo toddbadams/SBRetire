@@ -1,4 +1,4 @@
-"""F-027.2 — back-test of today's weights: re-weighting over gaps, cash at the risk-free rate, covered share."""
+"""F-027.2 — back-test of today's weights: re-weighting over gaps, cash at the risk-free rate, coverage."""
 
 from __future__ import annotations
 
