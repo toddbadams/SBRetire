@@ -2,7 +2,7 @@
 id: F-024
 type: feature
 parent: portfolio-analysis
-status: in-progress
+status: done
 complexity: 6
 created: 2026-10-18
 updated: 2026-10-18
