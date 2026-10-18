@@ -160,15 +160,18 @@ page copy (a skeleton page). §2 #2, #3, #5, #6, #10.
 2026-10-18 ledger/document.py (ReportOptions, build_portfolio_document: valuation always, each analysis or {available: false, reason}; write_portfolio_files: json, js with </ escaped, page files), schemas/portfolio.schema.json 1.0, skeleton src/sbretire/web/portfolio/*, `sbretire portfolio report` (options shared with exposure/frontier); tests/unit/test_portfolio_document.py (2; one assertion rewritten for typing only).
 
 ### F-030.3 The Portfolio page
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-030.2
 
 `portfolio.html`, `portfolio-view.css` and `portfolio-view.js` for every section in §2 #7, plus the theme toggle,
 Save as PDF and print rules. §2 #1, #7–#9.
 
 **Acceptance criteria**
-- [ ] The page uses only theme tokens and no network, loads `portfolio/portfolio.js`, escapes every data string, has a section for each of §2 #7 with an unavailable state, the analysis-not-advice and wrapper caveats, a Save as PDF button and print rules like the results viewer, and avoids the banned phrases — `test_portfolio_page_static`
-- [ ] Opened from disk on the design sample in a browser, every section renders without console errors in light and dark — `check: browser on docs/design/sample (render + console)`
+- [x] The page uses only theme tokens and no network, loads `portfolio/portfolio.js`, escapes every data string, has a section for each of §2 #7 with an unavailable state, the analysis-not-advice and wrapper caveats, a Save as PDF button and print rules like the results viewer, and avoids the banned phrases — `test_portfolio_page_static`
+- [x] Opened from disk on the design sample in a browser, every section renders without console errors in light and dark — `check: browser on docs/design/sample (render + console)`
+
+**Notes**
+2026-10-18 src/sbretire/web/portfolio/{portfolio.html,portfolio-view.css,portfolio-view.js}: every §2 #7 section with an unavailable state, SVG frontier (shapes per mix, CML clipped to the plot), dumbbell, growth/underwater/rolling lines, heatmaps (value always printed; tint via color-mix of chart tokens), income bars, sortable holdings, caveats; theme toggle, Save as PDF, print keep-together, own @page header. Browser check (local http.server on output/, .claude/launch.json 'output-pages'): full synthetic sample and the nothing-priced sample render every section in light and dark with no console errors; fixed during the check: inline bar fills had zero width, masthead overflow, crowded small-chart ticks, labels clipped at the right edge.
 
 ### F-030.4 Design sample, nav, docs and a real run
 - **Status**: To Do

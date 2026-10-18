@@ -2,13 +2,127 @@
 <html lang="en-GB">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SBRetire · Portfolio</title>
 <link rel="stylesheet" href="theme.css">
 <link rel="stylesheet" href="viewer.css">
 <link rel="stylesheet" href="portfolio-view.css">
+<script>
+  try {
+    var t = localStorage.getItem('sbretire-theme');
+    if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+  } catch (e) {}
+</script>
 </head>
 <body>
-<main id="main" class="wrap"></main>
+<a class="skip" href="#main">Skip to the portfolio</a>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="masthead__bar">
+      <p class="brand"><span class="brand__name">SBRetire</span><span class="brand__sub">Portfolio</span></p>
+      <div class="masthead__actions">
+        <a class="btn btn--quiet pages__link" href="index.html">Results</a>
+        <button id="pdf-button" class="btn btn--quiet" type="button" title="Opens the print dialog: choose Save as PDF. Prints in black and white on A4.">Save as PDF</button>
+        <button id="theme-toggle" class="btn btn--quiet" type="button" aria-label="Colour theme: follows system">Theme: Auto</button>
+      </div>
+    </div>
+    <p id="print-title" class="print-only print-runs"></p>
+    <div id="meta" class="run-meta"></div>
+  </div>
+  <nav class="jump" aria-label="Sections">
+    <div class="wrap jump__list">
+      <a href="#headline">Value</a>
+      <a href="#allocation">Allocation</a>
+      <a href="#frontier">Frontier</a>
+      <a href="#rebalance">Re-weighting</a>
+      <a href="#performance">Performance</a>
+      <a href="#risk">Risk</a>
+      <a href="#income">Income and fees</a>
+      <a href="#holdings">Holdings</a>
+      <a href="#caveats">Data and caveats</a>
+    </div>
+  </nav>
+</header>
+
+<main id="main" class="wrap">
+  <div id="message"></div>
+
+  <section id="headline" class="section" aria-labelledby="h-headline">
+    <h2 id="h-headline" class="section__title">What the savings are worth today</h2>
+    <p class="section__intro">The household’s accounts valued from the latest exports, cash included, in pounds. The total is the retirement model’s starting balance.</p>
+    <div id="headline-body"></div>
+  </section>
+
+  <aside class="about" aria-labelledby="h-about">
+    <h2 id="h-about" class="about__title">About these numbers</h2>
+    <ul class="about__list">
+      <li><strong>Analysis, not advice.</strong> Model calculations under stated assumptions; nothing here says what to buy or sell.</li>
+      <li><strong>Past prices.</strong> Returns, risk and the frontier come from past monthly prices, a noisy guide to the future.</li>
+      <li><strong>No tax.</strong> No capital gains, dividend or income tax is considered, and no tax wrapper rules beyond noting them.</li>
+      <li><strong>Volatility</strong> is the annualised standard deviation of monthly returns.</li>
+      <li><strong>Sharpe ratio</strong> is (annual return − risk-free rate) ÷ volatility: return per unit of risk.</li>
+      <li><strong>Wrappers.</strong> Money in a pension or SIPP cannot move to an ISA or taxable account, so household-wide moves cannot be made as shown.</li>
+    </ul>
+  </aside>
+
+  <section id="allocation" class="section" aria-labelledby="h-allocation">
+    <h2 id="h-allocation" class="section__title">What the money is invested in</h2>
+    <p class="section__intro">By account, then looking through funds to their asset classes, sectors, regions and currencies, using each fund’s factsheet.</p>
+    <div id="allocation-body"></div>
+  </section>
+
+  <section id="frontier" class="section" aria-labelledby="h-frontier">
+    <h2 id="h-frontier" class="section__title">How efficient the mix has been</h2>
+    <p class="section__intro">The efficient frontier: the lowest-volatility mixes of today’s priced holdings for each level of past return, each holding capped. Today’s mix sits on or below it.</p>
+    <div id="frontier-body"></div>
+  </section>
+
+  <section id="rebalance" class="section" aria-labelledby="h-rebalance">
+    <h2 id="h-rebalance" class="section__title">A different mix of the same holdings</h2>
+    <p class="section__intro">What the model’s target mix would change, account by account, and the estimated dealing costs. Descriptive only.</p>
+    <div id="rebalance-body"></div>
+  </section>
+
+  <section id="performance" class="section" aria-labelledby="h-performance">
+    <h2 id="h-performance" class="section__title">How today’s mix would have done</h2>
+    <p class="section__intro">A back-test: today’s weights applied to past monthly returns, cash earning the risk-free rate. Not the household’s actual past results.</p>
+    <div id="performance-body"></div>
+  </section>
+
+  <section id="risk" class="section" aria-labelledby="h-risk">
+    <h2 id="h-risk" class="section__title">Where the ups and downs come from</h2>
+    <p class="section__intro">How the priced holdings move together, and each one’s share of the mix’s volatility next to its weight.</p>
+    <div id="risk-body"></div>
+  </section>
+
+  <section id="income" class="section" aria-labelledby="h-income">
+    <h2 id="h-income" class="section__title">Income and fees</h2>
+    <p class="section__intro">Dividends and interest received and fees paid in the last twelve complete months, from the transaction exports.</p>
+    <div id="income-body"></div>
+  </section>
+
+  <section id="holdings" class="section" aria-labelledby="h-holdings">
+    <h2 id="h-holdings" class="section__title">Every holding</h2>
+    <p class="section__intro">Select a column heading to sort. Holdings with a short price history are flagged; their figures cover fewer months.</p>
+    <div id="holdings-body"></div>
+  </section>
+
+  <section id="caveats" class="section" aria-labelledby="h-caveats">
+    <h2 id="h-caveats" class="section__title">Data and caveats</h2>
+    <p class="section__intro">What these figures rest on, and what they leave out.</p>
+    <div id="caveats-body"></div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer__inner">
+    <p>SBRetire portfolio page. Reads <code>portfolio/portfolio.js</code> on this computer; nothing is sent anywhere.</p>
+  </div>
+</footer>
+
+<noscript><p class="wrap">This page needs JavaScript switched on to read the saved analysis.</p></noscript>
+
 <script src="portfolio/portfolio.js"></script>
 <script src="portfolio-view.js"></script>
 </body>

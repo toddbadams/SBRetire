@@ -1,1 +1,81 @@
-/* SBRetire portfolio page (F-030): layout additions to viewer.css. Uses only theme tokens. */
+/* SBRetire portfolio page (F-030): additions to viewer.css. Uses only theme tokens (var(--…)). */
+
+.pages__link { text-decoration: none; display: inline-flex; align-items: center; }
+.masthead__bar { flex-wrap: wrap; }
+.masthead__actions { min-width: 0; }
+
+/* headline */
+.figs { display: flex; flex-wrap: wrap; gap: var(--space-4) var(--space-7); align-items: flex-end; }
+.fig-block { display: grid; gap: var(--space-1); }
+.paste { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; margin-top: var(--space-4); }
+.paste code { background: var(--color-surface-sunken); border-radius: var(--radius-sm); padding: var(--space-1) var(--space-2); overflow-wrap: anywhere; }
+
+/* horizontal bars (allocation, risk) */
+.hbars { display: grid; gap: var(--space-2); }
+.hbar { display: grid; grid-template-columns: minmax(8rem, 14rem) minmax(0, 1fr) 4.5rem; gap: var(--space-3); align-items: center; font-size: var(--text-small); }
+.hbar__label { overflow-wrap: anywhere; }
+.hbar__track { display: block; height: 0.75rem; background: var(--color-surface-sunken); border-radius: var(--radius-pill); overflow: hidden; }
+.hbar__fill { display: block; height: 100%; background: var(--chart-run-a); border-radius: var(--radius-pill); }
+.hbar__fill--muted { background: repeating-linear-gradient(90deg, var(--color-border-strong) 0 2px, var(--color-surface-sunken) 2px 5px); }
+.hbar__fill--b { background: var(--chart-run-b); }
+.hbar__value { text-align: right; font-variant-numeric: var(--numeric); }
+.hbar--pair .hbar__track { height: 0.5rem; }
+.hbar--pair .hbar__track + .hbar__track { margin-top: 2px; }
+@media (max-width: 559px) { .hbar { grid-template-columns: minmax(0, 1fr) 4rem; } .hbar__track { grid-column: 1 / -1; grid-row: 2; } }
+
+.grid-3 { display: grid; gap: var(--space-4); grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 900px) { .grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* frontier markers: shape + tone, readable in greyscale */
+.fr-curve { fill: none; stroke: var(--chart-run-a); stroke-width: 2.25; }
+.fr-cml { fill: none; stroke: var(--chart-axis); stroke-width: 1.25; stroke-dasharray: 5 4; }
+.fr-dot { fill: var(--color-surface); stroke: var(--chart-axis-text); stroke-width: 1.25; }
+.fr-today { fill: var(--chart-run-b); stroke: var(--color-surface); stroke-width: 1.5; }
+.fr-minvar { fill: var(--color-surface); stroke: var(--chart-run-a); stroke-width: 2; }
+.fr-sharpe { fill: var(--chart-run-a); stroke: var(--color-surface); stroke-width: 1.5; }
+.fr-target { fill: var(--color-surface); stroke: var(--chart-run-b); stroke-width: 2.25; }
+
+/* dumbbell */
+.db-line { stroke: var(--chart-grid); stroke-width: 3; }
+.db-from { fill: var(--color-surface); stroke: var(--chart-run-b); stroke-width: 2; }
+.db-to { fill: var(--chart-run-a); stroke: var(--color-surface); stroke-width: 1.5; }
+
+/* performance */
+.pf-line { fill: none; stroke: var(--chart-run-a); stroke-width: 2.25; stroke-linejoin: round; }
+.pf-line--b { stroke: var(--chart-run-b); stroke-dasharray: 6 4; }
+.pf-area { fill: var(--chart-fan-inner); stroke: var(--chart-run-b); stroke-width: 1.25; }
+.pf-bar-up { fill: var(--chart-run-a); }
+.pf-bar-down { fill: var(--color-surface); stroke: var(--chart-run-b); stroke-width: 1.25; }
+.pf-bar-alt { fill: var(--chart-fan-outer); stroke: var(--chart-run-a); stroke-width: 1; }
+
+/* heatmaps: the value is always printed, the tint only helps */
+.heat { border-collapse: collapse; font-size: var(--text-small); font-variant-numeric: var(--numeric); }
+.heat th, .heat td { padding: var(--space-1) var(--space-2); text-align: right; border: var(--border-width) solid var(--color-surface); white-space: nowrap; }
+.heat thead th, .heat tbody th { color: var(--color-text-muted); font-weight: var(--weight-medium); background: transparent; }
+.heat tbody th { text-align: left; }
+.h-p1 { background: color-mix(in oklch, var(--chart-run-a) 18%, var(--color-surface)); }
+.h-p2 { background: color-mix(in oklch, var(--chart-run-a) 36%, var(--color-surface)); }
+.h-p3 { background: color-mix(in oklch, var(--chart-run-a) 56%, var(--color-surface)); color: var(--color-on-accent); }
+.h-n1 { background: color-mix(in oklch, var(--chart-run-b) 18%, var(--color-surface)); }
+.h-n2 { background: color-mix(in oklch, var(--chart-run-b) 36%, var(--color-surface)); }
+.h-n3 { background: color-mix(in oklch, var(--chart-run-b) 56%, var(--color-surface)); color: var(--color-on-accent); }
+.h-n1, .h-n2, .h-n3 { font-style: italic; }
+
+/* holdings table */
+.sortable thead th button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-align: inherit; }
+.sortable thead th[aria-sort] button { color: var(--color-text); font-weight: var(--weight-semibold); }
+.unavailable { border-style: dashed; }
+.unavailable p + p { margin-top: var(--space-2); }
+
+/* print: A4, black and white tokens, nothing split (viewer.css carries the shared rules) */
+@page {
+  size: A4;
+  margin: 16mm 12mm 14mm;
+  @top-left { content: "SBRetire portfolio"; font-family: var(--font-body); font-size: 8pt; color: var(--color-text-muted); }
+  @bottom-right { content: "Page " counter(page) " of " counter(pages); font-family: var(--font-body); font-size: 8pt; color: var(--color-text-muted); }
+}
+@media print {
+  .pages__link, #copy-yaml, .sortable thead th button::after { display: none !important; }
+  .hbar, .heat tr, .hbars { break-inside: avoid; }
+  .hbar__fill, .h-p1, .h-p2, .h-p3, .h-n1, .h-n2, .h-n3 { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+}
