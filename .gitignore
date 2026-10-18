@@ -39,3 +39,6 @@ Thumbs.db
 
 # Personal account transaction exports (F-024 epic) - never commit
 data/transactions/
+data/prices/
+data/factsheets/
+config/accounts.yaml

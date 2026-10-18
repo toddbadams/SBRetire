@@ -19,6 +19,13 @@ Features in build order. Status: `proposed` → `briefed` → `in-progress` → 
 | F-021 | Named Runs and results.json | [results-viewer](results-viewer.md) | F-020 | done |
 | F-022 | HTML Results Viewer | [results-viewer](results-viewer.md) | F-021 | done |
 | F-023 | Print and PDF | [results-viewer](results-viewer.md) | F-022 | in-progress |
+| F-024 | Account Import and Normalised Ledger | [portfolio-analysis](portfolio-analysis.md) | — | proposed |
+| F-025 | Holdings Valuation and Starting Balance | [portfolio-analysis](portfolio-analysis.md) | F-024 | proposed |
+| F-026 | Price History and Monthly Returns | [portfolio-analysis](portfolio-analysis.md) | F-024 | proposed |
+| F-027 | Performance and Drawdown Report | [portfolio-analysis](portfolio-analysis.md) | F-025, F-026 | proposed |
+| F-028 | Sector and Region Look-Through | [portfolio-analysis](portfolio-analysis.md) | F-025 | proposed |
+| F-029 | Sharpe Efficient Frontier and Re-Weighting Analysis | [portfolio-analysis](portfolio-analysis.md) | F-026, F-027 | proposed |
+| F-030 | Portfolio Page in the Viewer | [portfolio-analysis](portfolio-analysis.md) | F-025, F-027, F-028, F-029 | proposed |
 | F-005 | Random Streams and Run Metadata | [foundations](foundations.md) | F-001 | done |
 | F-006 | Stochastic Inflation Process and CPI Calibration | [stochastic-inputs](stochastic-inputs.md) | F-003, F-004, F-005 | done |
 | F-007 | ONS Mortality Data Ingest and Mapping | [stochastic-inputs](stochastic-inputs.md) | F-001 | done |
@@ -115,6 +122,7 @@ Unmapped requirements: **none**.
 
 ## Change Log
 
+- 2026-10-18 — Added epic portfolio-analysis (F-024…F-030): import five account exports, holdings value for `starting_balance`, performance and drawdown, sector look-through, Sharpe efficient frontier and re-weighting analysis, Portfolio page; Claude Design hand-off `docs/design/portfolio-design-handoff.md`.
 - 2026-10-09 — F-023 briefed: Save as PDF via the print dialog; black-and-white print tokens; A4 layout with keep-together sections and split year table; review script.
 - 2026-10-09 — F-022 done: results viewer from Claude Design (theme A "Paper" as the common `web/theme.css`, viewer §1-§2); named runs copy it beside `runs/`; XSS paths in the prototype escaped after review; epic results-viewer delivered; 417 tests.
 - 2026-10-09 — F-021 done: results.json (+ JSON Schema) on every run; `--name`/`--overwrite` run folders; index.json and runs.js; example-only design sample; B-021.1 (Windows reserved names, overwrite only after computing).

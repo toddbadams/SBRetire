@@ -1,0 +1,2051 @@
+{
+  "schema_version": "0.1-draft",
+  "synthetic": true,
+  "as_of": "2026-09-30",
+  "created_at": "2026-10-18T09:00:00Z",
+  "currency": "GBP",
+  "settings": {
+    "lookback_months": 60,
+    "risk_free_rate": 0.04,
+    "max_weight": 0.25,
+    "return_frequency": "monthly"
+  },
+  "people": [
+    {
+      "id": "person_1",
+      "name": "Person 1"
+    },
+    {
+      "id": "person_2",
+      "name": "Person 2"
+    }
+  ],
+  "total": {
+    "value_gbp": 587900.0,
+    "by_person": {
+      "person_1": 186500.0,
+      "person_2": 401400.0
+    },
+    "starting_balance_yaml": "starting_balance: 587900"
+  },
+  "accounts": [
+    {
+      "id": "brokerage",
+      "name": "US brokerage",
+      "provider": "Example Broker A",
+      "wrapper": "taxable",
+      "owner": "person_1",
+      "currency": "USD",
+      "value_gbp": 59000.0,
+      "cash_gbp": 4000.0
+    },
+    {
+      "id": "platform",
+      "name": "Investment account",
+      "provider": "Example Platform B",
+      "wrapper": "taxable",
+      "owner": "person_1",
+      "currency": "GBP",
+      "value_gbp": 127500.0,
+      "cash_gbp": 2500.0
+    },
+    {
+      "id": "isa",
+      "name": "Stocks & Shares ISA",
+      "provider": "Example Platform C",
+      "wrapper": "isa",
+      "owner": "person_2",
+      "currency": "GBP",
+      "value_gbp": 100150.0,
+      "cash_gbp": 150.0
+    },
+    {
+      "id": "pension",
+      "name": "Personal pension",
+      "provider": "Example Platform C",
+      "wrapper": "pension",
+      "owner": "person_2",
+      "currency": "GBP",
+      "value_gbp": 45050.0,
+      "cash_gbp": 50.0
+    },
+    {
+      "id": "sipp",
+      "name": "SIPP",
+      "provider": "Example Platform D",
+      "wrapper": "sipp",
+      "owner": "person_2",
+      "currency": "GBP",
+      "value_gbp": 256200.0,
+      "cash_gbp": 1200.0
+    }
+  ],
+  "holdings": [
+    {
+      "id": "glob_eq",
+      "name": "Global All-Cap Equity Index (Acc)",
+      "account": "sipp",
+      "asset_class": "Equity",
+      "currency": "GBP",
+      "value_gbp": 160000.0,
+      "weight": 0.2722,
+      "return_ann": 0.085,
+      "volatility_ann": 0.1517,
+      "sharpe": 0.297,
+      "history_months": 60
+    },
+    {
+      "id": "us_eq",
+      "name": "US Large Cap Equity ETF",
+      "account": "sipp",
+      "asset_class": "Equity",
+      "currency": "USD",
+      "value_gbp": 95000.0,
+      "weight": 0.1616,
+      "return_ann": 0.1,
+      "volatility_ann": 0.17,
+      "sharpe": 0.353,
+      "history_months": 60
+    },
+    {
+      "id": "uk_eq",
+      "name": "UK All-Share Index Fund (Acc)",
+      "account": "platform",
+      "asset_class": "Equity",
+      "currency": "GBP",
+      "value_gbp": 70000.0,
+      "weight": 0.1191,
+      "return_ann": 0.06,
+      "volatility_ann": 0.14,
+      "sharpe": 0.143,
+      "history_months": 60
+    },
+    {
+      "id": "em_eq",
+      "name": "Emerging Markets Equity ETF",
+      "account": "isa",
+      "asset_class": "Equity",
+      "currency": "USD",
+      "value_gbp": 40000.0,
+      "weight": 0.068,
+      "return_ann": 0.07,
+      "volatility_ann": 0.2,
+      "sharpe": 0.15,
+      "history_months": 38
+    },
+    {
+      "id": "multi40",
+      "name": "Multi-Asset 40% Equity Fund (Acc)",
+      "account": "isa",
+      "asset_class": "Multi-asset",
+      "currency": "GBP",
+      "value_gbp": 60000.0,
+      "weight": 0.1021,
+      "return_ann": 0.045,
+      "volatility_ann": 0.08,
+      "sharpe": 0.062,
+      "history_months": 60
+    },
+    {
+      "id": "target35",
+      "name": "Target Date 2035 Fund (Acc)",
+      "account": "pension",
+      "asset_class": "Multi-asset",
+      "currency": "GBP",
+      "value_gbp": 45000.0,
+      "weight": 0.0765,
+      "return_ann": 0.055,
+      "volatility_ann": 0.1,
+      "sharpe": 0.15,
+      "history_months": 60
+    },
+    {
+      "id": "gilts",
+      "name": "UK Gilts Index Fund",
+      "account": "platform",
+      "asset_class": "Bonds",
+      "currency": "GBP",
+      "value_gbp": 55000.0,
+      "weight": 0.0936,
+      "return_ann": 0.025,
+      "volatility_ann": 0.07,
+      "sharpe": -0.214,
+      "history_months": 60
+    },
+    {
+      "id": "tech_stock",
+      "name": "Example Tech Corp",
+      "account": "brokerage",
+      "asset_class": "Equity",
+      "currency": "USD",
+      "value_gbp": 30000.0,
+      "weight": 0.051,
+      "return_ann": 0.14,
+      "volatility_ann": 0.28,
+      "sharpe": 0.357,
+      "history_months": 60
+    },
+    {
+      "id": "staples_stock",
+      "name": "Example Consumer Staples Co",
+      "account": "brokerage",
+      "asset_class": "Equity",
+      "currency": "USD",
+      "value_gbp": 25000.0,
+      "weight": 0.0425,
+      "return_ann": 0.06,
+      "volatility_ann": 0.16,
+      "sharpe": 0.125,
+      "history_months": 60
+    }
+  ],
+  "exposure": {
+    "sector": [
+      {
+        "name": "Technology",
+        "weight": 0.0707
+      },
+      {
+        "name": "Financials",
+        "weight": 0.1689
+      },
+      {
+        "name": "Health Care",
+        "weight": 0.0793
+      },
+      {
+        "name": "Industrials",
+        "weight": 0.0206
+      },
+      {
+        "name": "Consumer Staples",
+        "weight": 0.0718
+      },
+      {
+        "name": "Consumer Discretionary",
+        "weight": 0.2187
+      },
+      {
+        "name": "Energy",
+        "weight": 0.1334
+      },
+      {
+        "name": "Other",
+        "weight": 0.2365
+      }
+    ],
+    "region": [
+      {
+        "name": "North America",
+        "weight": 0.58
+      },
+      {
+        "name": "United Kingdom",
+        "weight": 0.16
+      },
+      {
+        "name": "Europe ex-UK",
+        "weight": 0.1
+      },
+      {
+        "name": "Japan",
+        "weight": 0.05
+      },
+      {
+        "name": "Asia Pacific ex-Japan",
+        "weight": 0.04
+      },
+      {
+        "name": "Emerging Markets",
+        "weight": 0.07
+      }
+    ],
+    "asset_class": [
+      {
+        "name": "Equity",
+        "weight": 0.69
+      },
+      {
+        "name": "Multi-asset",
+        "weight": 0.18
+      },
+      {
+        "name": "Bonds",
+        "weight": 0.1
+      },
+      {
+        "name": "Cash",
+        "weight": 0.03
+      }
+    ],
+    "currency": [
+      {
+        "name": "USD",
+        "weight": 0.52
+      },
+      {
+        "name": "GBP",
+        "weight": 0.31
+      },
+      {
+        "name": "EUR",
+        "weight": 0.07
+      },
+      {
+        "name": "Other",
+        "weight": 0.1
+      }
+    ],
+    "top_lookthrough": [
+      {
+        "name": "Example Company A",
+        "weight": 0.035,
+        "via": [
+          "glob_eq",
+          "us_eq",
+          "tech_stock"
+        ]
+      },
+      {
+        "name": "Example Company B",
+        "weight": 0.032,
+        "via": [
+          "glob_eq",
+          "us_eq"
+        ]
+      },
+      {
+        "name": "Example Company C",
+        "weight": 0.029,
+        "via": [
+          "glob_eq",
+          "us_eq"
+        ]
+      },
+      {
+        "name": "Example Company D",
+        "weight": 0.026,
+        "via": [
+          "glob_eq",
+          "us_eq"
+        ]
+      },
+      {
+        "name": "Example Company E",
+        "weight": 0.023,
+        "via": [
+          "glob_eq",
+          "us_eq"
+        ]
+      },
+      {
+        "name": "Example Company F",
+        "weight": 0.02,
+        "via": [
+          "glob_eq",
+          "us_eq"
+        ]
+      },
+      {
+        "name": "Example Company G",
+        "weight": 0.017,
+        "via": [
+          "glob_eq",
+          "us_eq"
+        ]
+      },
+      {
+        "name": "Example Company H",
+        "weight": 0.014,
+        "via": [
+          "glob_eq",
+          "us_eq"
+        ]
+      },
+      {
+        "name": "Example Company I",
+        "weight": 0.011,
+        "via": [
+          "glob_eq",
+          "us_eq"
+        ]
+      },
+      {
+        "name": "Example Company J",
+        "weight": 0.008,
+        "via": [
+          "glob_eq",
+          "us_eq"
+        ]
+      }
+    ]
+  },
+  "performance": {
+    "export_period": {
+      "start": "2026-01-01",
+      "end": "2026-09-30",
+      "twr": 0.0612,
+      "mwr": 0.0588
+    },
+    "backtest": {
+      "start": "2021-10",
+      "end": "2026-09",
+      "ann_return": 0.0787,
+      "ann_volatility": 0.1243,
+      "sharpe": 0.265,
+      "max_drawdown": -0.2015,
+      "series": [
+        {
+          "month": "2021-10",
+          "index": 1.0167,
+          "benchmark_index": 1.025,
+          "drawdown": 0.0
+        },
+        {
+          "month": "2021-11",
+          "index": 1.0634,
+          "benchmark_index": 1.0638,
+          "drawdown": 0.0
+        },
+        {
+          "month": "2021-12",
+          "index": 1.095,
+          "benchmark_index": 1.0979,
+          "drawdown": 0.0
+        },
+        {
+          "month": "2022-01",
+          "index": 1.1218,
+          "benchmark_index": 1.1403,
+          "drawdown": 0.0
+        },
+        {
+          "month": "2022-02",
+          "index": 1.1309,
+          "benchmark_index": 1.1271,
+          "drawdown": 0.0
+        },
+        {
+          "month": "2022-03",
+          "index": 1.1716,
+          "benchmark_index": 1.1797,
+          "drawdown": 0.0
+        },
+        {
+          "month": "2022-04",
+          "index": 1.2397,
+          "benchmark_index": 1.2572,
+          "drawdown": 0.0
+        },
+        {
+          "month": "2022-05",
+          "index": 1.2654,
+          "benchmark_index": 1.2972,
+          "drawdown": 0.0
+        },
+        {
+          "month": "2022-06",
+          "index": 1.252,
+          "benchmark_index": 1.2677,
+          "drawdown": -0.0106
+        },
+        {
+          "month": "2022-07",
+          "index": 1.1577,
+          "benchmark_index": 1.1452,
+          "drawdown": -0.0851
+        },
+        {
+          "month": "2022-08",
+          "index": 1.1957,
+          "benchmark_index": 1.1878,
+          "drawdown": -0.055
+        },
+        {
+          "month": "2022-09",
+          "index": 1.1795,
+          "benchmark_index": 1.1792,
+          "drawdown": -0.0679
+        },
+        {
+          "month": "2022-10",
+          "index": 1.1217,
+          "benchmark_index": 1.1083,
+          "drawdown": -0.1135
+        },
+        {
+          "month": "2022-11",
+          "index": 1.122,
+          "benchmark_index": 1.1102,
+          "drawdown": -0.1133
+        },
+        {
+          "month": "2022-12",
+          "index": 1.1228,
+          "benchmark_index": 1.1175,
+          "drawdown": -0.1127
+        },
+        {
+          "month": "2023-01",
+          "index": 1.1697,
+          "benchmark_index": 1.1869,
+          "drawdown": -0.0756
+        },
+        {
+          "month": "2023-02",
+          "index": 1.1763,
+          "benchmark_index": 1.1989,
+          "drawdown": -0.0704
+        },
+        {
+          "month": "2023-03",
+          "index": 1.2325,
+          "benchmark_index": 1.2683,
+          "drawdown": -0.026
+        },
+        {
+          "month": "2023-04",
+          "index": 1.2605,
+          "benchmark_index": 1.2998,
+          "drawdown": -0.0038
+        },
+        {
+          "month": "2023-05",
+          "index": 1.3169,
+          "benchmark_index": 1.3515,
+          "drawdown": 0.0
+        },
+        {
+          "month": "2023-06",
+          "index": 1.2606,
+          "benchmark_index": 1.2878,
+          "drawdown": -0.0428
+        },
+        {
+          "month": "2023-07",
+          "index": 1.2885,
+          "benchmark_index": 1.3203,
+          "drawdown": -0.0216
+        },
+        {
+          "month": "2023-08",
+          "index": 1.285,
+          "benchmark_index": 1.3298,
+          "drawdown": -0.0243
+        },
+        {
+          "month": "2023-09",
+          "index": 1.2597,
+          "benchmark_index": 1.2957,
+          "drawdown": -0.0435
+        },
+        {
+          "month": "2023-10",
+          "index": 1.2711,
+          "benchmark_index": 1.2984,
+          "drawdown": -0.0348
+        },
+        {
+          "month": "2023-11",
+          "index": 1.1685,
+          "benchmark_index": 1.166,
+          "drawdown": -0.1127
+        },
+        {
+          "month": "2023-12",
+          "index": 1.1502,
+          "benchmark_index": 1.1491,
+          "drawdown": -0.1266
+        },
+        {
+          "month": "2024-01",
+          "index": 1.1395,
+          "benchmark_index": 1.1492,
+          "drawdown": -0.1348
+        },
+        {
+          "month": "2024-02",
+          "index": 1.1296,
+          "benchmark_index": 1.1373,
+          "drawdown": -0.1423
+        },
+        {
+          "month": "2024-03",
+          "index": 1.149,
+          "benchmark_index": 1.1579,
+          "drawdown": -0.1275
+        },
+        {
+          "month": "2024-04",
+          "index": 1.1,
+          "benchmark_index": 1.1065,
+          "drawdown": -0.1647
+        },
+        {
+          "month": "2024-05",
+          "index": 1.0766,
+          "benchmark_index": 1.0777,
+          "drawdown": -0.1825
+        },
+        {
+          "month": "2024-06",
+          "index": 1.0754,
+          "benchmark_index": 1.0636,
+          "drawdown": -0.1834
+        },
+        {
+          "month": "2024-07",
+          "index": 1.0516,
+          "benchmark_index": 1.051,
+          "drawdown": -0.2015
+        },
+        {
+          "month": "2024-08",
+          "index": 1.1016,
+          "benchmark_index": 1.1145,
+          "drawdown": -0.1635
+        },
+        {
+          "month": "2024-09",
+          "index": 1.1078,
+          "benchmark_index": 1.1336,
+          "drawdown": -0.1588
+        },
+        {
+          "month": "2024-10",
+          "index": 1.1148,
+          "benchmark_index": 1.1215,
+          "drawdown": -0.1535
+        },
+        {
+          "month": "2024-11",
+          "index": 1.1207,
+          "benchmark_index": 1.1199,
+          "drawdown": -0.149
+        },
+        {
+          "month": "2024-12",
+          "index": 1.0594,
+          "benchmark_index": 1.0382,
+          "drawdown": -0.1955
+        },
+        {
+          "month": "2025-01",
+          "index": 1.1632,
+          "benchmark_index": 1.1578,
+          "drawdown": -0.1168
+        },
+        {
+          "month": "2025-02",
+          "index": 1.0767,
+          "benchmark_index": 1.0639,
+          "drawdown": -0.1824
+        },
+        {
+          "month": "2025-03",
+          "index": 1.0817,
+          "benchmark_index": 1.0756,
+          "drawdown": -0.1786
+        },
+        {
+          "month": "2025-04",
+          "index": 1.1209,
+          "benchmark_index": 1.1236,
+          "drawdown": -0.1489
+        },
+        {
+          "month": "2025-05",
+          "index": 1.0728,
+          "benchmark_index": 1.055,
+          "drawdown": -0.1854
+        },
+        {
+          "month": "2025-06",
+          "index": 1.0661,
+          "benchmark_index": 1.0387,
+          "drawdown": -0.1905
+        },
+        {
+          "month": "2025-07",
+          "index": 1.0897,
+          "benchmark_index": 1.0762,
+          "drawdown": -0.1726
+        },
+        {
+          "month": "2025-08",
+          "index": 1.0831,
+          "benchmark_index": 1.0696,
+          "drawdown": -0.1776
+        },
+        {
+          "month": "2025-09",
+          "index": 1.1369,
+          "benchmark_index": 1.139,
+          "drawdown": -0.1367
+        },
+        {
+          "month": "2025-10",
+          "index": 1.205,
+          "benchmark_index": 1.2274,
+          "drawdown": -0.085
+        },
+        {
+          "month": "2025-11",
+          "index": 1.1784,
+          "benchmark_index": 1.1977,
+          "drawdown": -0.1052
+        },
+        {
+          "month": "2025-12",
+          "index": 1.2224,
+          "benchmark_index": 1.268,
+          "drawdown": -0.0718
+        },
+        {
+          "month": "2026-01",
+          "index": 1.2409,
+          "benchmark_index": 1.2865,
+          "drawdown": -0.0578
+        },
+        {
+          "month": "2026-02",
+          "index": 1.1983,
+          "benchmark_index": 1.2487,
+          "drawdown": -0.0901
+        },
+        {
+          "month": "2026-03",
+          "index": 1.243,
+          "benchmark_index": 1.3095,
+          "drawdown": -0.0562
+        },
+        {
+          "month": "2026-04",
+          "index": 1.2888,
+          "benchmark_index": 1.3763,
+          "drawdown": -0.0214
+        },
+        {
+          "month": "2026-05",
+          "index": 1.3022,
+          "benchmark_index": 1.3897,
+          "drawdown": -0.0112
+        },
+        {
+          "month": "2026-06",
+          "index": 1.349,
+          "benchmark_index": 1.4517,
+          "drawdown": 0.0
+        },
+        {
+          "month": "2026-07",
+          "index": 1.3933,
+          "benchmark_index": 1.512,
+          "drawdown": 0.0
+        },
+        {
+          "month": "2026-08",
+          "index": 1.3935,
+          "benchmark_index": 1.4979,
+          "drawdown": 0.0
+        },
+        {
+          "month": "2026-09",
+          "index": 1.4603,
+          "benchmark_index": 1.5846,
+          "drawdown": 0.0
+        }
+      ]
+    },
+    "calendar": [
+      {
+        "month": "2021-10",
+        "return": 0.0167
+      },
+      {
+        "month": "2021-11",
+        "return": 0.0459
+      },
+      {
+        "month": "2021-12",
+        "return": 0.0297
+      },
+      {
+        "month": "2022-01",
+        "return": 0.0245
+      },
+      {
+        "month": "2022-02",
+        "return": 0.0081
+      },
+      {
+        "month": "2022-03",
+        "return": 0.036
+      },
+      {
+        "month": "2022-04",
+        "return": 0.0581
+      },
+      {
+        "month": "2022-05",
+        "return": 0.0208
+      },
+      {
+        "month": "2022-06",
+        "return": -0.0106
+      },
+      {
+        "month": "2022-07",
+        "return": -0.0753
+      },
+      {
+        "month": "2022-08",
+        "return": 0.0328
+      },
+      {
+        "month": "2022-09",
+        "return": -0.0135
+      },
+      {
+        "month": "2022-10",
+        "return": -0.049
+      },
+      {
+        "month": "2022-11",
+        "return": 0.0003
+      },
+      {
+        "month": "2022-12",
+        "return": 0.0006
+      },
+      {
+        "month": "2023-01",
+        "return": 0.0418
+      },
+      {
+        "month": "2023-02",
+        "return": 0.0056
+      },
+      {
+        "month": "2023-03",
+        "return": 0.0478
+      },
+      {
+        "month": "2023-04",
+        "return": 0.0227
+      },
+      {
+        "month": "2023-05",
+        "return": 0.0447
+      },
+      {
+        "month": "2023-06",
+        "return": -0.0428
+      },
+      {
+        "month": "2023-07",
+        "return": 0.0221
+      },
+      {
+        "month": "2023-08",
+        "return": -0.0028
+      },
+      {
+        "month": "2023-09",
+        "return": -0.0197
+      },
+      {
+        "month": "2023-10",
+        "return": 0.0091
+      },
+      {
+        "month": "2023-11",
+        "return": -0.0807
+      },
+      {
+        "month": "2023-12",
+        "return": -0.0157
+      },
+      {
+        "month": "2024-01",
+        "return": -0.0094
+      },
+      {
+        "month": "2024-02",
+        "return": -0.0087
+      },
+      {
+        "month": "2024-03",
+        "return": 0.0172
+      },
+      {
+        "month": "2024-04",
+        "return": -0.0427
+      },
+      {
+        "month": "2024-05",
+        "return": -0.0213
+      },
+      {
+        "month": "2024-06",
+        "return": -0.0011
+      },
+      {
+        "month": "2024-07",
+        "return": -0.0221
+      },
+      {
+        "month": "2024-08",
+        "return": 0.0475
+      },
+      {
+        "month": "2024-09",
+        "return": 0.0056
+      },
+      {
+        "month": "2024-10",
+        "return": 0.0064
+      },
+      {
+        "month": "2024-11",
+        "return": 0.0053
+      },
+      {
+        "month": "2024-12",
+        "return": -0.0547
+      },
+      {
+        "month": "2025-01",
+        "return": 0.0979
+      },
+      {
+        "month": "2025-02",
+        "return": -0.0744
+      },
+      {
+        "month": "2025-03",
+        "return": 0.0047
+      },
+      {
+        "month": "2025-04",
+        "return": 0.0362
+      },
+      {
+        "month": "2025-05",
+        "return": -0.0429
+      },
+      {
+        "month": "2025-06",
+        "return": -0.0063
+      },
+      {
+        "month": "2025-07",
+        "return": 0.0221
+      },
+      {
+        "month": "2025-08",
+        "return": -0.0061
+      },
+      {
+        "month": "2025-09",
+        "return": 0.0497
+      },
+      {
+        "month": "2025-10",
+        "return": 0.0599
+      },
+      {
+        "month": "2025-11",
+        "return": -0.0221
+      },
+      {
+        "month": "2025-12",
+        "return": 0.0373
+      },
+      {
+        "month": "2026-01",
+        "return": 0.0151
+      },
+      {
+        "month": "2026-02",
+        "return": -0.0343
+      },
+      {
+        "month": "2026-03",
+        "return": 0.0372
+      },
+      {
+        "month": "2026-04",
+        "return": 0.0369
+      },
+      {
+        "month": "2026-05",
+        "return": 0.0104
+      },
+      {
+        "month": "2026-06",
+        "return": 0.0359
+      },
+      {
+        "month": "2026-07",
+        "return": 0.0329
+      },
+      {
+        "month": "2026-08",
+        "return": 0.0001
+      },
+      {
+        "month": "2026-09",
+        "return": 0.048
+      }
+    ],
+    "rolling_12m": [
+      {
+        "month": "2022-09",
+        "return": 0.1795,
+        "volatility": 0.1217,
+        "sharpe": 1.147
+      },
+      {
+        "month": "2022-10",
+        "return": 0.1033,
+        "volatility": 0.1371,
+        "sharpe": 0.461
+      },
+      {
+        "month": "2022-11",
+        "return": 0.0552,
+        "volatility": 0.1312,
+        "sharpe": 0.116
+      },
+      {
+        "month": "2022-12",
+        "return": 0.0253,
+        "volatility": 0.1284,
+        "sharpe": -0.114
+      },
+      {
+        "month": "2023-01",
+        "return": 0.0427,
+        "volatility": 0.1327,
+        "sharpe": 0.021
+      },
+      {
+        "month": "2023-02",
+        "return": 0.0402,
+        "volatility": 0.1327,
+        "sharpe": 0.001
+      },
+      {
+        "month": "2023-03",
+        "return": 0.052,
+        "volatility": 0.1363,
+        "sharpe": 0.088
+      },
+      {
+        "month": "2023-04",
+        "return": 0.0168,
+        "volatility": 0.1254,
+        "sharpe": -0.185
+      },
+      {
+        "month": "2023-05",
+        "return": 0.0407,
+        "volatility": 0.1314,
+        "sharpe": 0.006
+      },
+      {
+        "month": "2023-06",
+        "return": 0.0069,
+        "volatility": 0.139,
+        "sharpe": -0.238
+      },
+      {
+        "month": "2023-07",
+        "return": 0.113,
+        "volatility": 0.112,
+        "sharpe": 0.652
+      },
+      {
+        "month": "2023-08",
+        "return": 0.0746,
+        "volatility": 0.1095,
+        "sharpe": 0.316
+      },
+      {
+        "month": "2023-09",
+        "return": 0.0679,
+        "volatility": 0.1109,
+        "sharpe": 0.252
+      },
+      {
+        "month": "2023-10",
+        "return": 0.1332,
+        "volatility": 0.0933,
+        "sharpe": 0.999
+      },
+      {
+        "month": "2023-11",
+        "return": 0.0414,
+        "volatility": 0.1308,
+        "sharpe": 0.011
+      },
+      {
+        "month": "2023-12",
+        "return": 0.0245,
+        "volatility": 0.1323,
+        "sharpe": -0.117
+      },
+      {
+        "month": "2024-01",
+        "return": -0.0259,
+        "volatility": 0.1255,
+        "sharpe": -0.525
+      },
+      {
+        "month": "2024-02",
+        "return": -0.0398,
+        "volatility": 0.1254,
+        "sharpe": -0.636
+      },
+      {
+        "month": "2024-03",
+        "return": -0.0677,
+        "volatility": 0.1153,
+        "sharpe": -0.934
+      },
+      {
+        "month": "2024-04",
+        "return": -0.1273,
+        "volatility": 0.1165,
+        "sharpe": -1.436
+      },
+      {
+        "month": "2024-05",
+        "return": -0.1825,
+        "volatility": 0.0997,
+        "sharpe": -2.232
+      },
+      {
+        "month": "2024-06",
+        "return": -0.147,
+        "volatility": 0.0963,
+        "sharpe": -1.942
+      },
+      {
+        "month": "2024-07",
+        "return": -0.1839,
+        "volatility": 0.0886,
+        "sharpe": -2.526
+      },
+      {
+        "month": "2024-08",
+        "return": -0.1427,
+        "volatility": 0.109,
+        "sharpe": -1.675
+      },
+      {
+        "month": "2024-09",
+        "return": -0.1206,
+        "volatility": 0.1101,
+        "sharpe": -1.459
+      },
+      {
+        "month": "2024-10",
+        "return": -0.1229,
+        "volatility": 0.1096,
+        "sharpe": -1.486
+      },
+      {
+        "month": "2024-11",
+        "return": -0.0409,
+        "volatility": 0.0789,
+        "sharpe": -1.026
+      },
+      {
+        "month": "2024-12",
+        "return": -0.079,
+        "volatility": 0.0938,
+        "sharpe": -1.268
+      },
+      {
+        "month": "2025-01",
+        "return": 0.0208,
+        "volatility": 0.1402,
+        "sharpe": -0.137
+      },
+      {
+        "month": "2025-02",
+        "return": -0.0468,
+        "volatility": 0.1599,
+        "sharpe": -0.543
+      },
+      {
+        "month": "2025-03",
+        "return": -0.0586,
+        "volatility": 0.1586,
+        "sharpe": -0.622
+      },
+      {
+        "month": "2025-04",
+        "return": 0.0189,
+        "volatility": 0.1573,
+        "sharpe": -0.134
+      },
+      {
+        "month": "2025-05",
+        "return": -0.0035,
+        "volatility": 0.1622,
+        "sharpe": -0.268
+      },
+      {
+        "month": "2025-06",
+        "return": -0.0086,
+        "volatility": 0.1624,
+        "sharpe": -0.3
+      },
+      {
+        "month": "2025-07",
+        "return": 0.0362,
+        "volatility": 0.1617,
+        "sharpe": -0.024
+      },
+      {
+        "month": "2025-08",
+        "return": -0.0168,
+        "volatility": 0.1547,
+        "sharpe": -0.367
+      },
+      {
+        "month": "2025-09",
+        "return": 0.0263,
+        "volatility": 0.1627,
+        "sharpe": -0.084
+      },
+      {
+        "month": "2025-10",
+        "return": 0.0809,
+        "volatility": 0.1724,
+        "sharpe": 0.237
+      },
+      {
+        "month": "2025-11",
+        "return": 0.0515,
+        "volatility": 0.1749,
+        "sharpe": 0.066
+      },
+      {
+        "month": "2025-12",
+        "return": 0.1538,
+        "volatility": 0.1643,
+        "sharpe": 0.693
+      },
+      {
+        "month": "2026-01",
+        "return": 0.0668,
+        "volatility": 0.1361,
+        "sharpe": 0.197
+      },
+      {
+        "month": "2026-02",
+        "return": 0.113,
+        "volatility": 0.1144,
+        "sharpe": 0.638
+      },
+      {
+        "month": "2026-03",
+        "return": 0.149,
+        "volatility": 0.1175,
+        "sharpe": 0.928
+      },
+      {
+        "month": "2026-04",
+        "return": 0.1498,
+        "volatility": 0.1177,
+        "sharpe": 0.933
+      },
+      {
+        "month": "2026-05",
+        "return": 0.2138,
+        "volatility": 0.1014,
+        "sharpe": 1.714
+      },
+      {
+        "month": "2026-06",
+        "return": 0.2654,
+        "volatility": 0.0998,
+        "sharpe": 2.259
+      },
+      {
+        "month": "2026-07",
+        "return": 0.2787,
+        "volatility": 0.1006,
+        "sharpe": 2.373
+      },
+      {
+        "month": "2026-08",
+        "return": 0.2866,
+        "volatility": 0.0989,
+        "sharpe": 2.493
+      },
+      {
+        "month": "2026-09",
+        "return": 0.2845,
+        "volatility": 0.0984,
+        "sharpe": 2.484
+      }
+    ],
+    "drawdowns": [
+      {
+        "start": "2023-05",
+        "trough": "2024-07",
+        "recovery": "2026-06",
+        "depth": -0.2015,
+        "months_to_trough": 14,
+        "months_to_recover": 23
+      },
+      {
+        "start": "2022-05",
+        "trough": "2022-10",
+        "recovery": "2023-05",
+        "depth": -0.1135,
+        "months_to_trough": 5,
+        "months_to_recover": 7
+      }
+    ]
+  },
+  "income": [
+    {
+      "month": "2025-10",
+      "dividends": 682.41,
+      "interest": 29.86,
+      "fees": 57.66
+    },
+    {
+      "month": "2025-11",
+      "dividends": 354.74,
+      "interest": 17.49,
+      "fees": 55.02
+    },
+    {
+      "month": "2025-12",
+      "dividends": 93.12,
+      "interest": 10.74,
+      "fees": 12.63
+    },
+    {
+      "month": "2026-01",
+      "dividends": 705.08,
+      "interest": 37.93,
+      "fees": 14.5
+    },
+    {
+      "month": "2026-02",
+      "dividends": 205.12,
+      "interest": 35.66,
+      "fees": 58.16
+    },
+    {
+      "month": "2026-03",
+      "dividends": 398.7,
+      "interest": 5.24,
+      "fees": 22.7
+    },
+    {
+      "month": "2026-04",
+      "dividends": 361.99,
+      "interest": 10.51,
+      "fees": 7.52
+    },
+    {
+      "month": "2026-05",
+      "dividends": 482.11,
+      "interest": 14.93,
+      "fees": 53.7
+    },
+    {
+      "month": "2026-06",
+      "dividends": 229.22,
+      "interest": 22.7,
+      "fees": 50.6
+    },
+    {
+      "month": "2026-07",
+      "dividends": 284.03,
+      "interest": 23.31,
+      "fees": 16.83
+    },
+    {
+      "month": "2026-08",
+      "dividends": 286.54,
+      "interest": 22.4,
+      "fees": 29.91
+    },
+    {
+      "month": "2026-09",
+      "dividends": 281.41,
+      "interest": 25.07,
+      "fees": 14.46
+    }
+  ],
+  "correlation": {
+    "ids": [
+      "glob_eq",
+      "us_eq",
+      "uk_eq",
+      "em_eq",
+      "multi40",
+      "target35",
+      "gilts",
+      "tech_stock",
+      "staples_stock"
+    ],
+    "matrix": [
+      [
+        1.0,
+        0.914,
+        0.913,
+        0.778,
+        0.851,
+        0.895,
+        0.045,
+        0.732,
+        0.532
+      ],
+      [
+        0.914,
+        1.0,
+        0.854,
+        0.707,
+        0.76,
+        0.829,
+        0.055,
+        0.667,
+        0.469
+      ],
+      [
+        0.913,
+        0.854,
+        1.0,
+        0.756,
+        0.83,
+        0.813,
+        0.052,
+        0.665,
+        0.505
+      ],
+      [
+        0.778,
+        0.707,
+        0.756,
+        1.0,
+        0.751,
+        0.755,
+        0.016,
+        0.591,
+        0.451
+      ],
+      [
+        0.851,
+        0.76,
+        0.83,
+        0.751,
+        1.0,
+        0.747,
+        -0.078,
+        0.606,
+        0.432
+      ],
+      [
+        0.895,
+        0.829,
+        0.813,
+        0.755,
+        0.747,
+        1.0,
+        0.071,
+        0.707,
+        0.478
+      ],
+      [
+        0.045,
+        0.055,
+        0.052,
+        0.016,
+        -0.078,
+        0.071,
+        1.0,
+        0.048,
+        -0.012
+      ],
+      [
+        0.732,
+        0.667,
+        0.665,
+        0.591,
+        0.606,
+        0.707,
+        0.048,
+        1.0,
+        0.313
+      ],
+      [
+        0.532,
+        0.469,
+        0.505,
+        0.451,
+        0.432,
+        0.478,
+        -0.012,
+        0.313,
+        1.0
+      ]
+    ]
+  },
+  "risk_contribution": [
+    {
+      "holding": "glob_eq",
+      "weight": 0.2759,
+      "contribution": 0.3297
+    },
+    {
+      "holding": "us_eq",
+      "weight": 0.1638,
+      "contribution": 0.2111
+    },
+    {
+      "holding": "uk_eq",
+      "weight": 0.1207,
+      "contribution": 0.1248
+    },
+    {
+      "holding": "em_eq",
+      "weight": 0.069,
+      "contribution": 0.0939
+    },
+    {
+      "holding": "multi40",
+      "weight": 0.1034,
+      "contribution": 0.0565
+    },
+    {
+      "holding": "target35",
+      "weight": 0.0776,
+      "contribution": 0.056
+    },
+    {
+      "holding": "gilts",
+      "weight": 0.0948,
+      "contribution": 0.0084
+    },
+    {
+      "holding": "tech_stock",
+      "weight": 0.0517,
+      "contribution": 0.0867
+    },
+    {
+      "holding": "staples_stock",
+      "weight": 0.0431,
+      "contribution": 0.0328
+    }
+  ],
+  "frontier": {
+    "points": [
+      {
+        "return": 0.04625,
+        "volatility": 0.07444,
+        "sharpe": 0.084,
+        "weights": {
+          "uk_eq": 0.1222,
+          "multi40": 0.25,
+          "target35": 0.25,
+          "gilts": 0.25,
+          "staples_stock": 0.1278
+        }
+      },
+      {
+        "return": 0.05004,
+        "volatility": 0.07692,
+        "sharpe": 0.1305,
+        "weights": {
+          "glob_eq": 0.0206,
+          "us_eq": 0.0761,
+          "multi40": 0.25,
+          "target35": 0.25,
+          "gilts": 0.25,
+          "tech_stock": 0.0029,
+          "staples_stock": 0.1504
+        }
+      },
+      {
+        "return": 0.05383,
+        "volatility": 0.08064,
+        "sharpe": 0.1715,
+        "weights": {
+          "us_eq": 0.1096,
+          "multi40": 0.25,
+          "target35": 0.25,
+          "gilts": 0.25,
+          "tech_stock": 0.0399,
+          "staples_stock": 0.1004
+        }
+      },
+      {
+        "return": 0.05762,
+        "volatility": 0.08581,
+        "sharpe": 0.2053,
+        "weights": {
+          "us_eq": 0.1455,
+          "multi40": 0.25,
+          "target35": 0.2278,
+          "gilts": 0.25,
+          "tech_stock": 0.068,
+          "staples_stock": 0.0588
+        }
+      },
+      {
+        "return": 0.06141,
+        "volatility": 0.09151,
+        "sharpe": 0.2339,
+        "weights": {
+          "us_eq": 0.2037,
+          "multi40": 0.25,
+          "target35": 0.1562,
+          "gilts": 0.25,
+          "tech_stock": 0.0817,
+          "staples_stock": 0.0583
+        }
+      },
+      {
+        "return": 0.0652,
+        "volatility": 0.09758,
+        "sharpe": 0.2582,
+        "weights": {
+          "us_eq": 0.2445,
+          "multi40": 0.2301,
+          "target35": 0.1305,
+          "gilts": 0.25,
+          "tech_stock": 0.1034,
+          "staples_stock": 0.0414
+        }
+      },
+      {
+        "return": 0.06899,
+        "volatility": 0.10403,
+        "sharpe": 0.2786,
+        "weights": {
+          "us_eq": 0.25,
+          "multi40": 0.1988,
+          "target35": 0.0986,
+          "gilts": 0.25,
+          "tech_stock": 0.1402,
+          "staples_stock": 0.0625
+        }
+      },
+      {
+        "return": 0.07278,
+        "volatility": 0.11092,
+        "sharpe": 0.2955,
+        "weights": {
+          "glob_eq": 0.0419,
+          "us_eq": 0.25,
+          "multi40": 0.153,
+          "target35": 0.0709,
+          "gilts": 0.25,
+          "tech_stock": 0.1641,
+          "staples_stock": 0.0701
+        }
+      },
+      {
+        "return": 0.07657,
+        "volatility": 0.11799,
+        "sharpe": 0.3099,
+        "weights": {
+          "glob_eq": 0.0987,
+          "us_eq": 0.25,
+          "multi40": 0.0961,
+          "target35": 0.0735,
+          "gilts": 0.25,
+          "tech_stock": 0.1832,
+          "staples_stock": 0.0485
+        }
+      },
+      {
+        "return": 0.08036,
+        "volatility": 0.12512,
+        "sharpe": 0.3226,
+        "weights": {
+          "glob_eq": 0.1469,
+          "us_eq": 0.25,
+          "multi40": 0.0509,
+          "target35": 0.0225,
+          "gilts": 0.25,
+          "tech_stock": 0.2039,
+          "staples_stock": 0.0758
+        }
+      },
+      {
+        "return": 0.08415,
+        "volatility": 0.13236,
+        "sharpe": 0.3335,
+        "weights": {
+          "glob_eq": 0.2023,
+          "us_eq": 0.25,
+          "multi40": 0.0047,
+          "gilts": 0.25,
+          "tech_stock": 0.2239,
+          "staples_stock": 0.0691
+        }
+      },
+      {
+        "return": 0.08794,
+        "volatility": 0.13999,
+        "sharpe": 0.3424,
+        "weights": {
+          "glob_eq": 0.2385,
+          "us_eq": 0.25,
+          "gilts": 0.2293,
+          "tech_stock": 0.25,
+          "staples_stock": 0.0322
+        }
+      },
+      {
+        "return": 0.09172,
+        "volatility": 0.14848,
+        "sharpe": 0.3484,
+        "weights": {
+          "glob_eq": 0.25,
+          "us_eq": 0.25,
+          "target35": 0.0433,
+          "gilts": 0.1231,
+          "tech_stock": 0.25,
+          "staples_stock": 0.0836
+        }
+      },
+      {
+        "return": 0.09551,
+        "volatility": 0.15801,
+        "sharpe": 0.3513,
+        "weights": {
+          "glob_eq": 0.25,
+          "us_eq": 0.25,
+          "target35": 0.1003,
+          "gilts": 0.0067,
+          "tech_stock": 0.25,
+          "staples_stock": 0.143
+        }
+      },
+      {
+        "return": 0.09875,
+        "volatility": 0.17736,
+        "sharpe": 0.3312,
+        "weights": {
+          "glob_eq": 0.25,
+          "us_eq": 0.25,
+          "em_eq": 0.25,
+          "tech_stock": 0.25
+        }
+      },
+      {
+        "return": 0.09875,
+        "volatility": 0.17736,
+        "sharpe": 0.3312,
+        "weights": {
+          "glob_eq": 0.25,
+          "us_eq": 0.25,
+          "em_eq": 0.25,
+          "tech_stock": 0.25
+        }
+      },
+      {
+        "return": 0.09875,
+        "volatility": 0.17736,
+        "sharpe": 0.3312,
+        "weights": {
+          "glob_eq": 0.25,
+          "us_eq": 0.25,
+          "em_eq": 0.25,
+          "tech_stock": 0.25
+        }
+      },
+      {
+        "return": 0.09875,
+        "volatility": 0.17736,
+        "sharpe": 0.3312,
+        "weights": {
+          "glob_eq": 0.25,
+          "us_eq": 0.25,
+          "em_eq": 0.25,
+          "tech_stock": 0.25
+        }
+      },
+      {
+        "return": 0.09875,
+        "volatility": 0.17736,
+        "sharpe": 0.3312,
+        "weights": {
+          "glob_eq": 0.25,
+          "us_eq": 0.25,
+          "em_eq": 0.25,
+          "tech_stock": 0.25
+        }
+      },
+      {
+        "return": 0.09875,
+        "volatility": 0.17736,
+        "sharpe": 0.3312,
+        "weights": {
+          "glob_eq": 0.25,
+          "us_eq": 0.25,
+          "em_eq": 0.25,
+          "tech_stock": 0.25
+        }
+      },
+      {
+        "return": 0.09875,
+        "volatility": 0.17736,
+        "sharpe": 0.3312,
+        "weights": {
+          "glob_eq": 0.25,
+          "us_eq": 0.25,
+          "em_eq": 0.25,
+          "tech_stock": 0.25
+        }
+      },
+      {
+        "return": 0.09875,
+        "volatility": 0.17736,
+        "sharpe": 0.3312,
+        "weights": {
+          "glob_eq": 0.25,
+          "us_eq": 0.25,
+          "em_eq": 0.25,
+          "tech_stock": 0.25
+        }
+      },
+      {
+        "return": 0.09875,
+        "volatility": 0.17736,
+        "sharpe": 0.3312,
+        "weights": {
+          "glob_eq": 0.25,
+          "us_eq": 0.25,
+          "em_eq": 0.25,
+          "tech_stock": 0.25
+        }
+      },
+      {
+        "return": 0.09875,
+        "volatility": 0.17736,
+        "sharpe": 0.3312,
+        "weights": {
+          "glob_eq": 0.25,
+          "us_eq": 0.25,
+          "em_eq": 0.25,
+          "tech_stock": 0.25
+        }
+      },
+      {
+        "return": 0.09875,
+        "volatility": 0.17736,
+        "sharpe": 0.3312,
+        "weights": {
+          "glob_eq": 0.25,
+          "us_eq": 0.25,
+          "em_eq": 0.25,
+          "tech_stock": 0.25
+        }
+      }
+    ],
+    "current": {
+      "return": 0.07302,
+      "volatility": 0.1245,
+      "sharpe": 0.2652,
+      "weights": {
+        "glob_eq": 0.2759,
+        "us_eq": 0.1638,
+        "uk_eq": 0.1207,
+        "em_eq": 0.069,
+        "multi40": 0.1034,
+        "target35": 0.0776,
+        "gilts": 0.0948,
+        "tech_stock": 0.0517,
+        "staples_stock": 0.0431
+      }
+    },
+    "min_variance": {
+      "return": 0.04625,
+      "volatility": 0.07428,
+      "sharpe": 0.0841,
+      "weights": {
+        "uk_eq": 0.0933,
+        "multi40": 0.25,
+        "target35": 0.25,
+        "gilts": 0.25,
+        "staples_stock": 0.1567
+      }
+    },
+    "max_sharpe": {
+      "return": 0.09572,
+      "volatility": 0.15854,
+      "sharpe": 0.3515,
+      "weights": {
+        "glob_eq": 0.25,
+        "us_eq": 0.25,
+        "target35": 0.106,
+        "tech_stock": 0.25,
+        "staples_stock": 0.144
+      }
+    },
+    "risk_free_rate": 0.04,
+    "holdings_points": [
+      {
+        "id": "glob_eq",
+        "return": 0.085,
+        "volatility": 0.1517
+      },
+      {
+        "id": "us_eq",
+        "return": 0.1,
+        "volatility": 0.17
+      },
+      {
+        "id": "uk_eq",
+        "return": 0.06,
+        "volatility": 0.14
+      },
+      {
+        "id": "em_eq",
+        "return": 0.07,
+        "volatility": 0.2
+      },
+      {
+        "id": "multi40",
+        "return": 0.045,
+        "volatility": 0.08
+      },
+      {
+        "id": "target35",
+        "return": 0.055,
+        "volatility": 0.1
+      },
+      {
+        "id": "gilts",
+        "return": 0.025,
+        "volatility": 0.07
+      },
+      {
+        "id": "tech_stock",
+        "return": 0.14,
+        "volatility": 0.28
+      },
+      {
+        "id": "staples_stock",
+        "return": 0.06,
+        "volatility": 0.16
+      }
+    ]
+  },
+  "rebalance": {
+    "target": "max_sharpe",
+    "trades": [
+      {
+        "holding": "glob_eq",
+        "name": "Global All-Cap Equity Index (Acc)",
+        "account": "sipp",
+        "action": "sell",
+        "value_gbp": 15000.0,
+        "est_cost_gbp": 20.0,
+        "cross_account": true
+      },
+      {
+        "holding": "us_eq",
+        "name": "US Large Cap Equity ETF",
+        "account": "sipp",
+        "action": "buy",
+        "value_gbp": 50000.0,
+        "est_cost_gbp": 55.0,
+        "cross_account": true
+      },
+      {
+        "holding": "uk_eq",
+        "name": "UK All-Share Index Fund (Acc)",
+        "account": "platform",
+        "action": "sell",
+        "value_gbp": 70000.0,
+        "est_cost_gbp": 75.0,
+        "cross_account": true
+      },
+      {
+        "holding": "em_eq",
+        "name": "Emerging Markets Equity ETF",
+        "account": "isa",
+        "action": "sell",
+        "value_gbp": 40000.0,
+        "est_cost_gbp": 45.0,
+        "cross_account": true
+      },
+      {
+        "holding": "multi40",
+        "name": "Multi-Asset 40% Equity Fund (Acc)",
+        "account": "isa",
+        "action": "sell",
+        "value_gbp": 60000.0,
+        "est_cost_gbp": 65.0,
+        "cross_account": true
+      },
+      {
+        "holding": "target35",
+        "name": "Target Date 2035 Fund (Acc)",
+        "account": "pension",
+        "action": "buy",
+        "value_gbp": 16475.27,
+        "est_cost_gbp": 21.48,
+        "cross_account": true
+      },
+      {
+        "holding": "gilts",
+        "name": "UK Gilts Index Fund",
+        "account": "platform",
+        "action": "sell",
+        "value_gbp": 55000.0,
+        "est_cost_gbp": 60.0,
+        "cross_account": true
+      },
+      {
+        "holding": "tech_stock",
+        "name": "Example Tech Corp",
+        "account": "brokerage",
+        "action": "buy",
+        "value_gbp": 115000.0,
+        "est_cost_gbp": 177.5,
+        "cross_account": true
+      },
+      {
+        "holding": "staples_stock",
+        "name": "Example Consumer Staples Co",
+        "account": "brokerage",
+        "action": "buy",
+        "value_gbp": 58524.73,
+        "est_cost_gbp": 92.79,
+        "cross_account": true
+      }
+    ],
+    "total_cost_gbp": 611.77,
+    "sharpe_change": 0.086,
+    "volatility_change": 0.034
+  },
+  "warnings": [
+    "Emerging Markets Equity ETF has 38 months of prices; its statistics use that shorter period.",
+    "Re-weighting moves money between accounts; pension and SIPP money cannot move elsewhere."
+  ],
+  "data_files": [
+    {
+      "name": "prices/glob_eq.csv",
+      "rows": 60,
+      "from": "2021-10",
+      "to": "2026-09",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  ]
+}
