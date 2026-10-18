@@ -100,7 +100,9 @@ def test_cli_portfolio_frontier(tmp_path: Path, capsys: pytest.CaptureFixture[st
     in_sipp = [r for r in trades if r["scope"] == "account" and r["account"] == "sipp_1"]
     assert {r["series"] for r in in_sipp} == {"example_corp", "global_equity"}  # the only account holding two
     for row in in_sipp:
-        assert float(row["cost_gbp"]) == pytest.approx(11.95 + 0.002 * abs(float(row["trade_gbp"])))
+        assert float(row["cost_gbp"]) == pytest.approx(
+            11.95 + 0.002 * abs(float(row["trade_gbp"])), abs=0.005
+        )
 
     assert main([*args, "--max-weight", "0.2"]) == 2  # 4 × 0.2 < 1
     assert "max_weight" in capsys.readouterr().err

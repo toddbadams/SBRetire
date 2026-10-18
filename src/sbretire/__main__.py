@@ -15,6 +15,8 @@ Subcommands:
               back-test of today's mix: return, volatility, Sharpe, drawdown, rolling 12 months (F-027)
     portfolio exposure
               look-through by asset class, sector, region, currency and top holdings (F-028)
+    portfolio frontier
+              efficient frontier of the priced holdings, target mix and trades (F-029)
 """
 
 from __future__ import annotations
@@ -31,6 +33,7 @@ from sbretire.inflation import inflation_coverage_issues, inflation_data_file_re
 from sbretire.inputs_report import format_inputs, scenario_input_rows, write_inputs_csv
 from sbretire.ledger.accounts import AccountConfig, load_accounts
 from sbretire.ledger.exposure import build_exposure, format_exposure, write_exposure_csv
+from sbretire.ledger.frontier import build_frontier, format_frontier, write_frontier_csvs
 from sbretire.ledger.holdings import HoldingsError
 from sbretire.ledger.merge import merge_exports, read_exports
 from sbretire.ledger.model import UnknownTransaction
@@ -150,7 +153,12 @@ def build_parser() -> argparse.ArgumentParser:
     exposure = portfolio_commands.add_parser(
         "exposure", help="look through funds: asset class, sector, region, currency and top holdings"
     )
+    frontier = portfolio_commands.add_parser(
+        "frontier",
+        help="efficient frontier of the priced holdings, target mix and trades (analysis, not advice)",
+    )
     written_by = (
+        (frontier, "frontier.csv"),
         (imports, "ledger.csv"),
         (value, "holdings.csv"),
         (returns, "returns.csv"),
@@ -173,7 +181,7 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="RATE",
         help="GBP per USD for USD accounts (e.g. 0.7450); required when any account is in USD",
     )
-    for sub in (returns, performance, exposure):
+    for sub in (returns, performance, exposure, frontier):
         sub.add_argument(
             "--prices",
             type=Path,
@@ -198,13 +206,47 @@ def build_parser() -> argparse.ArgumentParser:
         default=Path("data/factsheets"),
         help="folder with the funds' factsheet YAML files",
     )
-    performance.add_argument(
-        "--risk-free",
-        type=_risk_free_rate,
-        metavar="RATE",
-        help="annual risk-free rate as a fraction (e.g. 0.04); default: risk_free_rate in securities.yaml",
+    for sub in (performance, frontier):
+        sub.add_argument(
+            "--risk-free",
+            type=_risk_free_rate,
+            metavar="RATE",
+            help="annual risk-free rate as a fraction (e.g. 0.04); default: securities.yaml risk_free_rate",
+        )
+    frontier.add_argument(
+        "--max-weight",
+        type=_max_weight,
+        metavar="W",
+        help="largest weight of one series (default: securities.yaml)",
+    )
+    frontier.add_argument(
+        "--covariance",
+        choices=("shrunk", "sample"),
+        default="shrunk",
+        help="Ledoit-Wolf shrunk (default) or sample",
+    )
+    frontier.add_argument(
+        "--target", choices=("same-risk", "max-sharpe", "min-variance"), default="same-risk",
+        help="the mix the trades move towards (default: today's risk, highest past return)",
+    )  # fmt: skip
+    frontier.add_argument(
+        "--min-trade",
+        type=float,
+        default=50.0,
+        metavar="GBP",
+        help="skip trades smaller than this (default 50)",
     )
     return parser
+
+
+def _max_weight(text: str) -> float:
+    try:
+        weight = float(text)
+    except ValueError:
+        weight = math.nan
+    if not 0.0 < weight <= 1.0:
+        raise argparse.ArgumentTypeError(f"expected a weight above 0 and at most 1 (got {text!r})")
+    return weight
 
 
 def _risk_free_rate(text: str) -> float:
@@ -334,6 +376,42 @@ def _returns_report(args: argparse.Namespace) -> ReturnsReport | int:
         return EXIT_INVALID
 
 
+def _risk_free(args: argparse.Namespace, report: ReturnsReport) -> tuple[float, str] | None:
+    if args.risk_free is not None:
+        return args.risk_free, "--risk-free"
+    if report.risk_free_rate is not None:
+        return report.risk_free_rate, "securities.yaml"
+    print(
+        "error: no risk-free rate: set risk_free_rate (e.g. 0.04) in securities.yaml or pass --risk-free",
+        file=sys.stderr,
+    )
+    return None
+
+
+def _portfolio_frontier(args: argparse.Namespace) -> int:
+    """``sbretire portfolio frontier``: exit 0 written, 1 unreadable, 2 invalid (rate, series, cap)."""
+    report = _returns_report(args)
+    if isinstance(report, int):
+        return report
+    rate = _risk_free(args, report)
+    if rate is None:
+        return EXIT_INVALID
+    cap = args.max_weight if args.max_weight is not None else report.max_weight
+    accounts = _load_accounts(args.accounts)
+    if isinstance(accounts, int):
+        return accounts
+    try:
+        result = build_frontier(report, accounts, rate[0], cap, args.covariance, args.target, args.min_trade)
+    except ValueError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return EXIT_INVALID
+    print(format_frontier(result))
+    folder = args.output_dir / "portfolio"
+    write_frontier_csvs(result, folder)
+    print(f"frontier: {folder / 'frontier.csv'}; weights: frontier_weights.csv; trades: trades.csv")
+    return EXIT_OK
+
+
 def _portfolio_performance(args: argparse.Namespace) -> int:
     """``sbretire portfolio performance``: exit 0 written, 1 unreadable, 2 invalid or no risk-free rate."""
     report = _returns_report(args)
@@ -446,6 +524,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             "returns": _portfolio_returns,
             "performance": _portfolio_performance,
             "exposure": _portfolio_exposure,
+            "frontier": _portfolio_frontier,
         }
         return handlers[args.portfolio_command](args)
     require_data_files = args.command == "run" or getattr(args, "require_data_files", False)

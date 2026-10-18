@@ -12,7 +12,7 @@ import datetime as dt
 import json
 from collections import defaultdict
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Final, Literal, get_args
 
@@ -129,6 +129,12 @@ class ReturnsReport:
     """Today's household value in GBP, cash and unpriced holdings included."""
     risk_free_rate: float | None
     """From ``securities.yaml``; ``None`` when it sets none."""
+    max_weight: float = 0.25
+    """From ``securities.yaml`` (F-029)."""
+    holding_values: dict[str, float] = field(default_factory=dict)
+    """``<account>:<security key>`` → today's GBP value of each security."""
+    series_holdings: dict[str, tuple[str, ...]] = field(default_factory=dict)
+    """Series id → the holdings (``<account>:<security key>``) it prices."""
 
 
 def _classify(series: SeriesConfig, rows: Sequence[MonthlyReturn], basis: str, share: float) -> CoverageRow:
@@ -271,6 +277,9 @@ def build_returns(
         cash_gbp=round(cash, 2),
         total_gbp=valuation.total_gbp(),
         risk_free_rate=config.risk_free_rate,
+        max_weight=config.max_weight,
+        holding_values=dict(values),
+        series_holdings={s.id: s.holdings for s in config.securities},
     )  # fmt: skip
 
 

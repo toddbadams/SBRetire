@@ -5,18 +5,21 @@ Analysis, not advice: every figure is estimated from past monthly returns.
 
 from __future__ import annotations
 
+import csv
 import datetime as dt
 from collections import defaultdict
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Final, Literal
 
 import numpy as np
 from numpy.typing import NDArray
 from scipy.optimize import minimize
 
+from sbretire.ledger.accounts import AccountConfig
 from sbretire.ledger.performance import monthly_rate
-from sbretire.ledger.returns import MonthlyReturn, add_months
+from sbretire.ledger.returns import MonthlyReturn, ReturnsReport, add_months
 
 Covariance = Literal["shrunk", "sample"]
 
@@ -329,3 +332,193 @@ def sensitivity(est: Estimates, cap: float, risk_free: float, target: TargetKind
     first = target_mix(_sub_estimates(est, est.returns[:half]), cap, risk_free, target)
     second = target_mix(_sub_estimates(est, est.returns[half:]), cap, risk_free, target)
     return first, second, float(np.abs(first.weights - second.weights).sum() / 2.0)
+
+
+@dataclass(frozen=True)
+class FrontierReport:
+    """Everything ``sbretire portfolio frontier`` prints and writes."""
+
+    report: ReturnsReport
+    estimates: Estimates
+    cap: float
+    risk_free: float
+    target_kind: TargetKind
+    points: list[Mix]
+    today: Mix
+    minimum: Mix
+    best: Mix
+    target: Mix
+    within: Mix
+    household: dict[str, tuple[float, float, float]]
+    trades: list[Trade]
+    halves: tuple[Mix, Mix, float]
+    min_trade: float
+    warnings: list[str]
+
+    @property
+    def sleeve_share(self) -> float:
+        sleeve = sum(self.report.series_values[s] for s in self.estimates.series)
+        return sleeve / self.report.total_gbp if self.report.total_gbp else 0.0
+
+
+def build_frontier(
+    report: ReturnsReport,
+    accounts: Sequence[AccountConfig],
+    risk_free: float,
+    cap: float,
+    covariance: Covariance,
+    target_kind: TargetKind,
+    min_trade: float,
+) -> FrontierReport:
+    """Estimate the sleeve, find the mixes, plan the trades and test the target's stability (§21–§24).
+
+    Raises ``ValueError`` with fewer than 2 full-history series or an infeasible ``cap``.
+    """
+    est = estimate(report.returns, report.series_values, report.first, report.last, covariance)
+    _check_cap(est, cap)
+    points = frontier(est, cap, risk_free)
+    today = mix(est, est.today, risk_free)
+    minimum = min_variance(est, cap, risk_free)
+    best = max_sharpe(est, cap, risk_free)
+    target = target_mix(est, cap, risk_free, target_kind)
+    weights = dict(zip(est.series, target.weights.tolist(), strict=True))
+    sleeve_values = {s: report.series_values[s] for s in est.series}
+    household = household_trades(sleeve_values, weights)
+
+    owner_of = {ref: s for s, refs in report.series_holdings.items() if s in sleeve_values for ref in refs}
+    holdings: dict[str, dict[str, float]] = defaultdict(dict)
+    for ref, value in report.holding_values.items():
+        if ref in owner_of and value > 0:
+            account = ref.split(":", 1)[0]
+            holdings[account][owner_of[ref]] = holdings[account].get(owner_of[ref], 0.0) + value
+    by_id = {a.id: a for a in accounts}
+    costs: dict[str, tuple[float, float]] = {}
+    warnings = [
+        f"today's weight of {s} ({w:.1%}) is above max_weight {cap:.0%}"
+        for s, w in zip(est.series, est.today, strict=True) if w > cap + 1e-9
+    ]  # fmt: skip
+    for account in holdings:
+        config = by_id.get(account)
+        if config is None or config.trading is None:
+            if len(holdings[account]) > 1:
+                warnings.append(f"account {account} has no trading costs in accounts.yaml; its trades cost 0")
+            continue
+        rate = (
+            1.0 if config.currency == "GBP" else (report.usd_gbp or 0.0) if config.currency == "USD" else 0.0
+        )
+        costs[account] = (config.trading.fee_per_trade * rate, config.trading.cost_rate)
+    plan = within_account_targets(holdings, weights)
+    trades = plan_trades(holdings, plan, costs, min_trade)
+    achieved = {s: 0.0 for s in est.series}
+    traded = {(t.account, t.series): t.target_gbp for t in trades}
+    for account, held in holdings.items():
+        for series, value in held.items():
+            achieved[series] += traded.get((account, series), value)
+    unheld = {s: v for s, v in sleeve_values.items() if not any(s in held for held in holdings.values())}
+    for series, value in unheld.items():
+        achieved[series] += value
+    within = mix(est, np.array([achieved[s] for s in est.series]), risk_free)
+    halves = sensitivity(est, cap, risk_free, target_kind)
+    return FrontierReport(
+        report, est, cap, risk_free, target_kind, points, today, minimum, best, target, within, household,
+        trades, halves, min_trade, warnings,
+    )  # fmt: skip
+
+
+def write_frontier_csvs(result: FrontierReport, folder: Path) -> None:
+    """``frontier.csv``, ``frontier_weights.csv`` and ``trades.csv`` (UTF-8, LF; §24)."""
+    folder.mkdir(parents=True, exist_ok=True)
+    named = [("today", result.today), ("min_variance", result.minimum), ("max_sharpe", result.best),
+             ("target", result.target), ("within_accounts", result.within)]  # fmt: skip
+    with (folder / "frontier.csv").open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.writer(handle, lineterminator="\n")
+        writer.writerow(("point", "return", "volatility", "sharpe"))
+        for i, point in enumerate(result.points, start=1):
+            writer.writerow(
+                (i, point.annual_return, point.volatility, "" if point.sharpe is None else point.sharpe)
+            )
+        for name, item in named:
+            writer.writerow(
+                (name, item.annual_return, item.volatility, "" if item.sharpe is None else item.sharpe)
+            )
+    with (folder / "frontier_weights.csv").open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.writer(handle, lineterminator="\n")
+        writer.writerow(("series", "name", *(name for name, _ in named)))
+        for i, series in enumerate(result.estimates.series):
+            name = result.report.series_names.get(series, series)
+            writer.writerow((series, name, *(float(item.weights[i]) for _, item in named)))
+    with (folder / "trades.csv").open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.writer(handle, lineterminator="\n")
+        writer.writerow(("scope", "account", "series", "current_gbp", "target_gbp", "trade_gbp", "cost_gbp"))
+        for series, (current, goal, amount) in result.household.items():
+            writer.writerow(
+                ("household", "", series, round(current, 2), round(goal, 2), round(amount, 2), "")
+            )
+        for trade in result.trades:
+            amounts = (trade.current_gbp, trade.target_gbp, trade.trade_gbp, trade.cost_gbp)
+            writer.writerow(("account", trade.account, trade.series, *(round(a, 2) for a in amounts)))
+
+
+_TARGET_LABELS: Final[dict[str, str]] = {
+    "same-risk": "target (same risk as today)",
+    "max-sharpe": "target (max Sharpe)",
+    "min-variance": "target (min variance)",
+}
+
+
+def _row(label: str, item: Mix) -> str:
+    sharpe = "n/a" if item.sharpe is None else f"{item.sharpe:.2f}"
+    return f"  {label:<30} {item.annual_return:>8.2%} {item.volatility:>11.2%} {sharpe:>7}"
+
+
+def format_frontier(result: FrontierReport) -> str:
+    """The summary: sleeve, caveats, the mixes, their weights, the trades and the sensitivity."""
+    report, est = result.report, result.estimates
+    months = len(est.returns)
+    method = (
+        f"Ledoit-Wolf shrunk covariance (intensity {est.shrinkage:.2f})"
+        if est.shrinkage is not None else "sample covariance"
+    )  # fmt: skip
+    lines = [
+        f"Efficient frontier of the priced sleeve: {len(est.series)} series, {report.first:%Y-%m} to "
+        f"{report.last:%Y-%m} ({months} months), {result.sleeve_share:.1%} of today's value "
+        "(cash and other holdings stay as today)",
+        f"  Risk from {method}; max weight {result.cap:.0%}; risk-free {result.risk_free:.2%} a year",
+        "  Analysis, not advice: estimated from past monthly returns, a noisy guide to the future.",
+        "  Moves between accounts or wrappers (pension, ISA, taxable) cannot be made as the household trades",
+        "  show; the within-account trades keep each account's money where it is.",
+        f"  {'mix':<30} {'return':>8} {'volatility':>11} {'sharpe':>7}",
+        _row("today", result.today),
+        _row("min variance", result.minimum),
+        _row("max Sharpe", result.best),
+        _row(_TARGET_LABELS[result.target_kind], result.target),
+        _row("within accounts", result.within),
+        f"  {'weights':<24} {'today':>7} {'min var':>8} {'max Sh.':>8} {'target':>7} {'within':>7}",
+    ]
+    for i, series in enumerate(est.series):
+        lines.append(
+            f"  {series[:24]:<24} {est.today[i]:>7.1%} {result.minimum.weights[i]:>8.1%} "
+            f"{result.best.weights[i]:>8.1%} {result.target.weights[i]:>7.1%} "
+            f"{result.within.weights[i]:>7.1%}"
+        )
+    lines.append(f"Trades within accounts (can be made; each at least {result.min_trade:,.0f} GBP):")
+    if not result.trades:
+        lines.append("  none: each account holds one priced series, or the moves are below the minimum")
+    for trade in result.trades:
+        lines.append(
+            f"  {trade.account:<14} {trade.series[:22]:<22} {trade.trade_gbp:>+14,.2f} GBP  "
+            f"cost {trade.cost_gbp:,.2f}"
+        )
+    if result.trades:
+        lines.append(f"  total estimated cost {sum(t.cost_gbp for t in result.trades):,.2f} GBP")
+    lines.append("Household trades (analysis only: they would need moves between accounts):")
+    for series, (_, _, amount) in result.household.items():
+        lines.append(f"  {series[:36]:<36} {amount:>+14,.2f} GBP")
+    turnover = result.halves[2]
+    lines.append(
+        f"Sensitivity: the target estimated on each half of the window differs by a turnover of "
+        f"{turnover:.1%} "
+        "(0% = identical; high values mean the mix is not reliable)"
+    )
+    lines += [f"warning: {warning}" for warning in [*report.warnings, *result.warnings]]
+    return "\n".join(lines)

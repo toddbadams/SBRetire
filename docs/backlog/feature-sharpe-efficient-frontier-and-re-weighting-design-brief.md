@@ -172,13 +172,16 @@ Household deltas, `within_account_targets`, `trade_cost`, `--min-trade`, half-wi
 2026-10-18 ledger/frontier.py household_trades, within_account_targets, trade_cost, Trade, plan_trades (min trade, per-account (fee GBP, rate)), TargetKind, target_mix, sensitivity (halves re-estimated with the same covariance method; Estimates gains covariance); tests/unit/test_frontier_trades.py (long line fixed after the red commit).
 
 ### F-029.4 `sbretire portfolio frontier`
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-029.3
 
 The command, the summary with its caveats, and the three CSVs. §2 #9.
 
 **Acceptance criteria**
-- [ ] On synthetic price files (4 series over 24 months, 2 accounts with fee schedules) the command prints today's, the minimum-variance, max-Sharpe and target mixes with return, volatility and Sharpe, the trades with costs, the half-window turnover and the analysis-not-advice and wrapper caveats, and writes `frontier.csv`, `frontier_weights.csv` and `trades.csv` (UTF-8, LF, columns); an infeasible cap exits 2 — `test_cli_portfolio_frontier`
+- [x] On synthetic price files (4 series over 24 months, 2 accounts with fee schedules) the command prints today's, the minimum-variance, max-Sharpe and target mixes with return, volatility and Sharpe, the trades with costs, the half-window turnover and the analysis-not-advice and wrapper caveats, and writes `frontier.csv`, `frontier_weights.csv` and `trades.csv` (UTF-8, LF, columns); an infeasible cap exits 2 — `test_cli_portfolio_frontier`
+
+**Notes**
+2026-10-18 ReturnsReport gains max_weight, holding_values, series_holdings; frontier.py FrontierReport, build_frontier (within-account achieved mix, per-account fee converted to GBP, warnings for over-cap weights and missing trading costs), write_frontier_csvs, format_frontier; `sbretire portfolio frontier` (shared _risk_free); tests/unit/test_frontier_cli.py. The CSV rounds costs to the penny, so the cost check compares within half a penny (test edited before green; same formula).
 
 ### F-029.5 Docs and a local run
 - **Status**: To Do
