@@ -144,7 +144,7 @@ def look_through(
 ## 10. Tasks
 
 ### F-028.1 Taxonomy, series fields and factsheets
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: —
 
 `ledger/exposure.py` (lists, aliases, `canonical`, `load_factsheet`); `SeriesConfig` gains `factsheet`, `sector`,
@@ -156,9 +156,10 @@ def look_through(
 
 **Notes**
 2026-10-18 ledger/taxonomy.py (fixed names, aliases, canonical, region_currency) — the taxonomy sits in its own module so prices.py can validate stock fields without importing exposure.py; SeriesConfig gains factsheet, sector, region, asset_class, currency; ledger/exposure.py Factsheet and load_factsheet (fractions or percentages, rescaled, aliases merged, currencies derived from regions); tests/unit/test_exposure_factsheets.py (2).
+2026-10-18 /verify PASS: test_exposure_factsheets.py passed; exact locations; fixed lists match §2 #3; both example files load; ruff/mypy clean. Observation: one percent flag per file scales top_holdings (a factsheet mixing fractions and percentages is outside the ACs).
 
 ### F-028.2 Look-through
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-028.1
 
 `look_through` (§2 #4–#9).
@@ -168,9 +169,10 @@ def look_through(
 
 **Notes**
 2026-10-18 ledger/exposure.py Exposure, look_through (funds by factsheet weights, stocks by series fields, cash by currency, Unclassified for unknowns and missing dimensions, region-derived currencies counted, top holdings merged by name ignoring case and punctuation); tests/unit/test_exposure_look_through.py (typing tidied: no ignores).
+2026-10-18 /verify PASS: look-through known answers hand-checked (every table 120; approximated currency 70; Example Corp 34 merged across spellings); matches §2 #4–#8; ruff/mypy clean.
 
 ### F-028.3 `sbretire portfolio exposure`
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-028.2
 
 The command, the shared today's-values helper, `exposure.csv` and the summary, and the stale-factsheet warning.
@@ -181,9 +183,10 @@ The command, the shared today's-values helper, `exposure.csv` and the summary, a
 
 **Notes**
 2026-10-18 returns.today_values / TodayValues (securities map and today's GBP values and cash by currency; build_returns now uses it); exposure.py ExposureReport, build_exposure (factsheet errors prefixed with the file name, 12-month staleness warning), write_exposure_csv, format_exposure; `sbretire portfolio exposure`; tests/unit/test_exposure_cli.py. Real holdings: only cash classified until factsheets exist, exit 0.
+2026-10-18 /verify PASS: CLI test (tables, CSV sums 160265.61, stale warning, exit 2 'regions.Atlantis'); today_values shared without breaking returns/performance tests; ruff/mypy clean.
 
 ### F-028.4 Docs and a local run
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-028.3
 
 README section, `config/factsheet.example.yaml`, `config/securities.example.yaml` stock fields, THESAURUS
@@ -195,6 +198,7 @@ README section, `config/factsheet.example.yaml`, `config/securities.example.yaml
 
 **Notes**
 2026-10-18 README 'Look-through: sectors, regions and currencies', config/factsheet.example.yaml (loads), config/securities.example.yaml factsheet and stock fields (loads), THESAURUS (Factsheet, Look-Through; 45 terms sorted), docs/decisions/portfolio-data.md §18–§20. Real run: only cash classified until factsheets exist, exit 0.
+2026-10-18 /verify PASS: README and decisions §18–§20; 45 THESAURUS terms sorted; real run exit 0 with only Cash and Unclassified; data/factsheets ignored; clean tree.
 
 ## 11. Open Questions
 
