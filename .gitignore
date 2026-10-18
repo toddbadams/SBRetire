@@ -36,3 +36,6 @@ Thumbs.db
 .claude/settings.local.json
 .claude/worktrees/
 .VSCodeCounter
+
+# Personal account transaction exports (F-024 epic) - never commit
+data/transactions/
