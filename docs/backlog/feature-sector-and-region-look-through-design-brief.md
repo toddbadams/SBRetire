@@ -158,7 +158,7 @@ def look_through(
 2026-10-18 ledger/taxonomy.py (fixed names, aliases, canonical, region_currency) — the taxonomy sits in its own module so prices.py can validate stock fields without importing exposure.py; SeriesConfig gains factsheet, sector, region, asset_class, currency; ledger/exposure.py Factsheet and load_factsheet (fractions or percentages, rescaled, aliases merged, currencies derived from regions); tests/unit/test_exposure_factsheets.py (2).
 
 ### F-028.2 Look-through
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-028.1
 
 `look_through` (§2 #4–#9).

@@ -121,3 +121,7 @@ def load_factsheet(path: Path) -> Factsheet:
     scale = 0.01 if percent else 1.0
     top = {name: weight * scale for name, weight in parsed.top_holdings.items()}
     return Factsheet(path, parsed.as_of, parsed.source, weights, derived, top)
+
+
+def look_through(*args: object) -> object:
+    raise NotImplementedError
