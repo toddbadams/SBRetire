@@ -200,7 +200,7 @@ row from the ledger's latest stated balance. §2 #4, #5, #7.
 2026-10-18 /verify PASS: test_holdings_vanguard_ii.py 2 passed; per-wrapper filter, cash kind, dates; ii price = value/qty (150 vs listed 200 USD), cash 487.01 is the newest stated balance; fixtures synthetic; example config holdings_filter; ruff/mypy clean.
 
 ### F-025.3 Valuation, holdings.csv and `sbretire portfolio value`
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-025.2
 
 `ledger/valuation.py` and the `portfolio value` command: newest folder, missing-export error, date assignment and
@@ -213,9 +213,10 @@ spread warning, `--usd-gbp` conversion with the stated-rate check, totals, YAML 
 
 **Notes**
 2026-10-18 ledger/valuation.py (read_holdings: newest folder, missing-export and shared-file checks, cash from transactions where an export has none; value_holdings: assumed dates, USD rate, 7-day and 2% warnings; Valuation totals; holdings.csv; format_valuation), `sbretire portfolio value` in __main__.py; tests/unit/test_holdings_valuation.py (3). Real October run at 0.7503: 42 rows, five accounts, exit 0.
+2026-10-18 /verify PASS: test_holdings_valuation.py 3 passed; older folder holds a broken export (newest-only really tested); sums hand-checked to 160,265.61 / 160266; CSV LF, header, rows, both exit-2 cases; no network imports, no writes to model.yaml; ruff/mypy clean.
 
 ### F-025.4 Docs and the real October run
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-025.3
 
 README section, THESAURUS (Holding, Valuation Date), `docs/decisions/portfolio-data.md` §7–§10 from §2,
@@ -229,6 +230,7 @@ README section, THESAURUS (Holding, Valuation Date), `docs/decisions/portfolio-d
 2026-10-18 README 'Valuing the holdings: starting_balance' (example figures only), THESAURUS (Holding, Valuation Date), docs/decisions/portfolio-data.md §7–§10, holdings_filter in config/accounts.example.yaml (F-025.2). Real October run: `sbretire portfolio value --usd-gbp 0.7503` (HL's stated rate) exit 0, every self-check passed, household total printed; personal config/accounts.yaml gained holdings_filter (git-ignored).
 2026-10-18 /verify FAIL: step 2 — docs/THESAURUS.md is declared alphabetized but '### Valuation Date' was placed after '### Wrapper' (and F-024's 'External Flow' after 'Horizon'). Other steps passed (README/decisions grep, no personal figures tracked, real valuation exit 0, clean tree).
 2026-10-18 fix: docs/THESAURUS.md entries re-sorted alphabetically (Valuation Date before Wrapper; External Flow and Holding before Horizon).
+2026-10-18 /verify PASS (re-run): README/decisions grep hits, §7–§10; 38 THESAURUS headings sorted with 38 definitions; no personal figures tracked; real valuation exit 0 with household total and starting_balance, no errors; clean tree.
 
 ## 11. Open Questions
 
