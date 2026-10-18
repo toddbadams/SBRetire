@@ -149,7 +149,7 @@ class AccountReturn:
 ## 10. Tasks
 
 ### F-031.1 Matching ledger securities to price series
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: —
 
 `normalise_name`, `match_securities`, `SeriesConfig.ledger_names`. §2 #1.
@@ -159,9 +159,10 @@ class AccountReturn:
 
 **Notes**
 2026-10-18 SeriesConfig.ledger_names; ledger/account_returns.py normalise_name (trailing share-class words and single letters dropped), match_securities (ledger_names in the series' accounts → key → normalised name of holding name or key); tests/unit/test_account_returns_match.py.
+2026-10-18 /verify PASS: matching order per §2 #1; all five cases; ruff/mypy clean.
 
 ### F-031.2 Month-end values rebuilt backwards
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-031.1
 
 `units_at`, `cash_at`, month-end valuation in the account's currency, and availability. §2 #2–#4.
@@ -171,9 +172,10 @@ class AccountReturn:
 
 **Notes**
 2026-10-18 account_returns.py month_end, units_at, cash_at, price_in (GBX ÷ 100, USD↔GBP at the month's rate), rebuild (values in the account currency; unmatched ledger securities and unpriced held series listed). Any unmatched ledger security in the account is listed (today's units of an unmatched security are unknown), not only those held at a month-end — recorded in §9. Test assertion split for typing only.
+2026-10-18 /verify PASS: rebuild hand-checked (60 units, −545 cash); conversions; missing price/rate/unmatched reasons; §9 rule fits the AC.
 
 ### F-031.3 Time- and money-weighted returns
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-031.2
 
 `modified_dietz`, chaining, `xirr`, the household in GBP. §2 #5–#7.
@@ -183,9 +185,10 @@ class AccountReturn:
 
 **Notes**
 2026-10-18 account_returns.py modified_dietz, xirr (brentq on −99%…+1,000%, years = days/365), PeriodReturn and returns_for (flows after the first point; MWR annualised only for ≥ 1 year), to_gbp (USD at the month's rate); tests/unit/test_account_returns_twr_mwr.py (assertions split for typing only).
+2026-10-18 /verify PASS: Modified Dietz weights; chaining; XIRR checked independently incl. a steep 18-day case; household summation read and correct (unit test covers conversion only).
 
 ### F-031.4 Command, portfolio.json 1.1, page, docs and a real run
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-031.3
 
 What to build:
@@ -202,6 +205,7 @@ What to build:
 
 **Notes**
 2026-10-18 account_returns.py AccountReturn, AccountReturnsReport, build_account_returns (one span for all accounts; reasons de-duplicated per security), write_account_returns_csv, format_account_returns; xirr now solves ln(1+r) so short steep periods converge (found on the synthetic setup: 90% in 18 days is beyond +1,000% a year); `sbretire portfolio account-returns`; document.py and schema 1.1 with account_returns; page section 'Actual returns'; tests moved to 1.1 (schema version and the page section list); sample regenerated; README, THESAURUS (Money-Weighted Return, Time-Weighted Return; 50 terms sorted), portfolio-data §26–§28, ledger_names in the example. Browser: new section renders, no console errors. Real run: exit 0, every account unavailable with its missing series and unmatched transaction names listed.
+2026-10-18 /verify PASS: CLI/CSV/schema 1.1/page section; test updates are spec changes; docs and THESAURUS; real run exit 0 with every account explained.
 
 ## 11. Open Questions
 
