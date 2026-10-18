@@ -170,7 +170,7 @@ def look_through(
 2026-10-18 ledger/exposure.py Exposure, look_through (funds by factsheet weights, stocks by series fields, cash by currency, Unclassified for unknowns and missing dimensions, region-derived currencies counted, top holdings merged by name ignoring case and punctuation); tests/unit/test_exposure_look_through.py (typing tidied: no ignores).
 
 ### F-028.3 `sbretire portfolio exposure`
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-028.2
 
 The command, the shared today's-values helper, `exposure.csv` and the summary, and the stale-factsheet warning.
