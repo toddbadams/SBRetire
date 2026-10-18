@@ -7,7 +7,7 @@ Quantities and cash are signed from the account's point of view: ``quantity_chan
 from __future__ import annotations
 
 from dataclasses import dataclass, fields
-from datetime import date
+import datetime as dt
 from pathlib import Path
 from typing import Final, Literal
 
@@ -36,8 +36,8 @@ class LedgerRow:
     account: str
     owner: str
     wrapper: str
-    date: date
-    settle_date: date | None
+    date: dt.date
+    settle_date: dt.date | None
     type: TransactionType
     flow: Flow
     security_key: str
