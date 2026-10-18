@@ -146,15 +146,18 @@ def write_portfolio_files(
 2026-10-18 ledger/extras.py (not report.py, which holds the ledger summary): drawdown_episodes, calendar, correlation, risk_contribution, income_by_month; tests/unit/test_portfolio_extras.py.
 
 ### F-030.2 portfolio.json and `sbretire portfolio report`
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-030.1
 
 `ledger/document.py`, `schemas/portfolio.schema.json`, the command, `portfolio.json` and `portfolio.js`, and the
 page copy (a skeleton page). §2 #2, #3, #5, #6, #10.
 
 **Acceptance criteria**
-- [ ] On the F-029 synthetic setup with factsheets and a risk-free rate, every section is available and the document validates against the schema; with no `securities.yaml` and no rate, the valuation sections are present and the others are unavailable with reasons, still valid — `test_portfolio_document_full_and_empty`
-- [ ] `sbretire portfolio report` writes `portfolio/portfolio.json`, `portfolio/portfolio.js` (`window.SBRETIRE_PORTFOLIO = …`) and the page files next to them, prints the available sections, and exits 2 on an invalid factsheet — `test_cli_portfolio_report`
+- [x] On the F-029 synthetic setup with factsheets and a risk-free rate, every section is available and the document validates against the schema; with no `securities.yaml` and no rate, the valuation sections are present and the others are unavailable with reasons, still valid — `test_portfolio_document_full_and_empty`
+- [x] `sbretire portfolio report` writes `portfolio/portfolio.json`, `portfolio/portfolio.js` (`window.SBRETIRE_PORTFOLIO = …`) and the page files next to them, prints the available sections, and exits 2 on an invalid factsheet — `test_cli_portfolio_report`
+
+**Notes**
+2026-10-18 ledger/document.py (ReportOptions, build_portfolio_document: valuation always, each analysis or {available: false, reason}; write_portfolio_files: json, js with </ escaped, page files), schemas/portfolio.schema.json 1.0, skeleton src/sbretire/web/portfolio/*, `sbretire portfolio report` (options shared with exposure/frontier); tests/unit/test_portfolio_document.py (2; one assertion rewritten for typing only).
 
 ### F-030.3 The Portfolio page
 - **Status**: To Do

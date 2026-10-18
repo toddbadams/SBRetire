@@ -48,7 +48,8 @@ def test_portfolio_document_full_and_empty(tmp_path: Path) -> None:
     jsonschema.validate(document, SCHEMA)
     assert document["schema_version"] == "1.0" and document["folder"] == "oct-26"
     for section in ANALYSES:
-        assert document[section]["available"], (section, document[section].get("reason"))  # type: ignore[index]
+        part = document[section]
+        assert isinstance(part, dict) and part["available"], (section, part)
     assert document["total"]["value_gbp"] == pytest.approx(160265.61)  # type: ignore[index]
     assert document["total"]["starting_balance_yaml"].startswith("starting_balance: 160266")  # type: ignore[index]
     frontier = document["frontier"]

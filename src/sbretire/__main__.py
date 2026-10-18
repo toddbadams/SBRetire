@@ -17,6 +17,8 @@ Subcommands:
               look-through by asset class, sector, region, currency and top holdings (F-028)
     portfolio frontier
               efficient frontier of the priced holdings, target mix and trades (F-029)
+    portfolio report
+              every analysis into portfolio/portfolio.json and the Portfolio page, portfolio.html (F-030)
 """
 
 from __future__ import annotations
@@ -32,6 +34,7 @@ from sbretire.config import LoadedScenario, Scenario, ScenarioError, ScenarioIss
 from sbretire.inflation import inflation_coverage_issues, inflation_data_file_record
 from sbretire.inputs_report import format_inputs, scenario_input_rows, write_inputs_csv
 from sbretire.ledger.accounts import AccountConfig, load_accounts
+from sbretire.ledger.document import ReportOptions, build_portfolio_document, write_portfolio_files
 from sbretire.ledger.exposure import build_exposure, format_exposure, write_exposure_csv
 from sbretire.ledger.frontier import build_frontier, format_frontier, write_frontier_csvs
 from sbretire.ledger.holdings import HoldingsError
@@ -157,7 +160,11 @@ def build_parser() -> argparse.ArgumentParser:
         "frontier",
         help="efficient frontier of the priced holdings, target mix and trades (analysis, not advice)",
     )
+    report = portfolio_commands.add_parser(
+        "report", help="every portfolio analysis into portfolio.json and the Portfolio page (portfolio.html)"
+    )
     written_by = (
+        (report, "portfolio.json"),
         (frontier, "frontier.csv"),
         (imports, "ledger.csv"),
         (value, "holdings.csv"),
@@ -181,7 +188,7 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="RATE",
         help="GBP per USD for USD accounts (e.g. 0.7450); required when any account is in USD",
     )
-    for sub in (returns, performance, exposure, frontier):
+    for sub in (returns, performance, exposure, frontier, report):
         sub.add_argument(
             "--prices",
             type=Path,
@@ -200,42 +207,44 @@ def build_parser() -> argparse.ArgumentParser:
             metavar="RATE",
             help="GBP per USD for today's values (default: the FX price file's latest month-end)",
         )
-    exposure.add_argument(
-        "--factsheets",
-        type=Path,
-        default=Path("data/factsheets"),
-        help="folder with the funds' factsheet YAML files",
-    )
-    for sub in (performance, frontier):
+    for sub in (exposure, report):
+        sub.add_argument(
+            "--factsheets",
+            type=Path,
+            default=Path("data/factsheets"),
+            help="folder with the funds' factsheet YAML files",
+        )
+    for sub in (performance, frontier, report):
         sub.add_argument(
             "--risk-free",
             type=_risk_free_rate,
             metavar="RATE",
             help="annual risk-free rate as a fraction (e.g. 0.04); default: securities.yaml risk_free_rate",
         )
-    frontier.add_argument(
-        "--max-weight",
-        type=_max_weight,
-        metavar="W",
-        help="largest weight of one series (default: securities.yaml)",
-    )
-    frontier.add_argument(
-        "--covariance",
-        choices=("shrunk", "sample"),
-        default="shrunk",
-        help="Ledoit-Wolf shrunk (default) or sample",
-    )
-    frontier.add_argument(
-        "--target", choices=("same-risk", "max-sharpe", "min-variance"), default="same-risk",
-        help="the mix the trades move towards (default: today's risk, highest past return)",
-    )  # fmt: skip
-    frontier.add_argument(
-        "--min-trade",
-        type=float,
-        default=50.0,
-        metavar="GBP",
-        help="skip trades smaller than this (default 50)",
-    )
+    for sub in (frontier, report):
+        sub.add_argument(
+            "--max-weight",
+            type=_max_weight,
+            metavar="W",
+            help="largest weight of one series (default: securities.yaml)",
+        )
+        sub.add_argument(
+            "--covariance",
+            choices=("shrunk", "sample"),
+            default="shrunk",
+            help="Ledoit-Wolf shrunk (default) or sample",
+        )
+        sub.add_argument(
+            "--target", choices=("same-risk", "max-sharpe", "min-variance"), default="same-risk",
+            help="the mix the trades move towards (default: today's risk, highest past return)",
+        )  # fmt: skip
+        sub.add_argument(
+            "--min-trade",
+            type=float,
+            default=50.0,
+            metavar="GBP",
+            help="skip trades smaller than this (default 50)",
+        )
     return parser
 
 
@@ -388,6 +397,48 @@ def _risk_free(args: argparse.Namespace, report: ReturnsReport) -> tuple[float, 
     return None
 
 
+def _portfolio_report(args: argparse.Namespace) -> int:
+    """``sbretire portfolio report``: exit 0 written (gaps explained), 1 unreadable, 2 invalid."""
+    accounts = _load_accounts(args.accounts)
+    if isinstance(accounts, int):
+        return accounts
+    options = ReportOptions(
+        root=args.root, prices=args.prices, factsheets=args.factsheets, months=args.months,
+        usd_gbp=args.usd_gbp,
+        risk_free=args.risk_free, max_weight=args.max_weight, covariance=args.covariance, target=args.target,
+        min_trade=args.min_trade,
+    )  # fmt: skip
+    try:
+        document = build_portfolio_document(options, accounts)
+    except OSError as exc:
+        print(f"error: cannot read {exc.filename or args.prices}: {exc.strerror or exc}", file=sys.stderr)
+        return EXIT_FAILURE
+    except ScenarioError as exc:
+        where = (
+            args.factsheets
+            if any(".yaml: " in i.location for i in exc.issues)
+            else args.prices / "securities.yaml"
+        )
+        return _report(where, exc.issues)
+    except (HoldingsError, PriceFileError, UnknownTransaction, ValueError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return EXIT_INVALID
+    write_portfolio_files(document, args.output_dir)
+    total = document["total"]
+    print(f"Portfolio report for {document['folder']}: household {total['value_gbp']:,.2f} GBP")  # type: ignore[index]
+    for section in ("exposure", "performance", "frontier", "risk", "rebalance", "income"):
+        part = document[section]
+        state = "available" if part["available"] else f"unavailable ({part['reason']})"  # type: ignore[index]
+        print(f"  {section}: {state}")
+    for warning in document["warnings"]:  # type: ignore[attr-defined]
+        print(f"warning: {warning}")
+    print(
+        f"page: {args.output_dir / 'portfolio.html'}; "
+        f"data: {args.output_dir / 'portfolio' / 'portfolio.json'}"
+    )
+    return EXIT_OK
+
+
 def _portfolio_frontier(args: argparse.Namespace) -> int:
     """``sbretire portfolio frontier``: exit 0 written, 1 unreadable, 2 invalid (rate, series, cap)."""
     report = _returns_report(args)
@@ -525,6 +576,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             "performance": _portfolio_performance,
             "exposure": _portfolio_exposure,
             "frontier": _portfolio_frontier,
+            "report": _portfolio_report,
         }
         return handlers[args.portfolio_command](args)
     require_data_files = args.command == "run" or getattr(args, "require_data_files", False)
