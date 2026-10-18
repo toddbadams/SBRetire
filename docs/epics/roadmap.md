@@ -20,7 +20,7 @@ Features in build order. Status: `proposed` → `briefed` → `in-progress` → 
 | F-022 | HTML Results Viewer | [results-viewer](results-viewer.md) | F-021 | done |
 | F-023 | Print and PDF | [results-viewer](results-viewer.md) | F-022 | in-progress |
 | F-024 | Account Import and Normalised Ledger | [portfolio-analysis](portfolio-analysis.md) | — | done |
-| F-025 | Holdings Valuation and Starting Balance | [portfolio-analysis](portfolio-analysis.md) | F-024 | proposed |
+| F-025 | Holdings Valuation and Starting Balance | [portfolio-analysis](portfolio-analysis.md) | F-024 | briefed |
 | F-026 | Price History and Monthly Returns | [portfolio-analysis](portfolio-analysis.md) | F-024 | proposed |
 | F-027 | Performance and Drawdown Report | [portfolio-analysis](portfolio-analysis.md) | F-025, F-026 | proposed |
 | F-028 | Sector and Region Look-Through | [portfolio-analysis](portfolio-analysis.md) | F-025 | proposed |
@@ -122,6 +122,7 @@ Unmapped requirements: **none**.
 
 ## Change Log
 
+- 2026-10-18 — F-025 briefed: tasks F-025.1…F-025.4 (holdings parsers with self-checks, ii cash from the ledger, `--usd-gbp`, per-account valuation dates, `sbretire portfolio value` and `holdings.csv`).
 - 2026-10-18 — F-024 done: `sbretire portfolio import` reads every `data/transactions/<mon>-<yy>/` folder (Schwab, HL, Vanguard, ii) into `output/portfolio/ledger.csv`, de-duplicated, with cash reconciled to the exports' running balances; decisions `docs/decisions/portfolio-data.md`.
 - 2026-10-18 — F-024 briefed: tasks F-024.1…F-024.5 (accounts.yaml, four provider parsers, merged de-duplicated ledger, cash reconciliation, `sbretire portfolio import`).
 - 2026-10-18 — Added epic portfolio-analysis (F-024…F-030): import five account exports, holdings value for `starting_balance`, performance and drawdown, sector look-through, Sharpe efficient frontier and re-weighting analysis, Portfolio page; Claude Design hand-off `docs/design/portfolio-design-handoff.md`.
