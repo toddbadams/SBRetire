@@ -184,7 +184,7 @@ The command, the summary with its caveats, and the three CSVs. §2 #9.
 2026-10-18 ReturnsReport gains max_weight, holding_values, series_holdings; frontier.py FrontierReport, build_frontier (within-account achieved mix, per-account fee converted to GBP, warnings for over-cap weights and missing trading costs), write_frontier_csvs, format_frontier; `sbretire portfolio frontier` (shared _risk_free); tests/unit/test_frontier_cli.py. The CSV rounds costs to the penny, so the cost check compares within half a penny (test edited before green; same formula).
 
 ### F-029.5 Docs and a local run
-- **Status**: To Do
+- **Status**: Verification
 - **Depends on**: F-029.4
 
 What to write and run:
@@ -195,8 +195,11 @@ What to write and run:
 - A local run on the real holdings.
 
 **Acceptance criteria**
-- [ ] README documents `portfolio frontier`, `max_weight`, `trading` and the caveats; THESAURUS defines the three terms in order; decisions recorded — `check: grep -n "portfolio frontier" README.md docs/decisions/portfolio-data.md`
-- [ ] On the real holdings the command explains that fewer than 2 series are priced (exit 2) until price files exist (run locally; never committed) — `check: uv run sbretire portfolio frontier --usd-gbp 0.7503 --risk-free 0.04`
+- [x] README documents `portfolio frontier`, `max_weight`, `trading` and the caveats; THESAURUS defines the three terms in order; decisions recorded — `check: grep -n "portfolio frontier" README.md docs/decisions/portfolio-data.md`
+- [x] On the real holdings the command explains that fewer than 2 series are priced (exit 2) until price files exist (run locally; never committed) — `check: uv run sbretire portfolio frontier --usd-gbp 0.7503 --risk-free 0.04`
+
+**Notes**
+2026-10-18 README 'Efficient frontier and re-weighting (analysis, not advice)', config/securities.example.yaml max_weight, config/accounts.example.yaml trading (both load), THESAURUS (Efficient Frontier, Priced Sleeve, Target Mix; 48 terms sorted), docs/decisions/portfolio-data.md §21–§24. Real run: 'needs at least 2 priced series ... (found 0)', exit 2.
 
 ## 11. Open Questions
 

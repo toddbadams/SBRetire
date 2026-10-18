@@ -4,6 +4,7 @@
 # or any file with Date,Close and an optional Dividend column (cash per unit paid on that date).
 
 risk_free_rate: 0.04                 # UK Bank Rate as a fraction, for Sharpe ratios
+max_weight: 0.25                     # largest share of the priced holdings one series may take (frontier)
 
 fx:
   USD: GBP=X.csv                     # GBP per US dollar (Yahoo ticker GBP=X)

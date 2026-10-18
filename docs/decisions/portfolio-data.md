@@ -239,3 +239,54 @@ top holdings last as `top_holding`). Exit 0 ok, 1 unreadable, 2 an invalid map o
 **Why**: concentration hidden inside funds (the same large company in several ETFs) is one of the epic's
 questions; one CSV feeds the Portfolio page (F-030).
 
+## 21. The frontier re-weights only the priced sleeve, from shrunk estimates
+
+The **priced sleeve** is the series with today's value > 0 and a return in every month of the window; everything
+else (cash, short-history and unpriced holdings) stays at today's GBP values, and its share is shown. Expected
+return = 12 × the mean monthly return; covariance = 12 × the Ledoit–Wolf (2004) estimate: the sample covariance
+(÷ T) shrunk towards its mean variance × I, with the intensity `min(b̄², d²) / d²` from the data.
+`--covariance sample` uses the n − 1 sample covariance instead. (F-029)
+
+**Why**: a covariance needs a common window; about 36 series and 60 months make the raw estimate noisy, and
+shrinkage gives steadier weights (user, 2026-10-18).
+
+## 22. Mixes: long-only, capped, minimum variance to maximum return; the target keeps today's risk
+
+Weights are ≥ 0, sum to 1 over the sleeve and are each ≤ `max_weight` (`securities.yaml`, default 0.25;
+`--max-weight`); `max_weight × n < 1` or fewer than 2 sleeve series is an error (exit 2). Sharpe uses
+`12 × monthly risk-free` (as F-027). Shown: today's mix; minimum variance; 21 frontier points from the
+minimum-variance return to the highest return the cap allows; maximum Sharpe (never below a frontier point); and
+the **target**: by default the highest return with volatility ≤ today's sleeve volatility (minimum variance if
+today's is lower), or `--target max-sharpe` / `min-variance`. Solved with SciPy SLSQP from deterministic starts.
+`sbretire portfolio frontier` prints the mixes with return, volatility and Sharpe, and warns when today's weight
+of a series is above the cap. (F-029)
+
+**Why**: a cap stops the optimiser piling into one past winner; keeping today's risk shows what the same
+holdings might have done for the risk the household already lives with (user, 2026-10-18).
+
+## 23. Trades: household view for analysis, within-account trades to act on
+
+**Household trades** treat the sleeve as one portfolio: target weight × sleeve value − today's value per
+series. They are labelled analysis only, because they need moves between accounts and wrappers. **Within-account
+trades** re-split each account's sleeve value over the series it already holds, in proportion to those series'
+target weights (an account whose series all have target 0 is left as it is). Trades under `--min-trade` (default
+50 GBP) are skipped. The resulting household mix ("within accounts") is reported beside the target. (F-029)
+
+**Why**: the household is analysed as one portfolio (epic), but money cannot move freely from a pension to an
+ISA, so only within-account trades can actually be made.
+
+## 24. Costs, sensitivity and outputs
+
+`trading: {fee_per_trade, cost_rate}` on an account in `accounts.yaml` (fee ≥ 0 in the account's currency,
+converted to GBP; `0 ≤ cost_rate < 0.05` for spread, stamp duty and FX). A trade costs `fee + rate × |amount|`;
+an account without `trading` costs 0, with a warning. **Sensitivity:** the target is re-estimated on each half of
+the window and the turnover `Σ|w₁ − w₂| / 2` between the two is reported. Outputs (UTF-8, LF):
+- `frontier.csv`: `point`, `return`, `volatility`, `sharpe`; 21 points, then `today`, `min_variance`,
+  `max_sharpe`, `target` and `within_accounts`;
+- `frontier_weights.csv`: series × those five mixes;
+- `trades.csv`: `scope`, `account`, `series`, `current_gbp`, `target_gbp`, `trade_gbp`, `cost_gbp` (pennies).
+(F-029)
+
+**Why**: per-account fee schedules (user, 2026-10-18); estimation error is the frontier's main weakness (epic
+risk), and a turnover figure says plainly how much to trust the target.
+

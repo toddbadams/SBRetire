@@ -567,6 +567,41 @@ Japan → JPY), and the share taken from regions is shown. A factsheet more than
 gets a warning. It writes `output/portfolio/exposure.csv` (`dimension`, `label`, `value_gbp`, `share`; the top
 holdings come last as `top_holding`).
 
+### Efficient frontier and re-weighting (analysis, not advice)
+
+```bash
+uv run sbretire portfolio frontier
+```
+
+It works on the **priced sleeve**: the series with a return in every month of the window. Cash and every other
+holding stay as they are today. Then it:
+
+- estimates each series' return (12 × the mean monthly return) and risk (a Ledoit–Wolf shrunk covariance, which is
+  steadier than the raw estimate with this much data; `--covariance sample` for the raw one);
+- draws the long-only frontier with each series capped at `max_weight` (in `securities.yaml`, default 0.25;
+  `--max-weight` overrides);
+- shows today's mix, the minimum-variance and maximum-Sharpe mixes, and the **target**: the mix with today's risk
+  and the highest past return (`--target max-sharpe` or `min-variance` instead);
+- lists the trades:
+  - **within each account**: re-splitting the money already there across the series it holds, so it can be done
+    without moving money between wrappers;
+  - **for the household as one portfolio**: analysis only, as this would need moves between pension, ISA and
+    taxable accounts.
+- estimates each trade's cost from `trading: {fee_per_trade, cost_rate}` on the account in `accounts.yaml`;
+  trades under `--min-trade` (default 50 GBP) are skipped;
+- re-estimates the target on each half of the window and reports the **turnover** between the two. A high
+  turnover means the "better" mix depends heavily on which years you look at.
+
+It needs the risk-free rate (as `portfolio performance`) and at least two fully priced series (exit 2
+otherwise). It writes:
+
+- `output/portfolio/frontier.csv`: 21 frontier points, then today's mix, minimum variance, maximum Sharpe, the
+  target and the within-account mix;
+- `frontier_weights.csv`;
+- `trades.csv`: `scope`, `account`, `series`, `current_gbp`, `target_gbp`, `trade_gbp`, `cost_gbp`.
+
+These are calculations from past prices under the stated assumptions, not a recommendation to trade.
+
 ## Development
 
 **VS Code:** open the `C:\sb\SBRetire` folder and accept the recommended extensions (Python, Ruff, Mypy). The

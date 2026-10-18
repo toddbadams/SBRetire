@@ -88,6 +88,12 @@ suffix, bare unqualified `Service`, `confidence interval` (for success probabili
 - **Synonyms to AVOID**: loss (ambiguous), crash
 - **Related terms**: Back-test
 
+### Efficient Frontier
+- **Definition**: The lowest-volatility long-only mixes of the Priced Sleeve for each level of historical return, with every weight ≤ `max_weight`, estimated from past Monthly Returns (portfolio-data §22).
+- **NOT**: A forecast; the household's actual possible returns.
+- **Synonyms to AVOID**: optimal portfolio (implies advice), Markowitz bullet
+- **Related terms**: Priced Sleeve, Target Mix, Sharpe Ratio
+
 ### End-of-Life Reserve (Required End Balance)
 - **Definition**: An opt-in stricter success test (`budget.end_reserve_months`, R months). A Path meets it when it is Successful and its balance at *Household End* is at least the **Required End Balance** R × *Budget* × I_d — the Budget in today's GBP inflated to the Household End month d. A Path that ends below it counts as Failed for the reserve metrics (optimization §3).
 - **NOT**: R months of the survivor's reduced spending; a buffer held during life.
@@ -182,6 +188,12 @@ suffix, bare unqualified `Service`, `confidence interval` (for success probabili
 - **Synonyms to AVOID**: ticker (the series may have none), feed
 - **Related terms**: Monthly Return, Holding
 
+### Priced Sleeve
+- **Definition**: The Price Series with a Monthly Return in every month of the window and a value today; the part of the household the Efficient Frontier re-weights. Cash and other holdings stay at today's values (portfolio-data §21).
+- **NOT**: The whole portfolio.
+- **Synonyms to AVOID**: core, universe (ambiguous)
+- **Related terms**: Efficient Frontier, Price Series
+
 ### Probability Not Depleted Yet
 - **Definition**: Per reporting year, the share of all paths that have not experienced *Depletion* by that date (SPEC §12).
 - **NOT**: *Estimated Lifetime Success Rate*.
@@ -233,6 +245,12 @@ suffix, bare unqualified `Service`, `confidence interval` (for success probabili
 - **Definition**: Proportion (0–1) of an Income Stream that continues when its Recipient has died and the other person is alive (SPEC §8).
 - **Synonyms to AVOID**: survivor benefit (that is the resulting amount), reversion
 - **Related terms**: Income Stream, Recipient
+
+### Target Mix
+- **Definition**: The frontier mix the re-weighting trades move towards: by default the highest past return at today's volatility; optionally the maximum-Sharpe or minimum-variance mix (portfolio-data §22).
+- **NOT**: A recommendation; within-account trades only approximate it.
+- **Synonyms to AVOID**: optimal mix, model portfolio
+- **Related terms**: Efficient Frontier, Priced Sleeve
 
 ### Today's GBP
 - **Definition**: Purchasing-power terms at the As-Of Date; fields suffixed `_today` are in this unit. Internally the engine computes nominal GBP.

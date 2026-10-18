@@ -20,6 +20,7 @@ accounts:
     currency: GBP
     transactions: ["hl.csv"]
     holdings: ["hl-account-summary.csv"]
+    trading: {fee_per_trade: 11.95, cost_rate: 0.002}   # optional: dealing fee per trade + spread/stamp/FX rate
 
   - id: isa
     name: Example Stocks & Shares ISA
