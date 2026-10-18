@@ -42,7 +42,11 @@ def test_twr_and_mwr_known_answers() -> None:
     d0, d1 = date(2026, 1, 31), date(2026, 2, 28)
     rates = {date(2026, 1, 1): 0.8, date(2026, 2, 1): 0.75}
     gbp_points, gbp_flows = to_gbp([(d0, 100.0), (d1, 100.0)], [(date(2026, 2, 10), 20.0)], "USD", rates)
-    assert gbp_points == [(d0, pytest.approx(80.0)), (d1, pytest.approx(75.0))]
-    assert gbp_flows == [(date(2026, 2, 10), pytest.approx(15.0))]
+    assert [d for d, _ in gbp_points] == [d0, d1] and [v for _, v in gbp_points] == pytest.approx(
+        [80.0, 75.0]
+    )
+    assert [d for d, _ in gbp_flows] == [date(2026, 2, 10)] and [v for _, v in gbp_flows] == pytest.approx(
+        [15.0]
+    )
     same, _ = to_gbp([(d0, 100.0)], [], "GBP", {})
     assert same == [(d0, 100.0)]

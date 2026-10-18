@@ -8,9 +8,13 @@ of return.
 from __future__ import annotations
 
 import datetime as dt
+import itertools
 import re
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from typing import Final
+
+from scipy.optimize import brentq
 
 from sbretire.ledger.holdings import Holding
 from sbretire.ledger.model import LedgerRow
@@ -161,17 +165,90 @@ def rebuild(
     return values, missing
 
 
-def modified_dietz(*a: object) -> object:
-    raise NotImplementedError
+Flow = tuple[dt.date, float]
+"""A dated external flow; positive = money into the account."""
 
 
-def returns_for(*a: object) -> object:
-    raise NotImplementedError
+def modified_dietz(v0: float, v1: float, flows: Sequence[Flow], start: dt.date, end: dt.date) -> float | None:
+    """``(V₁ − V₀ − F) / (V₀ + Σ wᵢFᵢ)``, ``wᵢ`` the share of the period left after each flow (§28)."""
+    days = (end - start).days
+    total = sum(amount for _, amount in flows)
+    weighted = sum(amount * (end - day).days / days for day, amount in flows) if days > 0 else 0.0
+    base = v0 + weighted
+    return None if abs(base) < 1e-9 else (v1 - v0 - total) / base
 
 
-def to_gbp(*a: object) -> object:
-    raise NotImplementedError
+def xirr(v0: float, flows: Sequence[Flow], v_end: float, start: dt.date, end: dt.date) -> float | None:
+    """The annual rate ``r`` solving ``−V₀ − ΣFᵢ(1+r)^(−tᵢ) + V_end(1+r)^(−T) = 0``, years = days ÷ 365 (§28).
+
+    ``None`` when the cash flows have no root between −99% and +1,000% a year.
+    """
+    years = (end - start).days / 365.0
+    if years <= 0:
+        return None
+
+    def npv(rate: float) -> float:
+        growth = 1.0 + rate
+        value = -v0 - sum(amount * growth ** (-(day - start).days / 365.0) for day, amount in flows)
+        return float(value + v_end * growth ** (-years))
+
+    low, high = -0.99, 10.0
+    if npv(low) * npv(high) > 0:
+        return None
+    return float(brentq(npv, low, high, xtol=1e-12, maxiter=500))
 
 
-def xirr(*a: object) -> object:
-    raise NotImplementedError
+@dataclass(frozen=True)
+class PeriodReturn:
+    """Time- and money-weighted returns over valuation points (month-ends, then the valuation date)."""
+
+    twr: float | None
+    monthly: list[tuple[dt.date, float | None]]
+    """Each sub-period's end date and Modified Dietz return."""
+    mwr_period: float | None
+    mwr_annual: float | None
+    """Only when the period is at least a year."""
+    net_flows: float
+
+
+def returns_for(points: Sequence[tuple[dt.date, float]], flows: Sequence[Flow]) -> PeriodReturn:
+    """Chain Modified Dietz sub-periods between ``points`` and solve the MWR over the whole span (§28).
+
+    Flows dated after the first point and up to the last belong to the sub-period they fall in.
+    """
+    start, end = points[0][0], points[-1][0]
+    inside = [(day, amount) for day, amount in flows if start < day <= end]
+    monthly: list[tuple[dt.date, float | None]] = []
+    growth: float | None = 1.0
+    for (d0, v0), (d1, v1) in itertools.pairwise(points):
+        r = modified_dietz(v0, v1, [(d, a) for d, a in inside if d0 < d <= d1], d0, d1)
+        monthly.append((d1, r))
+        growth = None if r is None or growth is None else growth * (1.0 + r)
+    rate = xirr(points[0][1], inside, points[-1][1], start, end)
+    years = (end - start).days / 365.0
+    return PeriodReturn(
+        twr=None if growth is None else growth - 1.0,
+        monthly=monthly,
+        mwr_period=None if rate is None else (1.0 + rate) ** years - 1.0,
+        mwr_annual=rate if rate is not None and years >= 1.0 else None,
+        net_flows=sum(amount for _, amount in inside),
+    )
+
+
+def to_gbp(
+    points: Sequence[tuple[dt.date, float]],
+    flows: Sequence[Flow],
+    currency: str,
+    usd_gbp: Mapping[dt.date, float],
+) -> tuple[list[tuple[dt.date, float]], list[Flow]]:
+    """Points and flows in GBP: USD amounts at the GBP-per-USD rate of their month (§28)."""
+    if currency == "GBP":
+        return list(points), list(flows)
+
+    def rate(day: dt.date) -> float:
+        found = usd_gbp.get(day.replace(day=1))
+        if found is None:
+            raise ValueError(f"no USD rate for {day:%Y-%m}")
+        return found
+
+    return [(d, v * rate(d)) for d, v in points], [(d, a * rate(d)) for d, a in flows]

@@ -170,13 +170,16 @@ class AccountReturn:
 2026-10-18 account_returns.py month_end, units_at, cash_at, price_in (GBX ÷ 100, USD↔GBP at the month's rate), rebuild (values in the account currency; unmatched ledger securities and unpriced held series listed). Any unmatched ledger security in the account is listed (today's units of an unmatched security are unknown), not only those held at a month-end — recorded in §9. Test assertion split for typing only.
 
 ### F-031.3 Time- and money-weighted returns
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-031.2
 
 `modified_dietz`, chaining, `xirr`, the household in GBP. §2 #5–#7.
 
 **Acceptance criteria**
-- [ ] Modified Dietz with £1,000 deposited halfway through a 30-day period matches the hand value; two sub-periods chain; a single deposit grown at 5% a year for 2 years gives an MWR of 5%, and for 6 months gives the period return 1.05^0.5 − 1 with no annual figure; with no flows the TWR equals the MWR; the household sums the GBP-converted accounts — `test_twr_and_mwr_known_answers`
+- [x] Modified Dietz with £1,000 deposited halfway through a 30-day period matches the hand value; two sub-periods chain; a single deposit grown at 5% a year for 2 years gives an MWR of 5%, and for 6 months gives the period return 1.05^0.5 − 1 with no annual figure; with no flows the TWR equals the MWR; the household sums the GBP-converted accounts — `test_twr_and_mwr_known_answers`
+
+**Notes**
+2026-10-18 account_returns.py modified_dietz, xirr (brentq on −99%…+1,000%, years = days/365), PeriodReturn and returns_for (flows after the first point; MWR annualised only for ≥ 1 year), to_gbp (USD at the month's rate); tests/unit/test_account_returns_twr_mwr.py (assertions split for typing only).
 
 ### F-031.4 Command, portfolio.json 1.1, page, docs and a real run
 - **Status**: To Do
