@@ -7,17 +7,20 @@ the monthly risk-free rate.
 
 from __future__ import annotations
 
+import csv
+import dataclasses
 import datetime as dt
 import math
 from collections import defaultdict
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Final
 
 import numpy as np
 from numpy.typing import NDArray
 
-from sbretire.ledger.returns import MonthlyReturn, add_months
+from sbretire.ledger.returns import MonthlyReturn, ReturnsReport, add_months
 
 _FLAT: Final = 1e-12
 """A standard deviation at or below this is treated as zero (Sharpe undefined)."""
@@ -139,3 +142,156 @@ def backtest(
         months.append(BacktestMonth(month, portfolio, counted / total if total > 0 else 0.0))
         month = add_months(month, 1)
     return months
+
+
+MIN_MONTHS_FOR_RISK: Final = 12
+"""A series needs this many monthly returns for its volatility and Sharpe to be shown."""
+
+
+@dataclass(frozen=True)
+class SeriesPerformance:
+    series: str
+    name: str
+    weight: float
+    """Share of today's household value."""
+    metrics: Metrics
+
+
+@dataclass(frozen=True)
+class Performance:
+    """Everything ``sbretire portfolio performance`` prints and writes."""
+
+    report: ReturnsReport
+    risk_free: float
+    risk_free_source: str
+    months: list[BacktestMonth]
+    metrics: Metrics
+    wealth: list[float]
+    drawdown: list[float]
+    rolling_return: list[float | None]
+    rolling_volatility: list[float | None]
+    series: list[SeriesPerformance]
+
+
+def build_performance(report: ReturnsReport, risk_free: float, source: str) -> Performance:
+    """Back-test today's mix (portfolio-data §16) and measure it and each series (§15, §17)."""
+    months = backtest(
+        report.series_values,
+        report.cash_gbp,
+        report.total_gbp,
+        report.returns,
+        report.first,
+        report.last,
+        risk_free,
+    )
+    dates = [m.month for m in months]
+    values = [m.portfolio_return for m in months]
+    wealth, drawdown = drawdowns(values)
+    rolling_return, rolling_volatility = rolling(values)
+    series = []
+    for series_id, value in report.series_values.items():
+        rows = [r for r in report.returns if r.series == series_id and r.return_gbp is not None]
+        found = metrics(
+            [r.month for r in rows], [r.return_gbp for r in rows if r.return_gbp is not None], risk_free
+        )
+        if found.months < MIN_MONTHS_FOR_RISK:
+            found = dataclasses.replace(found, annual_volatility=None, sharpe=None)
+        weight = value / report.total_gbp if report.total_gbp else 0.0
+        series.append(
+            SeriesPerformance(series_id, report.series_names.get(series_id, series_id), weight, found)
+        )
+    return Performance(
+        report, risk_free, source, months, metrics(dates, values, risk_free),
+        wealth.tolist(), drawdown.tolist(), rolling_return, rolling_volatility, series,
+    )  # fmt: skip
+
+
+PERFORMANCE_COLUMNS: Final = (
+    "month", "portfolio_return", "wealth_index", "drawdown", "covered_share",
+    "rolling_12m_return", "rolling_12m_volatility",
+)  # fmt: skip
+SERIES_COLUMNS: Final = (
+    "series", "name", "weight", "months", "annual_return", "annual_volatility", "sharpe", "max_drawdown",
+)  # fmt: skip
+
+
+def _cell(value: float | None) -> str | float:
+    return "" if value is None else value
+
+
+def write_performance_csvs(performance: Performance, folder: Path) -> None:
+    """``performance.csv`` (one row per month) and ``performance_series.csv`` (one per series); UTF-8, LF."""
+    folder.mkdir(parents=True, exist_ok=True)
+    with (folder / "performance.csv").open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.writer(handle, lineterminator="\n")
+        writer.writerow(PERFORMANCE_COLUMNS)
+        for i, month in enumerate(performance.months):
+            writer.writerow((
+                f"{month.month:%Y-%m}", month.portfolio_return, performance.wealth[i],
+                performance.drawdown[i], month.covered_share, _cell(performance.rolling_return[i]),
+                _cell(performance.rolling_volatility[i]),
+            ))  # fmt: skip
+    with (folder / "performance_series.csv").open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.writer(handle, lineterminator="\n")
+        writer.writerow(SERIES_COLUMNS)
+        for item in performance.series:
+            m = item.metrics
+            writer.writerow((
+                item.series, item.name, item.weight, m.months, _cell(m.annual_return),
+                _cell(m.annual_volatility), _cell(m.sharpe), m.max_drawdown,
+            ))  # fmt: skip
+
+
+def _pct(value: float | None) -> str:
+    return "n/a" if value is None else f"{value:.2%}"
+
+
+def _month(value: dt.date | None) -> str:
+    return "-" if value is None else f"{value:%Y-%m}"
+
+
+def format_performance(performance: Performance) -> str:
+    """The summary: headline metrics, the worst drawdown, coverage and the per-series table."""
+    report, m = performance.report, performance.metrics
+    lines = [
+        f"Back-test of today's mix, {report.first:%Y-%m} to {report.last:%Y-%m} "
+        f"({len(performance.months)} months), risk-free {performance.risk_free:.2%} a year "
+        f"({performance.risk_free_source})",
+        "  Historical, not a forecast or advice: today's weights applied to past monthly returns.",
+        f"  Annual return       {_pct(m.annual_return)}",
+        f"  Annual volatility   {_pct(m.annual_volatility)}",
+        f"  Sharpe ratio        {'n/a' if m.sharpe is None else f'{m.sharpe:.2f}'}",
+    ]
+    if m.max_drawdown > 0:
+        recovered = f"recovered {_month(m.recovery)}" if m.recovery else "not recovered"
+        lines.append(
+            f"  Max drawdown        {m.max_drawdown:.2%}  peak {_month(m.peak)}, "
+            f"trough {_month(m.trough)}, {recovered}"
+        )
+    else:
+        lines.append("  Max drawdown        none")
+    covered = [month.covered_share for month in performance.months]
+    if covered:
+        low = min(performance.months, key=lambda month: month.covered_share)
+        cash = report.cash_gbp / report.total_gbp if report.total_gbp else 0.0
+        lines.append(
+            f"  Covered             average {sum(covered) / len(covered):.1%} of today's value "
+            f"(lowest {low.covered_share:.1%} in {low.month:%Y-%m}); cash {cash:.1%} at the risk-free rate"
+        )
+    if not performance.series:
+        lines.append("  No priced holdings yet: the back-test is all cash at the risk-free rate.")
+    else:
+        lines.append(
+            "  {:<24} {:>7} {:>6} {:>8} {:>10} {:>6} {:>8}".format(
+                "series", "weight", "months", "return", "volatility", "sharpe", "max dd"
+            )
+        )
+        for item in performance.series:
+            s = item.metrics
+            sharpe = "n/a" if s.sharpe is None else f"{s.sharpe:.2f}"
+            lines.append(
+                f"  {item.series[:24]:<24} {item.weight:>7.1%} {s.months:>6} {_pct(s.annual_return):>8} "
+                f"{_pct(s.annual_volatility):>10} {sharpe:>6} {s.max_drawdown:>8.1%}"
+            )
+    lines += [f"warning: {warning}" for warning in report.warnings]
+    return "\n".join(lines)

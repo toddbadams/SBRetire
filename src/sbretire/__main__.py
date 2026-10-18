@@ -11,6 +11,8 @@ Subcommands:
               value the newest month's holdings in GBP: the starting_balance line and holdings.csv (F-025)
     portfolio returns
               monthly GBP total returns from data/prices and their coverage of the holdings (F-026)
+    portfolio performance
+              back-test of today's mix: return, volatility, Sharpe, drawdown, rolling 12 months (F-027)
 """
 
 from __future__ import annotations
@@ -29,9 +31,16 @@ from sbretire.ledger.accounts import AccountConfig, load_accounts
 from sbretire.ledger.holdings import HoldingsError
 from sbretire.ledger.merge import merge_exports, read_exports
 from sbretire.ledger.model import UnknownTransaction
+from sbretire.ledger.performance import build_performance, format_performance, write_performance_csvs
 from sbretire.ledger.prices import PriceFileError
 from sbretire.ledger.report import format_account_summary, reconciliation_problems, write_ledger_csv
-from sbretire.ledger.returns import build_returns, format_returns, write_returns_csv, write_returns_metadata
+from sbretire.ledger.returns import (
+    ReturnsReport,
+    build_returns,
+    format_returns,
+    write_returns_csv,
+    write_returns_metadata,
+)
 from sbretire.ledger.valuation import (
     ValuationError,
     format_valuation,
@@ -131,7 +140,17 @@ def build_parser() -> argparse.ArgumentParser:
     returns = portfolio_commands.add_parser(
         "returns", help="monthly GBP total returns from data/prices and their coverage of the holdings"
     )
-    for sub, written in ((imports, "ledger.csv"), (value, "holdings.csv"), (returns, "returns.csv")):
+    performance = portfolio_commands.add_parser(
+        "performance",
+        help="back-test today's mix over the monthly returns: return, volatility, Sharpe, drawdown",
+    )
+    written_by = (
+        (imports, "ledger.csv"),
+        (value, "holdings.csv"),
+        (returns, "returns.csv"),
+        (performance, "performance.csv"),
+    )
+    for sub, written in written_by:
         sub.add_argument(
             "--root", type=Path, default=Path("data/transactions"), help="folder of <mon>-<yy> folders"
         )
@@ -147,19 +166,44 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="RATE",
         help="GBP per USD for USD accounts (e.g. 0.7450); required when any account is in USD",
     )
-    returns.add_argument(
-        "--prices", type=Path, default=Path("data/prices"), help="folder with securities.yaml and price files"
-    )
-    returns.add_argument(
-        "--months", type=_positive_months, default=60, help="monthly returns ending last month (default 60)"
-    )
-    returns.add_argument(
-        "--usd-gbp",
-        type=_positive_rate,
+    for sub in (returns, performance):
+        sub.add_argument(
+            "--prices",
+            type=Path,
+            default=Path("data/prices"),
+            help="folder with securities.yaml and price files",
+        )
+        sub.add_argument(
+            "--months",
+            type=_positive_months,
+            default=60,
+            help="monthly returns ending last month (default 60)",
+        )
+        sub.add_argument(
+            "--usd-gbp",
+            type=_positive_rate,
+            metavar="RATE",
+            help="GBP per USD for today's values (default: the FX price file's latest month-end)",
+        )
+    performance.add_argument(
+        "--risk-free",
+        type=_risk_free_rate,
         metavar="RATE",
-        help="GBP per USD for value shares (default: the FX price file's latest month-end)",
+        help="annual risk-free rate as a fraction (e.g. 0.04); default: risk_free_rate in securities.yaml",
     )
     return parser
+
+
+def _risk_free_rate(text: str) -> float:
+    try:
+        rate = float(text)
+    except ValueError:
+        rate = math.nan
+    if not 0.0 <= rate < 0.2:
+        raise argparse.ArgumentTypeError(
+            f"expected an annual rate from 0 to 0.2 as a fraction (got {text!r})"
+        )
+    return rate
 
 
 def _positive_months(text: str) -> int:
@@ -261,22 +305,51 @@ def _portfolio_value(args: argparse.Namespace) -> int:
     return EXIT_OK
 
 
-def _portfolio_returns(args: argparse.Namespace) -> int:
-    """``sbretire portfolio returns``: exit 0 written (gaps reported), 1 unreadable, 2 invalid."""
+def _returns_report(args: argparse.Namespace) -> ReturnsReport | int:
     accounts = _load_accounts(args.accounts)
     if isinstance(accounts, int):
         return accounts
-    securities = args.prices / "securities.yaml"
     try:
-        report = build_returns(args.root, accounts, args.prices, args.months, args.usd_gbp)
+        return build_returns(args.root, accounts, args.prices, args.months, args.usd_gbp)
     except OSError as exc:
         print(f"error: cannot read {exc.filename or args.prices}: {exc.strerror or exc}", file=sys.stderr)
         return EXIT_FAILURE
     except ScenarioError as exc:
-        return _report(securities, exc.issues)
+        return _report(args.prices / "securities.yaml", exc.issues)
     except (HoldingsError, PriceFileError, UnknownTransaction, ValueError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return EXIT_INVALID
+
+
+def _portfolio_performance(args: argparse.Namespace) -> int:
+    """``sbretire portfolio performance``: exit 0 written, 1 unreadable, 2 invalid or no risk-free rate."""
+    report = _returns_report(args)
+    if isinstance(report, int):
+        return report
+    if args.risk_free is not None:
+        risk_free, source = args.risk_free, "--risk-free"
+    elif report.risk_free_rate is not None:
+        risk_free, source = report.risk_free_rate, "securities.yaml"
+    else:
+        print(
+            "error: no risk-free rate: set risk_free_rate (e.g. 0.04) in securities.yaml or pass --risk-free",
+            file=sys.stderr,
+        )
+        return EXIT_INVALID
+    performance = build_performance(report, risk_free, source)
+    print(format_performance(performance))
+    folder = args.output_dir / "portfolio"
+    write_performance_csvs(performance, folder)
+    print(f"performance: {folder / 'performance.csv'} ({len(performance.months)} months); series: "
+          "performance_series.csv")  # fmt: skip
+    return EXIT_OK
+
+
+def _portfolio_returns(args: argparse.Namespace) -> int:
+    """``sbretire portfolio returns``: exit 0 written (gaps reported), 1 unreadable, 2 invalid."""
+    report = _returns_report(args)
+    if isinstance(report, int):
+        return report
     print(format_returns(report))
     folder = args.output_dir / "portfolio"
     write_returns_csv(report, folder / "returns.csv")
@@ -327,7 +400,12 @@ def _summary(config: Path, loaded: LoadedScenario) -> str:
 def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     if args.command == "portfolio":
-        handlers = {"import": _portfolio_import, "value": _portfolio_value, "returns": _portfolio_returns}
+        handlers = {
+            "import": _portfolio_import,
+            "value": _portfolio_value,
+            "returns": _portfolio_returns,
+            "performance": _portfolio_performance,
+        }
         return handlers[args.portfolio_command](args)
     require_data_files = args.command == "run" or getattr(args, "require_data_files", False)
     loaded = _load(args.config, require_data_files=require_data_files)

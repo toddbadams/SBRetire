@@ -160,14 +160,17 @@ def backtest(
 2026-10-18 ledger/performance.py BacktestMonth, backtest (series with a return that month plus cash rescaled to 100%, cash at the monthly risk-free rate, covered share of today's household value, nothing counted → risk-free); tests/unit/test_performance_backtest.py. The red commit failed on import (no backtest stub) rather than an assertion; noted.
 
 ### F-027.3 `sbretire portfolio performance`
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-027.2
 
 The command: weights from the valuation, the summary (with the "historical, not a forecast" note),
 `performance.csv` and `performance_series.csv`. §2 #5–#7.
 
 **Acceptance criteria**
-- [ ] On the F-026 synthetic holdings and price files, the command prints the annual return, volatility, Sharpe, max drawdown with dates and the covered share, and writes both CSVs (UTF-8, LF, columns, one row per month and per series); without a risk-free rate it exits 2 naming `risk_free_rate` — `test_cli_portfolio_performance`
+- [x] On the F-026 synthetic holdings and price files, the command prints the annual return, volatility, Sharpe, max drawdown with dates and the covered share, and writes both CSVs (UTF-8, LF, columns, one row per month and per series); without a risk-free rate it exits 2 naming `risk_free_rate` — `test_cli_portfolio_performance`
+
+**Notes**
+2026-10-18 ReturnsReport gains series_values, series_names, cash_gbp, total_gbp, risk_free_rate; ledger/performance.py build_performance, write_performance_csvs, format_performance; `sbretire portfolio performance` (shared _returns_report with portfolio returns); tests/unit/test_performance_cli.py. Real holdings: all cash at the risk-free rate (no price files yet), exit 0.
 
 ### F-027.4 Docs, F-031 and a local run
 - **Status**: To Do

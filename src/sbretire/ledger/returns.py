@@ -120,6 +120,15 @@ class ReturnsReport:
     files: list[tuple[str, PriceFile]]
     """(series id, or ``fx:USD``, and its file) for every price file read."""
     warnings: list[str]
+    series_values: dict[str, float]
+    """Today's GBP value of the holdings each series prices (series with a price file only)."""
+    series_names: dict[str, str]
+    cash_gbp: float
+    """Today's cash in GBP across every account."""
+    total_gbp: float
+    """Today's household value in GBP, cash and unpriced holdings included."""
+    risk_free_rate: float | None
+    """From ``securities.yaml``; ``None`` when it sets none."""
 
 
 def _classify(series: SeriesConfig, rows: Sequence[MonthlyReturn], basis: str, share: float) -> CoverageRow:
@@ -159,7 +168,7 @@ def build_returns(
     if map_path.exists():
         config = load_securities(map_path)
     else:  # nothing priced yet: report every holding as missing
-        config = SecuritiesConfig.model_construct(fx={}, securities=())
+        config = SecuritiesConfig.model_construct(fx={}, securities=(), risk_free_rate=None)
         notes.append(f"no {map_path}; copy config/securities.example.yaml there and list the price files")
     folder, exports = read_holdings(root, accounts)
     first, last = window(folder, months)
@@ -210,7 +219,19 @@ def build_returns(
             coverage.append(
                 CoverageRow(None, (ref,), "missing", 0, None, None, share, "not in securities.yaml")
             )
-    return ReturnsReport(folder, first, last, rate, source, returns, coverage, files, warnings)
+    priced = {series_id for series_id, _ in files if series_id != "fx:USD"}
+    series_values = {
+        s.id: sum(values.get(ref, 0.0) for ref in s.holdings) for s in config.securities if s.id in priced
+    }
+    cash = sum(valuation.value_gbp(h) for h in valuation.holdings if h.kind == "cash")
+    return ReturnsReport(
+        folder, first, last, rate, source, returns, coverage, files, warnings,
+        series_values=series_values,
+        series_names={s.id: s.name for s in config.securities},
+        cash_gbp=round(cash, 2),
+        total_gbp=valuation.total_gbp(),
+        risk_free_rate=config.risk_free_rate,
+    )  # fmt: skip
 
 
 RETURNS_COLUMNS: Final = ("month", "series", "value_gbp", "dividend_gbp", "return_gbp", "basis")
