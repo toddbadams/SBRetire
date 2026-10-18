@@ -130,7 +130,7 @@ def trade_cost(amount_gbp: float, fee_gbp: float, rate: float) -> float: ...
 ## 10. Tasks
 
 ### F-029.1 Settings, estimates and the priced sleeve
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: —
 
 What to build:
@@ -146,9 +146,10 @@ What to build:
 
 **Notes**
 2026-10-18 SecuritiesConfig.max_weight (0 < w ≤ 1, default 0.25); accounts.TradingCosts and AccountConfig.trading; accounts.validation_issues (drops pydantic's redundant 'too short' for lists whose items failed; now shared by accounts, prices and exposure); ledger/frontier.py ledoit_wolf, Estimates, estimate (priced sleeve = full-window series with a value today); tests/unit/test_frontier_estimates.py (2).
+2026-10-18 /verify PASS: settings and locations; textbook LW2004 independent of the code; 12× annualising; sleeve excludes gappy/absent series; validation_issues shared; ruff/mypy clean.
 
 ### F-029.2 Optimiser
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-029.1
 
 `min_variance`, `frontier`, `max_sharpe`, `max_return_at`. §2 #4.
@@ -158,9 +159,10 @@ What to build:
 
 **Notes**
 2026-10-18 ledger/frontier.py Mix, mix (Sharpe uses 12 × monthly risk-free, consistent with F-027), _check_cap (≥ 2 series, cap × n ≥ 1), SLSQP _solve from several deterministic starts, min_variance, greedy max-return under the cap, frontier, max_sharpe (never below a frontier point), max_return_at; tests/unit/test_frontier_optimiser.py (pairwise lint fixed after the red commit).
+2026-10-18 /verify PASS: closed-form 0.8/0.2, binding cap, feasible monotone frontier, max Sharpe dominance, same-risk; no randomness, deterministic starts.
 
 ### F-029.3 Trades, costs and sensitivity
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-029.2
 
 Household deltas, `within_account_targets`, `trade_cost`, `--min-trade`, half-window turnover. §2 #5–#8.
@@ -170,9 +172,10 @@ Household deltas, `within_account_targets`, `trade_cost`, `--min-trade`, half-wi
 
 **Notes**
 2026-10-18 ledger/frontier.py household_trades, within_account_targets, trade_cost, Trade, plan_trades (min trade, per-account (fee GBP, rate)), TargetKind, target_mix, sensitivity (halves re-estimated with the same covariance method; Estimates gains covariance); tests/unit/test_frontier_trades.py (long line fixed after the red commit).
+2026-10-18 /verify PASS: household trades sum to 0; within-account splits, min trade, costs hand-checked; 0.6 turnover construction verified.
 
 ### F-029.4 `sbretire portfolio frontier`
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-029.3
 
 The command, the summary with its caveats, and the three CSVs. §2 #9.
@@ -182,9 +185,10 @@ The command, the summary with its caveats, and the three CSVs. §2 #9.
 
 **Notes**
 2026-10-18 ReturnsReport gains max_weight, holding_values, series_holdings; frontier.py FrontierReport, build_frontier (within-account achieved mix, per-account fee converted to GBP, warnings for over-cap weights and missing trading costs), write_frontier_csvs, format_frontier; `sbretire portfolio frontier` (shared _risk_free); tests/unit/test_frontier_cli.py. The CSV rounds costs to the penny, so the cost check compares within half a penny (test edited before green; same formula).
+2026-10-18 /verify PASS: CLI output, caveats, CSV headers/rows, caps, household sum 0; half-penny tolerance judged justified (CSV rounds to pennies); USD fees converted. Note: with no USD rate a USD account's fee would be 0, but valuing a USD account already requires the rate.
 
 ### F-029.5 Docs and a local run
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-029.4
 
 What to write and run:
@@ -200,6 +204,7 @@ What to write and run:
 
 **Notes**
 2026-10-18 README 'Efficient frontier and re-weighting (analysis, not advice)', config/securities.example.yaml max_weight, config/accounts.example.yaml trading (both load), THESAURUS (Efficient Frontier, Priced Sleeve, Target Mix; 48 terms sorted), docs/decisions/portfolio-data.md §21–§24. Real run: 'needs at least 2 priced series ... (found 0)', exit 2.
+2026-10-18 /verify PASS: README and decisions §21–§24; 48 THESAURUS terms sorted; example settings load; real run exit 2 'at least 2 priced series ... (found 0)'; clean tree.
 
 ## 11. Open Questions
 
