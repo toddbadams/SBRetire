@@ -1,0 +1,18 @@
+HL SIPP, , , ,
+Client Name:,Example Person, , ,
+Client Number:, 1234, , ,
+Spreadsheet created at,17-10-2026 09:15, , ,
+
+Stock value:,"23,456.79", , ,
+Total cash:,"543.21", , ,
+Amount available to invest:,"500.00", , ,
+Total value:,"24,000.00", , ,
+
+Code,Stock,Units held,Price (pence),Value (£),Cost (£),Gain/loss (£),Gain/loss (%),
+"EXA","Example Corp, Inc. Com Stk USD0.01 *1 *R","100","15,000.00","15,000.00","12,000.00","3,000.00","25.00"
+"EXG","Example Global Equity UCITS ETF USD Acc *1","1,250","676.5432","8,456.79","8,000.00","456.79","5.71"
+
+"Shares are valued at the bid-price, delayed by 15 minutes. Funds are valued at the most recent bid-price."
+"*1 The price shown is at the close of the last business day."
+"*R This price has been converted to sterling at the rate shown below."
+"  - US and Canadian stocks: 1.3400USD to 100 pence. Exchange rate correct at 16/10/2026"

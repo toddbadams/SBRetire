@@ -2,7 +2,7 @@
 id: F-025
 type: feature
 parent: portfolio-analysis
-status: planned
+status: in-progress
 complexity: 5
 created: 2026-10-18
 updated: 2026-10-18
@@ -157,7 +157,7 @@ def format_valuation(valuation: Valuation, accounts: Sequence[AccountConfig]) ->
 ## 10. Tasks
 
 ### F-025.1 Holding model, Schwab and HL holdings
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: —
 
 `ledger/holdings.py`, `AccountConfig.holdings_filter`, `parsers/schwab.py::parse_holdings` (title date, cash row,

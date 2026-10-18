@@ -69,3 +69,7 @@ def parse(path: Path, account: AccountConfig) -> list[LedgerRow]:
             )
         )
     return rows
+
+
+def parse_holdings(path: Path, account: AccountConfig) -> object:
+    raise NotImplementedError

@@ -6,7 +6,7 @@ spec_sections: [§4.2]
 depends_on: [results-viewer]
 milestones:
   - { id: F-024, title: Account Import and Normalised Ledger, status: done }
-  - { id: F-025, title: Holdings Valuation and Starting Balance, status: briefed }
+  - { id: F-025, title: Holdings Valuation and Starting Balance, status: in-progress }
   - { id: F-026, title: Price History and Monthly Returns, status: proposed }
   - { id: F-027, title: Performance and Drawdown Report, status: proposed }
   - { id: F-028, title: Sector and Region Look-Through, status: proposed }
