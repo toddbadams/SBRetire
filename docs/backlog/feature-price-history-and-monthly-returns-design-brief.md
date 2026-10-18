@@ -151,7 +151,7 @@ def coverage(...) -> Coverage: ...  # full / short / gaps / missing, with GBP va
 ## 10. Tasks
 
 ### F-026.1 Securities map and price files
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: —
 
 `ledger/prices.py`: `load_securities`, `read_price_file` (Yahoo daily/monthly, minimal with optional `Dividend`,
@@ -163,9 +163,10 @@ def coverage(...) -> Coverage: ...  # full / short / gaps / missing, with GBP va
 
 **Notes**
 2026-10-18 ledger/prices.py (SeriesConfig, SecuritiesConfig, load_securities with duplicate-id and mapped-twice checks, PriceFile/MonthEnd, read_price_file: Adj Close / Close+Dividend / Close, last row per month, null rows skipped, SHA-256), config/securities.example.yaml, tests/fixtures/prices/ (3 files); tests/unit/test_prices_files.py (2).
+2026-10-18 /verify PASS: test_prices_files.py 2 passed; exact locations per rejection; last row per month and null-row skip really exercised; SHA-256 checked; fixtures synthetic; ruff/mypy clean; no network imports.
 
 ### F-026.2 Monthly GBP total returns
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-026.1
 
 `ledger/returns.py`: `window`, `gbp_returns` (§2 #4–#6).
@@ -175,9 +176,10 @@ def coverage(...) -> Coverage: ...  # full / short / gaps / missing, with GBP va
 
 **Notes**
 2026-10-18 ledger/returns.py (MonthlyReturn, add_months, window, gbp_returns: GBX ÷ 100, USD via the FX series, dividends, missing months give no value and no return into or out of them); tests/unit/test_returns_gbp.py (closed-form cases).
+2026-10-18 /verify PASS: test_returns_gbp.py passed; every AC case closed-form; gbp_returns matches (P_t+D_t)X_t/(P_{t-1}X_{t-1})-1, USD without FX raises; ruff/mypy clean.
 
 ### F-026.3 Coverage and `sbretire portfolio returns`
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-026.2
 
 Coverage (full, short, gaps, missing, with value shares from the valuation), `returns.csv`,
@@ -189,9 +191,10 @@ Coverage (full, short, gaps, missing, with value shares from the valuation), `re
 
 **Notes**
 2026-10-18 ledger/returns.py (CoverageRow, ReturnsReport, build_returns: value shares of invested (non-cash) value, full/short/gaps/missing, USD rate from --usd-gbp or the FX file's latest month-end, a missing securities.yaml reports every holding missing; write_returns_csv, write_returns_metadata, format_returns), `sbretire portfolio returns` in __main__.py; tests/unit/test_returns_coverage.py (3). Real holdings with no price files yet: 36 holdings listed missing, exit 0.
+2026-10-18 /verify PASS: test_returns_coverage.py 3 passed; every class produced by the data; share hand-checked 0.119311, sum 1.0; CSV/metadata/exit codes asserted; reads only data/prices, writes only the output dir; ruff/mypy clean.
 
 ### F-026.4 Docs and a local run
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-026.3
 
 README section (getting Yahoo files, `securities.yaml`, the command), THESAURUS (Price Series, Monthly Return),
@@ -203,6 +206,7 @@ README section (getting Yahoo files, `securities.yaml`, the command), THESAURUS 
 
 **Notes**
 2026-10-18 README 'Price history and monthly returns' (Yahoo downloads, GBP=X, securities.yaml, coverage), THESAURUS (Monthly Return, Price Series; 40 terms, sorted), docs/decisions/portfolio-data.md §11–§14. Real holdings run (`--usd-gbp 0.7503`, no price files yet): every holding listed missing with its share, exit 0.
+2026-10-18 /verify PASS: README/decisions grep hits, §11–§14; 40 THESAURUS terms sorted with 40 definitions; real run exit 0 with 37 holdings all missing, no errors; data/prices ignored; clean tree.
 
 ## 11. Open Questions
 
