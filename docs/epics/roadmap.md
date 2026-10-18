@@ -1,6 +1,6 @@
 # SBRetire V1 Roadmap
 
-**Last updated**: 2026-10-18 — F-025 Holdings Valuation and Starting Balance delivered.
+**Last updated**: 2026-10-18 — F-026 Price History and Monthly Returns delivered.
 
 Features in build order. Status: `proposed` → `briefed` → `in-progress` → `done` (or `superseded`). Briefs live in `docs/backlog/`; tasks are inside each brief.
 
@@ -21,7 +21,7 @@ Features in build order. Status: `proposed` → `briefed` → `in-progress` → 
 | F-023 | Print and PDF | [results-viewer](results-viewer.md) | F-022 | in-progress |
 | F-024 | Account Import and Normalised Ledger | [portfolio-analysis](portfolio-analysis.md) | — | done |
 | F-025 | Holdings Valuation and Starting Balance | [portfolio-analysis](portfolio-analysis.md) | F-024 | done |
-| F-026 | Price History and Monthly Returns | [portfolio-analysis](portfolio-analysis.md) | F-024 | in-progress |
+| F-026 | Price History and Monthly Returns | [portfolio-analysis](portfolio-analysis.md) | F-024 | done |
 | F-027 | Performance and Drawdown Report | [portfolio-analysis](portfolio-analysis.md) | F-025, F-026 | proposed |
 | F-028 | Sector and Region Look-Through | [portfolio-analysis](portfolio-analysis.md) | F-025 | proposed |
 | F-029 | Sharpe Efficient Frontier and Re-Weighting Analysis | [portfolio-analysis](portfolio-analysis.md) | F-026, F-027 | proposed |
@@ -122,6 +122,7 @@ Unmapped requirements: **none**.
 
 ## Change Log
 
+- 2026-10-18 — F-026 done: `sbretire portfolio returns` reads user-supplied price files (Yahoo downloads or Date,Close[,Dividend]) mapped by `data/prices/securities.yaml`, writes 60 monthly GBP total returns per series (`returns.csv`, `returns_metadata.json` with SHA-256) and a coverage report with value shares; decisions portfolio-data §11–§14.
 - 2026-10-18 — F-026 briefed: tasks F-026.1…F-026.4 (securities.yaml and Yahoo-style price files, monthly GBP total returns over 60 months, coverage report, `sbretire portfolio returns`).
 - 2026-10-18 — F-025 done: `sbretire portfolio value --usd-gbp R` values the newest month folder's holdings exports (self-checked against each provider's totals; ii cash from its running balance; per-account valuation dates) and prints the household `starting_balance` line; `output/portfolio/holdings.csv`; decisions portfolio-data §7–§10.
 - 2026-10-18 — F-025 briefed: tasks F-025.1…F-025.4 (holdings parsers with self-checks, ii cash from the ledger, `--usd-gbp`, per-account valuation dates, `sbretire portfolio value` and `holdings.csv`).
