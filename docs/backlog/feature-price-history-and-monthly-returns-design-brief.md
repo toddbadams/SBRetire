@@ -140,18 +140,24 @@ def coverage(...) -> Coverage: ...  # full / short / gaps / missing, with GBP va
 
 ## 9. Surprises
 
+- 2026-10-18 — F-026.1: pydantic reports a list whose only item failed as also "too short" (0 items after
+  validation); `load_securities` drops that error when a deeper error under the same field explains it.
+
 ## 10. Tasks
 
 ### F-026.1 Securities map and price files
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: —
 
 `ledger/prices.py`: `load_securities`, `read_price_file` (Yahoo daily/monthly, minimal with optional `Dividend`,
 `null` rows skipped, last row per month, basis, SHA-256), `config/securities.example.yaml`. §2 #1–#3.
 
 **Acceptance criteria**
-- [ ] `load_securities` accepts the example and rejects an unknown quote, a duplicate id, a holding mapped twice and an unknown key, each with its YAML location — `test_load_securities_validates`
-- [ ] Synthetic Yahoo daily and monthly files and a minimal file with dividends read to the same hand-checked month-ends, with basis `adjusted`, `adjusted` and `dividends`, null rows skipped and the file's SHA-256 — `test_read_price_file_layouts_to_month_ends`
+- [x] `load_securities` accepts the example and rejects an unknown quote, a duplicate id, a holding mapped twice and an unknown key, each with its YAML location — `test_load_securities_validates`
+- [x] Synthetic Yahoo daily and monthly files and a minimal file with dividends read to the same hand-checked month-ends, with basis `adjusted`, `adjusted` and `dividends`, null rows skipped and the file's SHA-256 — `test_read_price_file_layouts_to_month_ends`
+
+**Notes**
+2026-10-18 ledger/prices.py (SeriesConfig, SecuritiesConfig, load_securities with duplicate-id and mapped-twice checks, PriceFile/MonthEnd, read_price_file: Adj Close / Close+Dividend / Close, last row per month, null rows skipped, SHA-256), config/securities.example.yaml, tests/fixtures/prices/ (3 files); tests/unit/test_prices_files.py (2).
 
 ### F-026.2 Monthly GBP total returns
 - **Status**: To Do
