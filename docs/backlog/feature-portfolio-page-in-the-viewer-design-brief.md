@@ -174,7 +174,7 @@ Save as PDF and print rules. §2 #1, #7–#9.
 2026-10-18 src/sbretire/web/portfolio/{portfolio.html,portfolio-view.css,portfolio-view.js}: every §2 #7 section with an unavailable state, SVG frontier (shapes per mix, CML clipped to the plot), dumbbell, growth/underwater/rolling lines, heatmaps (value always printed; tint via color-mix of chart tokens), income bars, sortable holdings, caveats; theme toggle, Save as PDF, print keep-together, own @page header. Browser check (local http.server on output/, .claude/launch.json 'output-pages'): full synthetic sample and the nothing-priced sample render every section in light and dark with no console errors; fixed during the check: inline bar fills had zero width, masthead overflow, crowded small-chart ticks, labels clipped at the right edge.
 
 ### F-030.4 Design sample, nav, docs and a real run
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-030.3
 
 What to build:
