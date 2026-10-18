@@ -2,7 +2,7 @@
 id: F-030
 type: feature
 parent: portfolio-analysis
-status: planned
+status: in-progress
 complexity: 8
 created: 2026-10-18
 updated: 2026-10-18
@@ -134,7 +134,7 @@ def write_portfolio_files(
 ## 10. Tasks
 
 ### F-030.1 Extras for the page
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: —
 
 `drawdown_episodes`, `calendar`, `correlation`, `risk_contribution`, `income_by_month`. §2 #4.
