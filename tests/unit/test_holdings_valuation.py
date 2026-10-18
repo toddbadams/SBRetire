@@ -75,7 +75,7 @@ def test_value_holdings_totals_dates_and_fx(tmp_path: Path) -> None:
     }
     assert by_account.keys() == expected.keys()
     for account, (securities, cash) in expected.items():
-        assert by_account[account] == (pytest.approx(securities), pytest.approx(cash))
+        assert by_account[account] == pytest.approx((securities, cash))
     assert valuation.by_owner() == {"person_1": pytest.approx(33644.67), "person_2": pytest.approx(126620.94)}
     assert valuation.total_gbp() == pytest.approx(160265.61)
 
@@ -84,8 +84,9 @@ def test_value_holdings_totals_dates_and_fx(tmp_path: Path) -> None:
     isa_files = {h.source_file for h in valuation.holdings if h.account == "isa"}
     assert isa_files == {"oct-26/vanguard-holdings.csv.csv"}
     assert valuation.warnings == []  # HL states 1.34 USD per pound (0.7463), within 2% of 0.75
-    hl_rate = ("oct-26/hl-account-summary.csv", pytest.approx(1 / 1.34), date(2026, 10, 16))
-    assert valuation.stated_fx == [hl_rate]
+    [(source, rate, stated_on)] = valuation.stated_fx
+    assert (source, stated_on) == ("oct-26/hl-account-summary.csv", date(2026, 10, 16))
+    assert rate == pytest.approx(1 / 1.34)
 
     assert any("2%" in warning for warning in value_holdings(folder, exports, usd_gbp=0.80).warnings)
     early = [
@@ -126,8 +127,8 @@ def test_cli_portfolio_value(tmp_path: Path, capsys: pytest.CaptureFixture[str])
     assert "oct-26/hl-account-summary.csv states 0.7463 GBP per USD on 2026-10-16" in printed
     assert "brokerage" in printed and "2026-10-18" in printed and "9,644.67" in printed
     assert "sipp_2" in printed and "2026-10-18 (assumed)" in printed and "100,610.01" in printed
-    assert "person_1: £33,644.67" in printed and "person_2: £126,620.94" in printed
-    assert "Household total: £160,265.61" in printed
+    assert "person_1: 33,644.67 GBP" in printed and "person_2: 126,620.94 GBP" in printed
+    assert "Household total: 160,265.61 GBP" in printed
     pasted = (
         "portfolio:\n  starting_balance: 160266  # sbretire portfolio value: oct-26, 2026-10-17 to 2026-10-18"
     )

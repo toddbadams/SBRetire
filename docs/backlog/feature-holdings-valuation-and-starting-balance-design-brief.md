@@ -147,6 +147,11 @@ def format_valuation(valuation: Valuation, accounts: Sequence[AccountConfig]) ->
 
 - 2026-10-18 — §2 #2 and #3 from the user's answers (`--usd-gbp` flag; per-account dates, ii assumed, 7-day
   warning). The rest by me from the epic and the export layouts.
+- 2026-10-18 — F-025.3: where an account's pattern matches several files in the folder, the last by name is used
+  (provider names carry the date and time). Any export without a cash line takes its cash from the account's
+  transactions in the same folder (only ii today). A holdings file read by two accounts needs `holdings_filter`
+  on each. Amounts print as `1,234.56 GBP`, like the rest of the CLI, not with `£` (the test's expected text was
+  changed to match; the figures are unchanged).
 
 ## 9. Surprises
 
@@ -193,7 +198,7 @@ row from the ledger's latest stated balance. §2 #4, #5, #7.
 2026-10-18 parsers/vanguard.py::parse_holdings (holdings_filter on Product Wrapper, GBP Cash rows), parsers/ii.py::parse_holdings (Market Value (£), price = value / quantity, no date) and cash_from_transactions (newest stated running balance); holdings_filter added to config/accounts.example.yaml; tests/unit/test_holdings_vanguard_ii.py (2). Real Vanguard ISA/pension and ii holdings parse.
 
 ### F-025.3 Valuation, holdings.csv and `sbretire portfolio value`
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-025.2
 
 `ledger/valuation.py` and the `portfolio value` command: newest folder, missing-export error, date assignment and
@@ -201,8 +206,11 @@ spread warning, `--usd-gbp` conversion with the stated-rate check, totals, YAML 
 #9, #10.
 
 **Acceptance criteria**
-- [ ] With two synthetic month folders only the newest is valued; account, person and household GBP totals equal hand sums with USD at the given rate; ii's date is the newest stated date and marked assumed; dates over 7 days apart and a stated rate more than 2% from `--usd-gbp` each warn — `test_value_holdings_totals_dates_and_fx`
-- [ ] `sbretire portfolio value` prints the per-account table, per-person totals, the household total and the `starting_balance` line, and writes `holdings.csv` (UTF-8, LF, columns); without `--usd-gbp` for a USD account, or with an account missing its export, it exits 2 with the reason — `test_cli_portfolio_value`
+- [x] With two synthetic month folders only the newest is valued; account, person and household GBP totals equal hand sums with USD at the given rate; ii's date is the newest stated date and marked assumed; dates over 7 days apart and a stated rate more than 2% from `--usd-gbp` each warn — `test_value_holdings_totals_dates_and_fx`
+- [x] `sbretire portfolio value` prints the per-account table, per-person totals, the household total and the `starting_balance` line, and writes `holdings.csv` (UTF-8, LF, columns); without `--usd-gbp` for a USD account, or with an account missing its export, it exits 2 with the reason — `test_cli_portfolio_value`
+
+**Notes**
+2026-10-18 ledger/valuation.py (read_holdings: newest folder, missing-export and shared-file checks, cash from transactions where an export has none; value_holdings: assumed dates, USD rate, 7-day and 2% warnings; Valuation totals; holdings.csv; format_valuation), `sbretire portfolio value` in __main__.py; tests/unit/test_holdings_valuation.py (3). Real October run at 0.7503: 42 rows, five accounts, exit 0.
 
 ### F-025.4 Docs and the real October run
 - **Status**: To Do

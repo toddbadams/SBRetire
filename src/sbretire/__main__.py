@@ -7,6 +7,8 @@ Subcommands:
     run       Monte Carlo: success metrics for the configured Budget + run_metadata.json (F-009)
     portfolio import
               read the monthly account exports into one ledger, output/portfolio/ledger.csv (F-024)
+    portfolio value
+              value the newest month's holdings in GBP: the starting_balance line and holdings.csv (F-025)
 """
 
 from __future__ import annotations
@@ -21,10 +23,18 @@ from sbretire import __version__
 from sbretire.config import LoadedScenario, Scenario, ScenarioError, ScenarioIssue, load_scenario
 from sbretire.inflation import inflation_coverage_issues, inflation_data_file_record
 from sbretire.inputs_report import format_inputs, scenario_input_rows, write_inputs_csv
-from sbretire.ledger.accounts import load_accounts
+from sbretire.ledger.accounts import AccountConfig, load_accounts
+from sbretire.ledger.holdings import HoldingsError
 from sbretire.ledger.merge import merge_exports, read_exports
 from sbretire.ledger.model import UnknownTransaction
 from sbretire.ledger.report import format_account_summary, reconciliation_problems, write_ledger_csv
+from sbretire.ledger.valuation import (
+    ValuationError,
+    format_valuation,
+    read_holdings,
+    value_holdings,
+    write_holdings_csv,
+)
 from sbretire.metadata import build_run_metadata, write_run_metadata
 from sbretire.metrics import SuccessMetrics
 from sbretire.monte_carlo import draw_random_inputs, run_monte_carlo
@@ -111,16 +121,36 @@ def build_parser() -> argparse.ArgumentParser:
     imports = portfolio_commands.add_parser(
         "import", help="read every month folder's transaction exports into output/portfolio/ledger.csv"
     )
-    imports.add_argument(
-        "--root", type=Path, default=Path("data/transactions"), help="folder holding the <mon>-<yy> folders"
+    value = portfolio_commands.add_parser(
+        "value", help="value the newest month folder's holdings: the household starting_balance"
     )
-    imports.add_argument(
-        "--accounts", type=Path, default=Path("config/accounts.yaml"), help="accounts YAML file"
-    )
-    imports.add_argument(
-        "--output-dir", type=Path, default=Path("output"), help="ledger goes to <dir>/portfolio/"
+    for sub, written in ((imports, "ledger.csv"), (value, "holdings.csv")):
+        sub.add_argument(
+            "--root", type=Path, default=Path("data/transactions"), help="folder of <mon>-<yy> folders"
+        )
+        sub.add_argument(
+            "--accounts", type=Path, default=Path("config/accounts.yaml"), help="accounts YAML file"
+        )
+        sub.add_argument(
+            "--output-dir", type=Path, default=Path("output"), help=f"{written} goes to <dir>/portfolio/"
+        )
+    value.add_argument(
+        "--usd-gbp",
+        type=_positive_rate,
+        metavar="RATE",
+        help="GBP per USD for USD accounts (e.g. 0.7450); required when any account is in USD",
     )
     return parser
+
+
+def _positive_rate(text: str) -> float:
+    try:
+        rate = float(text)
+    except ValueError:
+        rate = math.nan
+    if not math.isfinite(rate) or rate <= 0:
+        raise argparse.ArgumentTypeError(f"expected a positive number of GBP per USD (got {text!r})")
+    return rate
 
 
 def _death_ages(text: str) -> tuple[int, int]:
@@ -164,13 +194,9 @@ def _load(config: Path, *, require_data_files: bool) -> LoadedScenario | int:
 
 def _portfolio_import(args: argparse.Namespace) -> int:
     """``sbretire portfolio import``: exit 0 clean, 1 unreadable or not reconciled, 2 invalid."""
-    try:
-        accounts = load_accounts(args.accounts)
-    except OSError as exc:
-        print(f"error: cannot read {args.accounts}: {exc.strerror or exc}", file=sys.stderr)
-        return EXIT_FAILURE
-    except ScenarioError as exc:
-        return _report(args.accounts, exc.issues)
+    accounts = _load_accounts(args.accounts)
+    if isinstance(accounts, int):
+        return accounts
     try:
         exports = read_exports(args.root, accounts)
     except OSError as exc:
@@ -187,6 +213,37 @@ def _portfolio_import(args: argparse.Namespace) -> int:
     write_ledger_csv(rows, ledger)
     print(f"ledger: {ledger} ({len(rows)} rows)")
     return EXIT_FAILURE if reconciliation_problems(exports) else EXIT_OK
+
+
+def _portfolio_value(args: argparse.Namespace) -> int:
+    """``sbretire portfolio value``: exit 0 valued, 1 unreadable, 2 invalid (export, rate or totals)."""
+    accounts = _load_accounts(args.accounts)
+    if isinstance(accounts, int):
+        return accounts
+    try:
+        folder, exports = read_holdings(args.root, accounts)
+        valuation = value_holdings(folder, exports, args.usd_gbp)
+    except OSError as exc:
+        print(f"error: cannot read {args.root}: {exc.strerror or exc}", file=sys.stderr)
+        return EXIT_FAILURE
+    except (HoldingsError, UnknownTransaction, ValuationError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return EXIT_INVALID
+    print(format_valuation(valuation, accounts))
+    holdings = args.output_dir / "portfolio" / "holdings.csv"
+    write_holdings_csv(valuation, holdings)
+    print(f"holdings: {holdings} ({len(valuation.holdings)} rows)")
+    return EXIT_OK
+
+
+def _load_accounts(path: Path) -> list[AccountConfig] | int:
+    try:
+        return load_accounts(path)
+    except OSError as exc:
+        print(f"error: cannot read {path}: {exc.strerror or exc}", file=sys.stderr)
+        return EXIT_FAILURE
+    except ScenarioError as exc:
+        return _report(path, exc.issues)
 
 
 def _report(config: Path, issues: Sequence[ScenarioIssue]) -> int:
@@ -221,7 +278,7 @@ def _summary(config: Path, loaded: LoadedScenario) -> str:
 def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     if args.command == "portfolio":
-        return _portfolio_import(args)
+        return _portfolio_import(args) if args.portfolio_command == "import" else _portfolio_value(args)
     require_data_files = args.command == "run" or getattr(args, "require_data_files", False)
     loaded = _load(args.config, require_data_files=require_data_files)
     if isinstance(loaded, int):
