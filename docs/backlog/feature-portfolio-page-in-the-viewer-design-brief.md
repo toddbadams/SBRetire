@@ -160,7 +160,7 @@ page copy (a skeleton page). §2 #2, #3, #5, #6, #10.
 2026-10-18 ledger/document.py (ReportOptions, build_portfolio_document: valuation always, each analysis or {available: false, reason}; write_portfolio_files: json, js with </ escaped, page files), schemas/portfolio.schema.json 1.0, skeleton src/sbretire/web/portfolio/*, `sbretire portfolio report` (options shared with exposure/frontier); tests/unit/test_portfolio_document.py (2; one assertion rewritten for typing only).
 
 ### F-030.3 The Portfolio page
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-030.2
 
 `portfolio.html`, `portfolio-view.css` and `portfolio-view.js` for every section in §2 #7, plus the theme toggle,
