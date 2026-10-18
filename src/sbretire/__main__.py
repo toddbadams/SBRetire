@@ -9,6 +9,8 @@ Subcommands:
               read the monthly account exports into one ledger, output/portfolio/ledger.csv (F-024)
     portfolio value
               value the newest month's holdings in GBP: the starting_balance line and holdings.csv (F-025)
+    portfolio returns
+              monthly GBP total returns from data/prices and their coverage of the holdings (F-026)
 """
 
 from __future__ import annotations
@@ -27,7 +29,9 @@ from sbretire.ledger.accounts import AccountConfig, load_accounts
 from sbretire.ledger.holdings import HoldingsError
 from sbretire.ledger.merge import merge_exports, read_exports
 from sbretire.ledger.model import UnknownTransaction
+from sbretire.ledger.prices import PriceFileError
 from sbretire.ledger.report import format_account_summary, reconciliation_problems, write_ledger_csv
+from sbretire.ledger.returns import build_returns, format_returns, write_returns_csv, write_returns_metadata
 from sbretire.ledger.valuation import (
     ValuationError,
     format_valuation,
@@ -124,7 +128,10 @@ def build_parser() -> argparse.ArgumentParser:
     value = portfolio_commands.add_parser(
         "value", help="value the newest month folder's holdings: the household starting_balance"
     )
-    for sub, written in ((imports, "ledger.csv"), (value, "holdings.csv")):
+    returns = portfolio_commands.add_parser(
+        "returns", help="monthly GBP total returns from data/prices and their coverage of the holdings"
+    )
+    for sub, written in ((imports, "ledger.csv"), (value, "holdings.csv"), (returns, "returns.csv")):
         sub.add_argument(
             "--root", type=Path, default=Path("data/transactions"), help="folder of <mon>-<yy> folders"
         )
@@ -140,7 +147,25 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="RATE",
         help="GBP per USD for USD accounts (e.g. 0.7450); required when any account is in USD",
     )
+    returns.add_argument(
+        "--prices", type=Path, default=Path("data/prices"), help="folder with securities.yaml and price files"
+    )
+    returns.add_argument(
+        "--months", type=_positive_months, default=60, help="monthly returns ending last month (default 60)"
+    )
+    returns.add_argument(
+        "--usd-gbp",
+        type=_positive_rate,
+        metavar="RATE",
+        help="GBP per USD for value shares (default: the FX price file's latest month-end)",
+    )
     return parser
+
+
+def _positive_months(text: str) -> int:
+    if not text.isdigit() or int(text) < 1:
+        raise argparse.ArgumentTypeError(f"expected a whole number of months, at least 1 (got {text!r})")
+    return int(text)
 
 
 def _positive_rate(text: str) -> float:
@@ -236,6 +261,30 @@ def _portfolio_value(args: argparse.Namespace) -> int:
     return EXIT_OK
 
 
+def _portfolio_returns(args: argparse.Namespace) -> int:
+    """``sbretire portfolio returns``: exit 0 written (gaps reported), 1 unreadable, 2 invalid."""
+    accounts = _load_accounts(args.accounts)
+    if isinstance(accounts, int):
+        return accounts
+    securities = args.prices / "securities.yaml"
+    try:
+        report = build_returns(args.root, accounts, args.prices, args.months, args.usd_gbp)
+    except OSError as exc:
+        print(f"error: cannot read {exc.filename or args.prices}: {exc.strerror or exc}", file=sys.stderr)
+        return EXIT_FAILURE
+    except ScenarioError as exc:
+        return _report(securities, exc.issues)
+    except (HoldingsError, PriceFileError, UnknownTransaction, ValueError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return EXIT_INVALID
+    print(format_returns(report))
+    folder = args.output_dir / "portfolio"
+    write_returns_csv(report, folder / "returns.csv")
+    write_returns_metadata(report, folder / "returns_metadata.json")
+    print(f"returns: {folder / 'returns.csv'} ({len(report.returns)} rows); metadata: returns_metadata.json")
+    return EXIT_OK
+
+
 def _load_accounts(path: Path) -> list[AccountConfig] | int:
     try:
         return load_accounts(path)
@@ -278,7 +327,8 @@ def _summary(config: Path, loaded: LoadedScenario) -> str:
 def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     if args.command == "portfolio":
-        return _portfolio_import(args) if args.portfolio_command == "import" else _portfolio_value(args)
+        handlers = {"import": _portfolio_import, "value": _portfolio_value, "returns": _portfolio_returns}
+        return handlers[args.portfolio_command](args)
     require_data_files = args.command == "run" or getattr(args, "require_data_files", False)
     loaded = _load(args.config, require_data_files=require_data_files)
     if isinstance(loaded, int):

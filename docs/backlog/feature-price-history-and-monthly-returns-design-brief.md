@@ -137,6 +137,11 @@ def coverage(...) -> Coverage: ...  # full / short / gaps / missing, with GBP va
 
 - 2026-10-18 — §2 #1 and #7 from the user's answers (Yahoo-style files; report missing and exit 0). The rest by me
   from the epic.
+- 2026-10-18 — F-026.3: value shares are of the **invested** (non-cash) value, since cash has no price series;
+  F-027/F-029 decide how cash enters returns. A USD series whose FX file is absent is reported missing rather
+  than stopping. A missing `securities.yaml` is treated as an empty map (every holding missing, with a hint), so
+  the first run already shows what to price. Without an FX file, USD shares need `--usd-gbp` (exit 2 otherwise,
+  from the valuation).
 
 ## 9. Surprises
 
@@ -172,15 +177,18 @@ def coverage(...) -> Coverage: ...  # full / short / gaps / missing, with GBP va
 2026-10-18 ledger/returns.py (MonthlyReturn, add_months, window, gbp_returns: GBX ÷ 100, USD via the FX series, dividends, missing months give no value and no return into or out of them); tests/unit/test_returns_gbp.py (closed-form cases).
 
 ### F-026.3 Coverage and `sbretire portfolio returns`
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-026.2
 
 Coverage (full, short, gaps, missing, with value shares from the valuation), `returns.csv`,
 `returns_metadata.json`, the command. §2 #5–#9.
 
 **Acceptance criteria**
-- [ ] On synthetic holdings and price files, coverage classes each holding as full, short (with its first month), gappy or missing, with GBP value shares that sum to 100%; holdings sharing one series are grouped — `test_coverage_classifies_holdings`
-- [ ] `sbretire portfolio returns` writes `returns.csv` (UTF-8, LF, columns) and `returns_metadata.json` (window, SHA-256 per file), prints the coverage report and exits 0 with missing files; an invalid map exits 2 with its location — `test_cli_portfolio_returns`
+- [x] On synthetic holdings and price files, coverage classes each holding as full, short (with its first month), gappy or missing, with GBP value shares that sum to 100%; holdings sharing one series are grouped — `test_coverage_classifies_holdings`
+- [x] `sbretire portfolio returns` writes `returns.csv` (UTF-8, LF, columns) and `returns_metadata.json` (window, SHA-256 per file), prints the coverage report and exits 0 with missing files; an invalid map exits 2 with its location — `test_cli_portfolio_returns`
+
+**Notes**
+2026-10-18 ledger/returns.py (CoverageRow, ReturnsReport, build_returns: value shares of invested (non-cash) value, full/short/gaps/missing, USD rate from --usd-gbp or the FX file's latest month-end, a missing securities.yaml reports every holding missing; write_returns_csv, write_returns_metadata, format_returns), `sbretire portfolio returns` in __main__.py; tests/unit/test_returns_coverage.py (3). Real holdings with no price files yet: 36 holdings listed missing, exit 0.
 
 ### F-026.4 Docs and a local run
 - **Status**: To Do
