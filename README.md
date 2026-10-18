@@ -443,6 +443,37 @@ Options: `--root` (default `data/transactions`), `--accounts` (default `config/a
   `src/sbretire/ledger/parsers/`.
 - Rows keep their own currency (Schwab in USD). Columns, signs and flows: `docs/decisions/portfolio-data.md` §4.
 
+### Valuing the holdings: `starting_balance`
+
+Each month, also save every account's holdings (positions) export into the same `<mon>-<yy>` folder; the
+`holdings` patterns in `config/accounts.yaml` find them. For Vanguard's one holdings file covering both wrappers,
+`holdings_filter` (`Stocks & Shares ISA` or `Personal Pension`) gives each account its own rows. Then:
+
+```bash
+uv run sbretire portfolio value --usd-gbp 0.7450
+```
+
+- It values the **newest** month folder only. `--usd-gbp` is GBP per US dollar and is required while any account
+  is in USD; HL's export states its own rate (printed for comparison, with a warning if yours differs by more than
+  2%).
+- Each account is valued at its export's own date; ii's file has no date, so it takes the newest date the other
+  exports state and is shown "(assumed)". A warning appears if the dates span more than 7 days.
+- Cash is included: Schwab's cash line, HL's "Total cash", Vanguard's "GBP Cash" rows, and for ii the latest
+  running balance in its transactions export.
+- Each export is checked against its own totals (Schwab "Positions Total"; HL "Stock value", the Totals row and
+  "Total value"); a mismatch stops with exit 2.
+- It prints a table by account, totals by person and for the household, and the line to paste into
+  `config/model.yaml` (it never edits the file):
+
+```yaml
+portfolio:
+  starting_balance: 1234567  # sbretire portfolio value: oct-26, 2026-10-17 to 2026-10-18
+```
+
+  It also writes `output/portfolio/holdings.csv`: one row per holding or cash line with its value in the account's
+  currency, the rate used and the GBP value. Exit 0: valued; 1: a file cannot be read; 2: a missing export, a
+  missing `--usd-gbp`, or totals that do not add up.
+
 ## Development
 
 **VS Code:** open the `C:\sb\SBRetire` folder and accept the recommended extensions (Python, Ruff, Mypy). The

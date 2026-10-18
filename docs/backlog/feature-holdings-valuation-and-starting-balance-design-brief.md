@@ -213,15 +213,18 @@ spread warning, `--usd-gbp` conversion with the stated-rate check, totals, YAML 
 2026-10-18 ledger/valuation.py (read_holdings: newest folder, missing-export and shared-file checks, cash from transactions where an export has none; value_holdings: assumed dates, USD rate, 7-day and 2% warnings; Valuation totals; holdings.csv; format_valuation), `sbretire portfolio value` in __main__.py; tests/unit/test_holdings_valuation.py (3). Real October run at 0.7503: 42 rows, five accounts, exit 0.
 
 ### F-025.4 Docs and the real October run
-- **Status**: To Do
+- **Status**: Verification
 - **Depends on**: F-025.3
 
 README section, THESAURUS (Holding, Valuation Date), `docs/decisions/portfolio-data.md` §7–§10 from §2,
 `config/accounts.example.yaml` `holdings_filter` entries; run on the real exports locally.
 
 **Acceptance criteria**
-- [ ] README documents `portfolio value`, `--usd-gbp` and the pasted line; THESAURUS defines Holding and Valuation Date; decisions recorded — `check: grep -n "portfolio value" README.md docs/decisions/portfolio-data.md`
-- [ ] The real October 2026 exports value without error, every self-check passes, and the household total is printed (run locally; never committed) — `check: uv run sbretire portfolio value --usd-gbp <rate>`
+- [x] README documents `portfolio value`, `--usd-gbp` and the pasted line; THESAURUS defines Holding and Valuation Date; decisions recorded — `check: grep -n "portfolio value" README.md docs/decisions/portfolio-data.md`
+- [x] The real October 2026 exports value without error, every self-check passes, and the household total is printed (run locally; never committed) — `check: uv run sbretire portfolio value --usd-gbp <rate>`
+
+**Notes**
+2026-10-18 README 'Valuing the holdings: starting_balance' (example figures only), THESAURUS (Holding, Valuation Date), docs/decisions/portfolio-data.md §7–§10, holdings_filter in config/accounts.example.yaml (F-025.2). Real October run: `sbretire portfolio value --usd-gbp 0.7503` (HL's stated rate) exit 0, every self-check passed, household total printed; personal config/accounts.yaml gained holdings_filter (git-ignored).
 
 ## 11. Open Questions
 

@@ -82,6 +82,12 @@ suffix, bare unqualified `Service`, `confidence interval` (for success probabili
 - **Synonyms to AVOID**: legacy, bequest, safety margin
 - **Related terms**: Maximum Sustainable Budget, Household End, Budget
 
+### Holding
+- **Definition**: One security or cash line of an Account's holdings export at its Valuation Date: quantity, price and value in the account's currency (`output/portfolio/holdings.csv`, portfolio-data §7). Cash is a holding of kind `cash`.
+- **NOT**: A Ledger row (a transaction), or the model's `portfolio` (the whole household balance).
+- **Synonyms to AVOID**: position (fine in prose for securities), asset
+- **Related terms**: Account, Valuation Date, Ledger
+
 ### Horizon
 - **Definition**: `model.horizon_years` — a computational cap on simulated months, not an assumed age of death.
 - **Related terms**: Censored Path
@@ -195,6 +201,12 @@ suffix, bare unqualified `Service`, `confidence interval` (for success probabili
 - **Definition**: The tax treatment an Account sits in: `taxable`, `isa`, `pension` or `sipp` (portfolio-data §1). Recorded as a label only; the model has no tax logic (SPEC §16).
 - **Synonyms to AVOID**: account type, tax wrapper (fine in prose, not as a field name)
 - **Related terms**: Account
+
+### Valuation Date
+- **Definition**: The date an Account's holdings export values it at, read from the export (Schwab title, HL "Spreadsheet created at", Vanguard `Valuation Date`); for an export that states none (ii) the newest date the other exports in the folder state, marked assumed (portfolio-data §8).
+- **NOT**: The model's As-Of Date (the scenario's "today"), though the two are usually close.
+- **Synonyms to AVOID**: as-of date (taken), statement date
+- **Related terms**: Holding, As-Of Date
 
 ## Unresolved
 

@@ -71,3 +71,52 @@ inspection, and the command exits 1. Schwab and HL state no running balance; the
 
 **Why**: it proves the parser against the provider's own arithmetic before anything uses the ledger. Each file is
 checked alone because merging removes rows that a later export repeats.
+
+## 7. Holdings come from the newest month folder's holdings exports, each checked against its own totals
+
+`sbretire portfolio value` reads only the newest `<mon>-<yy>` folder. Each account's `holdings` patterns must match
+a file there (otherwise exit 2 naming the account and folder); where several match, the last by name is used
+(provider names carry the date). A file read by two accounts needs `holdings_filter` on each (Vanguard's
+`Product Wrapper`: `Stocks & Shares ISA`, `Personal Pension`). Values are the provider's own, in the account's
+currency: Schwab `Mkt Val`; HL `Value (£)` (its US stocks already converted) with `Price (pence)` / 100; Vanguard
+`Current Value (GBP)`; ii `Market Value (£)` with price = value / quantity (its `Price` and `Market Value` are in
+the listing currency). Cash is a holding of kind `cash`: Schwab "Cash & Cash Investments", HL "Total cash",
+Vanguard "GBP Cash"; an export with no cash line (ii) takes the newest running balance in the account's
+transactions export in the same folder. Self-checks, to a penny: Schwab securities + cash = "Positions Total";
+HL securities = "Stock value" = the table's Totals row, and securities + cash = "Total value". A mismatch stops
+with exit 2. (F-025)
+
+**Why**: holdings are snapshots, so older folders are history; using the providers' own valuations and checking
+them against the providers' own totals proves the parser, as §6 does for cash.
+
+## 8. Each account keeps its own valuation date; a missing one is assumed and shown
+
+An account is valued at the date its export states (Schwab's title, HL's "Spreadsheet created at", Vanguard's
+`Valuation Date`). An export that states none (ii) takes the newest date stated by the other exports in the
+folder and is shown "(assumed)". The summary warns when the dates span more than 7 days. No common date is
+imposed. (F-025)
+
+**Why**: the household downloads exports on different days; showing each date (user's choice, 2026-10-18) is
+more honest than pretending they share one.
+
+## 9. USD is converted at a rate given on the command line
+
+`--usd-gbp R` (GBP per US dollar) converts every USD account and is required while any account is in USD (exit 2
+otherwise); other non-GBP currencies are refused. The rate is printed and written to `holdings.csv` (`fx_rate`).
+Where an export states its own rate (HL's footer "x USD to 100 pence … at <date>"), the summary prints it and warns
+if `--usd-gbp` differs from it by more than 2%. (F-025)
+
+**Why**: no export carries Schwab's rate and runs stay offline (SPEC §2); the user chose a flag over a config
+setting (2026-10-18). F-026's FX price file may later supply a default.
+
+## 10. The starting balance is printed to paste, never written into the model config
+
+The summary gives GBP totals by account (securities, cash), by owner and for the household, then the YAML to paste:
+`portfolio:` / `starting_balance: <household total rounded to the pound>` with a comment naming the folder and
+the date range. `output/portfolio/holdings.csv` (UTF-8, LF) has one row per holding: the `Holding` fields
+(`account`, `owner`, `wrapper`, `valuation_date`, `date_stated`, `kind`, `security_key`, `security_name`,
+`quantity`, `price`, `value`, `currency`, `source_file`, `source_row`), then `fx_rate` and `value_gbp`. Exit 0
+valued, 1 unreadable, 2 invalid. (F-025)
+
+**Why**: `config/model.yaml` is the user's file (epic scope: no automatic edits); a pasted line keeps every change
+to the scenario deliberate and visible.
