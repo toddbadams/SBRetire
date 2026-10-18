@@ -148,7 +148,7 @@ def backtest(
 2026-10-18 SecuritiesConfig.risk_free_rate (0 ≤ r < 0.2), ledger/performance.py (monthly_rate, Metrics, drawdowns, metrics, rolling); tests/unit/test_performance_metrics.py (2).
 
 ### F-027.2 Back-test of today's weights
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-027.1
 
 `backtest` (§2 #2–#3).
