@@ -29,6 +29,7 @@ accounts:
     currency: GBP
     transactions: ["vanguard_isa.csv"]
     holdings: ["vanguard-holdings*.csv"]
+    holdings_filter: "Stocks & Shares ISA"   # holdings rows whose Product Wrapper equals this
     filter: ISA                    # optional: keep only rows whose Account column equals this
 
   - id: pension
@@ -39,6 +40,7 @@ accounts:
     currency: GBP
     transactions: ["vanguard_pension.csv"]
     holdings: ["vanguard-holdings*.csv"]
+    holdings_filter: "Personal Pension"
 
   - id: sipp_2
     name: Example SIPP (person 2)

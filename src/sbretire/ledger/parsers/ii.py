@@ -77,8 +77,65 @@ def parse(path: Path, account: AccountConfig) -> list[LedgerRow]:
 
 
 def parse_holdings(path: Path, account: AccountConfig) -> HoldingsExport:
-    raise NotImplementedError
+    """An ii holdings export: securities valued by ``Market Value (£)``; no date and no cash in the file.
+
+    ii's ``Price`` and ``Market Value`` are in the listing currency, so the price kept is value / quantity in
+    pounds (portfolio-data §7). The valuation assigns the date; ``cash_from_transactions`` gives the cash.
+    """
+    table = csv_rows(read_text(path))
+    col = {name: index for index, name in enumerate(table[0])}
+    holdings = []
+    for offset, record in enumerate(table[1:]):
+        if not any(cell.strip() for cell in record):
+            continue
+        quantity = money(record[col["Qty"]]) or 0.0
+        value = money(record[col["Market Value (£)"]]) or 0.0
+        holdings.append(
+            Holding(
+                account=account.id,
+                owner=account.owner,
+                wrapper=account.wrapper,
+                valuation_date=None,
+                date_stated=False,
+                kind="security",
+                security_key=record[col["Symbol"]].strip(),
+                security_name=record[col["Name"]].strip(),
+                quantity=quantity,
+                price=round(value / quantity, 10) if quantity else None,
+                value=value,
+                currency=account.currency,
+                source_file=path.name,
+                source_row=offset + 2,
+            )
+        )
+    return HoldingsExport(account.id, holdings)
 
 
-def cash_from_transactions(rows: Sequence[LedgerRow], account: AccountConfig, path: Path | None = None) -> Holding:
-    raise NotImplementedError
+def cash_from_transactions(
+    rows: Sequence[LedgerRow], account: AccountConfig, path: Path | None = None
+) -> Holding:
+    """ii's cash: the newest stated running balance among the account's transaction rows (portfolio-data §7).
+
+    Raises ``HoldingsError`` (naming ``path``, the transactions file) when no row states a balance.
+    """
+    stated = [row for row in rows if row.account == account.id and row.stated_balance is not None]
+    if not stated:
+        where = path if path is not None else Path(account.transactions[0])
+        raise HoldingsError(where, f"no running balance for {account.id}'s cash")
+    latest = max(stated, key=lambda row: row.sequence)
+    return Holding(
+        account=account.id,
+        owner=account.owner,
+        wrapper=account.wrapper,
+        valuation_date=None,
+        date_stated=False,
+        kind="cash",
+        security_key="",
+        security_name="Cash (running balance)",
+        quantity=0.0,
+        price=None,
+        value=latest.stated_balance or 0.0,
+        currency=account.currency,
+        source_file=latest.source_file,
+        source_row=latest.source_row,
+    )

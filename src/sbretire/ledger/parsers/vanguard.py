@@ -71,5 +71,43 @@ def parse(path: Path, account: AccountConfig) -> list[LedgerRow]:
     return rows
 
 
+_CASH: Final = "GBP Cash"
+
+
 def parse_holdings(path: Path, account: AccountConfig) -> HoldingsExport:
-    raise NotImplementedError
+    """The account's rows of Vanguard's shared holdings file (``holdings_filter`` on ``Product Wrapper``).
+
+    "GBP Cash" rows are cash; every row carries its ``Valuation Date`` (portfolio-data §7).
+    """
+    table = csv_rows(read_text(path))
+    col = {name: index for index, name in enumerate(table[0])}
+    holdings = []
+    for offset, record in enumerate(table[1:]):
+        if not any(cell.strip() for cell in record):
+            continue
+        wrapper = record[col["Product Wrapper"]].strip()
+        if account.holdings_filter is not None and wrapper != account.holdings_filter:
+            continue
+        name = record[col["Investment Name"]].strip()
+        cash = name == _CASH
+        holdings.append(
+            Holding(
+                account=account.id,
+                owner=account.owner,
+                wrapper=account.wrapper,
+                valuation_date=day(record[col["Valuation Date"]], "%Y-%m-%d"),
+                date_stated=True,
+                kind="cash" if cash else "security",
+                security_key="" if cash else name,
+                security_name=name,
+                quantity=0.0 if cash else money(record[col["Quantity"]]) or 0.0,
+                price=None if cash else money(record[col["Current Price (GBP)"]]),
+                value=money(record[col["Current Value (GBP)"]]) or 0.0,
+                currency=account.currency,
+                source_file=path.name,
+                source_row=offset + 2,
+            )
+        )
+    if not holdings:
+        raise HoldingsError(path, f"no rows for Product Wrapper {account.holdings_filter!r}")
+    return HoldingsExport(account.id, holdings)

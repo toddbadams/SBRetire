@@ -156,6 +156,9 @@ def format_valuation(valuation: Valuation, accounts: Sequence[AccountConfig]) ->
 - 2026-10-18 — F-025.1: the real HL table ends with a `"","Totals",…` row (empty code) that was first read as a
   holding, doubling the securities; the Stock value check caught it. That row is now a third self-check
   (securities = Totals), and the fixture gained it.
+- 2026-10-18 — F-025.2: without `holdings_filter`, each Vanguard account read the whole shared holdings file, so
+  both wrappers' holdings would have been counted twice. F-025.3's valuation therefore refuses a holdings file
+  matched by two accounts unless each sets `holdings_filter`.
 
 ## 10. Tasks
 
@@ -175,7 +178,7 @@ value checks, footer rate). §2 #4–#8.
 2026-10-18 ledger/holdings.py (Holding, HOLDING_COLUMNS, HoldingsExport, HoldingsError), AccountConfig.holdings_filter, parsers/schwab.py::parse_holdings (title date, cash line, Positions Total check), parsers/hl.py::parse_holdings (created-at date, Total cash, pence, Stock value / Totals row / Total value checks, footer rate); tests/unit/test_holdings_schwab_hl.py (2). Real Schwab and HL exports parse and pass every check.
 
 ### F-025.2 Vanguard and ii holdings
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-025.1
 
 `parsers/vanguard.py::parse_holdings` (`holdings_filter` on `Product Wrapper`, GBP Cash rows),
@@ -183,8 +186,11 @@ value checks, footer rate). §2 #4–#8.
 row from the ledger's latest stated balance. §2 #4, #5, #7.
 
 **Acceptance criteria**
-- [ ] The synthetic shared Vanguard holdings file yields each wrapper's rows only, with cash rows of kind `cash` and the stated valuation date — `test_vanguard_holdings_filter_by_wrapper`
-- [ ] A synthetic ii holdings file parses to hand-checked GBP rows with no date; its cash comes from the latest stated running balance of the account's transactions export, and is an error when there is none — `test_ii_holdings_values_in_gbp_and_cash_from_ledger`
+- [x] The synthetic shared Vanguard holdings file yields each wrapper's rows only, with cash rows of kind `cash` and the stated valuation date — `test_vanguard_holdings_filter_by_wrapper`
+- [x] A synthetic ii holdings file parses to hand-checked GBP rows with no date; its cash comes from the latest stated running balance of the account's transactions export, and is an error when there is none — `test_ii_holdings_values_in_gbp_and_cash_from_ledger`
+
+**Notes**
+2026-10-18 parsers/vanguard.py::parse_holdings (holdings_filter on Product Wrapper, GBP Cash rows), parsers/ii.py::parse_holdings (Market Value (£), price = value / quantity, no date) and cash_from_transactions (newest stated running balance); holdings_filter added to config/accounts.example.yaml; tests/unit/test_holdings_vanguard_ii.py (2). Real Vanguard ISA/pension and ii holdings parse.
 
 ### F-025.3 Valuation, holdings.csv and `sbretire portfolio value`
 - **Status**: To Do
