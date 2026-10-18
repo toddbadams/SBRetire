@@ -193,7 +193,7 @@ row from the ledger's latest stated balance. §2 #4, #5, #7.
 2026-10-18 parsers/vanguard.py::parse_holdings (holdings_filter on Product Wrapper, GBP Cash rows), parsers/ii.py::parse_holdings (Market Value (£), price = value / quantity, no date) and cash_from_transactions (newest stated running balance); holdings_filter added to config/accounts.example.yaml; tests/unit/test_holdings_vanguard_ii.py (2). Real Vanguard ISA/pension and ii holdings parse.
 
 ### F-025.3 Valuation, holdings.csv and `sbretire portfolio value`
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-025.2
 
 `ledger/valuation.py` and the `portfolio value` command: newest folder, missing-export error, date assignment and
