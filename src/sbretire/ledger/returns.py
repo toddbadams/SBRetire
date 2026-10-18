@@ -178,7 +178,7 @@ def today_values(
     if map_path.exists():
         config = load_securities(map_path)
     else:  # nothing priced yet
-        config = SecuritiesConfig.model_construct(fx={}, securities=(), risk_free_rate=None)
+        config = SecuritiesConfig.model_construct(fx={}, securities=(), risk_free_rate=None, max_weight=0.25)
         notes.append(f"no {map_path}; copy config/securities.example.yaml there and list the price files")
     folder, exports = read_holdings(root, accounts)
     fx_name = config.fx.get("USD")

@@ -130,7 +130,7 @@ def trade_cost(amount_gbp: float, fee_gbp: float, rate: float) -> float: ...
 ## 10. Tasks
 
 ### F-029.1 Settings, estimates and the priced sleeve
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: —
 
 What to build:
@@ -141,8 +141,11 @@ What to build:
 §2 #1–#3.
 
 **Acceptance criteria**
-- [ ] `max_weight` and `trading` load with defaults and reject out-of-range values with their locations — `test_frontier_settings`
-- [ ] `ledoit_wolf` on a hand-built 3-series sample equals a direct computation of the Ledoit–Wolf (2004) intensity and target; annual estimates are 12 × the monthly mean and covariance; only series with every month in the window enter the sleeve — `test_estimates_and_sleeve`
+- [x] `max_weight` and `trading` load with defaults and reject out-of-range values with their locations — `test_frontier_settings`
+- [x] `ledoit_wolf` on a hand-built 3-series sample equals a direct computation of the Ledoit–Wolf (2004) intensity and target; annual estimates are 12 × the monthly mean and covariance; only series with every month in the window enter the sleeve — `test_estimates_and_sleeve`
+
+**Notes**
+2026-10-18 SecuritiesConfig.max_weight (0 < w ≤ 1, default 0.25); accounts.TradingCosts and AccountConfig.trading; accounts.validation_issues (drops pydantic's redundant 'too short' for lists whose items failed; now shared by accounts, prices and exposure); ledger/frontier.py ledoit_wolf, Estimates, estimate (priced sleeve = full-window series with a value today); tests/unit/test_frontier_estimates.py (2).
 
 ### F-029.2 Optimiser
 - **Status**: To Do

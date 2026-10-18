@@ -16,8 +16,8 @@ from typing import Annotated, Final
 from pydantic import BaseModel, BeforeValidator, ConfigDict, Field, ValidationError
 
 from sbretire._yaml import YamlLoadError, load_yaml
-from sbretire.config import ScenarioError, ScenarioIssue, _format_location, _issue, _text
-from sbretire.ledger.accounts import AccountConfig
+from sbretire.config import ScenarioError, ScenarioIssue, _format_location, _text
+from sbretire.ledger.accounts import AccountConfig, validation_issues
 from sbretire.ledger.prices import SecuritiesConfig
 from sbretire.ledger.returns import TodayValues, today_values
 from sbretire.ledger.taxonomy import NAMES, Dimension, canonical, region_currency
@@ -78,7 +78,7 @@ def load_factsheet(path: Path) -> Factsheet:
     try:
         parsed = _FactsheetFile.model_validate(raw)
     except ValidationError as exc:
-        raise ScenarioError([_issue(error) for error in exc.errors()]) from None
+        raise ScenarioError(validation_issues(exc)) from None
 
     issues: list[ScenarioIssue] = []
     weights: dict[Dimension, dict[str, float]] = {}

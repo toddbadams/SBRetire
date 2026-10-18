@@ -11,12 +11,13 @@ import hashlib
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Annotated, Any, Literal
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, BeforeValidator, ConfigDict, Field, ValidationError
 
 from sbretire._yaml import YamlLoadError, load_yaml
-from sbretire.config import ScenarioError, ScenarioIssue, _format_location, _issue, _text
+from sbretire.config import ScenarioError, ScenarioIssue, _format_location, _text
+from sbretire.ledger.accounts import validation_issues
 from sbretire.ledger.parsers._common import csv_rows, read_text
 from sbretire.ledger.taxonomy import NAMES, Dimension, canonical
 
@@ -70,6 +71,8 @@ class SecuritiesConfig(BaseModel):
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 
+    max_weight: Annotated[float, Field(gt=0.0, le=1.0)] = 0.25
+    """Largest share of the priced sleeve any one series may take in the frontier (F-029)."""
     risk_free_rate: Annotated[float, Field(ge=0.0, lt=0.2)] | None = None
     """Annual risk-free rate (UK Bank Rate) as a fraction, for Sharpe ratios (F-027)."""
     fx: dict[Literal["USD"], Text] = Field(default_factory=dict)
@@ -92,15 +95,7 @@ def load_securities(path: Path) -> SecuritiesConfig:
     try:
         parsed = SecuritiesConfig.model_validate(raw)
     except ValidationError as exc:
-        errors = exc.errors()
-
-        # a list whose items failed also reports "too short"; the item errors already say why
-        def explained(error: Mapping[str, Any]) -> bool:
-            loc = error["loc"]
-            return any(len(other["loc"]) > len(loc) and other["loc"][: len(loc)] == loc for other in errors)
-
-        kept = [error for error in errors if error["type"] != "too_short" or not explained(error)]
-        raise ScenarioError([_issue(error) for error in kept]) from None
+        raise ScenarioError(validation_issues(exc)) from None
     issues = []
     ids: dict[str, int] = {}
     mapped: dict[str, str] = {}
