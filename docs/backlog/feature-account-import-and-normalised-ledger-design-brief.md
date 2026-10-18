@@ -185,6 +185,9 @@ Provider type maps (each unknown value raises `UnknownTransaction`):
 
 - 2026-10-18 — §2 #1–#5 from the user's answers (merge and de-duplicate; stop on unknown types;
   `config/accounts.yaml`; external vs internal flows). #6–#13 by me from the export layouts.
+- 2026-10-18 — F-024.4: `reconcile_cash(rows)` takes the rows alone; each `LedgerRow` carries its export's
+  `stated_balance`, so the separate `StatedBalance` sequence in §5 is dropped. Checks run per account and source
+  file, to half a penny, and report the first break only.
 
 ## 9. Surprises
 
@@ -203,6 +206,9 @@ Provider type maps (each unknown value raises `UnknownTransaction`):
   (pension transfer in: external in) and `TRANSFER` ("Product Transfer HL SIPP Income Drawdown": a move into the
   SIPP's drawdown part, treated as internal). F-025's holdings check should confirm the drawdown money is in the
   HL holdings export; if not, it is really an outflow from the tracked account.
+- 2026-10-18 — F-024.4: a Vanguard `Investment` record's amount mirrors its `Cash` record and is not cash, so
+  only the units are kept from it. Fee units are sold as `Sell (Fee)` (typed `sell`) a few days before the
+  `Account Fee` cash debit.
 
 ## 10. Tasks
 
@@ -250,16 +256,19 @@ thousands separators; empty quantity and price).
 - 2026-10-18 `parsers/hl.py`: preamble skipped to the `Trade date` header; `Reference` drives the type (B/S trades, INTEREST, Transfer/TRANSFER internal, MANAGE FEE, ID TFC external out, BACS external in); trade names from "<name> <qty> @ <price>"; pence to pounds; units from `Quantity`, negated for sells. Fixture `tests/fixtures/accounts/hl.csv` (Windows-1252, quoted commas, invented rows). Tests `tests/unit/test_ledger_hl.py` (2); the test's expected line numbers were off by one (header on line 6) and were corrected before green.
 
 ### F-024.4 Vanguard and ii parsers with cash reconciliation
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-024.2
 
 `parsers/vanguard.py` (shared file filtered per account; two-leg records), `parsers/ii.py` (repeated BOMs, UK
 dates, quoted `£` amounts, `n/a`, debit/credit columns), `reconcile.py`.
 
 **Acceptance criteria**
-- [ ] A synthetic Vanguard export with ISA and pension rows yields each account's rows only, with investment legs carrying units and cash legs carrying cash — `test_vanguard_parser_filters_and_splits_legs`
-- [ ] A synthetic ii export (several BOMs, `n/a`, quoted `£1,234.56`) parses to hand-checked rows — `test_ii_parser_reads_debits_credits_and_transfer_in`
-- [ ] Cumulative ledger cash equals the stated running balance at every row for both fixtures, and a deliberately broken fixture reports the first break — `test_reconcile_cash_matches_running_balance`
+- [x] A synthetic Vanguard export with ISA and pension rows yields each account's rows only, with investment legs carrying units and cash legs carrying cash — `test_vanguard_parser_filters_and_splits_legs`
+- [x] A synthetic ii export (several BOMs, `n/a`, quoted `£1,234.56`) parses to hand-checked rows — `test_ii_parser_reads_debits_credits_and_transfer_in`
+- [x] Cumulative ledger cash equals the stated running balance at every row for both fixtures, and a deliberately broken fixture reports the first break — `test_reconcile_cash_matches_running_balance`
+
+**Notes**
+2026-10-18 parsers/vanguard.py (Account filter, Investment legs carry units, Cash legs cash + stated balance), parsers/ii.py (Description-driven types, Credit - Debit, n/a empty), reconcile.py; tests/unit/test_ledger_vanguard_ii.py (5). Real October Vanguard ISA/pension and ii exports reconcile with no breaks.
 
 ### F-024.5 Merge, import command and docs
 - **Status**: To Do
