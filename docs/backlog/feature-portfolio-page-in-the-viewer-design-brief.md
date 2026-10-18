@@ -146,7 +146,7 @@ def write_portfolio_files(
 2026-10-18 ledger/extras.py (not report.py, which holds the ledger summary): drawdown_episodes, calendar, correlation, risk_contribution, income_by_month; tests/unit/test_portfolio_extras.py.
 
 ### F-030.2 portfolio.json and `sbretire portfolio report`
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-030.1
 
 `ledger/document.py`, `schemas/portfolio.schema.json`, the command, `portfolio.json` and `portfolio.js`, and the
