@@ -112,3 +112,12 @@ def test_cli_portfolio_returns(tmp_path: Path, capsys: pytest.CaptureFixture[str
     )
     assert main(args) == 2
     assert "securities[1].quote" in capsys.readouterr().err
+
+
+def test_build_returns_without_a_securities_map_reports_every_holding_missing(tmp_path: Path) -> None:
+    root, prices, accounts = _setup(tmp_path)
+    (prices / "securities.yaml").unlink()
+    report = build_returns(root, load_accounts(accounts), prices, months=3, usd_gbp=0.75)
+    assert {row.status for row in report.coverage} == {"missing"}
+    assert len(report.coverage) == 8 and report.returns == []
+    assert any("securities.example.yaml" in warning for warning in report.warnings)
