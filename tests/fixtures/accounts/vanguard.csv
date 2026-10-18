@@ -1,0 +1,13 @@
+Date,Account,Record Type,Transaction Type,Description,Investment Name,Quantity,Price (GBP),Amount (GBP),Cash Balance (GBP)
+2026-01-01,ISA,Cash,Interest,Cash Account Interest,,,,0.08,48.07
+2026-01-09,ISA,Investment,Sell (Fee),Selling of account investments for payment of Account Fee for the period 10-Oct-2025 to 09-Jan-2026,Example Strategy® 60% Fund - Accumulation,-0.1562,224.64,-35.09,
+2026-01-12,ISA,Cash,Sell (Fee),Selling of account investments for payment of Account Fee for the period 10-Oct-2025 to 09-Jan-2026,,,,35.10,83.17
+2026-01-13,ISA,Cash,Account Fee,Account Fee for the period 10-Oct-2025 to 09-Jan-2026,,,,-83.17,0.00
+2026-03-02,ISA,Cash,Deposit,Deposit for Investment Purchases,,,,20000.00,20000.00
+2026-03-03,ISA,Investment,Buy,Bought 80.0000 Example Strategy® 60% Fund - Accumulation,Example Strategy® 60% Fund - Accumulation,80.0000,250.00,20000.00,
+2026-03-03,ISA,Cash,Buy,Bought 80.0000 Example Strategy® 60% Fund - Accumulation,,,,-20000.00,0.00
+2026-03-17,Example Pension,Cash,Contribution,Single Personal Pension Contribution,,,,4000.00,4000.01
+2026-03-17,Example Pension,Investment,Buy,Bought 17.5454 Example Target 2035 Fund - Accumulation ,Example Target 2035 Fund - Accumulation,17.5454,227.98,4000.00,
+2026-03-17,Example Pension,Cash,Buy,Bought 17.5454 Example Target 2035 Fund - Accumulation ,,,,-4000.00,0.01
+2026-04-30,Example Pension,Cash,Tax Relief,Pension Contribution Tax Relief,,,,1000.00,1000.01
+2026-05-01,Example Pension,Cash,Interest,Cash Account Interest,,,,0.02,1000.03
