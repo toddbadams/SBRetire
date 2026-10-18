@@ -134,7 +134,7 @@ def write_portfolio_files(
 ## 10. Tasks
 
 ### F-030.1 Extras for the page
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: —
 
 `drawdown_episodes`, `calendar`, `correlation`, `risk_contribution`, `income_by_month`. §2 #4.
@@ -144,9 +144,10 @@ def write_portfolio_files(
 
 **Notes**
 2026-10-18 ledger/extras.py (not report.py, which holds the ledger summary): drawdown_episodes, calendar, correlation, risk_contribution, income_by_month; tests/unit/test_portfolio_extras.py.
+2026-10-18 /verify PASS: extras known answers hand-checked (drawdown episodes, calendar, correlation, risk shares, income with USD at 0.8); extras.py in place of report.py judged fine; no network; ruff/mypy clean.
 
 ### F-030.2 portfolio.json and `sbretire portfolio report`
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-030.1
 
 `ledger/document.py`, `schemas/portfolio.schema.json`, the command, `portfolio.json` and `portfolio.js`, and the
@@ -158,9 +159,10 @@ page copy (a skeleton page). §2 #2, #3, #5, #6, #10.
 
 **Notes**
 2026-10-18 ledger/document.py (ReportOptions, build_portfolio_document: valuation always, each analysis or {available: false, reason}; write_portfolio_files: json, js with </ escaped, page files), schemas/portfolio.schema.json 1.0, skeleton src/sbretire/web/portfolio/*, `sbretire portfolio report` (options shared with exposure/frontier); tests/unit/test_portfolio_document.py (2; one assertion rewritten for typing only).
+2026-10-18 /verify PASS: full and empty documents validate; schema rejects unavailable sections without a reason or with extra keys; allow_nan=False; '</' escaped in portfolio.js; CLI files and exit codes; ruff/mypy clean.
 
 ### F-030.3 The Portfolio page
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-030.2
 
 `portfolio.html`, `portfolio-view.css` and `portfolio-view.js` for every section in §2 #7, plus the theme toggle,
@@ -172,9 +174,10 @@ Save as PDF and print rules. §2 #1, #7–#9.
 
 **Notes**
 2026-10-18 src/sbretire/web/portfolio/{portfolio.html,portfolio-view.css,portfolio-view.js}: every §2 #7 section with an unavailable state, SVG frontier (shapes per mix, CML clipped to the plot), dumbbell, growth/underwater/rolling lines, heatmaps (value always printed; tint via color-mix of chart tokens), income bars, sortable holdings, caveats; theme toggle, Save as PDF, print keep-together, own @page header. Browser check (local http.server on output/, .claude/launch.json 'output-pages'): full synthetic sample and the nothing-priced sample render every section in light and dark with no console errors; fixed during the check: inline bar fills had zero width, masthead overflow, crowded small-chart ticks, labels clipped at the right edge.
+2026-10-18 /verify PASS: static test; escaping review found no unescaped data insertion; every analysis renderer handles available=false; no colour literals or network. Browser AC evidenced by the implementer's recorded browser check (verifier had no browser; node not installed, syntax reviewed by reading).
 
 ### F-030.4 Design sample, nav, docs and a real run
-- **Status**: Verification
+- **Status**: Done
 - **Depends on**: F-030.3
 
 What to build:
@@ -191,6 +194,7 @@ What to build:
 
 **Notes**
 2026-10-18 scripts/build_portfolio_design_sample.py now runs the real report on the tests' synthetic fixtures (fixed generated time; reproducible), docs/design/sample/portfolio regenerated at 1.0; Portfolio link in the results viewer (a.btn style in viewer.css) and Results link back; README 'The Portfolio page', viewer.md §4, portfolio-data §25, hand-off status updated. Real run: `sbretire portfolio report --usd-gbp 0.7503 --risk-free 0.04` exit 0; output/portfolio.html renders headline, income (12 months), 37 holdings and caveats, the other parts unavailable with reasons, no console errors.
+2026-10-18 /verify PASS: sample synthetic, 1.0, valid, no local paths or names; generator reads only synthetic fixtures with fixed time; links both ways; README/viewer §4/portfolio-data §25; real run exit 0 with reasons; only .claude/launch.json untracked.
 
 ## 11. Open Questions
 
