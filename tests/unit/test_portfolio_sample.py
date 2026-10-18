@@ -15,7 +15,7 @@ SCHEMA = json.loads((ROOT / "schemas" / "portfolio.schema.json").read_text(encod
 def test_portfolio_design_sample_and_links() -> None:
     document = json.loads((SAMPLE / "portfolio.json").read_text(encoding="utf-8"))
     jsonschema.validate(document, SCHEMA)
-    assert document["schema_version"] == "1.0" and document["synthetic"] is True
+    assert document["schema_version"] == "1.1" and document["synthetic"] is True
     for section in ("exposure", "performance", "frontier", "risk", "rebalance", "income"):
         assert document[section]["available"], section  # the sample shows every part of the page
     script = (SAMPLE / "portfolio.js").read_text(encoding="utf-8")

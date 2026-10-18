@@ -16,6 +16,7 @@ from typing import Final
 
 import numpy as np
 
+from sbretire.ledger.account_returns import AccountReturn, build_account_returns
 from sbretire.ledger.accounts import AccountConfig
 from sbretire.ledger.exposure import DIMENSIONS, build_exposure
 from sbretire.ledger.extras import (
@@ -32,7 +33,7 @@ from sbretire.ledger.model import UnknownTransaction
 from sbretire.ledger.performance import Performance, build_performance, monthly_rate
 from sbretire.ledger.returns import ReturnsReport, build_returns, window
 
-SCHEMA_VERSION: Final = "1.0"
+SCHEMA_VERSION: Final = "1.1"
 JS_PREFIX: Final = "window.SBRETIRE_PORTFOLIO = "
 PAGE_FILES: Final = {
     "portfolio.html": ("portfolio", "portfolio.html"),
@@ -150,6 +151,7 @@ def build_portfolio_document(options: ReportOptions, accounts: Sequence[AccountC
     document["performance"] = _performance_section(performance, report, risk_free)
     document["frontier"], document["risk"], document["rebalance"] = _frontier_sections(frontier, report)
     document["income"] = _income(options, accounts, today.folder, today.usd_gbp)
+    document["account_returns"] = _account_returns(options, accounts)
     if isinstance(frontier, FrontierReport):
         warnings += frontier.warnings
     document["warnings"] = list(dict.fromkeys(warnings))
@@ -389,6 +391,34 @@ def _income(
             amount += value if isinstance(value, float) else 0.0
         totals[key] = round(amount, 2)
     return {"available": True, "first": _ym(first), "last": _ym(last), "months": months, "totals": totals}
+
+
+def _point(item: AccountReturn) -> dict[str, object]:
+    return {
+        "account": item.account, "currency": item.currency, "available": item.available,
+        "reason": item.reason,
+        "start": item.start.isoformat() if item.start else None,
+        "end": item.end.isoformat() if item.end else None,
+        "start_value": item.start_value, "end_value": item.end_value, "net_flows": item.net_flows,
+        "twr": _num(item.twr), "mwr_period": _num(item.mwr_period), "mwr_annual": _num(item.mwr_annual),
+        "points": [{"date": day.isoformat(), "value": value, "external_flow": flow, "return": _num(ret)}
+                   for day, value, flow, ret in item.points],
+    }  # fmt: skip
+
+
+def _account_returns(options: ReportOptions, accounts: Sequence[AccountConfig]) -> dict[str, object]:
+    if not (options.prices / "securities.yaml").exists():
+        return _off("no price history yet: add price files and data/prices/securities.yaml (see README)")
+    try:
+        result = build_account_returns(options.root, accounts, options.prices, options.usd_gbp)
+    except UnknownTransaction as exc:
+        return _off(f"the transaction exports could not be read: {exc}")
+    return {
+        "available": True,
+        "accounts": [_point(a) for a in result.accounts],
+        "household": _point(result.household),
+        "unmatched": [{"account": a, "security": k} for a, k in result.unmatched],
+    }
 
 
 def write_portfolio_files(document: Mapping[str, object], output_dir: Path) -> list[Path]:

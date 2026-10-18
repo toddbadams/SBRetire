@@ -30,3 +30,5 @@ securities:
     file: target-2035.csv            # typed from the fund manager's price history: Date,Close
     quote: GBP
     holdings: ["pension:Example Target 2035 Fund - Accumulation"]
+    ledger_names: ["Example Target 2035 Fund - Accumulation Shares"]   # optional: transaction names (ledger.csv
+                                                                      # security_key) that do not match by themselves

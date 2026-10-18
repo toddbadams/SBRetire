@@ -142,6 +142,9 @@ class AccountReturn:
 - 2026-10-18 — F-031.2: an unmatched ledger security makes its account unavailable even if it was bought and
   sold inside the period. Its units today are unknown (no holding is matched), so "held at a month-end" cannot
   be decided. The fix for the user is a `ledger_names` entry.
+- 2026-10-18 — F-031.4: with a span of a few weeks, a large move gives an annual money-weighted rate far above
+  +1,000% (the first search ceiling), so no root was found. The solver now works on ln(1+r) between ln(0.01) and
+  50, and the period figure (not annualised under a year) is what the page shows.
 
 ## 10. Tasks
 
@@ -182,7 +185,7 @@ class AccountReturn:
 2026-10-18 account_returns.py modified_dietz, xirr (brentq on −99%…+1,000%, years = days/365), PeriodReturn and returns_for (flows after the first point; MWR annualised only for ≥ 1 year), to_gbp (USD at the month's rate); tests/unit/test_account_returns_twr_mwr.py (assertions split for typing only).
 
 ### F-031.4 Command, portfolio.json 1.1, page, docs and a real run
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-031.3
 
 What to build:
@@ -193,9 +196,12 @@ What to build:
 - A real run.
 
 **Acceptance criteria**
-- [ ] On the synthetic setup the command prints each account with TWR, MWR and its period, and an unavailable account with its reason, and writes `account_returns.csv` (UTF-8, LF, columns, month-end rows and household rows); the report's `account_returns` section validates against schema 1.1 and the page renders it (static checks) — `test_cli_account_returns_and_document`
-- [ ] README documents the command, `ledger_names` and how the two returns differ; THESAURUS defines Time-Weighted Return and Money-Weighted Return in order; decisions recorded — `check: grep -n "account-returns" README.md docs/decisions/portfolio-data.md`
-- [ ] On the real exports the command runs and each account says what it needs (exit 0; run locally, never committed) — `check: uv run sbretire portfolio account-returns --usd-gbp 0.7503`
+- [x] On the synthetic setup the command prints each account with TWR, MWR and its period, and an unavailable account with its reason, and writes `account_returns.csv` (UTF-8, LF, columns, month-end rows and household rows); the report's `account_returns` section validates against schema 1.1 and the page renders it (static checks) — `test_cli_account_returns_and_document`
+- [x] README documents the command, `ledger_names` and how the two returns differ; THESAURUS defines Time-Weighted Return and Money-Weighted Return in order; decisions recorded — `check: grep -n "account-returns" README.md docs/decisions/portfolio-data.md`
+- [x] On the real exports the command runs and each account says what it needs (exit 0; run locally, never committed) — `check: uv run sbretire portfolio account-returns --usd-gbp 0.7503`
+
+**Notes**
+2026-10-18 account_returns.py AccountReturn, AccountReturnsReport, build_account_returns (one span for all accounts; reasons de-duplicated per security), write_account_returns_csv, format_account_returns; xirr now solves ln(1+r) so short steep periods converge (found on the synthetic setup: 90% in 18 days is beyond +1,000% a year); `sbretire portfolio account-returns`; document.py and schema 1.1 with account_returns; page section 'Actual returns'; tests moved to 1.1 (schema version and the page section list); sample regenerated; README, THESAURUS (Money-Weighted Return, Time-Weighted Return; 50 terms sorted), portfolio-data §26–§28, ledger_names in the example. Browser: new section renders, no console errors. Real run: exit 0, every account unavailable with its missing series and unmatched transaction names listed.
 
 ## 11. Open Questions
 

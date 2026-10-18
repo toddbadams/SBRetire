@@ -7,19 +7,24 @@ of return.
 
 from __future__ import annotations
 
+import csv
 import datetime as dt
 import itertools
+import math
 import re
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Final
 
 from scipy.optimize import brentq
 
+from sbretire.ledger.accounts import AccountConfig
 from sbretire.ledger.holdings import Holding
+from sbretire.ledger.merge import build_ledger
 from sbretire.ledger.model import LedgerRow
-from sbretire.ledger.prices import SecuritiesConfig
-from sbretire.ledger.returns import add_months
+from sbretire.ledger.prices import SecuritiesConfig, read_price_file
+from sbretire.ledger.returns import add_months, today_values, window
 
 _TAIL: Final = {
     "acc", "accumulation", "accumulating", "inc", "income", "dist", "distributing", "shares", "share",
@@ -181,21 +186,22 @@ def modified_dietz(v0: float, v1: float, flows: Sequence[Flow], start: dt.date, 
 def xirr(v0: float, flows: Sequence[Flow], v_end: float, start: dt.date, end: dt.date) -> float | None:
     """The annual rate ``r`` solving ``−V₀ − ΣFᵢ(1+r)^(−tᵢ) + V_end(1+r)^(−T) = 0``, years = days ÷ 365 (§28).
 
-    ``None`` when the cash flows have no root between −99% and +1,000% a year.
+    Solved for the log growth ``x = ln(1 + r)`` so short, steep periods (huge annual rates) still converge;
+    ``None`` when there is no root for ``x`` between ln(0.01) and 50.
     """
     years = (end - start).days / 365.0
     if years <= 0:
         return None
+    times = [(amount, (day - start).days / 365.0) for day, amount in flows]
 
-    def npv(rate: float) -> float:
-        growth = 1.0 + rate
-        value = -v0 - sum(amount * growth ** (-(day - start).days / 365.0) for day, amount in flows)
-        return float(value + v_end * growth ** (-years))
+    def npv(x: float) -> float:
+        value = -v0 - sum(amount * math.exp(-x * t) for amount, t in times)
+        return float(value + v_end * math.exp(-x * years))
 
-    low, high = -0.99, 10.0
+    low, high = math.log(0.01), 50.0
     if npv(low) * npv(high) > 0:
         return None
-    return float(brentq(npv, low, high, xtol=1e-12, maxiter=500))
+    return math.expm1(float(brentq(npv, low, high, xtol=1e-14, maxiter=500)))
 
 
 @dataclass(frozen=True)
@@ -252,3 +258,181 @@ def to_gbp(
         return found
 
     return [(d, v * rate(d)) for d, v in points], [(d, a * rate(d)) for d, a in flows]
+
+
+@dataclass(frozen=True)
+class AccountReturn:
+    """One account's (or the household's) actual returns, or why they cannot be measured yet."""
+
+    account: str
+    currency: str
+    available: bool
+    reason: str | None
+    start: dt.date | None
+    end: dt.date | None
+    start_value: float | None
+    end_value: float | None
+    net_flows: float | None
+    twr: float | None
+    mwr_period: float | None
+    mwr_annual: float | None
+    points: list[tuple[dt.date, float | None, float, float | None]]
+    """Valuation date, value, external flow in the sub-period ending there, sub-period return."""
+
+
+@dataclass(frozen=True)
+class AccountReturnsReport:
+    folder: str
+    accounts: list[AccountReturn]
+    household: AccountReturn
+    unmatched: list[tuple[str, str]]
+
+
+def _unavailable(account: str, currency: str, reason: str) -> AccountReturn:
+    return AccountReturn(account, currency, False, reason, None, None, None, None, None, None, None, None, [])
+
+
+def _measured(
+    account: str, currency: str, points: Sequence[tuple[dt.date, float]], flows: Sequence[Flow]
+) -> AccountReturn:
+    result = returns_for(points, flows)
+    sub = dict(result.monthly)
+    flow_in = {
+        d1: sum(a for d, a in flows if d0 < d <= d1) for (d0, _), (d1, _) in itertools.pairwise(points)
+    }
+    rows = [(d, v, flow_in.get(d, 0.0), sub.get(d)) for d, v in points]
+    return AccountReturn(
+        account, currency, True, None, points[0][0], points[-1][0], points[0][1], points[-1][1],
+        result.net_flows, result.twr, result.mwr_period, result.mwr_annual, list(rows),
+    )  # fmt: skip
+
+
+def build_account_returns(
+    root: Path, accounts: Sequence[AccountConfig], prices_dir: Path, usd_gbp: float | None = None
+) -> AccountReturnsReport:
+    """Rebuild every account's month-end values and measure its TWR and MWR, and the household's (§26–§28).
+
+    The span starts at the month-end before the earliest ledger row (or before the export month) and ends at
+    the newest valuation. An account that cannot be fully valued is unavailable with its reason; the household
+    then is too.
+    """
+    today = today_values(root, accounts, prices_dir, usd_gbp)
+    valuation = today.valuation
+    rows = build_ledger(root, accounts)
+    matched, unmatched = match_securities(rows, valuation.holdings, today.config)
+    series_of_ref = {ref: s.id for s in today.config.securities for ref in s.holdings}
+    closes: dict[str, dict[dt.date, float]] = {}
+    quotes: dict[str, str] = {}
+    for series in today.config.securities:
+        path = prices_dir / series.file
+        if path.exists():
+            closes[series.id] = {m.month: m.close for m in read_price_file(path).months}
+            quotes[series.id] = series.quote
+    fx = {m.month: m.close for m in today.fx.months} if today.fx is not None else {}
+
+    dates = [on for on, _ in valuation.dates().values()]
+    valued_on = max(dates)
+    first, last = window(today.folder, 1)
+    begin = min([row.date.replace(day=1) for row in rows], default=first)
+    months: list[dt.date] = []
+    month = add_months(begin, -1)
+    while month <= last:
+        months.append(month)
+        month = add_months(month, 1)
+
+    results: list[AccountReturn] = []
+    gbp: list[tuple[list[tuple[dt.date, float]], list[Flow]]] = []
+    rates = dict(fx)
+    if today.usd_gbp is not None:
+        rates.setdefault(valued_on.replace(day=1), today.usd_gbp)
+    for account in accounts:
+        own = [h for h in valuation.holdings if h.account == account.id]
+        account_rows = [row for row in rows if row.account == account.id]
+        today_units: dict[str, float] = {}
+        problems: list[str] = []
+        for holding in own:
+            if holding.kind != "security":
+                continue
+            series_id = series_of_ref.get(f"{holding.account}:{holding.security_key}")
+            if series_id is None:
+                problems.append(f"{holding.security_key} (no price series)")
+            else:
+                today_units[series_id] = today_units.get(series_id, 0.0) + holding.quantity
+        today_cash = sum(h.value for h in own if h.kind == "cash")
+        values, missing = rebuild(account_rows, matched, today_units, today_cash, months, closes, quotes,
+                                  account.currency, fx)  # fmt: skip
+        named = {problem.split(" (", 1)[0] for problem in problems}
+        problems += [m for m in missing if m.split(" (", 1)[0] not in named]  # one line per security
+        if problems:
+            shown = ", ".join(problems[:5]) + (f" and {len(problems) - 5} more" if len(problems) > 5 else "")
+            results.append(_unavailable(account.id, account.currency, f"cannot value: {shown}"))
+            continue
+        points = [(month_end(m), float(v)) for m, v in values if v is not None]
+        points.append((valued_on, sum(h.value for h in own)))
+        flows = [(row.date, row.cash_change) for row in account_rows if row.flow == "external"]
+        results.append(_measured(account.id, account.currency, points, flows))
+        try:
+            gbp.append(to_gbp(points, flows, account.currency, rates))
+        except ValueError as exc:
+            gbp.append(([], []))
+            problems.append(str(exc))
+
+    if any(not r.available for r in results) or any(not p for p, _ in gbp):
+        why = "every account must be fully valued (and USD needs the GBP=X file) to combine the household"
+        household = _unavailable("household", "GBP", why)
+    else:
+        totals: dict[dt.date, float] = {}
+        for points, _ in gbp:
+            for day, value in points:
+                totals[day] = totals.get(day, 0.0) + value
+        household = _measured("household", "GBP", sorted(totals.items()), [f for _, fl in gbp for f in fl])
+    return AccountReturnsReport(today.folder, results, household, unmatched)
+
+
+def write_account_returns_csv(report: AccountReturnsReport, path: Path) -> None:
+    """UTF-8, LF: ``account``, ``date``, ``value``, ``external_flow``, ``return`` per point (§28)."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.writer(handle, lineterminator="\n")
+        writer.writerow(("account", "date", "value", "external_flow", "return"))
+        for item in [*report.accounts, report.household]:
+            for day, value, flow, ret in item.points:
+                writer.writerow((item.account, day.isoformat(), "" if value is None else round(value, 2),
+                                 round(flow, 2), "" if ret is None else ret))  # fmt: skip
+
+
+def _pct(value: float | None) -> str:
+    return "n/a" if value is None else f"{value:.2%}"
+
+
+def format_account_returns(report: AccountReturnsReport) -> str:
+    """The table of accounts and household, the reasons for anything unavailable and unmatched securities."""
+    measured = [r for r in [*report.accounts, report.household] if r.available]
+    span = next((r for r in measured), None)
+    head = (
+        f"Account returns from {span.start:%d %b %Y} to {span.end:%d %b %Y} (exports {report.folder})"
+        if span is not None and span.start and span.end else f"Account returns (exports {report.folder})"
+    )  # fmt: skip
+    lines = [
+        head,
+        "  time-weighted = the investments' own return; money-weighted = the result incl. timing of money",
+        "  {:<18} {:<4} {:>14} {:>14} {:>12} {:>14} {:>14}".format(
+            "account", "ccy", "start value", "end value", "net flows", "time-weighted", "money-weighted"
+        ),
+    ]
+    for item in [*report.accounts, report.household]:
+        if not item.available:
+            continue
+        mwr = _pct(item.mwr_period) + ("" if item.mwr_annual is None else f" ({item.mwr_annual:.2%} a year)")
+        lines.append(
+            f"  {item.account[:18]:<18} {item.currency:<4} {item.start_value or 0:>14,.2f} "
+            f"{item.end_value or 0:>14,.2f} "
+            f"{item.net_flows or 0:>12,.2f} {_pct(item.twr):>14} {mwr:>14}"
+        )
+    for item in [*report.accounts, report.household]:
+        if not item.available:
+            lines.append(f"unavailable {item.account}: {item.reason}")
+    if report.unmatched:
+        names = ", ".join(f"{a}: {k}" for a, k in report.unmatched[:8])
+        lines.append(f"unmatched transaction securities (add ledger_names to their series): {names}")
+    return "\n".join(lines)

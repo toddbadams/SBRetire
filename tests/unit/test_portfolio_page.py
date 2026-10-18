@@ -17,6 +17,7 @@ SECTIONS = (
     "risk",
     "income",
     "holdings",
+    "returns",
     "caveats",
 )
 BANNED = ("you should", "we recommend", "guaranteed", "beat the market")

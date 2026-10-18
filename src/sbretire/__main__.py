@@ -19,6 +19,8 @@ Subcommands:
               efficient frontier of the priced holdings, target mix and trades (F-029)
     portfolio report
               every analysis into portfolio/portfolio.json and the Portfolio page, portfolio.html (F-030)
+    portfolio account-returns
+              each account's time- and money-weighted return since the first export (F-031)
 """
 
 from __future__ import annotations
@@ -33,6 +35,11 @@ from sbretire import __version__
 from sbretire.config import LoadedScenario, Scenario, ScenarioError, ScenarioIssue, load_scenario
 from sbretire.inflation import inflation_coverage_issues, inflation_data_file_record
 from sbretire.inputs_report import format_inputs, scenario_input_rows, write_inputs_csv
+from sbretire.ledger.account_returns import (
+    build_account_returns,
+    format_account_returns,
+    write_account_returns_csv,
+)
 from sbretire.ledger.accounts import AccountConfig, load_accounts
 from sbretire.ledger.document import ReportOptions, build_portfolio_document, write_portfolio_files
 from sbretire.ledger.exposure import build_exposure, format_exposure, write_exposure_csv
@@ -163,7 +170,22 @@ def build_parser() -> argparse.ArgumentParser:
     report = portfolio_commands.add_parser(
         "report", help="every portfolio analysis into portfolio.json and the Portfolio page (portfolio.html)"
     )
+    account_returns = portfolio_commands.add_parser(
+        "account-returns", help="each account's time- and money-weighted return since the first export"
+    )
+    for sub in (account_returns,):
+        sub.add_argument(
+            "--prices",
+            type=Path,
+            default=Path("data/prices"),
+            help="folder with securities.yaml and price files",
+        )
+        sub.add_argument(
+            "--usd-gbp", type=_positive_rate, metavar="RATE",
+            help="GBP per USD for today's values (default: the FX price file's latest month-end)",
+        )  # fmt: skip
     written_by = (
+        (account_returns, "account_returns.csv"),
         (report, "portfolio.json"),
         (frontier, "frontier.csv"),
         (imports, "ledger.csv"),
@@ -397,6 +419,28 @@ def _risk_free(args: argparse.Namespace, report: ReturnsReport) -> tuple[float, 
     return None
 
 
+def _portfolio_account_returns(args: argparse.Namespace) -> int:
+    """``sbretire portfolio account-returns``: exit 0 written (gaps explained), 1 unreadable, 2 invalid."""
+    accounts = _load_accounts(args.accounts)
+    if isinstance(accounts, int):
+        return accounts
+    try:
+        result = build_account_returns(args.root, accounts, args.prices, args.usd_gbp)
+    except OSError as exc:
+        print(f"error: cannot read {exc.filename or args.prices}: {exc.strerror or exc}", file=sys.stderr)
+        return EXIT_FAILURE
+    except ScenarioError as exc:
+        return _report(args.prices / "securities.yaml", exc.issues)
+    except (HoldingsError, PriceFileError, UnknownTransaction, ValueError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return EXIT_INVALID
+    print(format_account_returns(result))
+    path = args.output_dir / "portfolio" / "account_returns.csv"
+    write_account_returns_csv(result, path)
+    print(f"account returns: {path}")
+    return EXIT_OK
+
+
 def _portfolio_report(args: argparse.Namespace) -> int:
     """``sbretire portfolio report``: exit 0 written (gaps explained), 1 unreadable, 2 invalid."""
     accounts = _load_accounts(args.accounts)
@@ -426,7 +470,7 @@ def _portfolio_report(args: argparse.Namespace) -> int:
     write_portfolio_files(document, args.output_dir)
     total = document["total"]
     print(f"Portfolio report for {document['folder']}: household {total['value_gbp']:,.2f} GBP")  # type: ignore[index]
-    for section in ("exposure", "performance", "frontier", "risk", "rebalance", "income"):
+    for section in ("exposure", "performance", "frontier", "risk", "rebalance", "income", "account_returns"):
         part = document[section]
         state = "available" if part["available"] else f"unavailable ({part['reason']})"  # type: ignore[index]
         print(f"  {section}: {state}")
@@ -577,6 +621,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             "exposure": _portfolio_exposure,
             "frontier": _portfolio_frontier,
             "report": _portfolio_report,
+            "account-returns": _portfolio_account_returns,
         }
         return handlers[args.portfolio_command](args)
     require_data_files = args.command == "run" or getattr(args, "require_data_files", False)

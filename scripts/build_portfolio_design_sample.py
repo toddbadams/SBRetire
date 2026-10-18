@@ -6,7 +6,7 @@ Usage:
 Runs the real ``sbretire portfolio report`` analysis on synthetic inputs only: the invented account exports in
 tests/fixtures/accounts, seeded synthetic monthly prices, synthetic factsheets and a 4 % risk-free rate (the
 same set-up the tests use). Writes docs/design/sample/portfolio/portfolio.json and portfolio.js
-(window.SBRETIRE_PORTFOLIO), schema 1.0, marked "synthetic": true. No personal data is read.
+(window.SBRETIRE_PORTFOLIO), schema 1.1, marked "synthetic": true. No personal data is read.
 """
 
 from __future__ import annotations
@@ -41,7 +41,7 @@ def main() -> None:
         OUT.mkdir(parents=True, exist_ok=True)
         for name in ("portfolio.json", "portfolio.js"):
             shutil.copyfile(written / "portfolio" / name, OUT / name)
-    print(f"wrote {OUT / 'portfolio.json'} and portfolio.js (synthetic, schema 1.0)")
+    print(f"wrote {OUT / 'portfolio.json'} and portfolio.js (synthetic, schema 1.1)")
 
 
 if __name__ == "__main__":

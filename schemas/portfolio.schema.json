@@ -2,70 +2,298 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://sbretire.local/schemas/portfolio.schema.json",
   "title": "SBRetire portfolio.json",
-  "description": "Every portfolio analysis for the Portfolio page (F-030). Money in GBP, shares 0-1, months YYYY-MM. schema_version changes when this structure changes.",
+  "description": "Every portfolio analysis for the Portfolio page (F-030; account_returns F-031, 1.1). Money in GBP, shares 0-1, months YYYY-MM. schema_version changes when this structure changes.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "generated", "synthetic", "folder", "settings", "people", "total", "accounts",
-               "holdings", "exposure", "performance", "frontier", "risk", "rebalance", "income", "warnings",
-               "data_files"],
+  "required": [
+    "schema_version",
+    "generated",
+    "synthetic",
+    "folder",
+    "settings",
+    "people",
+    "total",
+    "accounts",
+    "holdings",
+    "exposure",
+    "performance",
+    "frontier",
+    "risk",
+    "rebalance",
+    "income",
+    "warnings",
+    "data_files",
+    "account_returns"
+  ],
   "$defs": {
-    "month": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}$"},
-    "number_or_null": {"type": ["number", "null"]},
-    "share": {"type": "number"},
+    "month": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}$"
+    },
+    "number_or_null": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "share": {
+      "type": "number"
+    },
     "section": {
       "description": "An analysis section: available with its content, or unavailable with a plain reason.",
       "type": "object",
-      "required": ["available"],
-      "properties": {"available": {"type": "boolean"}, "reason": {"type": "string", "minLength": 1}},
-      "if": {"properties": {"available": {"const": false}}},
-      "then": {"required": ["available", "reason"], "additionalProperties": false, "properties": {"available": {}, "reason": {}}}
+      "required": [
+        "available"
+      ],
+      "properties": {
+        "available": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "if": {
+        "properties": {
+          "available": {
+            "const": false
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "available",
+          "reason"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "available": {},
+          "reason": {}
+        }
+      }
     },
     "mix": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["return", "volatility", "sharpe", "weights"],
+      "required": [
+        "return",
+        "volatility",
+        "sharpe",
+        "weights"
+      ],
       "properties": {
-        "return": {"type": "number"},
-        "volatility": {"type": "number", "minimum": 0},
-        "sharpe": {"$ref": "#/$defs/number_or_null"},
-        "weights": {"type": "object", "additionalProperties": {"type": "number"}}
+        "return": {
+          "type": "number"
+        },
+        "volatility": {
+          "type": "number",
+          "minimum": 0
+        },
+        "sharpe": {
+          "$ref": "#/$defs/number_or_null"
+        },
+        "weights": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "account_return": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "account",
+        "currency",
+        "available",
+        "reason",
+        "start",
+        "end",
+        "start_value",
+        "end_value",
+        "net_flows",
+        "twr",
+        "mwr_period",
+        "mwr_annual",
+        "points"
+      ],
+      "properties": {
+        "account": {
+          "type": "string"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "available": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "start": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "end": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "start_value": {
+          "$ref": "#/$defs/number_or_null"
+        },
+        "end_value": {
+          "$ref": "#/$defs/number_or_null"
+        },
+        "net_flows": {
+          "$ref": "#/$defs/number_or_null"
+        },
+        "twr": {
+          "$ref": "#/$defs/number_or_null"
+        },
+        "mwr_period": {
+          "$ref": "#/$defs/number_or_null"
+        },
+        "mwr_annual": {
+          "$ref": "#/$defs/number_or_null"
+        },
+        "points": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "date",
+              "value",
+              "external_flow",
+              "return"
+            ]
+          }
+        }
       }
     }
   },
   "properties": {
-    "schema_version": {"const": "1.0"},
-    "generated": {"type": "string", "description": "UTC time the document was written (ISO 8601)."},
-    "synthetic": {"type": "boolean", "description": "True for invented sample data."},
-    "folder": {"type": "string", "pattern": "^[a-z]{3}-[0-9]{2}$"},
+    "schema_version": {
+      "const": "1.1"
+    },
+    "generated": {
+      "type": "string",
+      "description": "UTC time the document was written (ISO 8601)."
+    },
+    "synthetic": {
+      "type": "boolean",
+      "description": "True for invented sample data."
+    },
+    "folder": {
+      "type": "string",
+      "pattern": "^[a-z]{3}-[0-9]{2}$"
+    },
     "settings": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["months", "first", "last", "risk_free_rate", "max_weight", "usd_gbp", "usd_gbp_source",
-                   "covariance", "target", "min_trade_gbp"],
+      "required": [
+        "months",
+        "first",
+        "last",
+        "risk_free_rate",
+        "max_weight",
+        "usd_gbp",
+        "usd_gbp_source",
+        "covariance",
+        "target",
+        "min_trade_gbp"
+      ],
       "properties": {
-        "months": {"type": "integer", "minimum": 1},
-        "first": {"$ref": "#/$defs/month"},
-        "last": {"$ref": "#/$defs/month"},
-        "risk_free_rate": {"$ref": "#/$defs/number_or_null"},
-        "max_weight": {"type": "number", "exclusiveMinimum": 0, "maximum": 1},
-        "usd_gbp": {"$ref": "#/$defs/number_or_null"},
-        "usd_gbp_source": {"type": ["string", "null"]},
-        "covariance": {"enum": ["shrunk", "sample"]},
-        "target": {"enum": ["same-risk", "max-sharpe", "min-variance"]},
-        "min_trade_gbp": {"type": "number", "minimum": 0}
+        "months": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "first": {
+          "$ref": "#/$defs/month"
+        },
+        "last": {
+          "$ref": "#/$defs/month"
+        },
+        "risk_free_rate": {
+          "$ref": "#/$defs/number_or_null"
+        },
+        "max_weight": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1
+        },
+        "usd_gbp": {
+          "$ref": "#/$defs/number_or_null"
+        },
+        "usd_gbp_source": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "covariance": {
+          "enum": [
+            "shrunk",
+            "sample"
+          ]
+        },
+        "target": {
+          "enum": [
+            "same-risk",
+            "max-sharpe",
+            "min-variance"
+          ]
+        },
+        "min_trade_gbp": {
+          "type": "number",
+          "minimum": 0
+        }
       }
     },
-    "people": {"type": "array", "items": {"type": "string"}},
+    "people": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "total": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["value_gbp", "cash_gbp", "by_owner", "starting_balance", "starting_balance_yaml"],
+      "required": [
+        "value_gbp",
+        "cash_gbp",
+        "by_owner",
+        "starting_balance",
+        "starting_balance_yaml"
+      ],
       "properties": {
-        "value_gbp": {"type": "number"},
-        "cash_gbp": {"type": "number"},
-        "by_owner": {"type": "object", "additionalProperties": {"type": "number"}},
-        "starting_balance": {"type": "integer"},
-        "starting_balance_yaml": {"type": "string", "pattern": "^starting_balance: "}
+        "value_gbp": {
+          "type": "number"
+        },
+        "cash_gbp": {
+          "type": "number"
+        },
+        "by_owner": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "starting_balance": {
+          "type": "integer"
+        },
+        "starting_balance_yaml": {
+          "type": "string",
+          "pattern": "^starting_balance: "
+        }
       }
     },
     "accounts": {
@@ -73,13 +301,54 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "name", "provider", "wrapper", "owner", "currency", "securities_gbp", "cash_gbp",
-                     "value_gbp", "valuation_date", "date_assumed"],
+        "required": [
+          "id",
+          "name",
+          "provider",
+          "wrapper",
+          "owner",
+          "currency",
+          "securities_gbp",
+          "cash_gbp",
+          "value_gbp",
+          "valuation_date",
+          "date_assumed"
+        ],
         "properties": {
-          "id": {"type": "string"}, "name": {"type": "string"}, "provider": {"type": "string"},
-          "wrapper": {"type": "string"}, "owner": {"type": "string"}, "currency": {"type": "string"},
-          "securities_gbp": {"type": "number"}, "cash_gbp": {"type": "number"}, "value_gbp": {"type": "number"},
-          "valuation_date": {"type": "string", "format": "date"}, "date_assumed": {"type": "boolean"}
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "wrapper": {
+            "type": "string"
+          },
+          "owner": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "securities_gbp": {
+            "type": "number"
+          },
+          "cash_gbp": {
+            "type": "number"
+          },
+          "value_gbp": {
+            "type": "number"
+          },
+          "valuation_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "date_assumed": {
+            "type": "boolean"
+          }
         }
       }
     },
@@ -88,126 +357,522 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["ref", "account", "security_key", "name", "series", "value_gbp", "weight", "return_ann",
-                     "volatility_ann", "sharpe", "history_months", "status"],
+        "required": [
+          "ref",
+          "account",
+          "security_key",
+          "name",
+          "series",
+          "value_gbp",
+          "weight",
+          "return_ann",
+          "volatility_ann",
+          "sharpe",
+          "history_months",
+          "status"
+        ],
         "properties": {
-          "ref": {"type": "string"}, "account": {"type": "string"}, "security_key": {"type": "string"},
-          "name": {"type": "string"}, "series": {"type": ["string", "null"]}, "value_gbp": {"type": "number"},
-          "weight": {"$ref": "#/$defs/share"}, "return_ann": {"$ref": "#/$defs/number_or_null"},
-          "volatility_ann": {"$ref": "#/$defs/number_or_null"}, "sharpe": {"$ref": "#/$defs/number_or_null"},
-          "history_months": {"type": "integer", "minimum": 0},
-          "status": {"enum": ["full", "short", "gaps", "missing"]}
+          "ref": {
+            "type": "string"
+          },
+          "account": {
+            "type": "string"
+          },
+          "security_key": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "series": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "value_gbp": {
+            "type": "number"
+          },
+          "weight": {
+            "$ref": "#/$defs/share"
+          },
+          "return_ann": {
+            "$ref": "#/$defs/number_or_null"
+          },
+          "volatility_ann": {
+            "$ref": "#/$defs/number_or_null"
+          },
+          "sharpe": {
+            "$ref": "#/$defs/number_or_null"
+          },
+          "history_months": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "status": {
+            "enum": [
+              "full",
+              "short",
+              "gaps",
+              "missing"
+            ]
+          }
         }
       }
     },
     "exposure": {
-      "allOf": [{"$ref": "#/$defs/section"}],
-      "if": {"properties": {"available": {"const": true}}},
+      "allOf": [
+        {
+          "$ref": "#/$defs/section"
+        }
+      ],
+      "if": {
+        "properties": {
+          "available": {
+            "const": true
+          }
+        }
+      },
       "then": {
-        "required": ["tables", "approximated_currency_share", "top_holdings"],
+        "required": [
+          "tables",
+          "approximated_currency_share",
+          "top_holdings"
+        ],
         "properties": {
           "tables": {
             "type": "object",
-            "required": ["asset_class", "sector", "region", "currency"],
+            "required": [
+              "asset_class",
+              "sector",
+              "region",
+              "currency"
+            ],
             "additionalProperties": {
               "type": "array",
-              "items": {"type": "object", "required": ["label", "value_gbp", "share"],
-                        "properties": {"label": {"type": "string"}, "value_gbp": {"type": "number"},
-                                       "share": {"type": "number"}}}
+              "items": {
+                "type": "object",
+                "required": [
+                  "label",
+                  "value_gbp",
+                  "share"
+                ],
+                "properties": {
+                  "label": {
+                    "type": "string"
+                  },
+                  "value_gbp": {
+                    "type": "number"
+                  },
+                  "share": {
+                    "type": "number"
+                  }
+                }
+              }
             }
           },
-          "approximated_currency_share": {"type": "number"},
-          "top_holdings": {"type": "array", "items": {"type": "object", "required": ["name", "value_gbp", "share"]}}
+          "approximated_currency_share": {
+            "type": "number"
+          },
+          "top_holdings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "name",
+                "value_gbp",
+                "share"
+              ]
+            }
+          }
         }
       }
     },
     "performance": {
-      "allOf": [{"$ref": "#/$defs/section"}],
-      "if": {"properties": {"available": {"const": true}}},
-      "then": {
-        "required": ["metrics", "months", "calendar", "drawdowns", "series"],
+      "allOf": [
+        {
+          "$ref": "#/$defs/section"
+        }
+      ],
+      "if": {
         "properties": {
-          "metrics": {"type": "object", "required": ["months", "annual_return", "annual_volatility", "sharpe",
-                                                      "max_drawdown", "peak", "trough", "recovery"]},
-          "months": {"type": "array", "items": {"type": "object", "required": ["month", "return", "wealth",
-                                                                                "drawdown", "covered"]}},
-          "calendar": {"type": "array", "items": {"type": "object", "required": ["year", "months", "total"],
-                                                   "properties": {"months": {"type": "array", "minItems": 12,
-                                                                             "maxItems": 12}}}},
-          "drawdowns": {"type": "array", "items": {"type": "object", "required": ["peak", "trough", "recovery",
-                                                    "depth", "months_to_trough", "months_to_recover"]}},
-          "series": {"type": "array"}
+          "available": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "metrics",
+          "months",
+          "calendar",
+          "drawdowns",
+          "series"
+        ],
+        "properties": {
+          "metrics": {
+            "type": "object",
+            "required": [
+              "months",
+              "annual_return",
+              "annual_volatility",
+              "sharpe",
+              "max_drawdown",
+              "peak",
+              "trough",
+              "recovery"
+            ]
+          },
+          "months": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "month",
+                "return",
+                "wealth",
+                "drawdown",
+                "covered"
+              ]
+            }
+          },
+          "calendar": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "year",
+                "months",
+                "total"
+              ],
+              "properties": {
+                "months": {
+                  "type": "array",
+                  "minItems": 12,
+                  "maxItems": 12
+                }
+              }
+            }
+          },
+          "drawdowns": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "peak",
+                "trough",
+                "recovery",
+                "depth",
+                "months_to_trough",
+                "months_to_recover"
+              ]
+            }
+          },
+          "series": {
+            "type": "array"
+          }
         }
       }
     },
     "frontier": {
-      "allOf": [{"$ref": "#/$defs/section"}],
-      "if": {"properties": {"available": {"const": true}}},
-      "then": {
-        "required": ["series", "names", "sleeve_share", "max_weight", "covariance", "shrinkage", "target_kind",
-                     "risk_free", "points", "mixes", "holdings_points", "turnover"],
+      "allOf": [
+        {
+          "$ref": "#/$defs/section"
+        }
+      ],
+      "if": {
         "properties": {
-          "series": {"type": "array", "items": {"type": "string"}, "minItems": 2},
-          "points": {"type": "array", "items": {"type": "object", "required": ["return", "volatility", "sharpe"]}},
+          "available": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "series",
+          "names",
+          "sleeve_share",
+          "max_weight",
+          "covariance",
+          "shrinkage",
+          "target_kind",
+          "risk_free",
+          "points",
+          "mixes",
+          "holdings_points",
+          "turnover"
+        ],
+        "properties": {
+          "series": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 2
+          },
+          "points": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "return",
+                "volatility",
+                "sharpe"
+              ]
+            }
+          },
           "mixes": {
             "type": "object",
-            "required": ["today", "min_variance", "max_sharpe", "target", "within_accounts"],
-            "additionalProperties": {"$ref": "#/$defs/mix"}
+            "required": [
+              "today",
+              "min_variance",
+              "max_sharpe",
+              "target",
+              "within_accounts"
+            ],
+            "additionalProperties": {
+              "$ref": "#/$defs/mix"
+            }
           },
-          "holdings_points": {"type": "array", "items": {"type": "object",
-                                                          "required": ["series", "return", "volatility"]}},
-          "turnover": {"type": "number", "minimum": 0}
+          "holdings_points": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "series",
+                "return",
+                "volatility"
+              ]
+            }
+          },
+          "turnover": {
+            "type": "number",
+            "minimum": 0
+          }
         }
       }
     },
     "risk": {
-      "allOf": [{"$ref": "#/$defs/section"}],
-      "if": {"properties": {"available": {"const": true}}},
-      "then": {
-        "required": ["series", "correlation", "contribution"],
+      "allOf": [
+        {
+          "$ref": "#/$defs/section"
+        }
+      ],
+      "if": {
         "properties": {
-          "correlation": {"type": "array", "items": {"type": "array", "items": {"type": "number"}}},
-          "contribution": {"type": "array", "items": {"type": "object",
-                                                       "required": ["series", "weight", "risk_share"]}}
+          "available": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "series",
+          "correlation",
+          "contribution"
+        ],
+        "properties": {
+          "correlation": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            }
+          },
+          "contribution": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "series",
+                "weight",
+                "risk_share"
+              ]
+            }
+          }
         }
       }
     },
     "rebalance": {
-      "allOf": [{"$ref": "#/$defs/section"}],
-      "if": {"properties": {"available": {"const": true}}},
-      "then": {
-        "required": ["target_kind", "household", "within", "total_cost_gbp", "min_trade_gbp"],
+      "allOf": [
+        {
+          "$ref": "#/$defs/section"
+        }
+      ],
+      "if": {
         "properties": {
-          "household": {"type": "array", "items": {"type": "object",
-                                                    "required": ["series", "current_gbp", "target_gbp", "trade_gbp"]}},
-          "within": {"type": "array", "items": {"type": "object", "required": ["account", "series", "current_gbp",
-                                                 "target_gbp", "trade_gbp", "cost_gbp"]}}
+          "available": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "target_kind",
+          "household",
+          "within",
+          "total_cost_gbp",
+          "min_trade_gbp"
+        ],
+        "properties": {
+          "household": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "series",
+                "current_gbp",
+                "target_gbp",
+                "trade_gbp"
+              ]
+            }
+          },
+          "within": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "account",
+                "series",
+                "current_gbp",
+                "target_gbp",
+                "trade_gbp",
+                "cost_gbp"
+              ]
+            }
+          }
         }
       }
     },
     "income": {
-      "allOf": [{"$ref": "#/$defs/section"}],
-      "if": {"properties": {"available": {"const": true}}},
-      "then": {
-        "required": ["first", "last", "months", "totals"],
+      "allOf": [
+        {
+          "$ref": "#/$defs/section"
+        }
+      ],
+      "if": {
         "properties": {
-          "months": {"type": "array", "items": {"type": "object", "required": ["month", "dividends_gbp",
-                                                 "interest_gbp", "fees_gbp", "tax_withheld_gbp"]}}
+          "available": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "first",
+          "last",
+          "months",
+          "totals"
+        ],
+        "properties": {
+          "months": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "month",
+                "dividends_gbp",
+                "interest_gbp",
+                "fees_gbp",
+                "tax_withheld_gbp"
+              ]
+            }
+          }
         }
       }
     },
-    "warnings": {"type": "array", "items": {"type": "string"}},
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "data_files": {
       "type": "array",
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["series", "file", "sha256", "first", "last", "rows", "basis"],
+        "required": [
+          "series",
+          "file",
+          "sha256",
+          "first",
+          "last",
+          "rows",
+          "basis"
+        ],
         "properties": {
-          "series": {"type": "string"}, "file": {"type": "string"},
-          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
-          "first": {"type": "string"}, "last": {"type": "string"}, "rows": {"type": "integer"},
-          "basis": {"enum": ["adjusted", "dividends", "price"]}
+          "series": {
+            "type": "string"
+          },
+          "file": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "first": {
+            "type": "string"
+          },
+          "last": {
+            "type": "string"
+          },
+          "rows": {
+            "type": "integer"
+          },
+          "basis": {
+            "enum": [
+              "adjusted",
+              "dividends",
+              "price"
+            ]
+          }
+        }
+      }
+    },
+    "account_returns": {
+      "description": "Each account's actual time- and money-weighted return since the first export (F-031).",
+      "allOf": [
+        {
+          "$ref": "#/$defs/section"
+        }
+      ],
+      "if": {
+        "properties": {
+          "available": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "accounts",
+          "household",
+          "unmatched"
+        ],
+        "properties": {
+          "accounts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/account_return"
+            }
+          },
+          "household": {
+            "$ref": "#/$defs/account_return"
+          },
+          "unmatched": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "account",
+                "security"
+              ]
+            }
+          }
         }
       }
     }

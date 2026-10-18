@@ -46,7 +46,7 @@ def test_portfolio_document_full_and_empty(tmp_path: Path) -> None:
     options = ReportOptions(root=root, prices=prices, factsheets=factsheets, months=24, min_trade=1.0)
     document = build_portfolio_document(options, accounts)
     jsonschema.validate(document, SCHEMA)
-    assert document["schema_version"] == "1.0" and document["folder"] == "oct-26"
+    assert document["schema_version"] == "1.1" and document["folder"] == "oct-26"
     for section in ANALYSES:
         part = document[section]
         assert isinstance(part, dict) and part["available"], (section, part)

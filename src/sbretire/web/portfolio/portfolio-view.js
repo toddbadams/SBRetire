@@ -348,6 +348,26 @@
     });
   }
 
+  /* ---------------- actual returns (F-031) ---------------- */
+  function renderReturns() {
+    var ar = DATA.account_returns;
+    if (!ar || !ar.available) { body('returns', unavailable(ar, 'Actual account returns')); return; }
+    var all = ar.accounts.concat([ar.household]);
+    var money = function (x, ccy) { return ccy === 'USD' ? (isNum(x) ? signed('$' + Math.round(Math.abs(x)).toLocaleString('en-GB'), Math.round(x)) : DASH) : F.gbp(x); };
+    var rows = all.filter(function (a) { return a.available; }).map(function (a) {
+      var mwr = F.r(a.mwr_period) + (isNum(a.mwr_annual) ? '<span class="sub">' + F.r(a.mwr_annual) + ' a year</span>' : '');
+      return '<tr' + (a.account === 'household' ? ' class="is-group-start"' : '') + '><th scope="row">' + esc(a.account === 'household' ? 'Household (GBP)' : a.account) + '<span class="sub">' + F.date(a.start) + ' to ' + F.date(a.end) + '</span></th>' +
+        td(money(a.start_value, a.currency), 1) + td(money(a.end_value, a.currency), 1) + td(money(a.net_flows, a.currency), 1) + td('<span class="big">' + F.r(a.twr) + '</span>', 1) + td(mwr, 1) + '</tr>';
+    });
+    var missing = all.filter(function (a) { return !a.available; }).map(function (a) { return '<li><strong>' + esc(a.account) + ':</strong> ' + esc(a.reason) + '</li>'; });
+    var unmatched = ar.unmatched.length ? '<p class="note" style="margin-top:var(--space-3)">Transactions not yet matched to a price series (add <code>ledger_names</code> to the series in <code>securities.yaml</code>): ' +
+      ar.unmatched.map(function (u) { return esc(u.account + ': ' + u.security); }).join('; ') + '.</p>' : '';
+    body('returns', card((rows.length ? table([{ label: 'Account' }, { label: 'Start value', num: 1 }, { label: 'End value', num: 1 }, { label: 'Net money in', num: 1 }, { label: 'Time-weighted', num: 1 }, { label: 'Money-weighted', num: 1 }], rows)
+      : '<p class="note">No account can be valued at every month-end yet.</p>') +
+      '<p class="note" style="margin-top:var(--space-3)">Each account in its own currency; the household in pounds. Periods under a year are not annualised. Dividends, interest and fees count as return; contributions, tax relief and transfers in or out are money in or out.</p>' +
+      (missing.length ? '<h3 class="subhead" style="margin-top:var(--space-4)">Not yet measured</h3><ul class="note">' + missing.join('') + '</ul>' : '') + unmatched));
+  }
+
   /* ---------------- data and caveats ---------------- */
   function renderCaveats() {
     var s = DATA.settings;
@@ -440,7 +460,7 @@
       message('This analysis uses a newer format', 'It was saved with format ' + esc(DATA.schema_version) + '; this page reads format ' + KNOWN_MAJOR + '.x. Run the report again with this version.');
       return;
     }
-    renderMeta(); renderHeadline(); renderAllocation(); renderFrontier(); renderRebalance(); renderPerformance(); renderRisk(); renderIncome(); renderHoldings(); renderCaveats();
+    renderMeta(); renderHeadline(); renderAllocation(); renderFrontier(); renderRebalance(); renderPerformance(); renderRisk(); renderIncome(); renderHoldings(); renderReturns(); renderCaveats();
     drawCharts();
     var lastW = window.innerWidth, timer;
     window.addEventListener('resize', function () { clearTimeout(timer); timer = setTimeout(function () { if (window.innerWidth !== lastW) { lastW = window.innerWidth; drawCharts(); } }, 120); });

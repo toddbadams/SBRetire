@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "generated": "2026-10-18T00:00:00+00:00",
   "synthetic": true,
   "folder": "oct-26",
@@ -1143,6 +1143,133 @@
       "fees_gbp": 0.0,
       "tax_withheld_gbp": 0.0
     }
+  },
+  "account_returns": {
+    "available": true,
+    "accounts": [
+      {
+        "account": "brokerage",
+        "currency": "USD",
+        "available": false,
+        "reason": "cannot value: EXC (no price series)",
+        "start": null,
+        "end": null,
+        "start_value": null,
+        "end_value": null,
+        "net_flows": null,
+        "twr": null,
+        "mwr_period": null,
+        "mwr_annual": null,
+        "points": []
+      },
+      {
+        "account": "sipp_1",
+        "currency": "GBP",
+        "available": true,
+        "reason": null,
+        "start": "2026-09-30",
+        "end": "2026-10-18",
+        "start_value": 12580.90875,
+        "end_value": 24000.0,
+        "net_flows": 0,
+        "twr": 0.9076523387072495,
+        "mwr_period": 0.9076523387072495,
+        "mwr_annual": null,
+        "points": [
+          {
+            "date": "2026-09-30",
+            "value": 12580.90875,
+            "external_flow": 0.0,
+            "return": null
+          },
+          {
+            "date": "2026-10-18",
+            "value": 24000.0,
+            "external_flow": 0,
+            "return": 0.9076523387072495
+          }
+        ]
+      },
+      {
+        "account": "isa",
+        "currency": "GBP",
+        "available": true,
+        "reason": null,
+        "start": "2026-09-30",
+        "end": "2026-10-18",
+        "start_value": 8175.76,
+        "end_value": 20800.0,
+        "net_flows": 0,
+        "twr": 1.5441059913696096,
+        "mwr_period": 1.5441059913696091,
+        "mwr_annual": null,
+        "points": [
+          {
+            "date": "2026-09-30",
+            "value": 8175.76,
+            "external_flow": 0.0,
+            "return": null
+          },
+          {
+            "date": "2026-10-18",
+            "value": 20800.0,
+            "external_flow": 0,
+            "return": 1.5441059913696096
+          }
+        ]
+      },
+      {
+        "account": "pension",
+        "currency": "GBP",
+        "available": false,
+        "reason": "cannot value: Example Target 2035 Fund - Accumulation (no price series)",
+        "start": null,
+        "end": null,
+        "start_value": null,
+        "end_value": null,
+        "net_flows": null,
+        "twr": null,
+        "mwr_period": null,
+        "mwr_annual": null,
+        "points": []
+      },
+      {
+        "account": "sipp_2",
+        "currency": "GBP",
+        "available": false,
+        "reason": "cannot value: EXB (no price series)",
+        "start": null,
+        "end": null,
+        "start_value": null,
+        "end_value": null,
+        "net_flows": null,
+        "twr": null,
+        "mwr_period": null,
+        "mwr_annual": null,
+        "points": []
+      }
+    ],
+    "household": {
+      "account": "household",
+      "currency": "GBP",
+      "available": false,
+      "reason": "every account must be fully valued (and USD needs the GBP=X file) to combine the household",
+      "start": null,
+      "end": null,
+      "start_value": null,
+      "end_value": null,
+      "net_flows": null,
+      "twr": null,
+      "mwr_period": null,
+      "mwr_annual": null,
+      "points": []
+    },
+    "unmatched": [
+      {
+        "account": "sipp_2",
+        "security": "EXB"
+      }
+    ]
   },
   "warnings": [
     "strategy.yaml is dated 2025-06-30, more than 12 months before the 2026-10-18 valuation; update it from the fund's latest factsheet",

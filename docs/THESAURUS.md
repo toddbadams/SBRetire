@@ -167,6 +167,12 @@ suffix, bare unqualified `Service`, `confidence interval` (for success probabili
 - **Synonyms to AVOID**: safe withdrawal rate, max spend
 - **Related terms**: Budget, Confidence Level, Common Random Numbers
 
+### Money-Weighted Return
+- **Definition**: An Account's (or the household's) internal rate of return since the first export: the rate at which the starting value plus every External Flow grows to today's value (portfolio-data §28). Shown for the period, and a year when the period is at least a year.
+- **NOT**: The Time-Weighted Return; a forecast.
+- **Synonyms to AVOID**: IRR in prose (fine as the method), personal return (vague)
+- **Related terms**: Time-Weighted Return, External Flow, Ledger
+
 ### Monte Carlo Standard Error
 - **Definition**: sqrt(p(1−p)/N) for a reported proportion, with its denominator stated (SPEC §11).
 - **Related terms**: Conservative Success Rate
@@ -251,6 +257,12 @@ suffix, bare unqualified `Service`, `confidence interval` (for success probabili
 - **NOT**: A recommendation; within-account trades only approximate it.
 - **Synonyms to AVOID**: optimal mix, model portfolio
 - **Related terms**: Efficient Frontier, Priced Sleeve
+
+### Time-Weighted Return
+- **Definition**: An Account's return since the first export with the effect of External Flows removed: monthly Modified Dietz returns on month-end values rebuilt from the Ledger, chained (portfolio-data §28).
+- **NOT**: The Back-test (today's mix applied to the past) or the Money-Weighted Return.
+- **Synonyms to AVOID**: performance (too broad), TWRR
+- **Related terms**: Money-Weighted Return, Back-test, Ledger
 
 ### Today's GBP
 - **Definition**: Purchasing-power terms at the As-Of Date; fields suffixed `_today` are in this unit. Internally the engine computes nominal GBP.

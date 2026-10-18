@@ -638,6 +638,36 @@ two pages link to each other.
 
 The sample in `docs/design/sample/portfolio/` is synthetic (`uv run python scripts/build_portfolio_design_sample.py`).
 
+### What the accounts actually returned
+
+```bash
+uv run sbretire portfolio account-returns
+```
+
+This measures each account's real returns since its first transaction export, not a back-test. It works like this:
+
+1. It rebuilds every month-end value backwards from today's holdings. It undoes each later trade, fee, dividend
+   and deposit from `ledger.csv`.
+2. It values those month-ends with the price files.
+3. It reports two returns:
+   - **time-weighted**: the investments' own performance, as if no money had gone in or out (monthly
+     Modified Dietz, chained);
+   - **money-weighted**: the household's own result, including when contributions, tax relief and transfers
+     arrived (the internal rate of return).
+
+Each account is measured in its own currency (Schwab in dollars); the household is measured in pounds at each
+month's GBP=X rate. Periods under a year are not annualised.
+
+An account is measured only when every security it held at each month-end can be priced. Otherwise it says which
+securities and months are missing.
+
+Transactions are matched to price series automatically, by symbol or by name ignoring share-class words. Any that
+are not matched are listed. Add their exact `ledger.csv` names to the series as
+`ledger_names: ["…"]` in `securities.yaml`.
+
+It writes `output/portfolio/account_returns.csv` (`account`, `date`, `value`, `external_flow`, `return`), and
+`portfolio report` shows the same on the Portfolio page under "Actual returns".
+
 ## Development
 
 **VS Code:** open the `C:\sb\SBRetire` folder and accept the recommended extensions (Python, Ruff, Mypy). The

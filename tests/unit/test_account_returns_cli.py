@@ -1,4 +1,4 @@
-"""F-031.4 — ``sbretire portfolio account-returns``, account_returns.csv and portfolio.json 1.1 (synthetic)."""
+"""F-031.4 — ``sbretire portfolio account-returns``, account_returns.csv and portfolio.json 1.1."""
 
 from __future__ import annotations
 

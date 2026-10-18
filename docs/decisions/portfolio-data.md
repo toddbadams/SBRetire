@@ -310,3 +310,56 @@ and a benchmark are not in 1.0. (F-030)
 **Why**: one versioned contract for the page and any later tool; the page must appear from the very first export,
 saying plainly what each part still needs.
 
+## 26. Transactions are matched to price series automatically, with `ledger_names` as the override
+
+Within each account a ledger security takes a price series in this order:
+1. a series whose `ledger_names` list (in `securities.yaml`, for the accounts its `holdings` name) holds the
+   row's `security_key` or `security_name`;
+2. the account's holding with the same security key (Schwab and ii symbols);
+3. the account's holding with the same normalised name: lower case, punctuation removed, and trailing
+   share-class words (acc, accumulation, inc, income, dist, shares, class, gbp, usd, fund) and single letters
+   dropped.
+
+A matched holding brings the series that prices it. Anything unmatched is listed, and it makes its account
+unavailable, because its units today are unknown. (F-031)
+
+**Why**: HL and Vanguard name securities differently in transactions and holdings. Automatic matching covers
+most of them, and an explicit list fixes the rest without guessing (user, 2026-10-18).
+
+## 27. Month-end values are rebuilt backwards from today and priced in the account's currency
+
+At each month-end *m* of the span:
+- units of a series = today's units − every later `quantity_change`;
+- cash = today's cash − every later `cash_change`.
+
+The span runs from the month-end before the earliest ledger row (across all accounts) to the last complete month
+before the export folder's month, then to the newest valuation date, whose value is today's valuation.
+
+Prices are the series' month-end closes converted to the account's currency: GBX ÷ 100; USD into GBP × that
+month's GBP=X rate, and back. A held security with no matched series, no price that month or no needed rate makes
+the account **unavailable**, and its reason names the security and month. (F-031)
+
+**Why**: the exports contain no opening positions (epic). Rebuilding from today keeps every figure tied to
+what the providers report now. Refusing to guess keeps the returns honest (user, 2026-10-18).
+
+## 28. Time-weighted by chained Modified Dietz, money-weighted by IRR; accounts in their own currency
+
+External flows are the ledger rows with `flow: external`, positive into the account. Dividends, interest, fees
+and internal transfers count as return.
+
+- **Time-weighted:** each sub-period (month-end to month-end, the last ending at the valuation date) returns
+  `(V₁ − V₀ − F) / (V₀ + Σ wᵢFᵢ)`, where `wᵢ` is the share of the period left after each flow. The sub-periods are
+  chained.
+- **Money-weighted:** the annual rate solving `−V₀ − ΣFᵢ(1+r)^(−tᵢ) + V_end(1+r)^(−T) = 0`, with years = days ÷
+  365. It is solved for `ln(1+r)` by bracketing, so short, steep periods converge. It is shown as the period's
+  return, and annualised only when the period is at least a year.
+
+Each account is measured in its own currency. The household is measured in GBP, at each month's GBP=X rate and at
+today's rate for the valuation date. The household is unavailable unless every account is available.
+
+`sbretire portfolio account-returns` prints the table and the reasons and writes `account_returns.csv`.
+`portfolio.json` 1.1 adds `account_returns`, which the page shows as "Actual returns". (F-031)
+
+**Why**: time-weighted measures the investments, money-weighted the household's result including its timing.
+Keeping Schwab in dollars keeps currency moves out of its own figure (user, 2026-10-18).
+
