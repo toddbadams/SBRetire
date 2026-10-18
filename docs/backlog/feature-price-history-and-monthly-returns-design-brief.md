@@ -172,7 +172,7 @@ def coverage(...) -> Coverage: ...  # full / short / gaps / missing, with GBP va
 2026-10-18 ledger/returns.py (MonthlyReturn, add_months, window, gbp_returns: GBX ÷ 100, USD via the FX series, dividends, missing months give no value and no return into or out of them); tests/unit/test_returns_gbp.py (closed-form cases).
 
 ### F-026.3 Coverage and `sbretire portfolio returns`
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-026.2
 
 Coverage (full, short, gaps, missing, with value shares from the valuation), `returns.csv`,

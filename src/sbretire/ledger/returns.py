@@ -75,3 +75,7 @@ def gbp_returns(
         rows.append(MonthlyReturn(month, series.id, now, dividend, total, prices.basis))
         month = add_months(month, 1)
     return rows
+
+
+def build_returns(*args: object, **kwargs: object) -> object:
+    raise NotImplementedError
