@@ -1,0 +1,50 @@
+# Example account list for `sbretire portfolio import` — values are ILLUSTRATIVE ONLY.
+# Copy to config/accounts.yaml (git-ignored) and edit. Each month's exports go in data/transactions/<mon>-<yy>/
+# (e.g. oct-26/); file patterns are matched inside that folder (* and ? wildcards).
+
+accounts:
+  - id: brokerage
+    name: Example US brokerage
+    provider: schwab               # parser: schwab | hl | vanguard | ii
+    owner: person_1                # a person id from the model config
+    wrapper: taxable               # taxable | isa | pension | sipp
+    currency: USD
+    transactions: ["schwab.csv"]
+    holdings: ["schwab-*Positions-*.csv"]
+
+  - id: sipp_1
+    name: Example SIPP (person 1)
+    provider: hl
+    owner: person_1
+    wrapper: sipp
+    currency: GBP
+    transactions: ["hl.csv"]
+    holdings: ["hl-account-summary.csv"]
+
+  - id: isa
+    name: Example Stocks & Shares ISA
+    provider: vanguard
+    owner: person_2
+    wrapper: isa
+    currency: GBP
+    transactions: ["vanguard_isa.csv"]
+    holdings: ["vanguard-holdings*.csv"]
+    filter: ISA                    # optional: keep only rows whose Account column equals this
+
+  - id: pension
+    name: Example personal pension
+    provider: vanguard
+    owner: person_2
+    wrapper: pension
+    currency: GBP
+    transactions: ["vanguard_pension.csv"]
+    holdings: ["vanguard-holdings*.csv"]
+
+  - id: sipp_2
+    name: Example SIPP (person 2)
+    provider: ii
+    owner: person_2
+    wrapper: sipp
+    currency: GBP
+    transactions: ["ii.csv"]
+    holdings: ["ii_holdings.csv"]

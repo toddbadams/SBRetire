@@ -2,7 +2,7 @@
 id: F-024
 type: feature
 parent: portfolio-analysis
-status: planned
+status: in-progress
 complexity: 6
 created: 2026-10-18
 updated: 2026-10-18
@@ -150,9 +150,10 @@ Provider type maps (each unknown value raises `UnknownTransaction`):
 | Schwab | Foreign Tax Paid; ADR Mgmt Fee | tax_withheld; fee |
 | Schwab | Cash Merger; Cash Merger Adj | corporate_action (cash leg; units removed) |
 | Schwab | MoneyLink Transfer | transfer_out / transfer_in by sign, flow external |
-| HL | "<name> <qty> @ <price>" | buy (value < 0) / sell (value > 0) |
-| HL | "Interest From … TO …" | interest |
-| HL | "Transfer from Income Account"; "HL SIPP To A/C …" | internal_transfer, flow internal |
+| HL | reference `B…` / `S…` ("<name> <qty> @ <price>") | buy / sell |
+| HL | reference `INTEREST` ("Interest From … TO …") | interest |
+| HL | reference `Transfer` ("Transfer from Income Account") | internal_transfer, flow internal |
+| HL | reference `MANAGE FEE` ("HL SIPP To A/C …") | fee |
 | Vanguard | Buy; Sell (Fee) | buy; sell (units sold to pay a fee) |
 | Vanguard | Account Fee; Interest | fee; interest |
 | Vanguard | Deposit; Contribution; Tax Relief | contribution, contribution, tax_relief; flow external |
@@ -184,10 +185,22 @@ Provider type maps (each unknown value raises `UnknownTransaction`):
 
 ## 9. Surprises
 
+- 2026-10-18 — The real exports (digits masked) differ from the brief's first reading:
+  - **HL:** the `Reference` column says what a row is: `B…` buy, `S…` sell, `INTEREST`, `Transfer` (from the SIPP
+    income account) and `MANAGE FEE`. "HL SIPP To A/C …" is the **management fee**, not an internal transfer; the
+    type map above was corrected before the code.
+  - **Vanguard:** the transactions come as one file per account. Only the holdings export is shared, so `filter`
+    is optional.
+  - **Encodings:** Vanguard transactions are Windows-1252 (`®`) while Vanguard holdings are UTF-8, so files are
+    decoded as UTF-8 first and fall back to Windows-1252.
+  - **Row order:** Schwab and ii list rows newest first; Vanguard oldest first. Running balances are checked in
+    date order, with the opening balance inferred from the first stated balance (Vanguard's history starts
+    mid-way).
+
 ## 10. Tasks
 
 ### F-024.1 Accounts config and month folders
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: —
 
 `ledger/accounts.py` (strict pydantic, located errors like `config.py`), `config/accounts.example.yaml`,

@@ -19,7 +19,7 @@ Features in build order. Status: `proposed` → `briefed` → `in-progress` → 
 | F-021 | Named Runs and results.json | [results-viewer](results-viewer.md) | F-020 | done |
 | F-022 | HTML Results Viewer | [results-viewer](results-viewer.md) | F-021 | done |
 | F-023 | Print and PDF | [results-viewer](results-viewer.md) | F-022 | in-progress |
-| F-024 | Account Import and Normalised Ledger | [portfolio-analysis](portfolio-analysis.md) | — | briefed |
+| F-024 | Account Import and Normalised Ledger | [portfolio-analysis](portfolio-analysis.md) | — | in-progress |
 | F-025 | Holdings Valuation and Starting Balance | [portfolio-analysis](portfolio-analysis.md) | F-024 | proposed |
 | F-026 | Price History and Monthly Returns | [portfolio-analysis](portfolio-analysis.md) | F-024 | proposed |
 | F-027 | Performance and Drawdown Report | [portfolio-analysis](portfolio-analysis.md) | F-025, F-026 | proposed |
