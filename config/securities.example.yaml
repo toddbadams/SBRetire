@@ -3,6 +3,8 @@
 # Price files: Yahoo Finance "Historical data" downloads as they are (Date,Open,High,Low,Close,Adj Close,Volume),
 # or any file with Date,Close and an optional Dividend column (cash per unit paid on that date).
 
+risk_free_rate: 0.04                 # UK Bank Rate as a fraction, for Sharpe ratios
+
 fx:
   USD: GBP=X.csv                     # GBP per US dollar (Yahoo ticker GBP=X)
 

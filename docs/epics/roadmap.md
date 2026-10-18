@@ -26,6 +26,7 @@ Features in build order. Status: `proposed` → `briefed` → `in-progress` → 
 | F-028 | Sector and Region Look-Through | [portfolio-analysis](portfolio-analysis.md) | F-025 | proposed |
 | F-029 | Sharpe Efficient Frontier and Re-Weighting Analysis | [portfolio-analysis](portfolio-analysis.md) | F-026, F-027 | proposed |
 | F-030 | Portfolio Page in the Viewer | [portfolio-analysis](portfolio-analysis.md) | F-025, F-027, F-028, F-029 | proposed |
+| F-031 | Account Returns from the Ledger | [portfolio-analysis](portfolio-analysis.md) | F-024, F-025, F-026 | proposed |
 | F-005 | Random Streams and Run Metadata | [foundations](foundations.md) | F-001 | done |
 | F-006 | Stochastic Inflation Process and CPI Calibration | [stochastic-inputs](stochastic-inputs.md) | F-003, F-004, F-005 | done |
 | F-007 | ONS Mortality Data Ingest and Mapping | [stochastic-inputs](stochastic-inputs.md) | F-001 | done |
@@ -121,6 +122,7 @@ Features in build order. Status: `proposed` → `briefed` → `in-progress` → 
 Unmapped requirements: **none**.
 
 ## Change Log
+- 2026-10-18 — Added F-031 Account Returns from the Ledger (proposed): account TWR/MWR split from F-027 by the user.
 
 - 2026-10-18 — F-027 briefed: tasks F-027.1…F-027.4 (risk_free_rate, metrics, back-test of today's weights with re-weighting, `sbretire portfolio performance`); account TWR/MWR deferred to F-031.
 - 2026-10-18 — F-026 done: `sbretire portfolio returns` reads user-supplied price files (Yahoo downloads or Date,Close[,Dividend]) mapped by `data/prices/securities.yaml`, writes 60 monthly GBP total returns per series (`returns.csv`, `returns_metadata.json` with SHA-256) and a coverage report with value shares; decisions portfolio-data §11–§14.

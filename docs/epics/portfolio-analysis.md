@@ -12,6 +12,7 @@ milestones:
   - { id: F-028, title: Sector and Region Look-Through, status: proposed }
   - { id: F-029, title: Sharpe Efficient Frontier and Re-Weighting Analysis, status: proposed }
   - { id: F-030, title: Portfolio Page in the Viewer, status: proposed }
+  - { id: F-031, title: Account Returns from the Ledger, status: proposed }
 created: 2026-10-18
 updated:
   - 2026-10-18: created from the user's request to import account transaction histories and analyse the portfolio
@@ -99,6 +100,7 @@ page says so, and every suggested change shows what it trades off.
 | F-028 | Sector and Region Look-Through | Factsheet weights per fund, sectors of single stocks; household exposure by sector, region, asset class, currency; top look-through exposures | F-025 |
 | F-029 | Sharpe Efficient Frontier and Re-Weighting Analysis | Frontier on current holdings (long-only, capped); min-variance and max-Sharpe mixes; trades and estimated costs; estimation caveats | F-026, F-027 |
 | F-030 | Portfolio Page in the Viewer | `portfolio.json` + schema; Portfolio page from the Claude Design hand-off; Save as PDF | F-025, F-027, F-028, F-029 |
+| F-031 | Account Returns from the Ledger | Month-end account values rebuilt from today's holdings back through the ledger and prices (with a transaction-to-holding name map for HL and Vanguard); time-weighted (chained Modified Dietz) and money-weighted (XIRR) returns per account and household since the first export. Split from F-027 (user, 2026-10-18) | F-024, F-025, F-026 |
 
 ## Format notes from the October 2026 exports
 

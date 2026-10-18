@@ -167,3 +167,35 @@ date, rows and basis) are written. (F-026)
 **Why**: the household adds price files a few at a time (user, 2026-10-18); showing what share of the money each
 gap affects says which files matter most, and the hashes make later analyses reproducible (SPEC §10.3).
 
+## 15. Performance figures are defined once
+
+Over n monthly returns `r_t`: the **annual return** is `Π(1 + r_t)^(12/n) − 1`; the **annual volatility** is the
+sample standard deviation (n − 1) × √12; the **Sharpe ratio** is `12 × mean(r_t − r_f) / (√12 × sd)`, with
+`r_f = (1 + R)^(1/12) − 1` from the annual risk-free rate `R`, and is undefined (`n/a`) when the standard deviation
+is zero. The **maximum drawdown** is the largest fall of the wealth index (1 before the first month, × (1 + r_t)
+each month) below its previous peak, reported with the peak, trough and first recovery month (none if not
+regained). **Rolling 12 months**: the compounded return and annualised volatility of each 12-month run, from the
+12th month. A series with fewer than 12 returns shows no volatility or Sharpe. (F-027)
+
+**Why**: standard definitions, stated so every page and later feature (F-029, F-030) uses the same figures.
+
+## 16. The back-test applies today's weights to past returns, re-weighting over gaps
+
+Weights are today's GBP values from the newest folder's valuation: each series' holdings and all cash. Holdings in
+no series (or whose series has no file) are left out. Each month counts only the series with a return that month;
+they and the cash are rescaled to 100%, and cash earns the monthly risk-free rate. Each month's **covered share**
+(counted value ÷ today's household value) is reported. With nothing priced the back-test is all cash.
+`sbretire portfolio performance` prints the figures with the note that they are historical, not a forecast or
+advice, and writes `performance.csv` and `performance_series.csv` (columns in the README). (F-027)
+
+**Why**: the user chose re-weighting over a shorter common window or dropping short histories (2026-10-18);
+showing the covered share keeps the gaps visible.
+
+## 17. The risk-free rate is one annual figure in the securities map
+
+`risk_free_rate` (a fraction, 0 ≤ R < 0.2) at the top of `data/prices/securities.yaml`; `--risk-free R` overrides
+it for one run; with neither, the command exits 2 naming `risk_free_rate`. (F-027)
+
+**Why**: a single UK Bank Rate figure (epic), kept next to the price files it is used with (user, 2026-10-18).
+Account-level time- and money-weighted returns since the first export are deferred to F-031 (user, 2026-10-18).
+

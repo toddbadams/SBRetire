@@ -173,7 +173,7 @@ The command: weights from the valuation, the summary (with the "historical, not 
 2026-10-18 ReturnsReport gains series_values, series_names, cash_gbp, total_gbp, risk_free_rate; ledger/performance.py build_performance, write_performance_csvs, format_performance; `sbretire portfolio performance` (shared _returns_report with portfolio returns); tests/unit/test_performance_cli.py. Real holdings: all cash at the risk-free rate (no price files yet), exit 0.
 
 ### F-027.4 Docs, F-031 and a local run
-- **Status**: To Do
+- **Status**: Verification
 - **Depends on**: F-027.3
 
 README section, THESAURUS (Back-test, Drawdown, Sharpe Ratio, sorted), `docs/decisions/portfolio-data.md` §15–§17,
@@ -181,8 +181,11 @@ README section, THESAURUS (Back-test, Drawdown, Sharpe Ratio, sorted), `docs/dec
 (proposed), local run.
 
 **Acceptance criteria**
-- [ ] README documents `portfolio performance` and `risk_free_rate`; THESAURUS defines Back-test, Drawdown and Sharpe Ratio in order; decisions recorded; F-031 is on the roadmap and in the epic — `check: grep -n "portfolio performance" README.md docs/decisions/portfolio-data.md && grep -n "F-031" docs/epics/roadmap.md docs/epics/portfolio-analysis.md`
-- [ ] On the real holdings the command runs (all cash while no price files exist, reported), exit 0 (run locally; never committed) — `check: uv run sbretire portfolio performance --usd-gbp 0.7503 --risk-free 0.04`
+- [x] README documents `portfolio performance` and `risk_free_rate`; THESAURUS defines Back-test, Drawdown and Sharpe Ratio in order; decisions recorded; F-031 is on the roadmap and in the epic — `check: grep -n "portfolio performance" README.md docs/decisions/portfolio-data.md && grep -n "F-031" docs/epics/roadmap.md docs/epics/portfolio-analysis.md`
+- [x] On the real holdings the command runs (all cash while no price files exist, reported), exit 0 (run locally; never committed) — `check: uv run sbretire portfolio performance --usd-gbp 0.7503 --risk-free 0.04`
+
+**Notes**
+2026-10-18 README 'Performance and drawdown of today's mix', config/securities.example.yaml risk_free_rate, THESAURUS (Back-test, Drawdown, Sharpe Ratio; 43 terms sorted), docs/decisions/portfolio-data.md §15–§17, roadmap and epic F-031 'Account Returns from the Ledger' (proposed). Real run: all cash at the risk-free rate with no price files, exit 0.
 
 ## 11. Open Questions
 

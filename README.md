@@ -509,6 +509,36 @@ Missing files never stop it (exit 0); add them a few at a time. It writes `outpu
 and each price file's SHA-256 and dates). Exit 2: an invalid `securities.yaml` (with the YAML location) or a
 price file without a `Date` and `Close`/`Adj Close` column.
 
+### Performance and drawdown of today's mix
+
+Add the risk-free rate (UK Bank Rate, as a fraction) to the top of `data/prices/securities.yaml`:
+
+```yaml
+risk_free_rate: 0.04
+```
+
+then run:
+
+```bash
+uv run sbretire portfolio performance
+```
+
+It applies **today's weights** (each series' share of today's value, plus cash) to the last `--months` (default 60)
+monthly returns: a back-test of the current mix, **not a forecast or advice**. Each month uses the series that
+have a return that month, rescaled with the cash to 100%; cash earns the risk-free rate, and the report says how
+much of today's value each month covered. It prints:
+
+- **annual return** (the months compounded), **annual volatility** (monthly standard deviation × √12) and the
+  **Sharpe ratio** (annual excess return over the risk-free rate ÷ volatility);
+- the **maximum drawdown**: the largest fall from a previous high, with the months it peaked, bottomed and
+  recovered;
+- the same figures for each price series (volatility and Sharpe only with at least 12 months).
+
+`--risk-free 0.045` overrides the file for one run; with neither it stops (exit 2). It writes
+`output/portfolio/performance.csv` (`month`, `portfolio_return`, `wealth_index`, `drawdown`, `covered_share`,
+`rolling_12m_return`, `rolling_12m_volatility`) and `performance_series.csv` (`series`, `name`, `weight`, `months`,
+`annual_return`, `annual_volatility`, `sharpe`, `max_drawdown`). Until price files exist the back-test is all cash.
+
 ## Development
 
 **VS Code:** open the `C:\sb\SBRetire` folder and accept the recommended extensions (Python, Ruff, Mypy). The

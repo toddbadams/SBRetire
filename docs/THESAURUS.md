@@ -25,6 +25,12 @@ suffix, bare unqualified `Service`, `confidence interval` (for success probabili
 - **Synonyms to AVOID**: start date (collides with Income Stream `start_date`), run date
 - **Related terms**: Today's GBP, Simulation Month
 
+### Back-test
+- **Definition**: Today's portfolio mix (each Price Series' share of today's value, plus cash at the risk-free rate) applied to past Monthly Returns, month by month, re-weighted over the series that have a return each month (portfolio-data §16).
+- **NOT**: The household's actual past performance (that needs past holdings: F-031), or a forecast.
+- **Synonyms to AVOID**: simulation (the model's Monte Carlo is the simulation), track record
+- **Related terms**: Monthly Return, Drawdown, Sharpe Ratio
+
 ### Budget (Monthly Budget)
 - **Definition**: The base household spending per month expressed in *today's GBP* (`budget.monthly_amount_today`, symbol B_m). Nominal spending each month is B_m × I_t × F_t.
 - **NOT**: The nominal amount spent in a given month (that is *Required Spending*).
@@ -75,6 +81,12 @@ suffix, bare unqualified `Service`, `confidence interval` (for success probabili
 - **Definition**: The first month in which balance after return and income is less than *Required Spending*; the path fails, balance is set to zero and the *Shortfall* recorded. No negative balance compounds (SPEC §9). A depleted path is a Failed Path whatever happens later (simulation-conventions §7).
 - **Synonyms to AVOID**: bankruptcy, ruin, negative balance, going broke
 - **Related terms**: Shortfall, Probability Not Depleted Yet
+
+### Drawdown
+- **Definition**: The fall of the Back-test's wealth index below its previous peak, as a fraction; the maximum drawdown is the largest, with its peak, trough and recovery months (portfolio-data §15).
+- **NOT**: Depletion (the model running out of money) or a pension drawdown (income drawdown from a SIPP).
+- **Synonyms to AVOID**: loss (ambiguous), crash
+- **Related terms**: Back-test
 
 ### End-of-Life Reserve (Required End Balance)
 - **Definition**: An opt-in stricter success test (`budget.end_reserve_months`, R months). A Path meets it when it is Successful and its balance at *Household End* is at least the **Required End Balance** R × *Budget* × I_d — the Budget in today's GBP inflated to the Household End month d. A Path that ends below it counts as Failed for the reserve metrics (optimization §3).
@@ -189,6 +201,12 @@ suffix, bare unqualified `Service`, `confidence interval` (for success probabili
 - **Definition**: One validated YAML configuration — the full set of assumptions for a run.
 - **Synonyms to AVOID**: case, profile, path
 - **Related terms**: Path
+
+### Sharpe Ratio
+- **Definition**: Annualised mean excess Monthly Return over the monthly risk-free rate divided by annualised volatility: `12 × mean(r − r_f) / (√12 × sd(r))` (portfolio-data §15). Undefined when volatility is zero.
+- **NOT**: A measure of future performance.
+- **Synonyms to AVOID**: risk-adjusted return (too vague)
+- **Related terms**: Back-test, Monthly Return
 
 ### Shortfall
 - **Definition**: Unmet Required Spending in the month of Depletion.
