@@ -148,13 +148,16 @@ What to build:
 2026-10-18 SecuritiesConfig.max_weight (0 < w ≤ 1, default 0.25); accounts.TradingCosts and AccountConfig.trading; accounts.validation_issues (drops pydantic's redundant 'too short' for lists whose items failed; now shared by accounts, prices and exposure); ledger/frontier.py ledoit_wolf, Estimates, estimate (priced sleeve = full-window series with a value today); tests/unit/test_frontier_estimates.py (2).
 
 ### F-029.2 Optimiser
-- **Status**: In Progress
+- **Status**: Verification
 - **Depends on**: F-029.1
 
 `min_variance`, `frontier`, `max_sharpe`, `max_return_at`. §2 #4.
 
 **Acceptance criteria**
-- [ ] Two uncorrelated assets give the closed-form minimum-variance weights; a cap of 0.6 binds when the closed form exceeds it; frontier points are feasible (sum 1, 0 ≤ w ≤ cap) with non-decreasing volatility and return; max Sharpe is at least every frontier point's Sharpe; the same-risk mix has volatility ≤ the given level and the highest return among frontier points within it; a cap with `cap × n < 1` raises — `test_optimiser_known_answers`
+- [x] Two uncorrelated assets give the closed-form minimum-variance weights; a cap of 0.6 binds when the closed form exceeds it; frontier points are feasible (sum 1, 0 ≤ w ≤ cap) with non-decreasing volatility and return; max Sharpe is at least every frontier point's Sharpe; the same-risk mix has volatility ≤ the given level and the highest return among frontier points within it; a cap with `cap × n < 1` raises — `test_optimiser_known_answers`
+
+**Notes**
+2026-10-18 ledger/frontier.py Mix, mix (Sharpe uses 12 × monthly risk-free, consistent with F-027), _check_cap (≥ 2 series, cap × n ≥ 1), SLSQP _solve from several deterministic starts, min_variance, greedy max-return under the cap, frontier, max_sharpe (never below a frontier point), max_return_at; tests/unit/test_frontier_optimiser.py (pairwise lint fixed after the red commit).
 
 ### F-029.3 Trades, costs and sensitivity
 - **Status**: To Do

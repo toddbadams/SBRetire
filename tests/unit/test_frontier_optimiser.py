@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from itertools import pairwise
+
 import numpy as np
 import pytest
 
@@ -41,8 +43,8 @@ def test_optimiser_known_answers() -> None:
         assert (mix.weights >= -TOL).all() and (mix.weights <= cap + TOL).all()
     vols = [m.volatility for m in points]
     rets = [m.annual_return for m in points]
-    assert all(b >= a - TOL for a, b in zip(vols, vols[1:], strict=False))
-    assert all(b >= a - TOL for a, b in zip(rets, rets[1:], strict=False))
+    assert all(b >= a - TOL for a, b in pairwise(vols))
+    assert all(b >= a - TOL for a, b in pairwise(rets))
     assert rets[-1] == pytest.approx(0.6 * 0.10 + 0.4 * 0.07, abs=1e-6)  # highest return the cap allows
 
     best = max_sharpe(three, cap, rf)
