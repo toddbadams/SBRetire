@@ -170,7 +170,7 @@ class AccountReturn:
 2026-10-18 account_returns.py month_end, units_at, cash_at, price_in (GBX ÷ 100, USD↔GBP at the month's rate), rebuild (values in the account currency; unmatched ledger securities and unpriced held series listed). Any unmatched ledger security in the account is listed (today's units of an unmatched security are unknown), not only those held at a month-end — recorded in §9. Test assertion split for typing only.
 
 ### F-031.3 Time- and money-weighted returns
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-031.2
 
 `modified_dietz`, chaining, `xirr`, the household in GBP. §2 #5–#7.

@@ -159,3 +159,19 @@ def rebuild(
                 total += units * price_in(currency, quote, close, rate or 1.0)
         values.append((month, total))
     return values, missing
+
+
+def modified_dietz(*a: object) -> object:
+    raise NotImplementedError
+
+
+def returns_for(*a: object) -> object:
+    raise NotImplementedError
+
+
+def to_gbp(*a: object) -> object:
+    raise NotImplementedError
+
+
+def xirr(*a: object) -> object:
+    raise NotImplementedError
