@@ -148,7 +148,7 @@ What to build:
 2026-10-18 SecuritiesConfig.max_weight (0 < w ≤ 1, default 0.25); accounts.TradingCosts and AccountConfig.trading; accounts.validation_issues (drops pydantic's redundant 'too short' for lists whose items failed; now shared by accounts, prices and exposure); ledger/frontier.py ledoit_wolf, Estimates, estimate (priced sleeve = full-window series with a value today); tests/unit/test_frontier_estimates.py (2).
 
 ### F-029.2 Optimiser
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: F-029.1
 
 `min_variance`, `frontier`, `max_sharpe`, `max_return_at`. §2 #4.

@@ -89,3 +89,19 @@ def estimate(
     weights = np.array([values[s] for s in sleeve], dtype=np.float64)
     today = weights / weights.sum() if weights.size else weights
     return Estimates(sleeve, 12.0 * matrix.mean(axis=0), 12.0 * monthly_cov, shrinkage, today, matrix)
+
+
+def min_variance(*args: object, **kwargs: object) -> object:
+    raise NotImplementedError
+
+
+def frontier(*args: object, **kwargs: object) -> object:
+    raise NotImplementedError
+
+
+def max_sharpe(*args: object, **kwargs: object) -> object:
+    raise NotImplementedError
+
+
+def max_return_at(*args: object, **kwargs: object) -> object:
+    raise NotImplementedError
