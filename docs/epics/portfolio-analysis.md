@@ -12,7 +12,7 @@ milestones:
   - { id: F-028, title: Sector and Region Look-Through, status: done }
   - { id: F-029, title: Sharpe Efficient Frontier and Re-Weighting Analysis, status: done }
   - { id: F-030, title: Portfolio Page in the Viewer, status: done }
-  - { id: F-031, title: Account Returns from the Ledger, status: briefed }
+  - { id: F-031, title: Account Returns from the Ledger, status: in-progress }
 created: 2026-10-18
 updated:
   - 2026-10-18: created from the user's request to import account transaction histories and analyse the portfolio

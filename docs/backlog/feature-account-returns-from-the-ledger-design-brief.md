@@ -2,7 +2,7 @@
 id: F-031
 type: feature
 parent: portfolio-analysis
-status: planned
+status: in-progress
 complexity: 7
 created: 2026-10-18
 updated: 2026-10-18
@@ -142,7 +142,7 @@ class AccountReturn:
 ## 10. Tasks
 
 ### F-031.1 Matching ledger securities to price series
-- **Status**: To Do
+- **Status**: In Progress
 - **Depends on**: —
 
 `normalise_name`, `match_securities`, `SeriesConfig.ledger_names`. §2 #1.
